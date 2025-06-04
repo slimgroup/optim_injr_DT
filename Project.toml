@@ -16,7 +16,7 @@ SlimOptim = "e4c7bc62-5b23-4522-a1b9-71c2be45f1df"
 SlimPlotting = "f6d04670-764e-495b-a720-91c3c9a588ff"
 
 [compat]
-julia = "1.10.0"
+julia = "1.8.5"
 DrWatson = "2.15.0"
 Jutul = "=0.2.11"
 JutulDarcy = "=0.2.7"
