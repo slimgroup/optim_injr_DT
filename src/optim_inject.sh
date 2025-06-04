@@ -25,3 +25,5 @@ task_id=$SLURM_ARRAY_TASK_ID
 # Pin Julia to specific cores for each task
 # taskset -c $start_core-$end_core julia --project=. --threads=4 scripts/co2eor_compass.jl --idx_num $task_id
 julia src/optim_inject.jl --idx_num $task_id
+
+## commented sbatch --array=1-2 optim_inject.sh
