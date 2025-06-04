@@ -18,3 +18,6 @@ SlimPlotting = "f6d04670-764e-495b-a720-91c3c9a588ff"
 [compat]
 julia = "1.10.5"
 DrWatson = "2.15.0"
+Jutul = "=0.2.11"
+JutulDarcy = "=0.2.7"
+PrettyTables = "=2.2.3"
