@@ -3,11 +3,11 @@
 # injected amount.
 
 # Activate the project environment
-# using Pkg
-# Pkg.activate(".")
+using Pkg
+Pkg.activate(".")
 
 using DrWatson
-@quickactivate "optim_injr_DT" # <- project name
+# @quickactivate "optim_injr_DT" # <- project name
 
 using Pkg
 Pkg.instantiate()
