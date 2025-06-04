@@ -7,8 +7,10 @@ using JLD2
 # Set parameters consistent with how it was saved
 sim_name = "DT_control"
 exp_name = "step1" # which step to control in DT
-s = 1  # sample number
+s = 2  # sample number
 
+filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+s
 # Load all variables from file into a dictionary
 data = load(filepath)
 

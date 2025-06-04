@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # SLURM job options
-#SBATCH --job-name=co2eor_compass         # Job name
+#SBATCH --job-name=optim_injr_DT         # Job name
 #SBATCH --output=output_%j.txt            # Standard output file
 #SBATCH --error=error_%j.txt              # Standard error file
 #SBATCH --nodes=1                         # Number of nodes (1 node)
@@ -11,7 +11,6 @@
 #SBATCH --partition=cpu                   # Request to run in the CPU partition
 #SBATCH --gres=gpu:0                      # No GPU required
 ## commented SBATCH --nodelist=epyc[1-2]  # Request nodes epyc1 to epyc4
-
 
 # Load necessary modules
 module load Julia cudnn-11 nvhpc Miniconda/3
