@@ -5,8 +5,12 @@
 # Activate the project environment
 # using Pkg
 # Pkg.activate(".")
+
 using DrWatson
 @quickactivate "optim_injr_DT" # <- project name
+
+using Pkg
+Pkg.instantiate()
 
 using JutulDarcyRules
 using LinearAlgebra
