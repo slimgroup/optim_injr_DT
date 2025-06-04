@@ -6,7 +6,7 @@
 #SBATCH --error=error_%j.txt              # Standard error file
 #SBATCH --nodes=1                         # Number of nodes (1 node)
 #SBATCH --cpus-per-task=4                 # Number of CPUs per task (4 threads per simulation)
-#SBATCH --mem-per-cpu=16G                  # Memory per CPU (16GB per CPU)
+#SBATCH --mem-per-cpu=8G                  # Memory per CPU (16GB per CPU)
 #SBATCH --time=12:00:00                   # Max runtime (24 hours)
 #SBATCH --partition=cpu                   # Request to run in the CPU partition
 #SBATCH --gres=gpu:0                      # No GPU required
