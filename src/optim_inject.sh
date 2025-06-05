@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=32                # Number of CPUs per task 
 #SBATCH --mem=32G                         # Total memory
 #SBATCH --time=12:00:00                   # Max runtime 
-#SBATCH --partition=cpu                   # Request to run in the CPU partition
+## commented SBATCH --partition=cpu                   # Request to run in the CPU partition
 #SBATCH --gres=gpu:0                      # No GPU required
 
 # Load necessary modules
