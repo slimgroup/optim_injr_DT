@@ -9,7 +9,6 @@
 #SBATCH --time=12:00:00                   # Max runtime 
 #SBATCH --partition=cpu                   # Request to run in the CPU partition
 #SBATCH --gres=gpu:0                      # No GPU required
-## commented SBATCH --nodelist=epyc[1-2]  # Request nodes epyc1 to epyc4
 
 # Load necessary modules
 module load Julia/1.8/5 Miniconda/3
