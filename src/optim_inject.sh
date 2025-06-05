@@ -12,7 +12,7 @@
 ## commented SBATCH --nodelist=epyc[1-2]  # Request nodes epyc1 to epyc4
 
 # Load necessary modules
-module load Julia/1.8/5 cudnn-11 nvhpc Miniconda/3
+module load Julia/1.8/5 Miniconda/3
 
 # Dynamically assign CPU cores to each task based on the task ID
 task_id=$SLURM_ARRAY_TASK_ID
