@@ -15,12 +15,6 @@ module load Julia/1.8/5 Miniconda/3
 # Dynamically assign CPU cores to each task based on the task ID
 task_id=$SLURM_ARRAY_TASK_ID
 
-# Calculate the starting core for each task (this dynamically sets different cores for each task)
-# start_core=$(( (task_id - 1) * 4 )) # Each task uses 4 cores
-# end_core=$(( start_core + 3 ))      # 4 cores per task (task_id uses cores from start_core to end_core)
-
-# Pin Julia to specific cores for each task
-# taskset -c $start_core-$end_core julia --project=. --threads=4 scripts/co2eor_compass.jl --idx_num $task_id
 julia src/optim_inject.jl --idx_num $task_id
 
 ## commented sbatch --array=1-2 optim_inject.sh
