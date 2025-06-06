@@ -377,7 +377,7 @@ while obj == Inf
     obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, 
     obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
 
-    println("Iteration no: ",0,"; Objective function value: ", inj_rate)
+    println("Iteration no: ",0,"; Objective function value: ", obj)
 end 
 
 obj_arr[1] = obj
