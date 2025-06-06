@@ -49,12 +49,16 @@ d = (6.25, 100.0, 6.25)
 h = 0.0
 ϕ = 0.25
 
+cruyff_data_path_prefix = "/slimdata/jason/optim_injr_DT/data"
+
 # Load the geological properties and reservoir state variables
-geo_path = datadir("perm/wise_perm_models_2000_new.jld2")
+# geo_path = datadir("perm/wise_perm_models_2000_new.jld2")
+geo_path = joinpath(cruyff_data_path_prefix, "perm/wise_perm_models_2000_new.jld2")
 geo_data = JLD2.load(geo_path)
 BroadK = geo_data["BroadK"]
 
-state1_path = datadir("state/Wise128_state_t1_rtm1_broad_NL_SNR28.jld2")
+# state1_path = datadir("state/Wise128_state_t1_rtm1_broad_NL_SNR28.jld2")
+state1_path = joinpath(cruyff_data_path_prefix, "state/Wise128_state_t1_rtm1_broad_NL_SNR28.jld2")
 state1_data = JLD2.load(state1_path)
 
 # # for test, fix s to be 1
@@ -216,8 +220,15 @@ init_inj_rate = [0.0001]
 
 sim_name = "DT_control"
 exp_name = "step1"  
+cruyff_plot_path_prefix = "/slimdata/jason/optim_injr_DT/plots"
 
-plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6))
+plot_path = joinpath(
+    cruyff_data_path_prefix,
+    sim_name,
+    savename(@strdict(exp_name); digits=6)
+)
+
+# plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6))
 
 # Function to plot the states variables, including permeability, pressure, pressure with threshold, saturation and porosity
 function plot_state(data, title_str, file_suffix, plot_path, sample, h, n, d, type, iter=-1, threshold=-1)
@@ -473,8 +484,19 @@ for j=1:niterations
     # p = 1
     # grad_arr[j+1, :] = grad
 
+    cruyff_data_path_prefix = "/slimdata/jason/optim_injr_DT/data"
+
+    # Save states variable via samples
+    full_data_path = joinpath(
+        cruyff_data_path_prefix,
+        savename(@strdict(exp_name); digits=6),
+        savename(@strdict(s); digits=6),
+        savename(@strdict(j), "jld2"; digits=6)
+    )
+
     # Save states variable via iteration
-    @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
+    # @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
+    @tagsave(full_data_path,
     Dict(
         "sat_arr" => sat_arr,
         "pres_arr" => pres_arr, 
@@ -514,8 +536,18 @@ for j=1:niterations
 
 end
 
+# cruyff data path prefix 
+cruyff_data_path_prefix = "/slimdata/jason/optim_injr_DT/data"
+
+full_data_path = joinpath(
+    cruyff_data_path_prefix,
+    savename(@strdict(exp_name); digits=6),
+    savename(@strdict(s), "jld2"; digits=6)
+)
+
 # Save states variable via samples
-@tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8)),
+# @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8)),
+@tagsave(full_data_path,
 Dict(
     "inj_rate_arr" => inj_rate_arr,
     "step_arr" => step_arr,
