@@ -311,7 +311,7 @@ end
 p0 = (repeat(collect(1:256), 1, 512) * d[3] .+ h) * JutulDarcyRules.ρH2O * 10
 
 ## Set the fracture pressure 
-threshold = 5.0
+threshold = 3.0
 p_max = p0' .+ threshold * 10^6
 
 # Plot this part only s is 1, sample 1
