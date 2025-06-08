@@ -453,7 +453,7 @@ ls = BackTracking(order=3, iterations=10)
 
 step_arr = zeros(niterations)
 
-ex_step_size = 0.1
+ex_step_size = 0.05
 
 ## Main loop for the projected gradient descent
 for j=1:niterations
