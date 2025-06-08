@@ -223,7 +223,7 @@ exp_name = "step1"
 cruyff_plot_path_prefix = "/slimdata/jason/optim_injr_DT/plots"
 
 plot_path = joinpath(
-    cruyff_data_path_prefix,
+    cruyff_plot_path_prefix,
     sim_name,
     savename(@strdict(exp_name); digits=6)
 )
@@ -424,7 +424,19 @@ plot_state(transpose(pres_arr[60]), "Pressure Difference", "_presdiff60.png", pl
 
 # Save states variable at step 0
 j = 0
-@tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
+
+cruyff_data_path_prefix = "/slimdata/jason/optim_injr_DT/data"
+
+# Save states variable via samples
+full_data_path = joinpath(
+    cruyff_data_path_prefix,
+    savename(@strdict(exp_name); digits=6),
+    savename(@strdict(s); digits=6),
+    savename(@strdict(j), "jld2"; digits=6)
+)
+
+@tagsave(full_data_path,
+# @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
 Dict(
     "sat_arr" => sat_arr,
     "pres_arr" => pres_arr, 
@@ -541,6 +553,7 @@ cruyff_data_path_prefix = "/slimdata/jason/optim_injr_DT/data"
 
 full_data_path = joinpath(
     cruyff_data_path_prefix,
+    sim_name,
     savename(@strdict(exp_name); digits=6),
     savename(@strdict(s), "jld2"; digits=6)
 )
