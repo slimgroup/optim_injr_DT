@@ -364,6 +364,7 @@ println("Iteration no: ",0,"; Objective function value: ", obj)
 # before we do the optimization, first we do a sanity check for the injection rate
 # and also the reservoir setting
 while obj == Inf
+    global inj_rate, obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, obj_arr
 
     inj_rate .-= 0.05
 
