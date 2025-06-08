@@ -431,6 +431,7 @@ cruyff_data_path_prefix = "/slimdata/jason/optim_injr_DT/data"
 # Save states variable via samples
 full_data_path = joinpath(
     cruyff_data_path_prefix,
+    sim_name,
     savename(@strdict(exp_name); digits=6),
     savename(@strdict(s); digits=6),
     savename(@strdict(j), "jld2"; digits=6)
@@ -502,6 +503,7 @@ for j=1:niterations
     # Save states variable via samples
     full_data_path = joinpath(
         cruyff_data_path_prefix,
+        sim_name,
         savename(@strdict(exp_name); digits=6),
         savename(@strdict(s); digits=6),
         savename(@strdict(j), "jld2"; digits=6)
