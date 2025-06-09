@@ -4,7 +4,7 @@
 #SBATCH --job-name=optim_injr_DT              # Job name
 #SBATCH --output=output_DT_step1_t4_%a.txt    # Standard output file
 #SBATCH --error=error_DT_step1_t4_%a.txt      # Standard error file
-#SBATCH --cpus-per-task=64                    # Number of CPUs per task 
+#SBATCH --cpus-per-task=16                    # Number of CPUs per task 
 #SBATCH --mem=64G                             # Total memory
 #SBATCH --time=24:00:00                       # Max runtime 
 #SBATCH --gres=gpu:0                          # No GPU required
