@@ -18,4 +18,4 @@ task_id=$SLURM_ARRAY_TASK_ID
 
 julia src/optim_inject_cruyff.jl --idx_num $task_id
 
-## commented sbatch --array=1-2 optim_inject.sh
+## commented sbatch --array=1-2 optim_inject_cpu.sh
