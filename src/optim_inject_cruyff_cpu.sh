@@ -8,6 +8,7 @@
 #SBATCH --mem=64G                             # Total memory
 #SBATCH --time=24:00:00                       # Max runtime 
 #SBATCH --gres=gpu:0                          # No GPU required
+#SBATCH --partition=cpu                       # CPU parition
 
 # Load necessary modules
 module load Julia/1.8/5 Miniconda/3
