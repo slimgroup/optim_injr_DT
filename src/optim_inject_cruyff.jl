@@ -333,7 +333,7 @@ end
 ds = 10
 time_step = 80 / ds * ones(6 * ds)
 # 0.1 is the initial guess
-inj_rate = [0.1] 
+inj_rate = [0.05] 
 # finite difference h
 delta_inj_rate = 10^-8 * ones(size(inj_rate, 1))
 
@@ -377,7 +377,7 @@ println("Iteration no: ",0,"; Objective function value: ", obj)
 while obj == Inf
     global inj_rate, obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, obj_arr
 
-    inj_rate .-= 0.05
+    inj_rate .-= 0.025
 
     if inj_rate[1] < 0
         throw(ErrorException("Injection rate must be positive."))
