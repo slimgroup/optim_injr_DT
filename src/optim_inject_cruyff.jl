@@ -361,7 +361,7 @@ niterations = 20
 inj_rate_arr = zeros(Float64, niterations+1, size(inj_rate, 1))
 inj_rate_arr[1, :] = inj_rate
 # objective function value over optimization loop
-obj_arr = zeros(Float64, niterations+1)
+obj_arr_niter = zeros(Float64, niterations+1, 6)
 obj_1_arr = zeros(Float64, niterations+1, 6)
 obj_2_arr = zeros(Float64, niterations+1, 6)
 obj_arr_arr = zeros(Float64, niterations+1, 6)
@@ -393,7 +393,7 @@ while obj == Inf
     println("Iteration no: ",0,"; Objective function value: ", obj)
 end 
 
-obj_arr[1] = obj
+obj_arr_niter[1] = obj
 obj_1_arr[1, :] = obj_first
 obj_2_arr[1, :] = obj_second
 obj_arr_arr[1, :] = obj_arr
@@ -487,7 +487,7 @@ for j=1:niterations
 
     println("Iteration no: ",j,"; Objective function value: ",obj) 
 
-    obj_arr[j+1] = obj
+    obj_arr_niter[j+1] = obj
     obj_1_arr[j+1, :] = obj_first
     obj_2_arr[j+1, :] = obj_second
     obj_arr_arr[j+1, :] = obj_arr
@@ -567,7 +567,7 @@ full_data_path = joinpath(
 Dict(
     "inj_rate_arr" => inj_rate_arr,
     "step_arr" => step_arr,
-    "obj_arr" => obj_arr,
+    "obj_arr_niter" => obj_arr_niter,
     "obj_1_arr" => obj_1_arr, 
     "obj_2_arr" => obj_2_arr, 
     "obj_arr_arr" => obj_arr_arr,    
