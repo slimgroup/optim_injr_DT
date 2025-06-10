@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=32                    # Number of CPUs per task 
 #SBATCH --mem=32G                             # Total memory
 #SBATCH --time=24:00:00                       # Max runtime 
-#SBATCH --gres=gpu:1                          # No GPU required
+#SBATCH --gres=gpu:0                          # No GPU required
 
 # Load necessary modules
 module load Julia/1.8/5 Miniconda/3
