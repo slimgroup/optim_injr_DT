@@ -108,7 +108,6 @@ function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=not
     # smooth and steadily increasing injection strategy
     inj_rate = collect(range(init_inj_rate[1], inj_rate[1], 6))
 
-
     # time discretization
     ds = 10
     
@@ -225,7 +224,8 @@ cruyff_plot_path_prefix = "/slimdata/jason/optim_injr_DT/plots"
 plot_path = joinpath(
     cruyff_plot_path_prefix,
     sim_name,
-    savename(@strdict(exp_name); digits=6)
+    savename(@strdict(exp_name); digits=6),
+    "states"
 )
 
 # plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6))
