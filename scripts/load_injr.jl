@@ -39,9 +39,11 @@ num_sample = 128
 
 injr_arr = zeros(num_sample)
 
-for sample in 1:num_sample
+for s in 1:num_s
     
-    filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(sample), "jld2"; digits=8))
+    # filepath = datadir("forward_1", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+    filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+
 
     # Load all variables from file into a dictionary
     data = load(filepath)

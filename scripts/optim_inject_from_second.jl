@@ -1,6 +1,5 @@
-# Backtracking line search gradient descent optimization solver for geological
-# carbon storage. While staying away from fracture pressure, it maximize the CO2
-# injected amount.
+# This is small experiment for checking optimize the injection rate from the second step.
+# To compare with optimize for two steps together and optimize for two steps separately.
 
 # Activate the project environment
 using Pkg
@@ -57,13 +56,13 @@ BroadK = geo_data["BroadK"]
 state1_path = datadir("state/Wise128_state_t1_rtm1_broad_NL_SNR28.jld2")
 state1_data = JLD2.load(state1_path)
 
-# # for test, fix s to be 1
-# s = 1
+# work on sample 1
+s = 1
 
-# # Parse the command line arguments
-args = parse_commandline()
-s = args["idx_num"]
-# println("idx_num: ", s) 
+# # # Parse the command line arguments
+# args = parse_commandline()
+# s = args["idx_num"]
+# # println("idx_num: ", s) 
 
 # Permeability indices
 idices = state1_data["idx_t1"]
@@ -76,29 +75,38 @@ K = BroadK[idx, :, :]
 # Find injection location to be in the high permeability channel
 inj_t1 = 191 + argmax(K[250, 191:200]) - 1
 
-# Generate prior saturation        
-S = zeros(Float64, n[1],n[end]);
-Random.seed!(2025+s-1)  # Set the seed
-value = 0.2 + rand(Float64)*0.6;
-S[249:251,inj_t1-4] .= value;
-S[248:252,inj_t1-3] .= value;
-S[247:253,inj_t1-2] .= value;
-S[246:254,inj_t1-1] .= value;
-S[246:254,inj_t1]   .= value;
-S[246:254,inj_t1+1] .= value;
-S[247:253,inj_t1+2] .= value;
-S[248:252,inj_t1+3] .= value;
-S[249:251,inj_t1+4] .= value;
-prior_t1 = S;
+# # Generate prior saturation        
+# S = zeros(Float64, n[1], n[end]);
+# Random.seed!(2025+s-1)  # Set the seed
+# value = 0.2 + rand(Float64)*0.6;
+# S[249:251,inj_t1-4] .= value;
+# S[248:252,inj_t1-3] .= value;
+# S[247:253,inj_t1-2] .= value;
+# S[246:254,inj_t1-1] .= value;
+# S[246:254,inj_t1]   .= value;
+# S[246:254,inj_t1+1] .= value;
+# S[247:253,inj_t1+2] .= value;
+# S[248:252,inj_t1+3] .= value;
+# S[249:251,inj_t1+4] .= value;
+# prior_t1 = S;
+
+# s = 1
+j = 2
+exp_name = "step1"
+filepath = datadir("forward_1", "DT_control", savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6))
+data = load(filepath)
 
 # # initial saturation and pressure
-sat_init = S
+# sat_init = S
 # pres_init = water pressure
+
+sat_init = data["sat_arr"][60]
+pres_init = data["pres_arr"][60]
 
 # For other steps
 
 # MPC forward steps
-forward_step = 2
+forward_step = 1
 
 ## The objective function of the optimization problem
 function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=nothing, pres_init=nothing)
@@ -143,7 +151,9 @@ function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=not
             S = jutulModeling(model, time_step[1:ds])
             Trans = KtoTrans(CartesianMesh(model), K1to3(K; kvoverkh=0.36))    
             state0 = jutulSimpleState(model)
+            # initial saturation and pressure from the first step
             state0[1:n[1]*n[3]] = vec(sat_init)    
+            state0[n[1]*n[3]+1:end] = vec(pres_init)   
             @time states = S(log.(Trans), f; state0=state0)
             previous_state = states.states[end]
         else
@@ -216,9 +226,10 @@ function grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BH
 end
 
 # The initial injection rate
-init_inj_rate = [0.0001]
+# init_inj_rate = [0.0001]
+init_inj_rate = [0.0765625]
 
-sim_name = "DT_control"
+sim_name = "DT_compare_forward12"
 exp_name = "step1"  
 
 plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "states")
@@ -361,7 +372,7 @@ obj_arr_arr = zeros(Float64, niterations+1, forward_step * 6)
 # grad_arr = zeros(Float64, niterations+1, 1)
 
 obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, 
-obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
+obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init, pres_init)
 
 println("Iteration no: ",0,"; Objective function value: ", obj)
 
@@ -381,7 +392,7 @@ while obj == Inf
     end
 
     obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, 
-    obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
+    obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init, pres_init)
 
     println("Iteration no: ",0,"; Objective function value: ", obj)
 end 
@@ -392,7 +403,7 @@ obj_2_arr[1, :] = obj_second
 obj_arr_arr[1, :] = obj_arr
 
 # Assume gradient does not change over iteration
-grad = grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
+grad = grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init, pres_init)
 p = -grad/norm(grad, Inf)
 # grad_arr[1, :] = grad
 
@@ -450,12 +461,12 @@ ex_step_size = 0.05
 ## Main loop for the projected gradient descent
 for j=1:niterations
     # make the variables to be global
-    global inj_rate, p, time_step, K, inj_loc, p_max, BHP_max, ex_step_size, obj, grad, sat_init, init_inj_rate
+    global inj_rate, p, time_step, K, inj_loc, p_max, BHP_max, sat_init, pres_init, ex_step_size, obj, grad, init_inj_rate
 
     ## Linesearch
     function θ(α)
         misfit, _, _, _, _, _, _, _, 
-        _ = objective(proj(inj_rate + α * p), time_step, K, inj_loc, p_max, BHP_max, sat_init)
+        _ = objective(proj(inj_rate + α * p), time_step, K, inj_loc, p_max, BHP_max, sat_init, pres_init)
         @show α, misfit
         return misfit
     end
@@ -471,7 +482,7 @@ for j=1:niterations
     inj_rate_arr[j+1, :] = inj_rate
 
     obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, 
-    obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
+    obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init, pres_init)
 
     println("Iteration no: ",j,"; Objective function value: ",obj) 
 

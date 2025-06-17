@@ -1,6 +1,4 @@
-# Backtracking line search gradient descent optimization solver for geological
-# carbon storage. While staying away from fracture pressure, it maximize the CO2
-# injected amount.
+# This for scaling analysis of the Jutul, reservoir simulator
 
 # Activate the project environment
 using Pkg
@@ -24,25 +22,6 @@ using ArgParse
 # for saturation colorbar
 @pyimport cmasher
 
-# Argument parser setup
-function parse_commandline()
-    s = ArgParseSettings()
-
-    # Define command-line arguments
-    @add_arg_table s begin
-        "--idx_num", "-i"
-            help = "The number of samples to run"
-            arg_type = Int
-            default = 128  # Default value, change if needed
-    end
-
-    # Parse arguments
-    return parse_args(s)
-end
-
-# # Enable multi-threading (set to false if running single-threaded)
-# multith_use = true
-
 # Physcial dimension
 n = (512, 1, 256)
 d = (6.25, 100.0, 6.25)
@@ -57,13 +36,8 @@ BroadK = geo_data["BroadK"]
 state1_path = datadir("state/Wise128_state_t1_rtm1_broad_NL_SNR28.jld2")
 state1_data = JLD2.load(state1_path)
 
-# # for test, fix s to be 1
-# s = 1
-
-# # Parse the command line arguments
-args = parse_commandline()
-s = args["idx_num"]
-# println("idx_num: ", s) 
+# for test, fix s to be 1
+s = 1
 
 # Permeability indices
 idices = state1_data["idx_t1"]
@@ -98,7 +72,7 @@ sat_init = S
 # For other steps
 
 # MPC forward steps
-forward_step = 2
+forward_step = 1
 
 ## The objective function of the optimization problem
 function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=nothing, pres_init=nothing)
@@ -219,7 +193,7 @@ end
 init_inj_rate = [0.0001]
 
 sim_name = "DT_control"
-exp_name = "step1"  
+exp_name = "scaling"  
 
 plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "states")
 
@@ -364,182 +338,3 @@ obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_fi
 obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
 
 println("Iteration no: ",0,"; Objective function value: ", obj)
-
-# before we do the optimization, first we do a sanity check for the injection rate
-# and also the reservoir setting
-while obj == Inf
-    global inj_rate, obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, obj_arr
-
-    inj_rate .-= 0.025
-
-    if inj_rate[1] < 0
-        throw(ErrorException("Injection rate must be positive."))
-    end
-
-    if inj_rate[1] == 0
-        inj_rate[1] == 0.0001
-    end
-
-    obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, 
-    obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
-
-    println("Iteration no: ",0,"; Objective function value: ", obj)
-end 
-
-obj_arr_niter[1] = obj
-obj_1_arr[1, :] = obj_first
-obj_2_arr[1, :] = obj_second
-obj_arr_arr[1, :] = obj_arr
-
-# Assume gradient does not change over iteration
-grad = grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
-p = -grad/norm(grad, Inf)
-# grad_arr[1, :] = grad
-
-one_sixth = forward_step * ds
-two_sixths = 2 * forward_step * ds
-three_sixths = 3 * forward_step * ds
-four_sixths = 4 * forward_step * ds
-five_sixths = 5 * forward_step * ds
-six_sixths = 6 * forward_step * ds
-
-# ## Plot the CO2 saturation 
-plot_state(transpose(sat_arr[one_sixth]), "CO2 Saturation", "_co2sat" * string(one_sixth) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[two_sixths]), "CO2 Saturation", "_co2sat" * string(two_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[three_sixths]), "CO2 Saturation", "_co2sat" * string(three_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[four_sixths]), "CO2 Saturation", "_co2sat" * string(four_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[five_sixths]), "CO2 Saturation", "_co2sat" * string(five_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[six_sixths]), "CO2 Saturation", "_co2sat" * string(six_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
-
-## Plot the reservoir pressure 
-plot_state(transpose(pres_arr[one_sixth]), "Pressure", "_pres" * string(one_sixth) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[two_sixths]), "Pressure", "_pres" * string(two_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[three_sixths]), "Pressure", "_pres" * string(three_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[four_sixths]), "Pressure", "_pres" * string(four_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[five_sixths]), "Pressure", "_pres" * string(five_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[six_sixths]), "Pressure", "_pres" * string(six_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
-
-## Plot the reservoir pressure difference
-plot_state(transpose(pres_arr[one_sixth]), "Pressure Difference", "_presdiff" * string(one_sixth) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[two_sixths]), "Pressure Difference", "_presdiff" * string(two_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[three_sixths]), "Pressure Difference", "_presdiff" * string(three_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[four_sixths]), "Pressure Difference", "_presdiff" * string(four_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[five_sixths]), "Pressure Difference", "_presdiff" * string(five_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[six_sixths]), "Pressure Difference", "_presdiff" * string(six_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-
-# Save states variable at step 0
-j = 0
-@tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
-Dict(
-    "sat_arr" => sat_arr,
-    "pres_arr" => pres_arr, 
-    "BHP_arr" => BHP_arr, 
-    "pres_bound_diff_arr" => pres_bound_diff_arr, 
-    "BHP_bound_diff_arr" => BHP_bound_diff_arr, 
-    );
-safe=true)
-
-## Projection operator for bound constraints
-proj(x) = max.(x, 0)
-ls = BackTracking(order=3, iterations=10)
-
-step_arr = zeros(niterations)
-
-ex_step_size = 0.05
-
-## Main loop for the projected gradient descent
-for j=1:niterations
-    # make the variables to be global
-    global inj_rate, p, time_step, K, inj_loc, p_max, BHP_max, ex_step_size, obj, grad, sat_init, init_inj_rate
-
-    ## Linesearch
-    function θ(α)
-        misfit, _, _, _, _, _, _, _, 
-        _ = objective(proj(inj_rate + α * p), time_step, K, inj_loc, p_max, BHP_max, sat_init)
-        @show α, misfit
-        return misfit
-    end
-
-    # Armijo condition
-    stp, obj = ls(θ, ex_step_size, obj, dot(grad, p))
-
-    # Apply previous stp size to next iteration
-    ex_step_size = stp
-
-    step_arr[j] = stp
-    inj_rate = proj(inj_rate + stp * p)
-    inj_rate_arr[j+1, :] = inj_rate
-
-    obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, 
-    obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
-
-    println("Iteration no: ",j,"; Objective function value: ",obj) 
-
-    obj_arr_niter[j+1] = obj
-    obj_1_arr[j+1, :] = obj_first
-    obj_2_arr[j+1, :] = obj_second
-    obj_arr_arr[j+1, :] = obj_arr
-
-    # Assume the gradient to be fixed 
-    # grad =  grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max)
-    # p = -grad/norm(grad, Inf)
-    # p = 1
-    # grad_arr[j+1, :] = grad
-
-    # Save states variable via iteration
-    @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
-    Dict(
-        "sat_arr" => sat_arr,
-        "pres_arr" => pres_arr, 
-        "BHP_arr" => BHP_arr, 
-        "pres_bound_diff_arr" => pres_bound_diff_arr, 
-        "BHP_bound_diff_arr" => BHP_bound_diff_arr, 
-        );
-    safe=true)
-
-    # ## Plot the CO2 saturation 
-    plot_state(transpose(sat_arr[one_sixth]), "CO2 Saturation", "_co2sat" * string(one_sixth) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[two_sixths]), "CO2 Saturation", "_co2sat" * string(two_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[three_sixths]), "CO2 Saturation", "_co2sat" * string(three_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[four_sixths]), "CO2 Saturation", "_co2sat" * string(four_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[five_sixths]), "CO2 Saturation", "_co2sat" * string(five_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[six_sixths]), "CO2 Saturation", "_co2sat" * string(six_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
-
-    ## Plot the reservoir pressure 
-    plot_state(transpose(pres_arr[one_sixth]), "Pressure", "_pres" * string(one_sixth) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[two_sixths]), "Pressure", "_pres" * string(two_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[three_sixths]), "Pressure", "_pres" * string(three_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[four_sixths]), "Pressure", "_pres" * string(four_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[five_sixths]), "Pressure", "_pres" * string(five_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[six_sixths]), "Pressure", "_pres" * string(six_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
-
-    ## Plot the reservoir pressure difference
-    plot_state(transpose(pres_arr[one_sixth]), "Pressure Difference", "_presdiff" * string(one_sixth) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[two_sixths]), "Pressure Difference", "_presdiff" * string(two_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[three_sixths]), "Pressure Difference", "_presdiff" * string(three_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[four_sixths]), "Pressure Difference", "_presdiff" * string(four_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[five_sixths]), "Pressure Difference", "_presdiff" * string(five_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[six_sixths]), "Pressure Difference", "_presdiff" * string(six_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-
-    # Define stopping criteria, accuracy more than 95%
-    if stp < (inj_rate + init_inj_rate)[1] / 2 * 0.05 / 0.95
-        break
-    end
-
-    # manually do the garbage collection
-    GC.gc()
-
-end
-
-# Save states variable via samples
-@tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8)),
-Dict(
-    "inj_rate_arr" => inj_rate_arr,
-    "step_arr" => step_arr,
-    "obj_arr_niter" => obj_arr_niter,
-    "obj_1_arr" => obj_1_arr, 
-    "obj_2_arr" => obj_2_arr, 
-    "obj_arr_arr" => obj_arr_arr,    
-    );
-safe=true)
-
