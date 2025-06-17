@@ -1,12 +1,12 @@
-# Run Jutul simulation and do the scaling analysis.
-
 using Dates
+using PyPlot
+using DrWatson
 
 timings = Dict{Int, Float64}()
 
 function benchmark_run(nthreads::Int)
     println("Running with $nthreads threads...")
-    t0 = time()  # More precise than `now()`
+    t0 = time()
     run(`julia --threads=$nthreads scripts/scaling_jutul.jl`)
     duration = time() - t0
     println("Completed in ", duration, " seconds.")
@@ -21,24 +21,23 @@ for t in [8, 16, 32]
     benchmark_run(t)
 end
 
-using Plots
-using DrWatson
-
+# Prepare data
 threads = sort(collect(keys(timings)))
 runtimes = [timings[t] for t in threads]
 
-plt = plot(
-    threads, runtimes;
-    lw=3,
-    marker=:o,
-    xlabel="Number of Threads",
-    ylabel="Runtime (s)",
-    title="Strong Scaling of Jutul Simulation",
-    legend=false
-)
+# Plot using PyPlot
+fig, ax = subplots(figsize=(8, 5))
+ax.plot(threads, runtimes, "o-", linewidth=2)
 
-# Define where to save
+ax.set_xlabel("Number of Threads", fontsize=14)
+ax.set_ylabel("Runtime (s)", fontsize=14)
+ax.set_title("Strong Scaling of Jutul Simulation", fontsize=16)
+ax.grid(true)
+
+# Define save path
 cruyff_plot_path_prefix = "/slimdata/jason/optim_injr_DT/plots"
+sim_name = "DT_control"
+exp_name = "scaling"
 plot_path = joinpath(
     cruyff_plot_path_prefix,
     sim_name,
@@ -46,13 +45,15 @@ plot_path = joinpath(
     "states"
 )
 
-# # Ensure directory exists
-# mkpath(plot_path)
+mkpath(plot_path)
 
-# Use safesave with Plots backend: save as PNG or PDF
-safesave(joinpath(plot_path, "scaling_plot.png"), plt)
+# Save figure using DrWatson's safesave (PyPlot-compatible)
+safesave(joinpath(plot_path, "scaling_plot.png"), fig)
 
+# Optional: also save timings
+safesave(joinpath(plot_path, "scaling_timings.jld2"), Dict("timings" => timings))
 
+# Compute speedup and efficiency
 baseline = runtimes[1]
 speedup = baseline ./ runtimes
 efficiency = speedup ./ threads
@@ -61,5 +62,3 @@ println("Threads\tRuntime(s)\tSpeedup\tEfficiency")
 for i in eachindex(threads)
     println("$(threads[i])\t$(round(runtimes[i], digits=2))\t\t$(round(speedup[i], digits=2))\t$(round(efficiency[i]*100, digits=1))%")
 end
-
-
