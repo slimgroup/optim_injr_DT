@@ -1,3 +1,13 @@
+# Activate the project environment
+using Pkg
+Pkg.activate(".")
+
+using DrWatson
+# @quickactivate "optim_injr_DT" # <- project name
+
+using Pkg
+Pkg.instantiate()
+
 using Dates
 using PyPlot
 using DrWatson
@@ -13,13 +23,13 @@ function benchmark_run(nthreads::Int)
     timings[nthreads] = duration
 end
 
-# for t in [1, 2, 4, 8, 16, 32]
-#     benchmark_run(t)
-# end
-
-for t in [8, 16, 32]
+for t in [1, 2, 4, 8, 16, 32]
     benchmark_run(t)
 end
+
+# for t in [8, 16, 32]
+#     benchmark_run(t)
+# end
 
 # Prepare data
 threads = sort(collect(keys(timings)))
