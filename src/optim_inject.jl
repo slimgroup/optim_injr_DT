@@ -358,7 +358,7 @@ obj_arr_niter = zeros(Float64, niterations+1)
 obj_1_arr = zeros(Float64, niterations+1, forward_step * 6)
 obj_2_arr = zeros(Float64, niterations+1, forward_step * 6)
 obj_arr_arr = zeros(Float64, niterations+1, forward_step * 6)
-# grad_arr = zeros(Float64, niterations+1, 1)
+grad_arr = zeros(Float64, niterations+1, size(inj_rate, 1))
 
 obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, 
 obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
@@ -394,7 +394,7 @@ obj_arr_arr[1, :] = obj_arr
 # Assume gradient does not change over iteration
 grad = grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
 p = -grad/norm(grad, Inf)
-# grad_arr[1, :] = grad
+grad_arr[1, :] = grad
 
 one_sixth = forward_step * ds
 two_sixths = 2 * forward_step * ds
@@ -481,10 +481,10 @@ for j=1:niterations
     obj_arr_arr[j+1, :] = obj_arr
 
     # Assume the gradient to be fixed 
-    # grad =  grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max)
-    # p = -grad/norm(grad, Inf)
+    grad =  grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max)
+    p = -grad/norm(grad, Inf)
     # p = 1
-    # grad_arr[j+1, :] = grad
+    grad_arr[j+1, :] = grad
 
     # Save states variable via iteration
     @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
@@ -539,7 +539,8 @@ Dict(
     "obj_arr_niter" => obj_arr_niter,
     "obj_1_arr" => obj_1_arr, 
     "obj_2_arr" => obj_2_arr, 
-    "obj_arr_arr" => obj_arr_arr,    
+    "obj_arr_arr" => obj_arr_arr,   
+    "grad_arr" => grad_arr, 
     );
 safe=true)
 

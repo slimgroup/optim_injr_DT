@@ -2,14 +2,13 @@
 
 # Combined scaling script — submits and runs SLURM jobs for various CPU counts
 
-# Ensure logs directory exists
+# Create logs directory if it doesn't exist
 mkdir -p logs
 
-# Loop over CPU counts
-# for cpu in 1 2 4 8 16 32
-for cpu in 8 16 
+# List of CPU counts to test
+for cpu in 8 16
 do
-  echo "Submitting job with $cpu CPUs..."
+  echo "Submitting job with ${cpu} CPUs..."
 
   sbatch <<EOF
 #!/bin/bash
@@ -18,19 +17,24 @@ do
 #SBATCH --error=logs/error_scale_cpu_${cpu}.txt
 #SBATCH --cpus-per-task=${cpu}
 #SBATCH --mem=32G
-#SBATCH --time=01:00:00
+#SBATCH --time=02:00:00
 
+# Load necessary modules
 module load Julia/1.8/5 Miniconda/3
 
+# Record start time
 start=\$(date +%s)
 
-julia scripts/scaling_jutul_cruyff.jl 
+# Run the Julia script
+julia scripts/scaling_jutul_cruyff.jl
 
+# Record end time and compute runtime
 end=\$(date +%s)
 runtime=\$((end - start))
 
-echo "CPU: \$CPU Runtime: \${runtime}s"
-echo "CPU: \$CPU Runtime: \${runtime}s" >> /nethome/hli853/optim_injr_DT/runtime_log.txt
+# Log runtime information
+echo "CPU: ${cpu} Runtime: \${runtime}s"
+echo "CPU: ${cpu} Runtime: \${runtime}s" >> /nethome/hli853/optim_injr_DT/runtime_log.txt
 EOF
 
 done
