@@ -2,6 +2,9 @@
 
 # Combined scaling script — submits and runs SLURM jobs for various CPU counts
 
+# Ensure logs directory exists
+mkdir -p logs
+
 # Loop over CPU counts
 # for cpu in 1 2 4 8 16 32
 for cpu in 8 16 
@@ -26,6 +29,7 @@ julia scripts/scaling_jutul_cruyff.jl
 end=\$(date +%s)
 runtime=\$((end - start))
 
+echo "CPU: \$CPU Runtime: \${runtime}s"
 echo "CPU: \$CPU Runtime: \${runtime}s" >> /nethome/hli853/optim_injr_DT/runtime_log.txt
 EOF
 
