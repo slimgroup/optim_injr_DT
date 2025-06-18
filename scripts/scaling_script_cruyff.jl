@@ -23,6 +23,12 @@ function benchmark_run(nthreads::Int)
     timings[nthreads] = duration
 end
 
+println("Running with default threads...")
+t0 = time()
+run(`julia scripts/scaling_jutul_cruyff.jl`)
+duration = time() - t0
+println("Completed in ", duration, " seconds.")
+
 for t in [1, 2, 4, 8, 16, 32]
     benchmark_run(t)
 end
