@@ -34,3 +34,7 @@ echo "CPU: \$CPU Runtime: \${runtime}s" >> /nethome/hli853/optim_injr_DT/runtime
 EOF
 
 done
+
+
+# chmod +x scripts/run_scaling_all.sh
+# ./scripts/run_scaling_all.sh
