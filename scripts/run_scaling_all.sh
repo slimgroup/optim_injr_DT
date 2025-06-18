@@ -20,7 +20,7 @@ do
 #SBATCH --mem=32G
 #SBATCH --time=01:00:00
 
-module load Julia/1.8.5 Miniconda/3
+module load Julia/1.8/5 Miniconda/3
 
 start=\$(date +%s)
 
