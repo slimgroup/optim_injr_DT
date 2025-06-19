@@ -6,8 +6,9 @@
 mkdir -p logs
 
 # List of CPU counts to test
-for cpu in 1 2 4 8 16 32
+# for cpu in 1 2 4 8 16 32
 # for cpu in 1 2 4
+for cpu in 1 2 
 do
   echo "Submitting job with ${cpu} CPUs..."
 
@@ -18,7 +19,7 @@ do
 #SBATCH --error=logs/error_scale_cpu_${cpu}.txt
 #SBATCH --cpus-per-task=${cpu}
 #SBATCH --mem=32G
-#SBATCH --time=04:00:00
+#SBATCH --time=08:00:00
 
 # Load necessary modules
 module load Julia/1.8/5 Miniconda/3
