@@ -6,8 +6,8 @@
 mkdir -p logs
 
 # List of CPU counts to test
-# for cpu in 8 16 32
-for cpu in 1 2 4
+for cpu in 8 16 32
+# for cpu in 1 2 4
 do
   echo "Submitting job with ${cpu} CPUs..."
 
