@@ -294,20 +294,20 @@ p0 = (repeat(collect(1:256), 1, 512) * d[3] .+ h) * JutulDarcyRules.ρH2O * 10
 threshold = 4.0
 p_max = p0' .+ threshold * 10^6
 
-# Plot this part only s is 1, sample 1
-if s == 1
-    plot_state(transpose(p_max), "Fracture pressure", "_fracture_pressure.png", plot_path, s, h, n, d, "pres")
+# # Plot this part only s is 1, sample 1
+# if s == 1
+#     plot_state(transpose(p_max), "Fracture pressure", "_fracture_pressure.png", plot_path, s, h, n, d, "pres")
 
-    plot_state(p0, "Water pressure", "_water_pressure.png", plot_path, s, h, n, d, "pres")
+#     plot_state(p0, "Water pressure", "_water_pressure.png", plot_path, s, h, n, d, "pres")
 
-    fracture_pressure_diff = transpose(p_max) - p0
+#     fracture_pressure_diff = transpose(p_max) - p0
 
-    plot_state(fracture_pressure_diff, "Fracture pressure difference", "_fracture_pressure_diff.png", plot_path, s, h, n, d, "pres")
+#     plot_state(fracture_pressure_diff, "Fracture pressure difference", "_fracture_pressure_diff.png", plot_path, s, h, n, d, "pres")
 
-    plot_ϕ = ϕ * ones(n)
-    plot_ϕ = transpose(plot_ϕ[:, 1, :])
-    plot_state(plot_ϕ, "Porosity", "_poro.png", plot_path, s, h, n, d, "poro")
-end
+#     plot_ϕ = ϕ * ones(n)
+#     plot_ϕ = transpose(plot_ϕ[:, 1, :])
+#     plot_state(plot_ϕ, "Porosity", "_poro.png", plot_path, s, h, n, d, "poro")
+# end
 
 # Finer discretization of time
 ds = 10
@@ -331,9 +331,9 @@ BHP_max = p_max[inj_y, 250]
 # Do some plotting and saving for the parameters setting 
 # before the optimization
 
-# Plot the permeability
-logK = log10.(transpose(K/JutulDarcyRules.md))
-plot_state(logK, "Permeability", "_perm.png", plot_path, s, h, n, d, "perm")
+# # Plot the permeability
+# logK = log10.(transpose(K/JutulDarcyRules.md))
+# plot_state(logK, "Permeability", "_perm.png", plot_path, s, h, n, d, "perm")
 
 # optimization setup
 niterations = 20
