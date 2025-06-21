@@ -5,7 +5,7 @@
 #SBATCH --output=logs/output_DT_step1_t4_f2_%a.txt    # Standard output file
 #SBATCH --error=logs/error_DT_step1_t4_f2_%a.txt      # Standard error file
 #SBATCH --cpus-per-task=32                    # Number of CPUs per task 
-#SBATCH --mem=32G                             # Total memory
+#SBATCH --mem=64G                             # Total memory
 #SBATCH --time=24:00:00                       # Max runtime 
 #SBATCH --gres=gpu:0                          # No GPU required
 

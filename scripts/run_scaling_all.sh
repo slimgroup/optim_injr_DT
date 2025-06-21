@@ -18,7 +18,7 @@ do
 #SBATCH --output=logs/output_scale_cpu_${cpu}_64G.txt
 #SBATCH --error=logs/error_scale_cpu_${cpu}_64G.txt
 #SBATCH --cpus-per-task=${cpu}
-#SBATCH --mem=32G
+#SBATCH --mem=64G
 #SBATCH --time=08:00:00
 
 # Load necessary modules
