@@ -2,8 +2,8 @@
 
 # SLURM job options
 #SBATCH --job-name=optim_injr_DT              # Job name
-#SBATCH --output=output_DT_step1_t4_%a.txt    # Standard output file
-#SBATCH --error=error_DT_step1_t4_%a.txt      # Standard error file
+#SBATCH --output=logs/output_DT_step1_t4_%a.txt    # Standard output file
+#SBATCH --error=logs/error_DT_step1_t4_%a.txt      # Standard error file
 #SBATCH --cpus-per-task=16                    # Number of CPUs per task 
 #SBATCH --mem=32G                             # Total memory
 #SBATCH --time=24:00:00                       # Max runtime 

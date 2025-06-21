@@ -41,6 +41,11 @@ injr_arr = zeros(num_sample)
 
 for s in 1:num_s
     
+    s = 1
+    j = 3
+    inner_filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6))
+    inner_data = load(inner_filepath)
+
     # filepath = datadir("forward_1", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
     filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
 

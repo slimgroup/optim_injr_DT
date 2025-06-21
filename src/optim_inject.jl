@@ -481,7 +481,7 @@ for j=1:niterations
     obj_arr_arr[j+1, :] = obj_arr
 
     # Assume the gradient to be fixed 
-    grad =  grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max)
+    grad =  grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
     p = -grad/norm(grad, Inf)
     # p = 1
     grad_arr[j+1, :] = grad
