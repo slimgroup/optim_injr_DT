@@ -101,17 +101,12 @@ sat_init = S
 
 # For other steps
 
-# MPC forward steps
-forward_step = 2
-
 ## The objective function of the optimization problem
 function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=nothing, pres_init=nothing)
     # inj_rate, the injection rate vector
 
     # smooth and steadily increasing injection strategy
-    # inj_rate = collect(range(init_inj_rate[1], inj_rate[1], 6))
-    inj_rate = collect(range(init_inj_rate[1], inj_rate[1], forward_step * 6))
-
+    inj_rate = collect(range(init_inj_rate[1], inj_rate[1], 6))
 
     # time discretization
     ds = 10
@@ -231,9 +226,9 @@ plot_path = joinpath(
     sim_name,
     savename(@strdict(exp_name); digits=6),
     "states"
-) 
+)
 
-# plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "states")
+# plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6))
 
 # Function to plot the states variables, including permeability, pressure, pressure with threshold, saturation and porosity
 function plot_state(data, title_str, file_suffix, plot_path, sample, h, n, d, type, iter=-1, threshold=-1)
@@ -336,8 +331,8 @@ end
 
 # Finer discretization of time
 ds = 10
-time_step = 80 / ds * ones(6 * ds * forward_step)
-# 0.05 is the initial guess
+time_step = 80 / ds * ones(6 * ds)
+# 0.1 is the initial guess
 inj_rate = [0.05] 
 # finite difference h
 delta_inj_rate = 10^-8 * ones(size(inj_rate, 1))
@@ -366,11 +361,11 @@ niterations = 20
 inj_rate_arr = zeros(Float64, niterations+1, size(inj_rate, 1))
 inj_rate_arr[1, :] = inj_rate
 # objective function value over optimization loop
-obj_arr_niter = zeros(Float64, niterations+1)
-obj_1_arr = zeros(Float64, niterations+1, forward_step * 6)
-obj_2_arr = zeros(Float64, niterations+1, forward_step * 6)
-obj_arr_arr = zeros(Float64, niterations+1, forward_step * 6)
-grad_arr = zeros(Float64, niterations+1, size(inj_rate, 1))
+obj_arr_niter = zeros(Float64, niterations+1, 6)
+obj_1_arr = zeros(Float64, niterations+1, 6)
+obj_2_arr = zeros(Float64, niterations+1, 6)
+obj_arr_arr = zeros(Float64, niterations+1, 6)
+# grad_arr = zeros(Float64, niterations+1, 1)
 
 obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, 
 obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
@@ -406,38 +401,27 @@ obj_arr_arr[1, :] = obj_arr
 # Assume gradient does not change over iteration
 grad = grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
 p = -grad/norm(grad, Inf)
-grad_arr[1, :] = grad
+# grad_arr[1, :] = grad
 
-one_sixth = forward_step * ds
-two_sixths = 2 * forward_step * ds
-three_sixths = 3 * forward_step * ds
-four_sixths = 4 * forward_step * ds
-five_sixths = 5 * forward_step * ds
-six_sixths = 6 * forward_step * ds
+# print("Do you reach here?")
 
-# ## Plot the CO2 saturation 
-plot_state(transpose(sat_arr[one_sixth]), "CO2 Saturation", "_co2sat" * string(one_sixth) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[two_sixths]), "CO2 Saturation", "_co2sat" * string(two_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[three_sixths]), "CO2 Saturation", "_co2sat" * string(three_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[four_sixths]), "CO2 Saturation", "_co2sat" * string(four_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[five_sixths]), "CO2 Saturation", "_co2sat" * string(five_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
-plot_state(transpose(sat_arr[six_sixths]), "CO2 Saturation", "_co2sat" * string(six_sixths) * ".png", plot_path, s, h, n, d, "sat", 0)
+## Plot the CO2 saturation 
+plot_state(transpose(sat_arr[15]), "CO2 Saturation", "_co2sat15.png", plot_path, s, h, n, d, "sat", 0)
+plot_state(transpose(sat_arr[30]), "CO2 Saturation", "_co2sat30.png", plot_path, s, h, n, d, "sat", 0)
+plot_state(transpose(sat_arr[45]), "CO2 Saturation", "_co2sat45.png", plot_path, s, h, n, d, "sat", 0)
+plot_state(transpose(sat_arr[60]), "CO2 Saturation", "_co2sat60.png", plot_path, s, h, n, d, "sat", 0)
 
 ## Plot the reservoir pressure 
-plot_state(transpose(pres_arr[one_sixth]), "Pressure", "_pres" * string(one_sixth) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[two_sixths]), "Pressure", "_pres" * string(two_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[three_sixths]), "Pressure", "_pres" * string(three_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[four_sixths]), "Pressure", "_pres" * string(four_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[five_sixths]), "Pressure", "_pres" * string(five_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
-plot_state(transpose(pres_arr[six_sixths]), "Pressure", "_pres" * string(six_sixths) * ".png", plot_path, s, h, n, d, "pres", 0)
+plot_state(transpose(pres_arr[15]), "Pressure", "_pres15.png", plot_path, s, h, n, d, "pres", 0)
+plot_state(transpose(pres_arr[30]), "Pressure", "_pres30.png", plot_path, s, h, n, d, "pres", 0)
+plot_state(transpose(pres_arr[45]), "Pressure", "_pres45.png", plot_path, s, h, n, d, "pres", 0)
+plot_state(transpose(pres_arr[60]), "Pressure", "_pres60.png", plot_path, s, h, n, d, "pres", 0)
 
 ## Plot the reservoir pressure difference
-plot_state(transpose(pres_arr[one_sixth]), "Pressure Difference", "_presdiff" * string(one_sixth) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[two_sixths]), "Pressure Difference", "_presdiff" * string(two_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[three_sixths]), "Pressure Difference", "_presdiff" * string(three_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[four_sixths]), "Pressure Difference", "_presdiff" * string(four_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[five_sixths]), "Pressure Difference", "_presdiff" * string(five_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
-plot_state(transpose(pres_arr[six_sixths]), "Pressure Difference", "_presdiff" * string(six_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
+plot_state(transpose(pres_arr[15]), "Pressure Difference", "_presdiff15.png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
+plot_state(transpose(pres_arr[30]), "Pressure Difference", "_presdiff30.png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
+plot_state(transpose(pres_arr[45]), "Pressure Difference", "_presdiff45.png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
+plot_state(transpose(pres_arr[60]), "Pressure Difference", "_presdiff60.png", plot_path, s, h, n, d, "pres_thres", 0, threshold)
 
 # Save states variable at step 0
 j = 0
@@ -476,6 +460,7 @@ ex_step_size = 0.05
 for j=1:niterations
     # make the variables to be global
     global inj_rate, p, time_step, K, inj_loc, p_max, BHP_max, ex_step_size, obj, grad, sat_init, init_inj_rate
+    # global step_arr, 
 
     ## Linesearch
     function θ(α)
@@ -487,6 +472,8 @@ for j=1:niterations
 
     # Armijo condition
     stp, obj = ls(θ, ex_step_size, obj, dot(grad, p))
+
+    # print("stp: ", stp)
 
     # Apply previous stp size to next iteration
     ex_step_size = stp
@@ -506,10 +493,10 @@ for j=1:niterations
     obj_arr_arr[j+1, :] = obj_arr
 
     # Assume the gradient to be fixed 
-    grad =  grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
-    p = -grad/norm(grad, Inf)
+    # grad =  grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BHP_max)
+    # p = -grad/norm(grad, Inf)
     # p = 1
-    grad_arr[j+1, :] = grad
+    # grad_arr[j+1, :] = grad
 
     cruyff_data_path_prefix = "/slimdata/jason/optim_injr_DT/data"
 
@@ -534,29 +521,25 @@ for j=1:niterations
         );
     safe=true)
 
-    # ## Plot the CO2 saturation 
-    plot_state(transpose(sat_arr[one_sixth]), "CO2 Saturation", "_co2sat" * string(one_sixth) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[two_sixths]), "CO2 Saturation", "_co2sat" * string(two_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[three_sixths]), "CO2 Saturation", "_co2sat" * string(three_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[four_sixths]), "CO2 Saturation", "_co2sat" * string(four_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[five_sixths]), "CO2 Saturation", "_co2sat" * string(five_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
-    plot_state(transpose(sat_arr[six_sixths]), "CO2 Saturation", "_co2sat" * string(six_sixths) * ".png", plot_path, s, h, n, d, "sat", j)
+    # print("Do you reach here?")
 
+    ## Plot the CO2 saturation 
+    plot_state(transpose(sat_arr[15]), "CO2 Saturation", "_co2sat15.png", plot_path, s, h, n, d, "sat", j)
+    plot_state(transpose(sat_arr[30]), "CO2 Saturation", "_co2sat30.png", plot_path, s, h, n, d, "sat", j)
+    plot_state(transpose(sat_arr[45]), "CO2 Saturation", "_co2sat45.png", plot_path, s, h, n, d, "sat", j)
+    plot_state(transpose(sat_arr[60]), "CO2 Saturation", "_co2sat60.png", plot_path, s, h, n, d, "sat", j)
+    
     ## Plot the reservoir pressure 
-    plot_state(transpose(pres_arr[one_sixth]), "Pressure", "_pres" * string(one_sixth) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[two_sixths]), "Pressure", "_pres" * string(two_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[three_sixths]), "Pressure", "_pres" * string(three_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[four_sixths]), "Pressure", "_pres" * string(four_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[five_sixths]), "Pressure", "_pres" * string(five_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
-    plot_state(transpose(pres_arr[six_sixths]), "Pressure", "_pres" * string(six_sixths) * ".png", plot_path, s, h, n, d, "pres", j)
+    plot_state(transpose(pres_arr[15]), "Pressure", "_pres15.png", plot_path, s, h, n, d, "pres", j)
+    plot_state(transpose(pres_arr[30]), "Pressure", "_pres30.png", plot_path, s, h, n, d, "pres", j)
+    plot_state(transpose(pres_arr[45]), "Pressure", "_pres45.png", plot_path, s, h, n, d, "pres", j)
+    plot_state(transpose(pres_arr[60]), "Pressure", "_pres60.png", plot_path, s, h, n, d, "pres", j)
 
     ## Plot the reservoir pressure difference
-    plot_state(transpose(pres_arr[one_sixth]), "Pressure Difference", "_presdiff" * string(one_sixth) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[two_sixths]), "Pressure Difference", "_presdiff" * string(two_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[three_sixths]), "Pressure Difference", "_presdiff" * string(three_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[four_sixths]), "Pressure Difference", "_presdiff" * string(four_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[five_sixths]), "Pressure Difference", "_presdiff" * string(five_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
-    plot_state(transpose(pres_arr[six_sixths]), "Pressure Difference", "_presdiff" * string(six_sixths) * ".png", plot_path, s, h, n, d, "pres_thres", j, threshold)
+    plot_state(transpose(pres_arr[15]), "Pressure Difference", "_presdiff15.png", plot_path, s, h, n, d, "pres_thres", j, threshold)
+    plot_state(transpose(pres_arr[30]), "Pressure Difference", "_presdiff30.png", plot_path, s, h, n, d, "pres_thres", j, threshold)
+    plot_state(transpose(pres_arr[45]), "Pressure Difference", "_presdiff45.png", plot_path, s, h, n, d, "pres_thres", j, threshold)
+    plot_state(transpose(pres_arr[60]), "Pressure Difference", "_presdiff60.png", plot_path, s, h, n, d, "pres_thres", j, threshold)
 
     # Define stopping criteria, accuracy more than 95%
     if stp < (inj_rate + init_inj_rate)[1] / 2 * 0.05 / 0.95
@@ -587,8 +570,7 @@ Dict(
     "obj_arr_niter" => obj_arr_niter,
     "obj_1_arr" => obj_1_arr, 
     "obj_2_arr" => obj_2_arr, 
-    "obj_arr_arr" => obj_arr_arr,   
-    "grad_arr" => grad_arr, 
+    "obj_arr_arr" => obj_arr_arr,    
     );
 safe=true)
 
