@@ -28,7 +28,7 @@ module load Julia/1.8/5 Miniconda/3
 start=\$(date +%s)
 
 # Run the Julia script
-julia scripts/scaling_jutul_cruyff.jl
+julia -t 1 scripts/scaling_jutul_cruyff.jl
 
 # Record end time and compute runtime
 end=\$(date +%s)
