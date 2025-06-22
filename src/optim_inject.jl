@@ -108,7 +108,6 @@ function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=not
     # inj_rate = collect(range(init_inj_rate[1], inj_rate[1], 6))
     inj_rate = collect(range(init_inj_rate[1], inj_rate[1], forward_step * 6))
 
-
     # time discretization
     ds = 10
     
@@ -326,7 +325,9 @@ end
 ds = 10
 time_step = 80 / ds * ones(6 * ds * forward_step)
 # 0.05 is the initial guess
-inj_rate = [0.05] 
+# inj_rate = [0.05]
+# better initial guess of the injection rate 0.1 
+inj_rate = [0.1] 
 # finite difference h
 delta_inj_rate = 10^-8 * ones(size(inj_rate, 1))
 
@@ -365,12 +366,14 @@ obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
 
 println("Iteration no: ",0,"; Objective function value: ", obj)
 
-# before we do the optimization, first we do a sanity check for the injection rate
-# and also the reservoir setting
+# Before we do the optimization, first we do a sanity check for the injection rate
+# and also the reservoir setting.
+# This is like a binary search.
 while obj == Inf
     global inj_rate, obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, obj_arr
 
-    inj_rate .-= 0.025
+    # inj_rate .-= 0.025
+    inj_rate .-= 0.05
 
     if inj_rate[1] < 0
         throw(ErrorException("Injection rate must be positive."))
