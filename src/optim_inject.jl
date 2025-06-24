@@ -5,12 +5,10 @@
 # Activate the project environment
 using Pkg
 Pkg.activate(".")
+Pkg.instantiate()
 
 using DrWatson
 # @quickactivate "optim_injr_DT" # <- project name
-
-using Pkg
-Pkg.instantiate()
 
 using JutulDarcyRules
 using LinearAlgebra
@@ -18,7 +16,11 @@ using PyPlot
 using SlimOptim
 using JLD2
 using Random
+
 using PyCall
+ENV["PYTHON"] = "/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python"
+Pkg.build("PyCall")
+
 using SlimPlotting
 using ArgParse
 # for saturation colorbar
