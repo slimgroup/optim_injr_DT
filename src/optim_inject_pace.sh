@@ -11,7 +11,7 @@
 #SBATCH --output=logs/output_DT_step1_t4_f2_%a.txt    # Standard output file
 #SBATCH --error=logs/error_DT_step1_t4_f2_%a.txt      # Standard error file
 #SBATCH --mail-type=BEGIN,END,FAIL                    # Mail preferences
-#SBATCH --mail-user=hli854@gatech.edu                  # E-mail address for notifications
+#SBATCH --mail-user=hli853@gatech.edu                  # E-mail address for notifications
 
 # Load necessary modules
 module load julia/1.10.1 anaconda3
