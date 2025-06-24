@@ -18,8 +18,18 @@ using JLD2
 using Random
 
 using PyCall
-ENV["PYTHON"] = "/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python"
-Pkg.build("PyCall")
+
+function setup_pycall()
+    if get(ENV, "LMOD_SITE_NAME", "") == "PACE"
+        println("PACE environment detected. Setting PyCall Python path...")
+        ENV["PYTHON"] = "/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python"
+        Pkg.build("PyCall")
+    else
+        println("Non-PACE environment detected. Skipping PyCall config.")
+    end
+end
+
+setup_pycall()
 
 using SlimPlotting
 using ArgParse
