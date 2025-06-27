@@ -14,7 +14,6 @@ using Random
 using StatsBase
 using Distributions
 
-
 # Set parameters consistent with how it was saved
 sim_name = "DT_control"
 exp_name = "step1" # which step to control in DT
@@ -46,7 +45,7 @@ injr_dist = zeros(num_s)
 # step 1 initial injection rate
 init_inj_rate = [0.0001]
 
-for s in 1:num_s
+for s in 73:128
     
     # filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(sample), "jld2"; digits=8))
 
@@ -89,8 +88,6 @@ plot_path = joinpath(
     "decision"
 )
 
-
-
 ## Plot the injection rate distribution 
 
 # using PyPlot, KernelDensity
@@ -108,7 +105,6 @@ function find_local_maxima(density_array)
     return maxima
 end
 
-optimal_bandwidth = 0.0006
 kde_res = kde(injr_dist; bandwidth=optimal_bandwidth)
 
 fig = figure(figsize=(10, 6))

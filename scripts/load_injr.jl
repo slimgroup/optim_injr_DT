@@ -10,6 +10,9 @@ using JLD2
 using PyPlot
 using KernelDensity
 using Statistics
+using Random
+using StatsBase
+using Distributions
 
 # Set parameters consistent with how it was saved
 sim_name = "DT_control"
@@ -35,100 +38,414 @@ exp_name = "step1" # which step to control in DT
 
 # Now the variables inj_rate_arr, step_arr, etc. are available in your workspace
 
-num_sample = 128
+num_s = 128
 
-injr_arr = zeros(num_sample)
+injr_dist = zeros(num_s)
 
-for s in 1:num_s
+# step 1 initial injection rate
+init_inj_rate = [0.0001]
+
+# for s in 1:num_s
+
+#     # s = 1
+#     # j = 3
+#     # inner_filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6))
+#     # inner_data = load(inner_filepath)
+
+#     # filepath = datadir("forward_1", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+#     filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+
+#     # Load all variables from file into a dictionary
+#     data = load(filepath)
+
+#     # Now access variables from the dictionary
+#     inj_rate_arr = data["inj_rate_arr"][:, 1]
+
+#     # Find last nonzero element
+#     last_nonzero = findlast(x -> x != 0, inj_rate_arr)
     
-    s = 1
-    j = 3
-    inner_filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6))
-    inner_data = load(inner_filepath)
+#     if last_nonzero === nothing
+#         # If all zeros, handle it as you want, e.g., assign 0 or NaN
+#         injr_dist[s] = (0.0 + init_inj_rate[1]) / 2
+#     else
+#         injr_dist[s] = (inj_rate_arr[last_nonzero] + init_inj_rate[1]) / 2
+#     end
+# end
 
-    # filepath = datadir("forward_1", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
-    filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+## Only for step 1
+
+# Load arrays
+injr_dist_1_to_32 = load("scripts/injr_dist_1_to_32.jld2", "injr_dist_1_to_32")
+injr_dist_33_to_72 = load("scripts/injr_dist_33_to_72.jld2", "injr_dist_33_to_72")
+injr_dist_73_to_128 = load("scripts/injr_dist_73_to_128.jld2", "injr_dist_73_to_128")
+
+# Create one combined array of zeros
+injr_dist = zeros(eltype(injr_dist_1_to_32), 128)
+
+# Fill in the nonzero segments
+injr_dist[1:32]    .= injr_dist_1_to_32[1:32]
+injr_dist[33:72]   .= injr_dist_33_to_72[33:72]
+injr_dist[73:128]  .= injr_dist_73_to_128[73:128]
+
+# Check the result
+@show length(injr_dist)  # should be 128
+@show sum(injr_dist .!= 0)  # should be 128 if all nonzeros were distinct
 
 
-    # Load all variables from file into a dictionary
-    data = load(filepath)
+## Set bandwidth 
+optimal_bandwidth = 0.0014
+## Set plot path
+plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "decision")
 
-    # Now access variables from the dictionary
-    inj_rate_arr = data["inj_rate_arr"]
 
+## Plot the injection rate distribution 
 
-    injr_arr[sample] = maximum(inj_rate_arr)
+# using PyPlot, KernelDensity
+
+# Your injection rate data vector, example:
+# injr_dist = [...]
+
+function find_local_maxima(density_array)
+    maxima = Int[]
+    for i in 2:length(density_array)-1
+        if density_array[i] > density_array[i-1] && density_array[i] > density_array[i+1]
+            push!(maxima, i)
+        end
+    end
+    return maxima
 end
 
-sim_name = "DT_control"
-exp_name = "step1"
-num_sample = length(injr_arr)  # or your number of samples
-file_suffix = ".png"
+kde_res = kde(injr_dist; bandwidth=optimal_bandwidth)
 
-# Set up the plot directory using DrWatson
-plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "decision")
-# mkpath(plot_path)  # ensure directory exists
-using PyPlot
-using KernelDensity
+fig = figure(figsize=(10, 6))
 
-# Compute KDE for injection rates
-kde_res = kde(injr_arr)
-
-# Create figure with specified size
-fig = figure(figsize=(8, 6))
-
-# Plot histogram of injection rates, normalized so KDE and histogram align
-hist_vals = hist(injr_arr;
-    bins=30,
+# Histogram
+hist_vals = hist(injr_dist;
+    bins=75,
     alpha=0.5,
-    color="blue",
-    edgecolor="black",
-    density=true,
+    color="#4A90E2",
+    edgecolor="#1F497D",
+    linewidth=0.8,
+    density=false,
     label="Histogram"
 )
 
-# Calculate bin width for scaling KDE density to histogram scale
 bin_edges = hist_vals[2]
 bin_width = bin_edges[2] - bin_edges[1]
+scaled_kde_density = kde_res.density .* length(injr_dist) .* bin_width
 
-# Scale KDE density to match histogram scale
-scaled_kde_density = kde_res.density .* length(injr_arr) .* bin_width
+# KDE fill and line
+fill_between(kde_res.x, scaled_kde_density, color="#D9534F", alpha=0.3, label="KDE Density")
+plot(kde_res.x, scaled_kde_density, color="#D9534F", linewidth=2.5, label="KDE")
 
-# Overlay KDE curve with slight vertical scaling for visibility
-plot(kde_res.x, scaled_kde_density .* 1.05;
-    color="red",
-    linewidth=2,
-    label="KDE"
-)
+# Rug plot for data points
+for x in injr_dist
+    plot([x, x], [0, maximum(scaled_kde_density)*0.04], color="#333333", alpha=0.7, linewidth=1.0)
+end
 
-# Add title and axis labels with increased font size
-title("Histogram of Injection Rates with KDE Overlay", fontsize=18)
-xlabel("Injection Rate (m³/s)", fontsize=16)
-ylabel("Frequency", fontsize=16)
+# Define red box regions including the new left region
+red_boxes = [
+    (0.015, 0.025),
+    (0.025, 0.05),
+    (0.055, 0.07),
+    (0.08, 0.095),
+    (0.11, 0.12),
+    (0.13, 0.145)
+]
 
-# Add legend with readable font size
-legend(fontsize=14)
+local_maxima_indices = find_local_maxima(kde_res.density)
 
-# Customize tick label font size for both axes
-xticks(fontsize=14)
-yticks(fontsize=14)
+selected_peak_indices = Int[]
 
-# Add subtle grid lines for better readability
-grid(color="grey", linestyle="--", linewidth=0.5, alpha=0.7)
+max_labels_per_box = 1  # reduce to 1 peak per box for less clutter
 
-# Remove top and right spines for a cleaner plot look
+for (xmin, xmax) in red_boxes
+    region_peaks = filter(idx -> (kde_res.x[idx] >= xmin) && (kde_res.x[idx] <= xmax) && (idx in local_maxima_indices), 1:length(kde_res.x))
+    if !isempty(region_peaks)
+        sorted_peaks = sort(region_peaks, by=idx -> -kde_res.density[idx])
+        top_peaks = sorted_peaks[1:min(max_labels_per_box, length(sorted_peaks))]
+        append!(selected_peak_indices, top_peaks)
+    end
+end
+
+selected_peak_indices = sort(unique(selected_peak_indices), by=idx -> kde_res.x[idx])
+
+# # Plot with staggered vertical offsets to avoid overlap
+# for (i, idx) in enumerate(selected_peak_indices)
+#     x_peak = kde_res.x[idx]
+#     y_peak = scaled_kde_density[idx]
+
+#     scatter([x_peak], [y_peak], color="#006400", s=90, marker="o", edgecolor="black", linewidth=1.5, zorder=6)
+
+#     # stagger y-offset by 15 points per label index
+#     y_offset = 20 + 15 * (i % 2)  # alternate between 20 and 35 points
+
+#     annotate(
+#         string(round(x_peak, digits=3)),
+#         xy=(x_peak, y_peak),
+#         xytext=(0, y_offset),
+#         textcoords="offset points",
+#         ha="center",
+#         fontsize=14,
+#         fontweight="bold",
+#         color="#006400",
+#         rotation=0
+#     )
+# end
+
+title("Histogram of Injection Rates (n=$(length(injr_dist))) with KDE Overlay", fontsize=18, fontweight="bold")
+xlabel("Average Injection Rate (m³/s)", fontsize=16, fontweight="bold")
+ylabel("Frequency", fontsize=16, fontweight="bold")
+
+legend(fontsize=14, frameon=false)
+
+xticks(fontsize=14, fontweight="bold")
+yticks(fontsize=14, fontweight="bold")
+
+# Make y-axis tick labels darker for clarity
 ax = gca()
 ax.spines["top"].set_visible(false)
 ax.spines["right"].set_visible(false)
+ax.tick_params(axis="y", colors="black")  # Darker y-tick labels
 
-# Adjust layout to prevent clipping of labels and titles
+ax.minorticks_on()
+
+grid(color="#AAAAAA", linestyle="--", linewidth=0.5, alpha=0.7)
+
 tight_layout()
-
+# show()
 
 # Construct the filename with sample count info
-filename = "injection_distribution_$(num_sample)samples" * file_suffix
+filename = "injection_distribution_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
 
 # Save figure using DrWatson safesave (pass the figure handle `fig`)
 safesave(joinpath(plot_path, filename), fig)
 
+close(fig)
+
+
+
+## Confidence interval type
+CI_type = "wald"
+# CI_type = "wilson"
+fracture_prob_threshold = 0.01  # 1% fracture probability
+conf_level = 0.99  # 99% confidence level
+num_sample_kde = 4000
+
+## Plot CDF and confidence interval
+
+# Compute KDE with specified bandwidth
+kde_res = kde(injr_dist; bandwidth=optimal_bandwidth)
+
+# Sort injection rates
+sorted_injr = sort(injr_dist)
+
+# Create kde_x range for evaluation
+kde_x = range(minimum(injr_dist), stop=maximum(injr_dist), length=num_sample_kde)
+step = kde_x[2] - kde_x[1]
+
+# Compute KDE PDF values at kde_x
+kde_pdf_vals = pdf(kde_res, kde_x)
+
+# Compute smooth KDE-based CDF by cumulative sum * step
+kde_cdf = cumsum(kde_pdf_vals) * step
+
+# Prepare arrays for confidence intervals
+ci_lower_arr = zeros(num_sample_kde)
+ci_upper_arr = zeros(num_sample_kde)
+
+n = length(injr_dist)  # sample size
+
+z = quantile(Normal(), 1 - (1 - conf_level) / 2)  # z-score for CI
+
+# calculate the confidence interval
+for i in 1:num_sample_kde
+    if CI_type == "wald"
+        p_hat = kde_cdf[i]
+        se = sqrt(p_hat * (1 - p_hat) / n)
+        ci_lower_arr[i] = max(0.0, p_hat - z * se)
+        ci_upper_arr[i] = min(1.0, p_hat + z * se)
+    else
+        p_hat = kde_cdf[i]
+        z2 = z^2
+        denom = 1 + z2 / n
+        center = p_hat + z2 / (2n)
+        radicand = p_hat * (1 - p_hat) / n + z2 / (4n^2)
+        delta = z * sqrt(radicand)
+        
+        ci_lower = max(0, (center - delta) / denom)
+        ci_upper = min(1, (center + delta) / denom)
+
+        ci_lower_arr[i] = ci_lower
+        ci_upper_arr[i] = ci_upper
+    end
+end
+
+# Threshold crossing index
+idx_at_ci_lower = findfirst(x -> x >= fracture_prob_threshold, ci_lower_arr)
+inj_rate_at_ci_lower = kde_x[idx_at_ci_lower]
+
+idx_at_ci_upper = findfirst(x -> x >= fracture_prob_threshold, ci_upper_arr)
+inj_rate_at_ci_upper = kde_x[idx_at_ci_upper]
+
+idx_at_ci_cdf = findfirst(x -> x >= fracture_prob_threshold, kde_cdf)
+inj_rate_at_cdf = kde_x[idx_at_ci_cdf]
+
+# Plotting
+fig = figure(figsize=(8, 8))
+
+plot(kde_x, kde_cdf * 100, label="CDF", linewidth=2)
+fill_between(kde_x, ci_lower_arr * 100, ci_upper_arr * 100, color="gray", alpha=0.3, label=string(Int(conf_level*100)) * "% Confidence Interval")
+axhline(y=fracture_prob_threshold * 100, color="red", linestyle="--", linewidth=1.5, label=string(Int(fracture_prob_threshold*100)) * "% Fracture Probability")
+
+annotate(
+    "Injection Rate at " * string(Int(fracture_prob_threshold*100)) * "% Probability: $(round(inj_rate_at_cdf, digits=4)) m³/s",
+    xy=(inj_rate_at_cdf, fracture_prob_threshold * 100),
+    xytext=(inj_rate_at_cdf + 0.07, fracture_prob_threshold * 100 + 25),
+    arrowprops=Dict("arrowstyle" => "->", "connectionstyle" => "arc3,rad=0"),
+    fontsize=14,
+    ha="center"
+)
+
+annotate(
+    "Left CI: $(round(inj_rate_at_ci_lower, digits=4)) m³/s",
+    xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
+    xytext=(inj_rate_at_ci_lower + 0.08, fracture_prob_threshold * 100 + 40),
+    arrowprops=Dict("arrowstyle" => "->", "connectionstyle" => "arc3,rad=0"),
+    fontsize=14,
+    ha="right"
+)
+
+annotate(
+    "Right CI: $(round(inj_rate_at_ci_upper, digits=4)) m³/s",
+    xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
+    xytext=(inj_rate_at_ci_upper + 0.04, fracture_prob_threshold * 100 + 10),
+    arrowprops=Dict("arrowstyle" => "->", "connectionstyle" => "arc3,rad=0"),
+    fontsize=14,
+    ha="left"
+)
+
+grid(color="lightgray", linestyle="--", linewidth=0.5)
+xlabel("Average Injection Rate (m³/s)", fontsize=16)
+ylabel("Fracture Probability (%)", fontsize=16)
+title("Fracture Probability vs Average Injection Rate", fontsize=18)
+legend(loc="upper left", fontsize=14)
+xticks(fontsize=14)
+yticks(fontsize=14)
+tight_layout()
+
+# Save figure
+if CI_type == "wald"
+    filename = "fracture_prob_CI_wald_$(num_s)samples_bandwidth$(optimal_bandwidth).png"
+else
+    filename = "fracture_prob_CI_wislon_$(num_s)samples_bandwidth$(optimal_bandwidth).png"
+end
+
+safesave(joinpath(plot_path, filename), fig)
+close(fig)
+
+
+
+## Confidence interval type
+CI_type = "wald"
+# CI_type = "wilson"
+fracture_prob_threshold = 0.01  # 1%
+conf_level = 0.99  # 99% confidence level
+num_sample_kde = 4000
+
+## Plot the zoomed in CDF and confidence interval
+
+# Parameters
+z = quantile(Normal(), 1 - (1 - conf_level) / 2)
+n = length(injr_dist)
+fracture_prob_threshold = 0.01  # 1%
+
+# KDE
+kde_res = kde(injr_dist; bandwidth=optimal_bandwidth)
+kde_x = range(minimum(injr_dist), stop=maximum(injr_dist), length=num_sample_kde)
+step = kde_x[2] - kde_x[1]
+kde_pdf_vals = pdf(kde_res, kde_x)
+kde_cdf = cumsum(kde_pdf_vals) * step
+
+# Wald Confidence Interval
+ci_lower_arr = zeros(num_sample_kde)
+ci_upper_arr = zeros(num_sample_kde)
+
+# calculate the confidence interval
+for i in 1:num_sample_kde
+    if CI_type == "wald"
+        p_hat = kde_cdf[i]
+        se = sqrt(p_hat * (1 - p_hat) / n)
+        ci_lower_arr[i] = max(0.0, p_hat - z * se)
+        ci_upper_arr[i] = min(1.0, p_hat + z * se)
+    else
+        p_hat = kde_cdf[i]
+        z2 = z^2
+        denom = 1 + z2 / n
+        center = p_hat + z2 / (2n)
+        radicand = p_hat * (1 - p_hat) / n + z2 / (4n^2)
+        delta = z * sqrt(radicand)
+        
+        ci_lower = max(0, (center - delta) / denom)
+        ci_upper = min(1, (center + delta) / denom)
+
+        ci_lower_arr[i] = ci_lower
+        ci_upper_arr[i] = ci_upper
+    end
+end
+
+# Threshold crossing index
+idx_at_ci_lower = findfirst(x -> x >= fracture_prob_threshold, ci_lower_arr)
+inj_rate_at_ci_lower = kde_x[idx_at_ci_lower]
+
+idx_at_ci_upper = findfirst(x -> x >= fracture_prob_threshold, ci_upper_arr)
+inj_rate_at_ci_upper = kde_x[idx_at_ci_upper]
+
+idx_at_ci_cdf = findfirst(x -> x >= fracture_prob_threshold, kde_cdf)
+inj_rate_at_cdf = kde_x[idx_at_ci_cdf]
+
+# Plot (Zoomed-in)
+fig = figure(figsize=(8, 6))
+plot(kde_x, kde_cdf .* 100, label="CDF", linewidth=2)
+fill_between(kde_x, ci_lower_arr * 100, ci_upper_arr * 100, color="gray", alpha=0.3, label=string(Int(conf_level*100)) * "% Confidence Interval")
+axhline(y=fracture_prob_threshold * 100, color="red", linestyle="--", linewidth=1.5, label=string(Int(fracture_prob_threshold*100)) * "% Fracture Probability")
+
+# Annotations
+annotate("Injection Rate at " * string(Int(fracture_prob_threshold*100)) * "% Probability: $(round(inj_rate_at_cdf, digits=4)) m³/s",
+    xy=(inj_rate_at_cdf, fracture_prob_threshold * 100),
+    xytext=(inj_rate_at_cdf + 0.002, 2.5),
+    arrowprops=Dict("arrowstyle" => "->"),
+    fontsize=11)
+
+annotate("Left CI: $(round(inj_rate_at_ci_lower, digits=4)) m³/s",
+    xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
+    xytext=(inj_rate_at_ci_lower + 0.002, 3.5),
+    arrowprops=Dict("arrowstyle" => "->"),
+    fontsize=11)
+
+annotate("Right CI: $(round(inj_rate_at_ci_upper, digits=4)) m³/s",
+    xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
+    xytext=(inj_rate_at_ci_upper + 0.002, 1.5),
+    arrowprops=Dict("arrowstyle" => "->"),
+    fontsize=11)
+
+# Zoom limits
+xlim(0.025, 0.045)
+ylim(0, 5)
+
+xlabel("Average Injection Rate (m³/s)", fontsize=13)
+ylabel("Fracture Probability (%)", fontsize=13)
+title("Zoomed-In: Fracture Probability vs Average Injection Rate", fontsize=14)
+legend(loc="upper left", fontsize=11)
+grid(true)
+tight_layout()
+
+# Save figure
+if CI_type == "wald"
+    filename = "fracture_prob_CI_wald_zoomin_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
+else
+    filename = "fracture_prob_CI_wilson_zoomin_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
+end
+
+safesave(joinpath(plot_path, filename), fig)
 close(fig)
