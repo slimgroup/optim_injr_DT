@@ -180,6 +180,18 @@ sat_init = S
 # MPC forward steps
 forward_step = 2
 
+# Function to pad the phi matrix with a large value
+function pad_phi(phi, h, d; pad_value=1e8)
+    padded_phi = copy(phi)
+    padded_phi[1, :] .= pad_value                         # top row
+    padded_phi[end, :] .= pad_value                       # bottom row
+    padded_phi[:, 1] .= phi[:, 1] * (h / d[end] + 1)      # left column
+    padded_phi[:, end] .= pad_value                       # right column
+    return padded_phi
+end
+
+phi_padded = pad_phi(phi, h, d)
+
 ## The objective function of the optimization problem
 function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=nothing, pres_init=nothing)
     # inj_rate, the injection rate vector
@@ -218,6 +230,7 @@ function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=not
         if i == 1
             # set up the reservoir parameters
             model = jutulModel(n, d, ϕ, K1to3(K; kvoverkh=0.36); h=h)
+            # model = jutulModel(n, d, vec(phi_padded), K1to3(K; kvoverkh=0.36))
             f = jutulVWell(inj_rate[i], [(inj_loc[1], inj_loc[2])]; startz = [inj_loc[3]], endz = [inj_loc[3]+6*d[3]])
             S = jutulModeling(model, time_step[1:ds])
             Trans = KtoTrans(CartesianMesh(model), K1to3(K; kvoverkh=0.36))    
@@ -226,7 +239,8 @@ function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=not
             @time states = S(log.(Trans), f; state0=state0)
             previous_state = states.states[end]
         else
-            model = jutulModel(n, d, ϕ, K1to3(K; kvoverkh=0.36); h=h)
+            # model = jutulModel(n, d, ϕ, K1to3(K; kvoverkh=0.36); h=h)
+            model = jutulModel(n, d, vec(phi_padded), K1to3(K; kvoverkh=0.36))
             f = jutulVWell(inj_rate[i], [(inj_loc[1],inj_loc[2])]; startz = [inj_loc[3]], endz = [inj_loc[3]+6*d[3]])
             S = jutulModeling(model, time_step[1:ds])
             Trans = KtoTrans(CartesianMesh(model), K1to3(K; kvoverkh=0.36))
@@ -301,6 +315,19 @@ sim_name = "DT_control"
 exp_name = "step1"  
 
 plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "states")
+# plot_path = plotsdir("vec_poro", sim_name, savename(@strdict(exp_name); digits=6), "states")
+
+# plot_state(transpose(sat_tmp[1]), "CO2 Saturation", "_co2sat_test_1_2_1" * ".png", plot_path, s, h, n, d, "sat")
+# plot_state(transpose(sat_tmp[5]), "CO2 Saturation", "_co2sat_test_1_2_5" * ".png", plot_path, s, h, n, d, "sat")
+# plot_state(transpose(sat_tmp[10]), "CO2 Saturation", "_co2sat_test_1_2_10" * ".png", plot_path, s, h, n, d, "sat")
+
+# plot_state(transpose(pres_tmp[1]), "Pressure", "_pres_test_1_2_1" * ".png", plot_path, s, h, n, d, "pres")
+# plot_state(transpose(pres_tmp[5]), "Pressure", "_pres_test_1_2_5" * ".png", plot_path, s, h, n, d, "pres")
+# plot_state(transpose(pres_tmp[10]), "Pressure", "_pres_test_1_2_10" * ".png", plot_path, s, h, n, d, "pres")
+
+# plot_state(transpose(pres_tmp[1]), "Pressure Difference", "_presdiff_test_1_2_1" * ".png", plot_path, s, h, n, d, "pres_thres", threshold)
+# plot_state(transpose(pres_tmp[5]), "Pressure Difference", "_presdiff_test_1_2_5" * ".png", plot_path, s, h, n, d, "pres_thres", threshold)
+# plot_state(transpose(pres_tmp[10]), "Pressure Difference", "_presdiff_test_1_2_10" * ".png", plot_path, s, h, n, d, "pres_thres", threshold)
 
 # Function to plot the states variables, including permeability, pressure, pressure with threshold, saturation and porosity
 function plot_state(data, title_str, file_suffix, plot_path, sample, h, n, d, type, iter=-1, threshold=-1)
@@ -535,6 +562,7 @@ plot_state(transpose(pres_arr[six_sixths]), "Pressure Difference", "_presdiff" *
 # Save states variable at step 0
 j = 0
 @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
+# @tagsave(datadir("vec_poro", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
 Dict(
     "sat_arr" => sat_arr,
     "pres_arr" => pres_arr, 
@@ -592,7 +620,8 @@ for j=1:niterations
     grad_arr[j+1, :] = grad
 
     # Save states variable via iteration
-    @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
+    # @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
+    @tagsave(datadir("vec_poro", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6)),
     Dict(
         "sat_arr" => sat_arr,
         "pres_arr" => pres_arr, 
@@ -637,7 +666,8 @@ for j=1:niterations
 end
 
 # Save states variable via samples
-@tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8)),
+# @tagsave(datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8)),
+@tagsave(datadir("vec_poro", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8)),
 Dict(
     "inj_rate_arr" => inj_rate_arr,
     "step_arr" => step_arr,

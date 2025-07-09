@@ -91,11 +91,12 @@ injr_dist[73:128]  .= injr_dist_73_to_128[73:128]
 @show length(injr_dist)  # should be 128
 @show sum(injr_dist .!= 0)  # should be 128 if all nonzeros were distinct
 
-
 ## Set bandwidth 
-optimal_bandwidth = 0.0014
+optimal_bandwidth = 0.0008
 ## Set plot path
 plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "decision")
+
+
 
 
 ## Plot the injection rate distribution 
@@ -225,124 +226,90 @@ close(fig)
 
 
 
-## Confidence interval type
-CI_type = "wald"
-# CI_type = "wilson"
-fracture_prob_threshold = 0.01  # 1% fracture probability
-conf_level = 0.99  # 99% confidence level
-num_sample_kde = 4000
 
-## Plot CDF and confidence interval
+using StatsBase
 
-# Compute KDE with specified bandwidth
-kde_res = kde(injr_dist; bandwidth=optimal_bandwidth)
+num_trials = 10
+sample_size = 64
+num_bins = 75
 
-# Sort injection rates
-sorted_injr = sort(injr_dist)
+# Define global bin edges using full dataset
+global_bin_edges = range(minimum(injr_dist), stop=maximum(injr_dist), length=num_bins+1)
+bin_width = global_bin_edges[2] - global_bin_edges[1]
+bin_centers = (global_bin_edges[1:end-1] .+ global_bin_edges[2:end]) ./ 2
 
-# Create kde_x range for evaluation
-kde_x = range(minimum(injr_dist), stop=maximum(injr_dist), length=num_sample_kde)
-step = kde_x[2] - kde_x[1]
-
-# Compute KDE PDF values at kde_x
-kde_pdf_vals = pdf(kde_res, kde_x)
-
-# Compute smooth KDE-based CDF by cumulative sum * step
-kde_cdf = cumsum(kde_pdf_vals) * step
-
-# Prepare arrays for confidence intervals
-ci_lower_arr = zeros(num_sample_kde)
-ci_upper_arr = zeros(num_sample_kde)
-
-n = length(injr_dist)  # sample size
-
-z = quantile(Normal(), 1 - (1 - conf_level) / 2)  # z-score for CI
-
-# calculate the confidence interval
-for i in 1:num_sample_kde
-    if CI_type == "wald"
-        p_hat = kde_cdf[i]
-        se = sqrt(p_hat * (1 - p_hat) / n)
-        ci_lower_arr[i] = max(0.0, p_hat - z * se)
-        ci_upper_arr[i] = min(1.0, p_hat + z * se)
-    else
-        p_hat = kde_cdf[i]
-        z2 = z^2
-        denom = 1 + z2 / n
-        center = p_hat + z2 / (2n)
-        radicand = p_hat * (1 - p_hat) / n + z2 / (4n^2)
-        delta = z * sqrt(radicand)
-        
-        ci_lower = max(0, (center - delta) / denom)
-        ci_upper = min(1, (center + delta) / denom)
-
-        ci_lower_arr[i] = ci_lower
-        ci_upper_arr[i] = ci_upper
-    end
+# --- Collect 10 trials of 64-sample draws ---
+samples_matrix = zeros(sample_size, num_trials)
+for i in 1:num_trials
+    samples_matrix[:, i] .= sample(injr_dist, sample_size; replace=true)
 end
 
-# Threshold crossing index
-idx_at_ci_lower = findfirst(x -> x >= fracture_prob_threshold, ci_lower_arr)
-inj_rate_at_ci_lower = kde_x[idx_at_ci_lower]
+# --- Average histogram from trials ---
+hist_accum = zeros(length(global_bin_edges) - 1)
+for i in 1:num_trials
+    counts, _ = hist(samples_matrix[:, i], global_bin_edges; density=false)
+    hist_accum .+= counts
+end
+avg_hist = hist_accum ./ num_trials
 
-idx_at_ci_upper = findfirst(x -> x >= fracture_prob_threshold, ci_upper_arr)
-inj_rate_at_ci_upper = kde_x[idx_at_ci_upper]
+# --- Averaged sample (mean at each position across 10 trials) ---
+avg_sample = mean(samples_matrix, dims=2)[:, 1]
 
-idx_at_ci_cdf = findfirst(x -> x >= fracture_prob_threshold, kde_cdf)
-inj_rate_at_cdf = kde_x[idx_at_ci_cdf]
+# --- Histogram and KDE from full 128 samples ---
+full_counts, _ = hist(injr_dist, global_bin_edges; density=false)
+kde_full = kde(injr_dist; bandwidth=optimal_bandwidth)
 
-# Plotting
-fig = figure(figsize=(8, 8))
+# --- KDE from averaged 64-sample (your proposed method) ---
+kde_avg = kde(avg_sample; bandwidth=optimal_bandwidth)
 
-plot(kde_x, kde_cdf * 100, label="CDF", linewidth=2)
-fill_between(kde_x, ci_lower_arr * 100, ci_upper_arr * 100, color="gray", alpha=0.3, label=string(Int(conf_level*100)) * "% Confidence Interval")
-axhline(y=fracture_prob_threshold * 100, color="red", linestyle="--", linewidth=1.5, label=string(Int(fracture_prob_threshold*100)) * "% Fracture Probability")
+# Scale both KDEs to match histogram frequency
+scaled_kde_full = kde_full.density .* length(injr_dist) .* bin_width
+scaled_kde_avg = kde_avg.density .* length(avg_sample)  .* bin_width 
 
-annotate(
-    "Injection Rate at " * string(Int(fracture_prob_threshold*100)) * "% Probability: $(round(inj_rate_at_cdf, digits=4)) m³/s",
-    xy=(inj_rate_at_cdf, fracture_prob_threshold * 100),
-    xytext=(inj_rate_at_cdf + 0.07, fracture_prob_threshold * 100 + 25),
-    arrowprops=Dict("arrowstyle" => "->", "connectionstyle" => "arc3,rad=0"),
-    fontsize=14,
-    ha="center"
-)
+# --- Plotting ---
+fig = figure(figsize=(10, 6))
 
-annotate(
-    "Left CI: $(round(inj_rate_at_ci_lower, digits=4)) m³/s",
-    xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
-    xytext=(inj_rate_at_ci_lower + 0.08, fracture_prob_threshold * 100 + 40),
-    arrowprops=Dict("arrowstyle" => "->", "connectionstyle" => "arc3,rad=0"),
-    fontsize=14,
-    ha="right"
-)
+# Full 128-sample histogram
+bar(bin_centers, full_counts; width=bin_width, alpha=0.5, color="#4A90E2",
+    edgecolor="#1F497D", label="Full 128 Samples")
 
-annotate(
-    "Right CI: $(round(inj_rate_at_ci_upper, digits=4)) m³/s",
-    xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
-    xytext=(inj_rate_at_ci_upper + 0.04, fracture_prob_threshold * 100 + 10),
-    arrowprops=Dict("arrowstyle" => "->", "connectionstyle" => "arc3,rad=0"),
-    fontsize=14,
-    ha="left"
-)
+# Averaged histogram (from 10 trials)
+bar(bin_centers, avg_hist; width=bin_width, alpha=0.5, color="#F5A623",
+    edgecolor="#C87E00", label="Average Histogram (10 Trials of 64 Samples)")
 
-grid(color="lightgray", linestyle="--", linewidth=0.5)
-xlabel("Average Injection Rate (m³/s)", fontsize=16)
-ylabel("Fracture Probability (%)", fontsize=16)
-title("Fracture Probability vs Average Injection Rate", fontsize=18)
-legend(loc="upper left", fontsize=14)
-xticks(fontsize=14)
-yticks(fontsize=14)
+# KDE: Full 128 samples
+plot(kde_full.x, scaled_kde_full, color="#D9534F", linewidth=2.5, label="KDE (Full 128 Samples)")
+
+# KDE: Averaged 64-sample vector
+plot(kde_avg.x, scaled_kde_avg, color="#F39C12", linewidth=2.5, linestyle="--",
+     label="KDE (Mean of 10x 64 Samples)")
+
+# # Rug plot (optional)
+# for x in injr_dist
+#     plot([x, x], [0, maximum(scaled_kde_full)*0.04], color="#333333", alpha=0.6, linewidth=1.0)
+# end
+
+# Final plot settings
+title("Injection Rate Distribution: Full vs Averaged 64-Sample KDE", fontsize=18, fontweight="bold")
+xlabel("Average Injection Rate (m³/s)", fontsize=16, fontweight="bold")
+ylabel("Frequency", fontsize=16, fontweight="bold")
+legend(fontsize=14, frameon=false)
+xticks(fontsize=14, fontweight="bold")
+yticks(fontsize=14, fontweight="bold")
+
+ax = gca()
+ax.spines["top"].set_visible(false)
+ax.spines["right"].set_visible(false)
+ax.tick_params(axis="y", colors="black")
+ax.minorticks_on()
+
+grid(color="#AAAAAA", linestyle="--", linewidth=0.5, alpha=0.7)
 tight_layout()
 
-# Save figure
-if CI_type == "wald"
-    filename = "fracture_prob_CI_wald_$(num_s)samples_bandwidth$(optimal_bandwidth).png"
-else
-    filename = "fracture_prob_CI_wislon_$(num_s)samples_bandwidth$(optimal_bandwidth).png"
-end
-
+filename = "injection_distribution_avg64_vector_vs_full128.png"
 safesave(joinpath(plot_path, filename), fig)
 close(fig)
+
 
 
 
@@ -351,7 +318,7 @@ CI_type = "wald"
 # CI_type = "wilson"
 fracture_prob_threshold = 0.01  # 1%
 conf_level = 0.99  # 99% confidence level
-num_sample_kde = 4000
+num_sample_kde = 16000
 
 ## Plot the zoomed in CDF and confidence interval
 
@@ -394,6 +361,21 @@ for i in 1:num_sample_kde
     end
 end
 
+# function interpolate_threshold_crossing(x, y, threshold)
+#     for i in 2:length(x)
+#         if y[i-1] < threshold && y[i] >= threshold
+#             x1, x2 = x[i-1], x[i]
+#             y1, y2 = y[i-1], y[i]
+#             return x1 + (threshold - y1) * (x2 - x1) / (y2 - y1)
+#         end
+#     end
+#     return NaN  # no crossing found
+# end
+
+# inj_rate_at_ci_upper = interpolate_threshold_crossing(kde_x, ci_upper_arr, fracture_prob_threshold)
+# inj_rate_at_ci_lower = interpolate_threshold_crossing(kde_x, ci_lower_arr, fracture_prob_threshold)
+# inj_rate_at_cdf      = interpolate_threshold_crossing(kde_x, kde_cdf, fracture_prob_threshold)
+
 # Threshold crossing index
 idx_at_ci_lower = findfirst(x -> x >= fracture_prob_threshold, ci_lower_arr)
 inj_rate_at_ci_lower = kde_x[idx_at_ci_lower]
@@ -411,19 +393,19 @@ fill_between(kde_x, ci_lower_arr * 100, ci_upper_arr * 100, color="gray", alpha=
 axhline(y=fracture_prob_threshold * 100, color="red", linestyle="--", linewidth=1.5, label=string(Int(fracture_prob_threshold*100)) * "% Fracture Probability")
 
 # Annotations
-annotate("Injection Rate at " * string(Int(fracture_prob_threshold*100)) * "% Probability: $(round(inj_rate_at_cdf, digits=4)) m³/s",
+annotate("Injection Rate at " * string(Int(fracture_prob_threshold*100)) * "% Probability: $(round(inj_rate_at_cdf, digits=5)) m³/s",
     xy=(inj_rate_at_cdf, fracture_prob_threshold * 100),
     xytext=(inj_rate_at_cdf + 0.002, 2.5),
     arrowprops=Dict("arrowstyle" => "->"),
     fontsize=11)
 
-annotate("Left CI: $(round(inj_rate_at_ci_lower, digits=4)) m³/s",
+annotate("Left CI: $(round(inj_rate_at_ci_lower, digits=5)) m³/s",
     xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
     xytext=(inj_rate_at_ci_lower + 0.002, 3.5),
     arrowprops=Dict("arrowstyle" => "->"),
     fontsize=11)
 
-annotate("Right CI: $(round(inj_rate_at_ci_upper, digits=4)) m³/s",
+annotate("Right CI: $(round(inj_rate_at_ci_upper, digits=5)) m³/s",
     xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
     xytext=(inj_rate_at_ci_upper + 0.002, 1.5),
     arrowprops=Dict("arrowstyle" => "->"),
