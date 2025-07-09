@@ -259,8 +259,18 @@ avg_sample = mean(samples_matrix, dims=2)[:, 1]
 full_counts, _ = hist(injr_dist, global_bin_edges; density=false)
 kde_full = kde(injr_dist; bandwidth=optimal_bandwidth)
 
-# --- KDE from averaged 64-sample (your proposed method) ---
-kde_avg = kde(avg_sample; bandwidth=optimal_bandwidth)
+using Interpolations
+
+kde_x = range(minimum(injr_dist), stop=maximum(injr_dist), length=1000)
+kde_accum = zeros(length(kde_x))
+
+for i in 1:num_trials
+    kde_i = kde(samples_matrix[:, i]; bandwidth=optimal_bandwidth)
+    interp_i = LinearInterpolation(kde_i.x, kde_i.density .* sample_size .* bin_width, extrapolation_bc=Line())
+    kde_accum .+= interp_i.(kde_x)
+end
+
+kde_avg = kde_accum ./ num_trials
 
 # Scale both KDEs to match histogram frequency
 scaled_kde_full = kde_full.density .* length(injr_dist) .* bin_width
@@ -306,7 +316,7 @@ ax.minorticks_on()
 grid(color="#AAAAAA", linestyle="--", linewidth=0.5, alpha=0.7)
 tight_layout()
 
-filename = "injection_distribution_avg64_vector_vs_full128.png"
+filename = "injection_distribution_avg64_vs_full128.png"
 safesave(joinpath(plot_path, filename), fig)
 close(fig)
 
