@@ -106,15 +106,15 @@ plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "decision
 # Your injection rate data vector, example:
 # injr_dist = [...]
 
-function find_local_maxima(density_array)
-    maxima = Int[]
-    for i in 2:length(density_array)-1
-        if density_array[i] > density_array[i-1] && density_array[i] > density_array[i+1]
-            push!(maxima, i)
-        end
-    end
-    return maxima
-end
+# function find_local_maxima(density_array)
+#     maxima = Int[]
+#     for i in 2:length(density_array)-1
+#         if density_array[i] > density_array[i-1] && density_array[i] > density_array[i+1]
+#             push!(maxima, i)
+#         end
+#     end
+#     return maxima
+# end
 
 kde_res = kde(injr_dist; bandwidth=optimal_bandwidth)
 
@@ -144,32 +144,32 @@ for x in injr_dist
     plot([x, x], [0, maximum(scaled_kde_density)*0.04], color="#333333", alpha=0.7, linewidth=1.0)
 end
 
-# Define red box regions including the new left region
-red_boxes = [
-    (0.015, 0.025),
-    (0.025, 0.05),
-    (0.055, 0.07),
-    (0.08, 0.095),
-    (0.11, 0.12),
-    (0.13, 0.145)
-]
+# # Define red box regions including the new left region
+# red_boxes = [
+#     (0.015, 0.025),
+#     (0.025, 0.05),
+#     (0.055, 0.07),
+#     (0.08, 0.095),
+#     (0.11, 0.12),
+#     (0.13, 0.145)
+# ]
 
-local_maxima_indices = find_local_maxima(kde_res.density)
+# local_maxima_indices = find_local_maxima(kde_res.density)
 
-selected_peak_indices = Int[]
+# selected_peak_indices = Int[]
 
-max_labels_per_box = 1  # reduce to 1 peak per box for less clutter
+# max_labels_per_box = 1  # reduce to 1 peak per box for less clutter
 
-for (xmin, xmax) in red_boxes
-    region_peaks = filter(idx -> (kde_res.x[idx] >= xmin) && (kde_res.x[idx] <= xmax) && (idx in local_maxima_indices), 1:length(kde_res.x))
-    if !isempty(region_peaks)
-        sorted_peaks = sort(region_peaks, by=idx -> -kde_res.density[idx])
-        top_peaks = sorted_peaks[1:min(max_labels_per_box, length(sorted_peaks))]
-        append!(selected_peak_indices, top_peaks)
-    end
-end
+# for (xmin, xmax) in red_boxes
+#     region_peaks = filter(idx -> (kde_res.x[idx] >= xmin) && (kde_res.x[idx] <= xmax) && (idx in local_maxima_indices), 1:length(kde_res.x))
+#     if !isempty(region_peaks)
+#         sorted_peaks = sort(region_peaks, by=idx -> -kde_res.density[idx])
+#         top_peaks = sorted_peaks[1:min(max_labels_per_box, length(sorted_peaks))]
+#         append!(selected_peak_indices, top_peaks)
+#     end
+# end
 
-selected_peak_indices = sort(unique(selected_peak_indices), by=idx -> kde_res.x[idx])
+# selected_peak_indices = sort(unique(selected_peak_indices), by=idx -> kde_res.x[idx])
 
 # # Plot with staggered vertical offsets to avoid overlap
 # for (i, idx) in enumerate(selected_peak_indices)
@@ -227,110 +227,15 @@ close(fig)
 
 
 
-using StatsBase
-
-num_trials = 10
-sample_size = 64
-num_bins = 75
-
-# Define global bin edges using full dataset
-global_bin_edges = range(minimum(injr_dist), stop=maximum(injr_dist), length=num_bins+1)
-bin_width = global_bin_edges[2] - global_bin_edges[1]
-bin_centers = (global_bin_edges[1:end-1] .+ global_bin_edges[2:end]) ./ 2
-
-# --- Collect 10 trials of 64-sample draws ---
-samples_matrix = zeros(sample_size, num_trials)
-for i in 1:num_trials
-    samples_matrix[:, i] .= sample(injr_dist, sample_size; replace=true)
-end
-
-# --- Average histogram from trials ---
-hist_accum = zeros(length(global_bin_edges) - 1)
-for i in 1:num_trials
-    counts, _ = hist(samples_matrix[:, i], global_bin_edges; density=false)
-    hist_accum .+= counts
-end
-avg_hist = hist_accum ./ num_trials
-
-# --- Averaged sample (mean at each position across 10 trials) ---
-avg_sample = mean(samples_matrix, dims=2)[:, 1]
-
-# --- Histogram and KDE from full 128 samples ---
-full_counts, _ = hist(injr_dist, global_bin_edges; density=false)
-kde_full = kde(injr_dist; bandwidth=optimal_bandwidth)
-
-using Interpolations
-
-kde_x = range(minimum(injr_dist), stop=maximum(injr_dist), length=1000)
-kde_accum = zeros(length(kde_x))
-
-for i in 1:num_trials
-    kde_i = kde(samples_matrix[:, i]; bandwidth=optimal_bandwidth)
-    interp_i = LinearInterpolation(kde_i.x, kde_i.density .* sample_size .* bin_width, extrapolation_bc=Line())
-    kde_accum .+= interp_i.(kde_x)
-end
-
-kde_avg = kde_accum ./ num_trials
-
-# Scale both KDEs to match histogram frequency
-scaled_kde_full = kde_full.density .* length(injr_dist) .* bin_width
-scaled_kde_avg = kde_avg.density .* length(avg_sample)  .* bin_width 
-
-# --- Plotting ---
-fig = figure(figsize=(10, 6))
-
-# Full 128-sample histogram
-bar(bin_centers, full_counts; width=bin_width, alpha=0.5, color="#4A90E2",
-    edgecolor="#1F497D", label="Full 128 Samples")
-
-# Averaged histogram (from 10 trials)
-bar(bin_centers, avg_hist; width=bin_width, alpha=0.5, color="#F5A623",
-    edgecolor="#C87E00", label="Average Histogram (10 Trials of 64 Samples)")
-
-# KDE: Full 128 samples
-plot(kde_full.x, scaled_kde_full, color="#D9534F", linewidth=2.5, label="KDE (Full 128 Samples)")
-
-# KDE: Averaged 64-sample vector
-plot(kde_avg.x, scaled_kde_avg, color="#F39C12", linewidth=2.5, linestyle="--",
-     label="KDE (Mean of 10x 64 Samples)")
-
-# # Rug plot (optional)
-# for x in injr_dist
-#     plot([x, x], [0, maximum(scaled_kde_full)*0.04], color="#333333", alpha=0.6, linewidth=1.0)
-# end
-
-# Final plot settings
-title("Injection Rate Distribution: Full vs Averaged 64-Sample KDE", fontsize=18, fontweight="bold")
-xlabel("Average Injection Rate (m³/s)", fontsize=16, fontweight="bold")
-ylabel("Frequency", fontsize=16, fontweight="bold")
-legend(fontsize=14, frameon=false)
-xticks(fontsize=14, fontweight="bold")
-yticks(fontsize=14, fontweight="bold")
-
-ax = gca()
-ax.spines["top"].set_visible(false)
-ax.spines["right"].set_visible(false)
-ax.tick_params(axis="y", colors="black")
-ax.minorticks_on()
-
-grid(color="#AAAAAA", linestyle="--", linewidth=0.5, alpha=0.7)
-tight_layout()
-
-filename = "injection_distribution_avg64_vs_full128.png"
-safesave(joinpath(plot_path, filename), fig)
-close(fig)
-
-
-
-
 ## Confidence interval type
 CI_type = "wald"
 # CI_type = "wilson"
 fracture_prob_threshold = 0.01  # 1%
 conf_level = 0.99  # 99% confidence level
 num_sample_kde = 16000
+zoomed_in = true  # Set to true for zoomed-in plot
 
-## Plot the zoomed in CDF and confidence interval
+## Plot the CDF and confidence interval
 
 # Parameters
 z = quantile(Normal(), 1 - (1 - conf_level) / 2)
@@ -340,9 +245,9 @@ fracture_prob_threshold = 0.01  # 1%
 # KDE
 kde_res = kde(injr_dist; bandwidth=optimal_bandwidth)
 kde_x = range(minimum(injr_dist), stop=maximum(injr_dist), length=num_sample_kde)
-step = kde_x[2] - kde_x[1]
+stp = kde_x[2] - kde_x[1]
 kde_pdf_vals = pdf(kde_res, kde_x)
-kde_cdf = cumsum(kde_pdf_vals) * step
+kde_cdf = cumsum(kde_pdf_vals) * stp
 
 # Wald Confidence Interval
 ci_lower_arr = zeros(num_sample_kde)
@@ -396,7 +301,7 @@ inj_rate_at_ci_upper = kde_x[idx_at_ci_upper]
 idx_at_ci_cdf = findfirst(x -> x >= fracture_prob_threshold, kde_cdf)
 inj_rate_at_cdf = kde_x[idx_at_ci_cdf]
 
-# Plot (Zoomed-in)
+# Plot 
 fig = figure(figsize=(8, 6))
 plot(kde_x, kde_cdf .* 100, label="CDF", linewidth=2)
 fill_between(kde_x, ci_lower_arr * 100, ci_upper_arr * 100, color="gray", alpha=0.3, label=string(Int(conf_level*100)) * "% Confidence Interval")
@@ -422,8 +327,10 @@ annotate("Right CI: $(round(inj_rate_at_ci_upper, digits=5)) m³/s",
     fontsize=11)
 
 # Zoom limits
-xlim(0.025, 0.045)
-ylim(0, 5)
+if zoomed_in
+    xlim(0.025, 0.045)
+    ylim(0, 5)
+end
 
 xlabel("Average Injection Rate (m³/s)", fontsize=13)
 ylabel("Fracture Probability (%)", fontsize=13)
@@ -433,11 +340,8 @@ grid(true)
 tight_layout()
 
 # Save figure
-if CI_type == "wald"
-    filename = "fracture_prob_CI_wald_zoomin_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
-else
-    filename = "fracture_prob_CI_wilson_zoomin_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
-end
+suffix = zoomed_in ? "_zoomin" : ""
+filename = "fracture_prob$(suffix)_CI_$(CI_type)_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
 
 safesave(joinpath(plot_path, filename), fig)
 close(fig)
