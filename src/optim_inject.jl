@@ -61,81 +61,16 @@ d = (6.25, 100.0, 6.25)
 h = 0.0
 ϕ = 0.25
 
+# specify which monitoring step to run
+monitoring_step = 2
+
 # Load the geological properties and reservoir state variables
 perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
 perm_data = JLD2.load(perm_path)
 BroadK = perm_data["BroadK"]
 
-phi = perm_data["phi"]
-rho_path = datadir("geo/rho_resized.jld2")
-rho_data = JLD2.load(rho_path)
-rho = rho_data["rho_resize"]
-
-# Convert to kg/m³
-rho_kgm3 = 1000 .* rho
-
-# # Plot
-# imshow(rho_kgm3', cmap="viridis", aspect="auto")
-# colorbar(label="Density (kg/m³)")
-# xlabel("X")
-# ylabel("Z")
-# title("Resized Density Field (ρ)")
-# savefig("rho_density.png")
-# clf()
-
-# imshow(phi', cmap="viridis", aspect="auto")
-# colorbar(label="Porosity")
-# xlabel("X")
-# ylabel("Z")
-# title("Porosity Field (φ)")
-# savefig("phi.png")
-# clf()
-
-ρ_f = 1000.0  # fluid density in kg/m³
-
-# Use `rho` as ρ_m (matrix density)
-ρ_b = phi .* ρ_f .+ (1 .- phi) .* rho_kgm3
-
-# # Plot bulk density
-# imshow(ρ_b', cmap="viridis", origin="upper", aspect="auto")
-# colorbar(label="Bulk Density ρ_b (kg/m³)")
-# xlabel("X")
-# ylabel("Z")
-# title("Estimated Bulk Density Field (ρ_b)")
-# savefig("rho_b_field.png")
-# clf()
-
-Z = (1:n[3]) .* d[1]              # depth vector
-Zmat = repeat(Z, 1, n[1])           # broadcasted depth
-
-# g = 9.81
-g = 10  # gravity in m/s²
-alpha = 0.8
-
-# p_frac = alpha .* ρ_b' .* g .* Zmat ./ 1e6  # in MPa
-p_frac = alpha .* ρ_b' .* g .* Zmat  # in MPa
-
-# # Plot estimated fracture pressure
-# imshow(p_frac, cmap="plasma", origin="upper", aspect="auto")
-# colorbar(label="Fracture Pressure (MPa)")
-# xlabel("X")
-# ylabel("Z")
-# title("Estimated Fracture Pressure from φ-based Bulk Density")
-# savefig("p_frac_from_rho_b.png")
-# clf()
-
-# p_frac_constant = p_max/1e6
-# # Plot estimated fracture pressure
-# imshow(p_frac_constant', cmap="plasma", origin="upper", aspect="auto")
-# colorbar(label="Fracture Pressure (MPa)")
-# xlabel("X")
-# ylabel("Z")
-# title("Estimated Fracture Pressure With Constant")
-# savefig("p_frac_from_constant.png")
-# clf()
-
-state1_path = datadir("state/Wise128_state_t1_rtm1_broad_NL_SNR28.jld2")
-state1_data = JLD2.load(state1_path)
+state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
+state_data = JLD2.load(state_path)
 
 # # for test, fix s to be 1
 s = 1
@@ -146,36 +81,57 @@ s = 1
 # # println("idx_num: ", s) 
 
 # Permeability indices
-idices = state1_data["idx_t1"]
+idices = state_data["idx_t" * string(monitoring_step)]
 idx = idices[s]
-
 K = BroadK[idx, :, :]
 
+# Water pressure 
+# p0 = (repeat(collect(1:256), 1, 512) * d[3] .+ h) * JutulDarcyRules.ρH2O * 9.807
+p0 = (repeat(collect(1:256), 1, 512) * d[3] .+ h) * JutulDarcyRules.ρH2O * 10
+
+## Set the fracture pressure 
+threshold = 4.0
+p_max = p0' .+ threshold * 10^6
+
 # For step 1
+if monitoring_step == 1
+    # Find injection location to be in the high permeability channel
+    inj_t1 = 191 + argmax(K[250, 191:200]) - 1
 
-# Find injection location to be in the high permeability channel
-inj_t1 = 191 + argmax(K[250, 191:200]) - 1
+    # Generate prior saturation        
+    S = zeros(Float64, n[1],n[end]);
+    Random.seed!(2025+s-1)  # Set the seed
+    value = 0.2 + rand(Float64)*0.6;
+    S[249:251,inj_t1-4] .= value;
+    S[248:252,inj_t1-3] .= value;
+    S[247:253,inj_t1-2] .= value;
+    S[246:254,inj_t1-1] .= value;
+    S[246:254,inj_t1]   .= value;
+    S[246:254,inj_t1+1] .= value;
+    S[247:253,inj_t1+2] .= value;
+    S[248:252,inj_t1+3] .= value;
+    S[249:251,inj_t1+4] .= value;
+    prior_t1 = S;
 
-# Generate prior saturation        
-S = zeros(Float64, n[1],n[end]);
-Random.seed!(2025+s-1)  # Set the seed
-value = 0.2 + rand(Float64)*0.6;
-S[249:251,inj_t1-4] .= value;
-S[248:252,inj_t1-3] .= value;
-S[247:253,inj_t1-2] .= value;
-S[246:254,inj_t1-1] .= value;
-S[246:254,inj_t1]   .= value;
-S[246:254,inj_t1+1] .= value;
-S[247:253,inj_t1+2] .= value;
-S[248:252,inj_t1+3] .= value;
-S[249:251,inj_t1+4] .= value;
-prior_t1 = S;
+    # # initial saturation and pressure
+    sat_init = S
+    # pres_init = water pressure
+else
+    # For other steps
+    prior_path = datadir("state/Wise_128SatPres_for_Optim_Inj_vec_ir_k" * string(monitoring_step-1) * ".jld2")
+    prior_data = JLD2.load(prior_path)
 
-# # initial saturation and pressure
-sat_init = S
-# pres_init = water pressure
+    ## Choose the worst posterior sample as the prior state 
 
-# For other steps
+    pres_samples = prior_data["pres_samples"]
+    # min value in each 512x256 sample (i.e. along dimensions 2 & 3)
+    min_each_sample = map(i -> minimum(p_max - pres_samples[i, :, :]), 1:size(pres_samples, 1))
+    # get the global min across all samples
+    global_min_idx = argmin(min_each_sample)
+
+    sat_init = prior_data["sat_samples"][global_min_idx, :, :]
+    pres_init = prior_data["pres_samples"][global_min_idx, :, :]
+end
 
 # MPC forward steps
 forward_step = 2
@@ -185,7 +141,6 @@ function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=not
     # inj_rate, the injection rate vector
 
     # smooth and steadily increasing injection strategy
-    # inj_rate = collect(range(init_inj_rate[1], inj_rate[1], 6))
     inj_rate = collect(range(init_inj_rate[1], inj_rate[1], forward_step * 6))
 
     # time discretization
@@ -221,8 +176,14 @@ function objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init=not
             f = jutulVWell(inj_rate[i], [(inj_loc[1], inj_loc[2])]; startz = [inj_loc[3]], endz = [inj_loc[3]+6*d[3]])
             S = jutulModeling(model, time_step[1:ds])
             Trans = KtoTrans(CartesianMesh(model), K1to3(K; kvoverkh=0.36))    
+
             state0 = jutulSimpleState(model)
-            state0[1:n[1]*n[3]] = vec(sat_init)    
+            state0[1:n[1]*n[3]] = vec(sat_init)  
+            # set the initial pressure
+            if !isnothing(pres_init)
+                state0[n[1]*n[3]+1:end] = vec(pres_init)
+            end
+
             @time states = S(log.(Trans), f; state0=state0)
             previous_state = states.states[end]
         else
@@ -295,10 +256,14 @@ function grad_wrt_inj(inj_rate, delta_inj_rate, time_step, K, inj_loc, p_max, BH
 end
 
 # The initial injection rate
-init_inj_rate = [0.0001]
+# change according to the monitoring step
+# monitoring step 1
+# init_inj_rate = [0.0001]
+# monitoring step 2
+init_inj_rate = [0.026245454545454544]
 
 sim_name = "DT_control"
-exp_name = "step1"  
+exp_name = "step" * string(monitoring_step)
 
 plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "states")
 
@@ -326,20 +291,9 @@ function plot_state(data, title_str, file_suffix, plot_path, sample, h, n, d, ty
 
         data_diff = data - p0
 
-        # # threshold = maximum(data)
-
         # define a new cmap for the threshold
         lower_cmap_size = round(Int, 256 * threshold * 1e6 / maximum(data_diff))
         upper_cmap_size = 256 - lower_cmap_size
-
-        # # if all the points in the figure smaller than the pressure threshold
-        # lower_cmap_size = 256
-        # upper_cmap_size = 0
-        # imshow(data / 1e6, extent=(0, (n[1]-1)*d[1], h+(n[3]-1)*d[3], h), cmap="Blues", vmin=0, vmax=threshold)
-        # clb = colorbar(fraction=0.046*im_ratio, pad=0.04, extend="max")
-        # # Adjust the colorbar to reflect the threshold
-        # clb.set_ticks([0, threshold])
-        # clb.set_ticklabels(["0.0", string(threshold)])
 
         if lower_cmap_size > 256
             # if all the points in the figure smaller than the pressure threshold
@@ -356,11 +310,7 @@ function plot_state(data, title_str, file_suffix, plot_path, sample, h, n, d, ty
             np = pyimport("numpy")
             lower_cmap = PyPlot.cm.Blues(np.linspace(0, 1, lower_cmap_size))
             upper_cmap = transpose(repeat(collect(PyPlot.cm.colors.to_rgba("red")), outer=(1, upper_cmap_size)))
-
-            # new_cmap_array = vcat(lower_cmap, upper_cmap)
-            # new_cmap = PyPlot.cm.colors.ListedColormap(new_cmap_array)
-            # imshow(data / 1e6, extent=(0, (n[1]-1)*d[1], h+(n[3]-1)*d[3], h), cmap=new_cmap, vmin=0, vmax=maximum(data))
-
+ 
             colors = vcat(lower_cmap, upper_cmap)
             bounds = vcat(range(0, threshold; length=lower_cmap_size+1),
                         range(threshold, maximum(data)/1e6; length=upper_cmap_size+1)[2:end])
@@ -398,15 +348,6 @@ function plot_state(data, title_str, file_suffix, plot_path, sample, h, n, d, ty
 
     close(fig)
 end
-
-# Water pressure 
-# p0 = (repeat(collect(1:256), 1, 512) * d[3] .+ h) * JutulDarcyRules.ρH2O * 9.807
-p0 = (repeat(collect(1:256), 1, 512) * d[3] .+ h) * JutulDarcyRules.ρH2O * 10
-
-## Set the fracture pressure 
-threshold = 4.0
-p_max = p0' .+ threshold * 10^6
-# p_max = p_frac'
 
 # Plot this part only s is 1, sample 1
 if s == 1
@@ -468,9 +409,9 @@ obj_arr = objective(inj_rate, time_step, K, inj_loc, p_max, BHP_max, sat_init)
 
 println("Iteration no: ",0,"; Objective function value: ", obj)
 
-# Before we do the optimization, first we do a sanity check for the injection rate
-# and also the reservoir setting.
+# Before we do the optimization, first we do a sanity check for the injection rate.
 # This is like a binary search.
+
 while obj == Inf
     global inj_rate, obj, sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr, obj_first, obj_second, obj_arr
 
