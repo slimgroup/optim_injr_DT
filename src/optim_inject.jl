@@ -144,7 +144,7 @@ h = 0.0
 ϕ = 0.25
 
 # specify which monitoring step to run
-monitoring_step = 1
+monitoring_step = 2
 
 # Load the geological properties and reservoir state variables
 perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
@@ -155,12 +155,12 @@ state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_
 state_data = JLD2.load(state_path)
 
 # # for test, fix s to be 1
-s = 1
+# s = 1
 
-# # # Parse the command line arguments
-# args = parse_commandline()
-# s = args["idx_num"]
-# # println("idx_num: ", s) 
+# # Parse the command line arguments
+args = parse_commandline()
+s = args["idx_num"]
+println("idx_num: ", s) 
 
 # Permeability indices
 idices = state_data["idx_t" * string(monitoring_step)]

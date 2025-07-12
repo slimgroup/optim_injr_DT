@@ -14,27 +14,30 @@ using Random
 using StatsBase
 using Distributions
 
+# specify which monitoring step to run
+monitoring_step = 2
+
 # Set parameters consistent with how it was saved
 sim_name = "DT_control"
-exp_name = "step1" # which step to control in DT
+exp_name = "step" * string(monitoring_step)
 
-# s = 1  # sample number
+s = 1  # sample number
 
-# filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
 
-# # Load all variables from file into a dictionary
-# data = load(filepath)
+# Load all variables from file into a dictionary
+data = load(filepath)
 
-# # Now access variables from the dictionary
-# inj_rate_arr = data["inj_rate_arr"]
-# step_arr = data["step_arr"]
+# Now access variables from the dictionary
+inj_rate_arr = data["inj_rate_arr"]
+step_arr = data["step_arr"]
 
 # This parameter is corrupted
-# obj_arr = data["obj_arr"]
+obj_arr = data["obj_arr"]
 
-# obj_1_arr = data["obj_1_arr"]
-# obj_2_arr = data["obj_2_arr"]
-# obj_arr_arr = data["obj_arr_arr"]
+obj_1_arr = data["obj_1_arr"]
+obj_2_arr = data["obj_2_arr"]
+obj_arr_arr = data["obj_arr_arr"]
 
 # Now the variables inj_rate_arr, step_arr, etc. are available in your workspace
 
