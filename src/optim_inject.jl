@@ -380,7 +380,8 @@ time_step = 80 / ds * ones(6 * ds * forward_step)
 # 0.05 is the initial guess
 # inj_rate = [0.05]
 # better initial guess of the injection rate 0.1 
-inj_rate = [0.1] 
+# inj_rate = [0.1] 
+inj_rate = [0.2] 
 # finite difference h
 delta_inj_rate = 10^-8 * ones(size(inj_rate, 1))
 
@@ -501,7 +502,8 @@ ls = BackTracking(order=3, iterations=10)
 
 step_arr = zeros(niterations)
 
-ex_step_size = 0.05
+# ex_step_size = 0.05
+ex_step_size = 0.1
 
 ## Main loop for the projected gradient descent
 for j=1:niterations

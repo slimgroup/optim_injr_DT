@@ -5,7 +5,7 @@
 #SBATCH --account=gts-fherrmann9                      # charge account
 #SBATCH -N1 --ntasks-per-node=4                       # Number of nodes and cores per node required
 #SBATCH --mem-per-cpu=4G                              # Memory per core
-#SBATCH -t12:00:00                                    # Duration of the job (Ex: 1 hour)
+#SBATCH -t24:00:00                                    # Duration of the job (Ex: 1 hour)
 #SBATCH -qinferno                                     # QOS Name
 ## #SBATCH -oReport-%a.out                            # Combined output and error messages file
 #SBATCH --output=logs/output_DT_step2_t4_f2_%a.txt    # Standard output file
