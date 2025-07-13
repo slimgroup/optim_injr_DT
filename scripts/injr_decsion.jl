@@ -21,7 +21,7 @@ monitoring_step = 2
 sim_name = "DT_control"
 exp_name = "step" * string(monitoring_step)
 
-s = 1  # sample number
+s = 2  # sample number
 
 filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
 

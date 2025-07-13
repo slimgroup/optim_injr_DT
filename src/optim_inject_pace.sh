@@ -8,8 +8,8 @@
 #SBATCH -t12:00:00                                    # Duration of the job (Ex: 1 hour)
 #SBATCH -qinferno                                     # QOS Name
 ## #SBATCH -oReport-%a.out                            # Combined output and error messages file
-#SBATCH --output=logs/output_DT_step1_t4_f2_%a.txt    # Standard output file
-#SBATCH --error=logs/error_DT_step1_t4_f2_%a.txt      # Standard error file
+#SBATCH --output=logs/output_DT_step2_t4_f2_%a.txt    # Standard output file
+#SBATCH --error=logs/error_DT_step2_t4_f2_%a.txt      # Standard error file
 #SBATCH --mail-type=BEGIN,END,FAIL                    # Mail preferences
 #SBATCH --mail-user=hli853@gatech.edu                 # E-mail address for notifications
 
@@ -23,3 +23,4 @@ task_id=$SLURM_ARRAY_TASK_ID
 julia -t 1 src/optim_inject.jl --idx_num $task_id
 
 ## commented sbatch --array=1-2 src/optim_inject_pace.sh
+## salloc -A gts-fherrmann9 -qinferno -N1 --ntasks-per-node=2 -t4:00:00
