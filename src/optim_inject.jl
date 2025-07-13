@@ -222,11 +222,12 @@ else
 
     sat_init = prior_data["sat_samples"][global_min_idx, :, :]
     pres_init = prior_data["pres_samples"][global_min_idx, :, :]
-
-    plot_state(transpose(sat_init), "Initial Saturation", "_prior_saturation.png", plot_path, s, h, n, d, "sat")
-    plot_state(transpose(pres_init), "Initial Pressure", "_prior_pressure.png", plot_path, s, h, n, d, "pres")
-    plot_state(transpose(pres_init), "Initial Pressure Difference", "_prior_pressure_difference.png", plot_path, s, h, n, d, "pres_thres", -1, threshold)
-
+    
+    if s == 1
+        plot_state(transpose(sat_init), "Initial Saturation", "_prior_saturation.png", plot_path, s, h, n, d, "sat")
+        plot_state(transpose(pres_init), "Initial Pressure", "_prior_pressure.png", plot_path, s, h, n, d, "pres")
+        plot_state(transpose(pres_init), "Initial Pressure Difference", "_prior_pressure_difference.png", plot_path, s, h, n, d, "pres_thres", -1, threshold)
+    end
 end
 
 # MPC forward steps
