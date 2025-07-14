@@ -21,23 +21,23 @@ monitoring_step = 2
 sim_name = "DT_control"
 exp_name = "step" * string(monitoring_step)
 
-s = 2  # sample number
+# s = 2  # sample number
 
-filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+# filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
 
-# Load all variables from file into a dictionary
-data = load(filepath)
+# # Load all variables from file into a dictionary
+# data = load(filepath)
 
-# Now access variables from the dictionary
-inj_rate_arr = data["inj_rate_arr"]
-step_arr = data["step_arr"]
+# # Now access variables from the dictionary
+# inj_rate_arr = data["inj_rate_arr"]
+# step_arr = data["step_arr"]
 
-# This parameter is corrupted
-obj_arr = data["obj_arr"]
+# # This parameter is corrupted
+# obj_arr = data["obj_arr"]
 
-obj_1_arr = data["obj_1_arr"]
-obj_2_arr = data["obj_2_arr"]
-obj_arr_arr = data["obj_arr_arr"]
+# obj_1_arr = data["obj_1_arr"]
+# obj_2_arr = data["obj_2_arr"]
+# obj_arr_arr = data["obj_arr_arr"]
 
 # Now the variables inj_rate_arr, step_arr, etc. are available in your workspace
 
@@ -45,62 +45,84 @@ num_s = 128
 
 injr_dist = zeros(num_s)
 
-# step 1 initial injection rate
-init_inj_rate = [0.0001]
+if monitoring_step == 1
+    # step 1 initial injection rate
+    init_inj_rate = [0.0001]
 
-# for s in 1:num_s
-
-#     # s = 1
-#     # j = 3
-#     # inner_filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6))
-#     # inner_data = load(inner_filepath)
-
-#     # filepath = datadir("forward_1", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
-#     filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
-
-#     # Load all variables from file into a dictionary
-#     data = load(filepath)
-
-#     # Now access variables from the dictionary
-#     inj_rate_arr = data["inj_rate_arr"][:, 1]
-
-#     # Find last nonzero element
-#     last_nonzero = findlast(x -> x != 0, inj_rate_arr)
+    valid_ids = 1:128
+elseif monitoring_step == 2
+    # step 2 initial injection rate
+    init_inj_rate = [0.026245454545454544]
     
-#     if last_nonzero === nothing
-#         # If all zeros, handle it as you want, e.g., assign 0 or NaN
-#         injr_dist[s] = (0.0 + init_inj_rate[1]) / 2
-#     else
-#         injr_dist[s] = (inj_rate_arr[last_nonzero] + init_inj_rate[1]) / 2
-#     end
-# end
+    # 存在文件的 sample ids（排除缺失）
+    missing_ids = Set([40, 113])
+    valid_ids = setdiff(1:num_s, missing_ids)
+
+    num_s = 126
+else
+    error("Invalid monitoring step. Choose either 1 or 2.")
+end
+
+# Calculate the injection rate distribution
+
+for s in valid_ids
+
+    # s = 1
+    # j = 3
+    # inner_filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6))
+    # inner_data = load(inner_filepath)
+
+    # filepath = datadir("forward_1", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+    filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+
+    # Load all variables from file into a dictionary
+    data = load(filepath)
+
+    # Now access variables from the dictionary
+    inj_rate_arr = data["inj_rate_arr"][:, 1]
+
+    # Find last nonzero element
+    last_nonzero = findlast(x -> x != 0, inj_rate_arr)
+    
+    if last_nonzero === nothing
+        # If all zeros, handle it as you want, e.g., assign 0 or NaN
+        injr_dist[s] = (0.0 + init_inj_rate[1]) / 2
+    else
+        injr_dist[s] = (inj_rate_arr[last_nonzero] + init_inj_rate[1]) / 2
+    end
+end
+
+
 
 ## Only for step 1
+if monitoring_step == 1
+    # Load the injection rate distribution for step 1
+    # injr_dist_1_to_32 = load("scripts/injr_dist_1_to_32.jld2", "injr_dist_1_to_32")
+    # injr_dist_33_to_72 = load("scripts/injr_dist_33_to_72.jld2", "injr_dist_33_to_72")
+    # injr_dist_73_to_128 = load("scripts/injr_dist_73_to_128.jld2", "injr_dist_73_to_128")
 
-# Load arrays
-injr_dist_1_to_32 = load("scripts/injr_dist_1_to_32.jld2", "injr_dist_1_to_32")
-injr_dist_33_to_72 = load("scripts/injr_dist_33_to_72.jld2", "injr_dist_33_to_72")
-injr_dist_73_to_128 = load("scripts/injr_dist_73_to_128.jld2", "injr_dist_73_to_128")
+    injr_dist = load("scripts/injr_dist_step1.jld2", "injr_dist_step1")
 
-# Create one combined array of zeros
-injr_dist = zeros(eltype(injr_dist_1_to_32), 128)
-
-# Fill in the nonzero segments
-injr_dist[1:32]    .= injr_dist_1_to_32[1:32]
-injr_dist[33:72]   .= injr_dist_33_to_72[33:72]
-injr_dist[73:128]  .= injr_dist_73_to_128[73:128]
+elseif monitoring_step == 2
+    # Load the injection rate distribution for step 2
+    injr_dist = load("scripts/injr_dist_step2.jld2", "injr_dist_step2")
+else
+    error("Invalid monitoring step. Choose either 1 or 2.")
+end
 
 # Check the result
 @show length(injr_dist)  # should be 128
 @show sum(injr_dist .!= 0)  # should be 128 if all nonzeros were distinct
 
+# # # Run optimization (you can adjust bounds)
+# optimal_result = optimize(h -> loo_cv_loglik(h, injr_dist), 0.0001, 0.01)
+# optimal_bandwidth = Optim.minimizer(optimal_result)
+
 ## Set bandwidth 
-optimal_bandwidth = 0.0008
+# optimal_bandwidth = 0.0008
+optimal_bandwidth = 0.008617873204629483
 ## Set plot path
 plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "decision")
-
-
-
 
 ## Plot the injection rate distribution 
 
@@ -233,6 +255,7 @@ close(fig)
 ## Confidence interval type
 CI_type = "wald"
 # CI_type = "wilson"
+# CI_type = "jeffreys"
 fracture_prob_threshold = 0.01  # 1%
 conf_level = 0.99  # 99% confidence level
 num_sample_kde = 16000
@@ -263,7 +286,7 @@ for i in 1:num_sample_kde
         se = sqrt(p_hat * (1 - p_hat) / n)
         ci_lower_arr[i] = max(0.0, p_hat - z * se)
         ci_upper_arr[i] = min(1.0, p_hat + z * se)
-    else
+    elseif CI_type == "wilson"
         p_hat = kde_cdf[i]
         z2 = z^2
         denom = 1 + z2 / n
@@ -276,6 +299,15 @@ for i in 1:num_sample_kde
 
         ci_lower_arr[i] = ci_lower
         ci_upper_arr[i] = ci_upper
+    elseif CI_type == "jeffreys"
+        p_hat = kde_cdf[i]
+        # Jeffreys Beta posterior parameters
+        alpha_post = n * p_hat + 0.5
+        beta_post = n * (1 - p_hat) + 0.5
+        posterior = Beta(alpha_post, beta_post)
+
+        ci_lower_arr[i] = quantile(posterior, (1 - conf_level) / 2)
+        ci_upper_arr[i] = quantile(posterior, 1 - (1 - conf_level) / 2)
     end
 end
 
@@ -344,7 +376,7 @@ tight_layout()
 
 # Save figure
 suffix = zoomed_in ? "_zoomin" : ""
-filename = "fracture_prob$(suffix)_CI_$(CI_type)_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
+filename = "fracture_prob$(suffix)_CI_$(CI_type)_CIlevel_$(conf_level)_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
 
 safesave(joinpath(plot_path, filename), fig)
 close(fig)
