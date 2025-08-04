@@ -1,3 +1,8 @@
+# Activate the project environment
+using Pkg
+Pkg.activate(".")
+using DrWatson
+# @quickactivate "optim_injr_DT" # <- project name
 using JLD2
 
 @load "scripts/max_three_val_frac_pres_k1_new.jld2"

@@ -15,11 +15,14 @@ using StatsBase
 using Distributions
 
 # specify which monitoring step to run
-monitoring_step = 2
+monitoring_step = 1
 
 # Set parameters consistent with how it was saved
 sim_name = "DT_control"
 exp_name = "step" * string(monitoring_step)
+
+
+
 
 # s = 2  # sample number
 
@@ -41,9 +44,14 @@ exp_name = "step" * string(monitoring_step)
 
 # Now the variables inj_rate_arr, step_arr, etc. are available in your workspace
 
-num_s = 128
 
+
+
+num_s = 128
 injr_dist = zeros(num_s)
+
+
+
 
 if monitoring_step == 1
     # step 1 initial injection rate
@@ -63,34 +71,38 @@ else
     error("Invalid monitoring step. Choose either 1 or 2.")
 end
 
-# Calculate the injection rate distribution
+# # Calculate the injection rate distribution
 
-for s in valid_ids
+# for s in valid_ids
 
-    # s = 1
-    # j = 3
-    # inner_filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6))
-    # inner_data = load(inner_filepath)
+#     # s = 1
+#     # j = 3
+#     # inner_filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s); digits=6), savename(@strdict(j), "jld2"; digits=6))
+#     # inner_data = load(inner_filepath)
 
-    # filepath = datadir("forward_1", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
-    filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+#     # filepath = datadir("forward_1", sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
+#     filepath = datadir(sim_name, savename(@strdict(exp_name); digits=6), savename(@strdict(s), "jld2"; digits=8))
 
-    # Load all variables from file into a dictionary
-    data = load(filepath)
+#     # Load all variables from file into a dictionary
+#     data = load(filepath)
 
-    # Now access variables from the dictionary
-    inj_rate_arr = data["inj_rate_arr"][:, 1]
+#     # Now access variables from the dictionary
+#     inj_rate_arr = data["inj_rate_arr"][:, 1]
 
-    # Find last nonzero element
-    last_nonzero = findlast(x -> x != 0, inj_rate_arr)
+#     # Find last nonzero element
+#     last_nonzero = findlast(x -> x != 0, inj_rate_arr)
     
-    if last_nonzero === nothing
-        # If all zeros, handle it as you want, e.g., assign 0 or NaN
-        injr_dist[s] = (0.0 + init_inj_rate[1]) / 2
-    else
-        injr_dist[s] = (inj_rate_arr[last_nonzero] + init_inj_rate[1]) / 2
-    end
-end
+#     if last_nonzero === nothing
+#         # If all zeros, handle it as you want, e.g., assign 0 or NaN
+#         injr_dist[s] = (0.0 + init_inj_rate[1]) / 2
+#     else
+#         injr_dist[s] = (inj_rate_arr[last_nonzero] + init_inj_rate[1]) / 2
+#     end
+# end
+
+# injr_dist_step2 = injr_dist
+# @save "injr_dist_step2.jld2" injr_dist_step2
+
 
 
 
@@ -106,6 +118,10 @@ if monitoring_step == 1
 elseif monitoring_step == 2
     # Load the injection rate distribution for step 2
     injr_dist = load("scripts/injr_dist_step2.jld2", "injr_dist_step2")
+
+    injr_dist_clean = injr_dist[injr_dist .!= 0.0]
+    @show sum(injr_dist_clean .!= 0)  # should be 128 if all nonzeros were distinct
+    injr_dist = injr_dist_clean
 else
     error("Invalid monitoring step. Choose either 1 or 2.")
 end
@@ -114,15 +130,21 @@ end
 @show length(injr_dist)  # should be 128
 @show sum(injr_dist .!= 0)  # should be 128 if all nonzeros were distinct
 
-# # # Run optimization (you can adjust bounds)
+
+# Run optimization (you can adjust bounds)
 # optimal_result = optimize(h -> loo_cv_loglik(h, injr_dist), 0.0001, 0.01)
+# optimal_result = optimize(h -> loo_cv_loglik(h, injr_dist), h_min, h_max)
 # optimal_bandwidth = Optim.minimizer(optimal_result)
+
 
 ## Set bandwidth 
 # optimal_bandwidth = 0.0008
-optimal_bandwidth = 0.008617873204629483
+# optimal_bandwidth = 0.008617873204629483
 ## Set plot path
 plot_path = plotsdir(sim_name, savename(@strdict(exp_name); digits=6), "decision")
+
+
+
 
 ## Plot the injection rate distribution 
 
@@ -253,13 +275,14 @@ close(fig)
 
 
 ## Confidence interval type
-CI_type = "wald"
+# CI_type = "wald"
 # CI_type = "wilson"
-# CI_type = "jeffreys"
+CI_type = "jeffreys"
 fracture_prob_threshold = 0.01  # 1%
-conf_level = 0.99  # 99% confidence level
+conf_level = 0.99  # Confidence level
 num_sample_kde = 16000
-zoomed_in = true  # Set to true for zoomed-in plot
+# zoomed_in = false  # Set to true for zoomed-in plot
+zoomed_in = true
 
 ## Plot the CDF and confidence interval
 
@@ -342,41 +365,116 @@ plot(kde_x, kde_cdf .* 100, label="CDF", linewidth=2)
 fill_between(kde_x, ci_lower_arr * 100, ci_upper_arr * 100, color="gray", alpha=0.3, label=string(Int(conf_level*100)) * "% Confidence Interval")
 axhline(y=fracture_prob_threshold * 100, color="red", linestyle="--", linewidth=1.5, label=string(Int(fracture_prob_threshold*100)) * "% Fracture Probability")
 
-# Annotations
-annotate("Injection Rate at " * string(Int(fracture_prob_threshold*100)) * "% Probability: $(round(inj_rate_at_cdf, digits=5)) m³/s",
-    xy=(inj_rate_at_cdf, fracture_prob_threshold * 100),
-    xytext=(inj_rate_at_cdf + 0.002, 2.5),
-    arrowprops=Dict("arrowstyle" => "->"),
-    fontsize=11)
-
-annotate("Left CI: $(round(inj_rate_at_ci_lower, digits=5)) m³/s",
-    xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
-    xytext=(inj_rate_at_ci_lower + 0.002, 3.5),
-    arrowprops=Dict("arrowstyle" => "->"),
-    fontsize=11)
-
-annotate("Right CI: $(round(inj_rate_at_ci_upper, digits=5)) m³/s",
-    xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
-    xytext=(inj_rate_at_ci_upper + 0.002, 1.5),
-    arrowprops=Dict("arrowstyle" => "->"),
-    fontsize=11)
-
-# Zoom limits
 if zoomed_in
-    xlim(0.025, 0.045)
-    ylim(0, 5)
+    if monitoring_step == 1
+        # Zoom limits for for step 1
+        xlim(0.025, 0.045)
+        ylim(0, 5)
+            
+        # Annotations
+        annotate("Injection Rate at " * string(Int(fracture_prob_threshold*100)) * "% Probability: $(round(inj_rate_at_cdf, digits=5)) m³/s",
+            xy=(inj_rate_at_cdf, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_cdf + 0.002, 2.5),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+        annotate("Left CI: $(round(inj_rate_at_ci_upper, digits=5)) m³/s",
+            xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_ci_upper + 0.002, 3.5),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+        annotate("Right CI: $(round(inj_rate_at_ci_lower, digits=5)) m³/s",
+            xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_ci_lower + 0.002, 1.5),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+    elseif monitoring_step == 2 
+        # Zoom limits for step 2
+        xlim(0.042, 0.062)  # 聚焦注水速率的交叉区域，去掉左侧空白
+        ylim(0, 5)          # 上限从10降到3，更好聚焦在1% fracture 位置
+
+        # Annotations
+        annotate("Injection Rate at " * string(Int(fracture_prob_threshold*100)) * "% Probability: $(round(inj_rate_at_cdf, digits=5)) m³/s",
+            xy=(inj_rate_at_cdf, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_cdf + 0.002, 2.5),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+        annotate("Left CI: $(round(inj_rate_at_ci_upper, digits=5)) m³/s",
+            xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_ci_upper + 0.002, 3.5),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+        annotate("Right CI: $(round(inj_rate_at_ci_lower, digits=5)) m³/s",
+            xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_ci_lower + 0.002, 1.5),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+    else
+        error("Invalid monitoring step. Choose either 1 or 2.")
+    end
+else
+    if monitoring_step == 1
+        # Injection rate at 1% fracture probability
+        annotate("Injection Rate at $(Int(fracture_prob_threshold*100))% Probability: $(round(inj_rate_at_cdf, digits=5)) m³/s",
+            xy=(inj_rate_at_cdf, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_cdf+0.05,15),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+        # Left CI annotation — 放左边，避免重叠
+        annotate("Left CI: $(round(inj_rate_at_ci_upper, digits=5)) m³/s",
+            xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_ci_upper+0.025,30),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+        # Right CI annotation — 放右边低一点
+        annotate("Right CI: $(round(inj_rate_at_ci_lower, digits=5)) m³/s",
+            xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_ci_lower+0.075, 45),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+    elseif monitoring_step == 2
+        # Injection rate at 1% fracture probability
+        annotate("Injection Rate at $(Int(fracture_prob_threshold*100))% Probability: $(round(inj_rate_at_cdf, digits=5)) m³/s",
+            xy=(inj_rate_at_cdf, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_cdf+0.05,15),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+        # Left CI annotation — 放左边，避免重叠
+        annotate("Left CI: $(round(inj_rate_at_ci_upper, digits=5)) m³/s",
+            xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_ci_upper+0.025,30),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+
+        # Right CI annotation — 放右边低一点
+        annotate("Right CI: $(round(inj_rate_at_ci_lower, digits=5)) m³/s",
+            xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
+            xytext=(inj_rate_at_ci_lower+0.075, 45),
+            arrowprops=Dict("arrowstyle" => "->"),
+            fontsize=11)
+    end
 end
 
 xlabel("Average Injection Rate (m³/s)", fontsize=13)
 ylabel("Fracture Probability (%)", fontsize=13)
-title("Zoomed-In: Fracture Probability vs Average Injection Rate", fontsize=14)
+prefix = zoomed_in ? "Zoomed-In: " : ""
+title(prefix * "Fracture Probability vs Average Injection Rate", fontsize=14)
 legend(loc="upper left", fontsize=11)
 grid(true)
 tight_layout()
 
 # Save figure
 suffix = zoomed_in ? "_zoomin" : ""
-filename = "fracture_prob$(suffix)_CI_$(CI_type)_CIlevel_$(conf_level)_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
+filename = "fracture_prob$(suffix)_CI_$(CI_type)_CILevel_$(conf_level)_samples$(num_s)_bandwidth$(optimal_bandwidth).png"
 
 safesave(joinpath(plot_path, filename), fig)
 close(fig)
