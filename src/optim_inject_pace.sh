@@ -4,7 +4,7 @@
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=4G
+#SBATCH --mem-per-cpu=24G
 #SBATCH -t 24:00:00
 #SBATCH -q inferno
 #SBATCH --array=1-2
