@@ -982,14 +982,16 @@ function main()
     # penalty 曲线
     try
         iters = 0:niterations
-        share = [ pen_total_arr[k] / max(1.0, abs(obj_base_arr[k])) for k in 1:length(pen_total_arr) ]
+        # ↓ CHANGED: eachindex 消除 warning
+        share = [ pen_total_arr[k] / max(1.0, abs(obj_base_arr[k])) for k in eachindex(pen_total_arr) ]
 
         fig, ax = subplots(figsize=(6,4))
         ax.plot(iters, 100 .* share)
         ax.set_xlabel("iteration"); ax.set_ylabel("penalty share (%)")
         ax.set_title("Penalty share vs iteration")
         plt.tight_layout()
-        safesave(joinpath(plot_path, "penalty_share.png"), fig); close(fig)
+        # ↓ CHANGED: 文件名包含 sample，避免覆盖
+        safesave(joinpath(plot_path, "penalty_share__sample=$(s).png"), fig); close(fig)
 
         fig, ax = subplots(figsize=(6,4))
         ax.plot(iters, pen_total_arr, label="total")
@@ -998,9 +1000,10 @@ function main()
         ax.legend(); ax.set_xlabel("iteration"); ax.set_ylabel("penalty (abs units)")
         ax.set_title("Penalty components")
         plt.tight_layout()
-        safesave(joinpath(plot_path, "penalty_components.png"), fig); close(fig)
+        # ↓ CHANGED: 文件名包含 sample，避免覆盖
+        safesave(joinpath(plot_path, "penalty_components__sample=$(s).png"), fig); close(fig)
 
-        println("Saved curves: penalty_share.png, penalty_components.png")
+        println("Saved curves: penalty_share__sample=$(s).png, penalty_components__sample=$(s).png")
     catch e
         @warn "Plotting penalty curves failed" exception=(e, catch_backtrace())
     end
