@@ -43,11 +43,12 @@ case "$SLURM_JOB_NAME" in
                --kappa_cvar 50 --cvar_soft"
     ;;
   *cvar_eps*)
-    RISK_ARGS="--use_cvar --cvar_as_constraint \
-               --alpha 0.02 --gamma_cvar 1e-3 \
+    # 改成：硬+软，但 α 拉大到 0.25，关注更厚的尾部
+    RISK_ARGS="--use_cvar --cvar_as_constraint --cvar_soft \
+               --alpha 0.25 --gamma_cvar 1e-3 \
                --lambda_cvar 3.0e9 \
                --weight_mode uniform --risk_mode relative \
-               --kappa_cvar 50 --cvar_soft"
+               --kappa_cvar 50"
     ;;
   *pof_zero*)
     RISK_ARGS="--use_pof --pof_as_constraint \
@@ -57,33 +58,12 @@ case "$SLURM_JOB_NAME" in
                --weight_mode uniform --risk_mode relative"
     ;;
   *pof_eps*)
+    # 已是：硬+软，允许 1% 网格越压（保持不变）
     RISK_ARGS="--use_pof --pof_as_constraint \
                --eps_pof 0.01 \
                --lambda_pof 8.5e8 \
                --tau_pof 0.05 --kappa_pof 50 \
                --weight_mode uniform --risk_mode relative"
-    ;;
-  *pofH_cvarS*)
-    RISK_ARGS="\
-      --use_pof --pof_as_constraint \
-      --eps_pof 0.0 \
-      --tau_pof 0.05 --kappa_pof 50 \
-      --use_cvar --cvar_soft \
-      --alpha 0.2 --gamma_cvar 1e-3 \
-      --lambda_cvar 3.0e9 \
-      --weight_mode uniform --risk_mode relative \
-      --kappa_cvar 50"
-    ;;
-  *cvarH_pofS*)
-    RISK_ARGS="\
-      --use_cvar --cvar_as_constraint --cvar_soft \
-      --alpha 0.1 --gamma_cvar 5e-4 \
-      --kappa_cvar 50 \
-      --use_pof \
-      --lambda_pof 8.5e8 \
-      --eps_pof 0.0 \
-      --tau_pof 0.05 --kappa_pof 50 \
-      --weight_mode uniform --risk_mode relative"
     ;;
   *pof_soft*)
     RISK_ARGS="--use_pof \
