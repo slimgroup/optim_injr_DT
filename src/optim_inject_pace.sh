@@ -7,7 +7,7 @@
 #SBATCH --mem=64G                 # 用总内存请求，避免 per-cpu 限制；不够再升到 96G/128G
 #SBATCH -t 24:00:00
 #SBATCH -q inferno
-#SBATCH --array=1-2             # 数组并发=1，避免同节点抢内存
+#SBATCH --array=1             # 数组并发=1，避免同节点抢内存
 #SBATCH --output=logs/output_DT_step1_t4_f2_%x_%a.txt
 #SBATCH --error=logs/error_DT_step1_t4_f2_%x_%a.txt
 #SBATCH --signal=TERM@60          # 被杀前 60s 发信号，便于保存中间结果
@@ -84,6 +84,18 @@ case "$SLURM_JOB_NAME" in
       --eps_pof 0.0 \
       --tau_pof 0.05 --kappa_pof 50 \
       --weight_mode uniform --risk_mode relative"
+    ;;
+  *pof_soft*)
+    RISK_ARGS="--use_pof \
+               --lambda_pof 8.5e8 --eps_pof 0.0 --tau_pof 0.05 \
+               --risk_mode relative --weight_mode uniform --kappa_pof 50"
+    ;;
+
+  *cvar_soft*)
+    RISK_ARGS="--use_cvar --cvar_soft \
+               --lambda_cvar 3.0e9 \
+               --alpha 0.2 --gamma_cvar 1e-3 \
+               --risk_mode relative --weight_mode uniform --kappa_cvar 50"
     ;;
   *)
     echo "[INFO] 未识别的 job name，默认用 CVaR 零容忍。"
