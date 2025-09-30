@@ -7,7 +7,7 @@
 #SBATCH --mem=64G
 #SBATCH -t 24:00:00
 #SBATCH -q inferno
-#SBATCH --array=1-128%64
+#SBATCH --array=1-32
 #SBATCH --output=logs/out_%x_%A_%a.txt
 #SBATCH --error=logs/err_%x_%A_%a.txt
 #SBATCH --signal=TERM@60
