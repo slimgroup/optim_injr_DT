@@ -212,7 +212,6 @@ function plot_state(data, title_str, file_suffix, plot_path, sample, h, n, d, ty
     elseif type == "pres_thres"
         @assert p0_ref !== nothing "plot_state: p0_ref must be provided for type='pres_thres'"
         data_diff = data - p0_ref
-        # 颜色带拆分（≤threshold 用蓝色渐变，>threshold 用红色）
         maxdiff = max(1e-9, maximum(data_diff))
         lower_cmap_size = clamp(round(Int, 256 * threshold * 1e6 / maxdiff), 0, 256)
         upper_cmap_size = 256 - lower_cmap_size
@@ -324,14 +323,11 @@ function r_spacetime_distribution(pres_arr::Vector{Array{Float64,2}},
     keep = findall(w_vals .> 0)
     r_vals = r_vals[keep]; w_vals = w_vals[keep]
     wsum = sum(w_vals)
-    if wsum > 0; w_vals ./= wsum; end      # ★ weights normalized to sum=1
+    if wsum > 0; w_vals ./= wsum; end
     return r_vals, w_vals
 end
 
-# ─────────────────────────────────────────────────────────────────────────────
 # Hard/soft risk metrics
-# ★ NOTE: 由于 r_spacetime_distribution 已把 w 归一化为和为 1，
-# ★ 下面这个 pof_weighted 实际就是 P(violation)（概率而不是质量）
 pof_weighted(r::Vector{Float64}, w::Vector{Float64}) =
     sum((r[i] < 0.0) ? w[i] : 0.0 for i in eachindex(r))
 
@@ -339,50 +335,14 @@ function pof_smooth(r::Vector{Float64}, w::Vector{Float64}; τ::Float64=0.05)
     return sum(w .* σ.(-r ./ τ))
 end
 
-# ★ ADDED: clean CVaR（严格 worst-α-tail 条件期望）
-normalize_weights(w) = (sum(w) <= 0 ? (w ./ 1) : (w ./ sum(w)))
-
-"""
-cvar_clean(L, w; α) -> (cvar, t_star)
-严格按 worst α-tail 的加权条件期望计算（报告/评估用）
-"""
-function cvar_clean(L::AbstractVector{<:Real}, w::AbstractVector{<:Real}; α::Float64=0.05)
+function cvar_ru(L::Vector{Float64}, w::Vector{Float64};
+                 α::Float64=0.05, smooth::Bool=true, κ::Float64=50.0,
+                 tol::Float64=1e-8, maxit::Int=100)
     @assert length(L) == length(w)
-    α = clamp(α, 1e-6, 0.9999)
-    wn = normalize_weights(w)
-
-    perm = sortperm(L, rev=true)            # 从大到小
-    Ls, ws = L[perm], wn[perm]
-
-    target = α
-    sumLW  = 0.0
-    t_star = Ls[end]
-    for i in eachindex(Ls)
-        take = min(ws[i], target)           # 尾部最后一个可能只取一部分权重
-        sumLW += take * Ls[i]
-        target -= take
-        if target <= 0
-            t_star = Ls[i]                  # VaR 分位点
-            break
-        end
-    end
-    return sumLW / α, t_star
-end
-
-# ★ ADDED: RU 形式（带 α*sum(w) 归一化；smooth=true 用 softplus）
-function cvar_ru_weighted(L::Vector{Float64}, w::Vector{Float64};
-                          α::Float64=0.05, smooth::Bool=true, κ::Float64=50.0,
-                          tol::Float64=1e-8, maxit::Int=100)
-    @assert length(L) == length(w)
-    α = clamp(α, 1e-6, 0.9999)
-    W = sum(w)
-    W <= 0 && return 0.0, 0.0
-
+    α = max(min(α, 0.9999), 1e-6)
     φ  = smooth ? (x->softplus(x; κ=κ)) : (x->max(0.0, x))
     dφ = smooth ? (x->dsoftplus(x; κ=κ)) : (x-> (x>0 ? 1.0 : 0.0))
-
-    fprime(t) = 1.0 - (1.0/(α*W)) * sum(w .* map(li->dφ(li - t), L))
-    fval(t)   = t   + (1.0/(α*W)) * sum(w .* map(li->φ(li - t), L))
+    fprime(t) = 1.0 - (1.0/α) * sum(w .* map(li->dφ(li - t), L))
 
     lo, hi = 0.0, maximum(L)
     if hi == 0.0
@@ -398,9 +358,10 @@ function cvar_ru_weighted(L::Vector{Float64}, w::Vector{Float64};
     for _ in 1:maxit
         t_mid = 0.5*(t_lo + t_hi)
         fm = fprime(t_mid)
-        if abs(fm) < tol || (t_hi - t_lo) < 1e-12
+        if abs(fm) < tol || (t_hi - t_lo) < 1e-10
             t_star = t_mid
-            return fval(t_star), t_star
+            cvar = t_star + (1.0/α) * sum(w .* map(li->φ(li - t_star), L))
+            return cvar, t_star
         end
         if flo*fm <= 0
             t_hi = t_mid
@@ -409,7 +370,8 @@ function cvar_ru_weighted(L::Vector{Float64}, w::Vector{Float64};
         end
     end
     t_star = 0.5*(t_lo + t_hi)
-    return fval(t_star), t_star
+    cvar = t_star + (1.0/α) * sum(w .* map(li->φ(li - t_star), L))
+    return cvar, t_star
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -498,14 +460,12 @@ function objective(inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, 
         mask=nothing, weight_mode=risk.weight_mode
     )
 
-    # ★ 这里的 pof_weighted 已经是概率（w 已归一化）
     pof_hard_hat   = pof_weighted(r_vals, w_vals)
     pof_smooth_hat = pof_smooth(r_vals, w_vals; τ=risk.τ)
 
-    # CVaR：优化用 RU（可平滑），评估/约束用 clean
     L = max.(0.0, .-r_vals)
-    cvar_smooth, _ = cvar_ru_weighted(L, w_vals; α=risk.α, smooth=risk.cvar_soft, κ=risk.kappa_cvar)   # ★ CHANGED
-    cvar_eval,   _ = cvar_clean(L, w_vals; α=risk.α)                                                    # ★ CHANGED
+    cvar_smooth, _ = cvar_ru(L, w_vals; α=risk.α, smooth=risk.cvar_soft, κ=risk.kappa_cvar)
+    cvar_eval,   _ = cvar_ru(L, w_vals; α=risk.α, smooth=false)
 
     # 硬约束
     if risk.use_pof && risk.pof_as_constraint && (pof_hard_hat > risk.ε + 1e-12)
@@ -517,7 +477,7 @@ function objective(inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, 
                pof_smooth_hat, cvar_eval, pof_hard_hat,
                r_vals, w_vals
     end
-    if risk.use_cvar && risk.cvar_as_constraint && (cvar_eval > risk.γ + 1e-12)   # ★ CHANGED
+    if risk.use_cvar && risk.cvar_as_constraint && (cvar_eval > risk.γ + 1e-12)
         previous_state = nothing; GC.gc()
         return Inf, obj, 0.0, 0.0, 0.0,
                sat_arr, pres_arr, BHP_arr,
@@ -770,6 +730,10 @@ function main()
     pen_pof_arr   = zeros(Float64, niterations+1)
     pen_cvar_arr  = zeros(Float64, niterations+1)
 
+    # <<< CHANGED: 记录线搜索“原因”的数组
+    stp_cause      = fill(0, niterations)         # 1=constraint(Inf), 2=Armijo/curvature, 0=unknown
+    stp_alpha_ratio= zeros(Float64, niterations)   # α_ok / stp
+
     # 首次前推（若不满足硬约束则回退缩小）
     function first_forward!(inj_rate)
         obj, obj_base, pen_total, pen_pof, pen_cvar,
@@ -859,9 +823,12 @@ function main()
     if save_plots
         plot_state(transpose(sat_arr[one_sixth]), "CO2 Saturation", "_co2sat$(one_sixth).png",    plot_path, s, h, n, d, "sat", 0)
         plot_state(transpose(sat_arr[three_sixths]), "CO2 Saturation", "_co2sat$(three_sixths).png", plot_path, s, h, n, d, "sat", 0)
+        plot_state(transpose(sat_arr[six_sixths]), "CO2 Saturation", "_co2sat$(six_sixths).png",   plot_path, s, h, n, d, "sat", 0)
+
         plot_state(transpose(pres_arr[one_sixth]), "Pressure", "_pres$(one_sixth).png",            plot_path, s, h, n, d, "pres", 0)
         plot_state(transpose(pres_arr[three_sixths]), "Pressure", "_pres$(three_sixths).png",      plot_path, s, h, n, d, "pres", 0)
         plot_state(transpose(pres_arr[six_sixths]), "Pressure", "_pres$(six_sixths).png",          plot_path, s, h, n, d, "pres", 0)
+
         plot_state(transpose(pres_arr[one_sixth]), "Pressure Difference", "_presdiff$(one_sixth).png",    plot_path, s, h, n, d, "pres_thres", 0, threshold; p0_ref=p0)
         plot_state(transpose(pres_arr[three_sixths]), "Pressure Difference", "_presdiff$(three_sixths).png", plot_path, s, h, n, d, "pres_thres", 0, threshold; p0_ref=p0)
         plot_state(transpose(pres_arr[six_sixths]), "Pressure Difference", "_presdiff$(six_sixths).png",   plot_path, s, h, n, d, "pres_thres", 0, threshold; p0_ref=p0)
@@ -894,9 +861,21 @@ function main()
     step_arr = zeros(niterations)
     ex_step_size = 0.1
 
+    # <<< CHANGED: 新的停机阈值
+    rel_impr_tol = 1e-6
+    projgrad_tol = 1e-6
+    stp_min_abs  = 1e-5
+
     for j=1:niterations
+        # 保存上一次目标用于相对改进
+        prev_obj = obj  # <<< CHANGED
+
+        # 为避免闭包里 inj_rate 被更新，复制一份用于本轮线搜索与探针
+        inj_rate_ls = copy(inj_rate)    # <<< CHANGED
+        p_ls        = copy(p)           # <<< CHANGED
+
         function θ(α)
-            objective(proj(inj_rate + α * p), time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
+            objective(proj(inj_rate_ls + α * p_ls), time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                       sat_init=sat_init, pres_init=pres_init, risk=risk_opts,
                       forward_step=forward_step, ds=ds, collect_states=false, inj_start=inj_start)[1]
         end
@@ -904,8 +883,31 @@ function main()
         stp, obj = ls(θ, ex_step_size, obj, dot(grad, p))
         ex_step_size = stp
 
+        # <<< CHANGED: 探针评估，判别 Inf-驱动 vs Armijo-驱动
+        is_feasible = function(α)
+            isfinite(
+                objective(proj(inj_rate_ls + α * p_ls), time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
+                          sat_init=sat_init, pres_init=pres_init, risk=risk_opts,
+                          forward_step=forward_step, ds=ds, collect_states=false, inj_start=inj_start)[1]
+            )
+        end
+
+        α_ok = stp
+        for scale in (1.0, 1.25, 1.5, 2.0, 3.0)
+            α = scale * stp
+            if is_feasible(α)
+                α_ok = α
+            else
+                break
+            end
+        end
+        cause = (!is_feasible(1.05*stp)) ? 1 : (α_ok >= 2.0*stp ? 2 : 0)
+        stp_cause[j]       = cause
+        stp_alpha_ratio[j] = stp > 0 ? (α_ok / stp) : 0.0
+        # <<< CHANGED: 探针记录结束
+
         step_arr[j] = stp
-        inj_rate = proj(inj_rate + stp * p)
+        inj_rate = proj(inj_rate_ls + stp * p_ls)   # <<< CHANGED：用 ls 期间冻结的 inj_rate_ls/p_ls
         inj_rate_arr[j+1, :] = inj_rate
 
         need_plots  = save_plots && (j % plot_stride == 0 || j == niterations)
@@ -951,6 +953,19 @@ function main()
         p = -grad/gnorm
         grad_arr[j+1, :] = grad
 
+        # <<< CHANGED: 新停机准则（相对改进 + 投影梯度 + 绝对步长兜底）
+        rel_impr = abs(prev_obj - obj) / max(1.0, abs(obj))
+        proj_grad = inj_rate .- proj(inj_rate .- grad)
+        if (rel_impr < rel_impr_tol && norm(proj_grad, Inf) < projgrad_tol * max(1.0, abs(obj))) || (stp < stp_min_abs)
+            println(@sprintf("Stopping at iter %d: rel_impr=%.3e, proj_grad_inf=%.3e, stp=%.3e",
+                             j, rel_impr, norm(proj_grad, Inf), stp))
+            need_save = true
+            # fall through to save below
+            # break after save
+            # (保存逻辑在下方 need_save 分支)
+        end
+        # <<< CHANGED: 停机准则结束
+
         # 存
         if need_save
             @tagsave(joinpath(out_root, savename(@strdict(j), "jld2"; digits=6)),
@@ -969,6 +984,9 @@ function main()
                 "pen_cvar"  => pen_cvar,
                 "r_vals" => r_valsj,
                 "w_vals" => w_valsj,
+                # <<< CHANGED: 记录线搜索原因/最大可行步比
+                "stp_cause" => stp_cause[1:j],
+                "stp_alpha_ratio" => stp_alpha_ratio[1:j],
                 "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step)
                 );
             safe=true)
@@ -978,17 +996,29 @@ function main()
         if need_plots
             plot_state(transpose(sat_arr[one_sixth]),     "CO2 Saturation", "_co2sat$(one_sixth).png",    plot_path, s, h, n, d, "sat", j)
             plot_state(transpose(sat_arr[three_sixths]),  "CO2 Saturation", "_co2sat$(three_sixths).png", plot_path, s, h, n, d, "sat", j)
+            plot_state(transpose(sat_arr[six_sixths]),    "CO2 Saturation", "_co2sat$(six_sixths).png",   plot_path, s, h, n, d, "sat", j)
+
             plot_state(transpose(pres_arr[one_sixth]),    "Pressure", "_pres$(one_sixth).png",            plot_path, s, h, n, d, "pres", j)
             plot_state(transpose(pres_arr[three_sixths]), "Pressure", "_pres$(three_sixths).png",         plot_path, s, h, n, d, "pres", j)
             plot_state(transpose(pres_arr[six_sixths]),   "Pressure", "_pres$(six_sixths).png",           plot_path, s, h, n, d, "pres", j)
+
             plot_state(transpose(pres_arr[one_sixth]),    "Pressure Difference", "_presdiff$(one_sixth).png",    plot_path, s, h, n, d, "pres_thres", j, threshold; p0_ref=p0)
             plot_state(transpose(pres_arr[three_sixths]), "Pressure Difference", "_presdiff$(three_sixths).png", plot_path, s, h, n, d, "pres_thres", j, threshold; p0_ref=p0)
             plot_state(transpose(pres_arr[six_sixths]),   "Pressure Difference", "_presdiff$(six_sixths).png",   plot_path, s, h, n, d, "pres_thres", j, threshold; p0_ref=p0)
         end
 
-        if stp < (inj_rate + [inj_start])[1] / 2 * 0.05 / 0.95
+        # <<< CHANGED: 移除原“比例步长”早停；改为上面的复合停机
+        # if stp < (inj_rate + [inj_start])[1] / 2 * 0.05 / 0.95
+        #     break
+        # end
+
+        if ((abs(prev_obj - obj) / max(1.0, abs(obj)) < rel_impr_tol &&  # 已触发新停机
+             (norm(inj_rate .- proj(inj_rate .- grad), Inf) < projgrad_tol * max(1.0, abs(obj)))) ||
+            (stp < stp_min_abs))
+            GC.gc()
             break
         end
+
         GC.gc()
     end
 
@@ -1008,6 +1038,9 @@ function main()
         "pen_total_arr" => pen_total_arr,
         "pen_pof_arr"   => pen_pof_arr,
         "pen_cvar_arr"  => pen_cvar_arr,
+        # <<< CHANGED: 把判别指标也写进 final
+        "stp_cause" => stp_cause,
+        "stp_alpha_ratio" => stp_alpha_ratio,
         "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step)
         );
     safe=true)
@@ -1015,7 +1048,6 @@ function main()
     # penalty 曲线
     try
         iters = 0:niterations
-        # ↓ CHANGED: eachindex 消除 warning
         share = [ pen_total_arr[k] / max(1.0, abs(obj_base_arr[k])) for k in eachindex(pen_total_arr) ]
 
         fig, ax = subplots(figsize=(6,4))
@@ -1023,7 +1055,6 @@ function main()
         ax.set_xlabel("iteration"); ax.set_ylabel("penalty share (%)")
         ax.set_title("Penalty share vs iteration")
         plt.tight_layout()
-        # ↓ CHANGED: 文件名包含 sample，避免覆盖
         safesave(joinpath(plot_path, "penalty_share__sample=$(s).png"), fig); close(fig)
 
         fig, ax = subplots(figsize=(6,4))
@@ -1033,7 +1064,6 @@ function main()
         ax.legend(); ax.set_xlabel("iteration"); ax.set_ylabel("penalty (abs units)")
         ax.set_title("Penalty components")
         plt.tight_layout()
-        # ↓ CHANGED: 文件名包含 sample，避免覆盖
         safesave(joinpath(plot_path, "penalty_components__sample=$(s).png"), fig); close(fig)
 
         println("Saved curves: penalty_share__sample=$(s).png, penalty_components__sample=$(s).png")
