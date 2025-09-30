@@ -46,16 +46,15 @@ COMMON_ARGS="--save_plots --plot_stride 5 --save_every 5 --grad_forward"
 task_id=${SLURM_ARRAY_TASK_ID}
 EXP_NAME="step1"
 
-# 输出到 scratch：exp_name + case + sample
-OUT_DIR="/storage/scratch1/6/hli853/data/DT_control/exp_name=${EXP_NAME}/${CASE_TAG}/sample=${task_id}"
-mkdir -p "$OUT_DIR"
+# 切回提交目录，确保相对路径与 project 根正确
+cd "$SLURM_SUBMIT_DIR"
 
 echo "JOB ${SLURM_JOB_ID}.${SLURM_ARRAY_TASK_ID}"
 echo "CASE_TAG=${CASE_TAG}"
-echo "OUT_DIR=${OUT_DIR}"
 echo "RISK_ARGS=${RISK_ARGS}"
+echo "IDX_NUM=${task_id}"
 
-julia --project -t 1 src/optim_inject.jl \
+# 运行（不再传 --output_dir；用项目根作为 --project）
+julia --project="$SLURM_SUBMIT_DIR" -t 1 src/optim_inject.jl \
   --idx_num "${task_id}" \
-  --output_dir "${OUT_DIR}" \
   ${RISK_ARGS} ${TRAIN_ARGS} ${TUNING_HINTS} ${COMMON_ARGS}
