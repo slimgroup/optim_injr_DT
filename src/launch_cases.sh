@@ -12,4 +12,4 @@ echo "[LAUNCH] ${CASE_TAG}  samples=${SAMPLE_RANGE}"
 sbatch --array="${SAMPLE_RANGE}" --chdir="${ROOT}" \
   --job-name="${CASE_TAG}" \
   --export=ALL,CASE_TAG="${CASE_TAG}",RISK_ARGS="${RISK_ARGS}",CASE_IDX=1,CASES_FILE="${CASES_FILE}",SAMPLE_RANGE="${SAMPLE_RANGE}" \
-  src/optim_inject.sh
+  src/optim_inject_pace.sh
