@@ -2,7 +2,7 @@
 using Pkg
 Pkg.activate(".")
 
-using CSV, DataFrames, Dates, StatsBase
+using CSV, DataFrames, Dates
 using PyPlot
 
 # ====== 配置 ======
@@ -31,23 +31,21 @@ case_tags = String.(df_ok.case_tag)
 is_cvar = startswith.(case_tags, "CVaR")
 is_pof  = startswith.(case_tags, "POF")
 
-vals_cvar = skipmissing(df_ok.last_inj_rate[is_cvar])
-vals_pof  = skipmissing(df_ok.last_inj_rate[is_pof])
+# 收集为普通 Vector，避免 SkipMissing 报错
+vals_cvar = collect(skipmissing(df_ok.last_inj_rate[is_cvar]))
+vals_pof  = collect(skipmissing(df_ok.last_inj_rate[is_pof]))
 
 println("Counts -> CVaR: ", length(vals_cvar), " ; POF: ", length(vals_pof))
 
 # ====== 画图函数 ======
-function plot_hist(vals; title::AbstractString, outpath::AbstractString, use_logx::Bool=false)
-    if isempty(vals)
+function plot_hist(x::Vector{<:Real}; title::AbstractString, outpath::AbstractString, use_logx::Bool=false)
+    if isempty(x)
         @warn "No data to plot for $title"
         return
     end
     fig = figure(figsize=(6,4))
-    ax = gca()
-
-    x = collect(vals)
     if use_logx
-        x = filter(>(0.0), x)
+        x = filter(>(0.0), x)  # log 轴需要正数
         if isempty(x)
             @warn "All values non-positive for $title under log scale, skip."
             return
@@ -57,7 +55,6 @@ function plot_hist(vals; title::AbstractString, outpath::AbstractString, use_log
     else
         hist(x, bins=30, density=true, alpha=0.8)
     end
-
     xlabel(use_logx ? "last_inj_rate (log scale)" : "last_inj_rate")
     ylabel("density")
     title(title)
