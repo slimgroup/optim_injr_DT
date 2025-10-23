@@ -74,16 +74,19 @@ function group_stats(df::DataFrame)
     )
 end
 
-# 按 case 汇总样本编号列表
+# 按 case 汇总样本编号列表 + 可打印字符串
 function summarize_samples(df_sub::DataFrame)
     if nrow(df_sub) == 0
-        return DataFrame(case_tag=String[], count=Int[], samples=Vector{Vector{Int}}[])
+        return DataFrame(case_tag=String[], count=Int[],
+                         samples=Vector{Vector{Int}}[], samples_str=String[])
     end
     g = groupby(df_sub, :case_tag)
-    combine(g,
+    tmp = combine(g,
         :sample => (v -> sort(collect(skipmissing(v)))) => :samples,
         nrow    => :count,
     )
+    tmp.samples_str = map(v -> join(string.(v), ", "), tmp.samples)
+    return tmp
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -174,7 +177,7 @@ CSV.write(csv_loaderr, loaderr_summary)
     "missing"      => missing_summary,
     "load_errors"  => loaderr_summary,
     "meta" => (root=ROOT, samples=collect(SAMPLES), timestamp=ts)
-))
+); safe=true)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 终端输出
@@ -197,7 +200,7 @@ if nrow(missing_summary) == 0
 else
     for r in eachrow(missing_summary)
         println(@sprintf("%-22s | count=%-3d | samples=[%s]",
-                         r.case_tag, r.count, join(r.samples, ", ")))
+                         r.case_tag, r.count, r.samples_str))
     end
 end
 
@@ -207,6 +210,6 @@ if nrow(loaderr_summary) == 0
 else
     for r in eachrow(loaderr_summary)
         println(@sprintf("%-22s | count=%-3d | samples=[%s]",
-                         r.case_tag, r.count, join(r.samples, ", ")))
+                         r.case_tag, r.count, r.samples_str))
     end
 end
