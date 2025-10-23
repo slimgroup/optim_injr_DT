@@ -24,9 +24,12 @@ df = CSV.read(detail_csv, DataFrame)
 # 只用 ok_final
 df_ok = df[df.status .== "ok_final", :]
 
-# 按 case 类型拆分
-is_cvar = startswith.((df_ok.case_tag,), "CVaR")
-is_pof  = startswith.((df_ok.case_tag,), "POF")
+# 将 case_tag 列安全地转成 Vector{String}
+case_tags = String.(df_ok.case_tag)
+
+# 拆 CVaR / POF（逐元素点播）
+is_cvar = startswith.(case_tags, "CVaR")
+is_pof  = startswith.(case_tags, "POF")
 
 vals_cvar = skipmissing(df_ok.last_inj_rate[is_cvar])
 vals_pof  = skipmissing(df_ok.last_inj_rate[is_pof])
@@ -65,9 +68,10 @@ function plot_hist(vals; title::AbstractString, outpath::AbstractString, use_log
     println("Saved: ", outpath)
 end
 
-# ====== 出图 ======
-out_cvar = joinpath(ROOT, "dist_last_inj_rate_CVaR.png")
-out_pof  = joinpath(ROOT, "dist_last_inj_rate_POF.png")
+# ====== 出图（文件名带时间戳） ======
+ts = Dates.format(now(), "yyyymmdd_HHMMSS")
+out_cvar = joinpath(ROOT, "dist_last_inj_rate_CVaR_$ts.png")
+out_pof  = joinpath(ROOT, "dist_last_inj_rate_POF_$ts.png")
 
 plot_hist(vals_cvar; title="Distribution of last_inj_rate (CVaR, ok_final)", outpath=out_cvar, use_logx=USE_LOGX)
 plot_hist(vals_pof;  title="Distribution of last_inj_rate (POF, ok_final)",  outpath=out_pof,  use_logx=USE_LOGX)
