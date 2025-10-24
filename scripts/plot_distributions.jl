@@ -1,5 +1,7 @@
 #!/usr/bin/env julia
-# Plot distributions of last_inj_rate for CVaR vs POF (using latest detail CSV)
+# Panel histograms for last_inj_rate by case:
+# - One figure for POF (5 cases, split by case)
+# - One figure for CVaR (9 cases, split by case)
 
 using Pkg
 Pkg.activate(".")
@@ -7,11 +9,13 @@ Pkg.activate(".")
 using CSV, DataFrames, Dates
 using PyPlot
 
-# ====== Config ======
-const ROOT    = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
-const USE_LOGX = false  # 如果注入率跨多个数量级，设为 true 使用对数横轴
+# ===================== Config =====================
+const ROOT     = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const USE_LOGX = false       # 注入率跨数量级大时可设为 true（对数横轴）
+const NBINS    = 30          # 直方图 bin 数
+const PAD      = 0.05        # x 轴左右 padding 比例（线性轴时）
 
-# ====== Locate latest inj_rate_detail_*.csv ======
+# ========== 找到最新 inj_rate_detail_*.csv ==========
 function latest_detail_csv(root::AbstractString)
     files = filter(f -> occursin(r"^inj_rate_detail_.*\.csv$", f), readdir(root))
     isempty(files) && error("找不到 inj_rate_detail_*.csv，请先运行收集脚本。")
@@ -21,59 +25,143 @@ end
 detail_csv = latest_detail_csv(ROOT)
 println("Using detail CSV: ", detail_csv)
 
-# ====== Load & filter ======
+# ========== 读数据，只用 ok_final ==========
 df = CSV.read(detail_csv, DataFrame)
 df_ok = df[df.status .== "ok_final", :]
 
-# 统一成 Vector{String} 再做 startswith
-case_tags = String.(df_ok.case_tag)
-is_cvar = startswith.(case_tags, "CVaR")
-is_pof  = startswith.(case_tags, "POF")
+# 将 case_tag 统一成 String 否则 startswith 广播会报错
+df_ok.case_tag = String.(df_ok.case_tag)
 
-# 收集为普通向量，避免 SkipMissing 上的 length/plot 问题
-vals_cvar = collect(skipmissing(df_ok.last_inj_rate[is_cvar]))
-vals_pof  = collect(skipmissing(df_ok.last_inj_rate[is_pof]))
-
-println("Counts -> CVaR: ", length(vals_cvar), " ; POF: ", length(vals_pof))
-
-# ====== Plot helper ======
-function plot_hist(x::Vector{<:Real}; ttl::AbstractString, outpath::AbstractString, use_logx::Bool=false)
-    if isempty(x)
-        @warn "No data to plot for $ttl"
-        return
-    end
-    fig = PyPlot.figure(figsize=(6,4))
-    ax  = PyPlot.gca()
-
-    vals = copy(x)
-    if use_logx
-        vals = filter(>(0.0), vals)   # log 轴要求正数
-        if isempty(vals)
-            @warn "All values non-positive for $ttl under log scale, skip."
-            return
-        end
-        PyPlot.hist(vals, bins=30, density=true, alpha=0.8)
-        PyPlot.xscale("log")
-    else
-        PyPlot.hist(vals, bins=30, density=true, alpha=0.8)
-    end
-
-    PyPlot.xlabel(use_logx ? "last_inj_rate (log scale)" : "last_inj_rate")
-    PyPlot.ylabel("density")
-    PyPlot.title(ttl)
-    PyPlot.grid(true, linestyle="--", linewidth=0.5, alpha=0.6)
-    PyPlot.tight_layout()
-    PyPlot.savefig(outpath, dpi=200)
-    PyPlot.close(fig)
-    println("Saved: ", outpath)
+# ========== 工具：按前缀取唯一 case 列表（排序） ==========
+function cases_with_prefix(df::DataFrame, prefix::AbstractString)
+    unique(filter!(x -> startswith(x, prefix), unique(df.case_tag))) |> sort
 end
 
-# ====== Save figures ======
-ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-out_cvar = joinpath(ROOT, "dist_last_inj_rate_CVaR_$ts.png")
-out_pof  = joinpath(ROOT, "dist_last_inj_rate_POF_$ts.png")
+cases_pof  = cases_with_prefix(df_ok, "POF")
+cases_cvar = cases_with_prefix(df_ok, "CVaR")
+println("Found POF cases:  ", cases_pof)
+println("Found CVaR cases: ", cases_cvar)
 
-plot_hist(vals_cvar; ttl="Distribution of last_inj_rate (CVaR, ok_final)", outpath=out_cvar, use_logx=USE_LOGX)
-plot_hist(vals_pof;  ttl="Distribution of last_inj_rate (POF, ok_final)",  outpath=out_pof,  use_logx=USE_LOGX)
+# ========== 工具：收集一组 case 的所有值，确定统一的 bins/xlim ==========
+function collect_group_values(df::DataFrame, case_list::Vector{String})
+    # 返回：Dict(case_tag => Vector{Float64}), global_xmin, global_xmax
+    vals_by_case = Dict{String, Vector{Float64}}()
+    global_min = Inf
+    global_max = -Inf
+    for ct in case_list
+        x = collect(skipmissing(df.last_inj_rate[df.case_tag .== ct]))
+        vals_by_case[ct] = x
+        if !isempty(x)
+            local_min = minimum(x)
+            local_max = maximum(x)
+            global_min = min(global_min, local_min)
+            global_max = max(global_max, local_max)
+        end
+    end
+    if global_min == Inf  # 没有任何数据
+        global_min, global_max = 0.0, 1.0
+    end
+    return vals_by_case, global_min, global_max
+end
+
+# ========== 工具：计算网格行列（尽量方形） ==========
+function grid_rc(n::Int)
+    r = floor(Int, sqrt(n))
+    c = ceil(Int, n / r)
+    return r, c
+end
+
+# ========== 面板绘图函数 ==========
+function plot_case_panels(
+        df::DataFrame,
+        case_list::Vector{String};
+        fig_title::AbstractString,
+        filename::AbstractString,
+        use_logx::Bool=false,
+        nbins::Int=30)
+
+    vals_by_case, xmin, xmax = collect_group_values(df, case_list)
+
+    # 对数轴要求正数；线性轴稍微加点 padding
+    if use_logx
+        # 不改 xmin/xmax，后面用 log 轴显示
+        # 但各 case 内部要过滤非正值
+        nothing
+    else
+        if isfinite(xmin) && isfinite(xmax) && xmin != xmax
+            span = xmax - xmin
+            xmin -= PAD * span
+            xmax += PAD * span
+        end
+    end
+
+    n = length(case_list)
+    nrows, ncols = grid_rc(n)
+    fig = PyPlot.figure(figsize=(3.8*ncols, 2.8*nrows))
+    PyPlot.suptitle(fig_title, fontsize=12)
+
+    # 统一的 bin 边界（线性）；log 轴则交由 matplotlib 自适应
+    edges = nothing
+    if !use_logx && isfinite(xmin) && isfinite(xmax) && xmin != xmax
+        edges = range(xmin, xmax; length=nbins+1) |> collect
+    end
+
+    for (i, ct) in enumerate(case_list)
+        ax = PyPlot.subplot(nrows, ncols, i)
+        x = vals_by_case[ct]
+        if use_logx
+            x = filter(>(0.0), x)  # log 轴需要正数
+        end
+
+        if isempty(x)
+            PyPlot.text(0.5, 0.5, "No data", ha="center", va="center", transform=ax.transAxes)
+        else
+            if use_logx
+                PyPlot.hist(x, bins=nbins, density=true, alpha=0.85)
+                PyPlot.xscale("log")
+            else
+                if edges === nothing
+                    PyPlot.hist(x, bins=nbins, density=true, alpha=0.85)
+                else
+                    PyPlot.hist(x, bins=edges, density=true, alpha=0.85)
+                end
+                if isfinite(xmin) && isfinite(xmax) && xmin != xmax
+                    PyPlot.xlim(xmin, xmax)
+                end
+            end
+        end
+
+        PyPlot.title(ct, fontsize=10)
+        if i > (nrows-1)*ncols
+            PyPlot.xlabel(use_logx ? "last_inj_rate (log)" : "last_inj_rate", fontsize=9)
+        end
+        if (i-1) % ncols == 0
+            PyPlot.ylabel("density", fontsize=9)
+        end
+        PyPlot.grid(true, linestyle="--", linewidth=0.4, alpha=0.5)
+    end
+
+    PyPlot.tight_layout(rect=[0, 0.0, 1, 0.96])  # 给 suptitle 留点空间
+    PyPlot.savefig(filename, dpi=200)
+    PyPlot.close(fig)
+    println("Saved: ", filename)
+end
+
+# ===================== 出图 =====================
+ts = Dates.format(now(), "yyyymmdd_HHMMSS")
+out_pof  = joinpath(ROOT, "panel_POF_last_inj_rate_$ts.png")
+out_cvar = joinpath(ROOT, "panel_CVaR_last_inj_rate_$ts.png")
+
+plot_case_panels(df_ok, cases_pof;
+    fig_title="POF: Distribution of last_inj_rate by case (ok_final)",
+    filename=out_pof,
+    use_logx=USE_LOGX,
+    nbins=NBINS)
+
+plot_case_panels(df_ok, cases_cvar;
+    fig_title="CVaR: Distribution of last_inj_rate by case (ok_final)",
+    filename=out_cvar,
+    use_logx=USE_LOGX,
+    nbins=NBINS)
 
 println("Done.")
