@@ -1,5 +1,5 @@
 #!/usr/bin/env julia
-# Panel histograms for last_inj_rate by case:
+# Panel histograms (frequency) for last_inj_rate by case:
 # - One figure for POF (5 cases, split by case)
 # - One figure for CVaR (9 cases, split by case)
 
@@ -71,7 +71,7 @@ function grid_rc(n::Int)
     return r, c
 end
 
-# ========== 面板绘图函数 ==========
+# ========== 面板绘图函数（频数） ==========
 function plot_case_panels(
         df::DataFrame,
         case_list::Vector{String};
@@ -84,8 +84,6 @@ function plot_case_panels(
 
     # 对数轴要求正数；线性轴稍微加点 padding
     if use_logx
-        # 不改 xmin/xmax，后面用 log 轴显示
-        # 但各 case 内部要过滤非正值
         nothing
     else
         if isfinite(xmin) && isfinite(xmax) && xmin != xmax
@@ -103,7 +101,7 @@ function plot_case_panels(
     # 统一的 bin 边界（线性）；log 轴则交由 matplotlib 自适应
     edges = nothing
     if !use_logx && isfinite(xmin) && isfinite(xmax) && xmin != xmax
-        edges = range(xmin, xmax; length=nbins+1) |> collect
+        edges = collect(range(xmin, xmax; length=nbins+1))
     end
 
     for (i, ct) in enumerate(case_list)
@@ -117,13 +115,13 @@ function plot_case_panels(
             PyPlot.text(0.5, 0.5, "No data", ha="center", va="center", transform=ax.transAxes)
         else
             if use_logx
-                PyPlot.hist(x, bins=nbins, density=true, alpha=0.85)
+                PyPlot.hist(x, bins=nbins, density=false, alpha=0.85)  # ⇐ frequency
                 PyPlot.xscale("log")
             else
                 if edges === nothing
-                    PyPlot.hist(x, bins=nbins, density=true, alpha=0.85)
+                    PyPlot.hist(x, bins=nbins, density=false, alpha=0.85)  # ⇐ frequency
                 else
-                    PyPlot.hist(x, bins=edges, density=true, alpha=0.85)
+                    PyPlot.hist(x, bins=edges, density=false, alpha=0.85)  # ⇐ frequency
                 end
                 if isfinite(xmin) && isfinite(xmax) && xmin != xmax
                     PyPlot.xlim(xmin, xmax)
@@ -136,7 +134,7 @@ function plot_case_panels(
             PyPlot.xlabel(use_logx ? "last_inj_rate (log)" : "last_inj_rate", fontsize=9)
         end
         if (i-1) % ncols == 0
-            PyPlot.ylabel("density", fontsize=9)
+            PyPlot.ylabel("frequency", fontsize=9)  # ⇐ 频数
         end
         PyPlot.grid(true, linestyle="--", linewidth=0.4, alpha=0.5)
     end
@@ -149,17 +147,17 @@ end
 
 # ===================== 出图 =====================
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-out_pof  = joinpath(ROOT, "panel_POF_last_inj_rate_$ts.png")
-out_cvar = joinpath(ROOT, "panel_CVaR_last_inj_rate_$ts.png")
+out_pof  = joinpath(ROOT, "panel_POF_last_inj_rate_freq_$ts.png")
+out_cvar = joinpath(ROOT, "panel_CVaR_last_inj_rate_freq_$ts.png")
 
 plot_case_panels(df_ok, cases_pof;
-    fig_title="POF: Distribution of last_inj_rate by case (ok_final)",
+    fig_title="POF: Histogram of last_inj_rate by case (frequency, ok_final)",
     filename=out_pof,
     use_logx=USE_LOGX,
     nbins=NBINS)
 
 plot_case_panels(df_ok, cases_cvar;
-    fig_title="CVaR: Distribution of last_inj_rate by case (ok_final)",
+    fig_title="CVaR: Histogram of last_inj_rate by case (frequency, ok_final)",
     filename=out_cvar,
     use_logx=USE_LOGX,
     nbins=NBINS)
