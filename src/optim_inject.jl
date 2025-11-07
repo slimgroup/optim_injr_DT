@@ -665,7 +665,7 @@ function main()
     println("Risk options: ", risk_opts)
 
     # tags/paths
-    function scenariatag(risk; step::Int, idx::Int)
+    function scenariotag(risk; step::Int, idx::Int)
         parts = String[
             "step$(step)", "idx$(idx)",
             risk.use_pof ? "POF" : "", risk.use_cvar ? "CVaR" : "",
@@ -699,7 +699,7 @@ function main()
     end
 
     sim_name = "DT_control"
-    run_tag = scenariatag(risk_opts; step=monitoring_step, idx=s)
+    run_tag = scenariotag(risk_opts; step=monitoring_step, idx=s)
     case_tag = casetag(risk_opts)
     exp_layer = "exp_name=step$(monitoring_step)"
 
