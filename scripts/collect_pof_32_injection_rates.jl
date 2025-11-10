@@ -11,8 +11,8 @@
 #   3) pof_inj_rate_missing_*.csv             按规范化标签(case_tag)汇总的 missing 列表
 #   4) pof_inj_rate_load_errors_*.csv         按规范化标签(case_tag)的加载错误列表
 #   5) pof_inj_rate_all_*.jld2                打包以上内容
-#   6) pof_inj_rate_missing_by_dir_*.csv      【新增】按目录(risk_dir)汇总的 missing
-#   7) pof_inj_rate_load_errors_by_dir_*.csv  【新增】按目录(risk_dir)汇总的 load_error
+#   6) pof_inj_rate_missing_by_dir_*.csv      按目录(risk_dir)汇总的 missing
+#   7) pof_inj_rate_load_errors_by_dir_*.csv  按目录(risk_dir)汇总的 load_error
 # =============================================================================
 
 using Pkg
@@ -30,28 +30,19 @@ using DrWatson
 # 参数
 # ─────────────────────────────────────────────────────────────────────────────
 const ROOT      = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
-const SAMPLES   = 1:32           # ← 只收集 1..32
+const SAMPLES   = 1:32           # 只收集 1..32
 const INIT_RATE = 1e-4           # 若 inj_rate_arr 全 0 的兜底值
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 工具函数
 # ─────────────────────────────────────────────────────────────────────────────
 
-# 规范化 case 标签（仅抽取 POF eps；CVaR 留作兼容但本脚本不遍历）
+# 更鲁棒的 eps 抽取（支持 0.0005 / .005 / 1e-3 等），返回 "POF_eps=..." 形式
 function normalize_case_tag(risk_dir_name::String)
     if occursin("POF", risk_dir_name)
-        if (m = match(r"eps\s*=\s*([0-9]*\.?[0-9]+)", risk_dir_name)) !== nothing
-            return "POF_eps=$(m.captures[1])"
-        else
-            return "POF"
-        end
-    end
-    if occursin("CVaR", risk_dir_name)
-        ma = match(r"alpha\s*=\s*([0-9]*\.?[0-9]+)", risk_dir_name)
-        mg = match(r"gamma\s*=\s*([0-9]*\.?[0-9]+)", risk_dir_name)
-        a = ma === nothing ? "?" : ma.captures[1]
-        g = mg === nothing ? "?" : mg.captures[1]
-        return "CVaR_g=$(g)_a=$(a)"
+        m = match(r"eps\s*=\s*([0-9]+(?:\.[0-9]+)?|(?:\.[0-9]+))(?:[eE][+\-]?\d+)?", risk_dir_name)
+        return m === nothing ? "POF" : "POF_eps=$(m.match[match(r"([0-9]+(?:\.[0-9]+)?|(?:\.[0-9]+))(?:[eE][+\-]?\d+)?", m.match).offset:
+                                                   match(r"([0-9]+(?:\.[0-9]+)?|(?:\.[0-9]+))(?:[eE][+\-]?\d+)?", m.match).offset + length(m.match)-1])"
     end
     return risk_dir_name
 end
@@ -121,7 +112,7 @@ summarize_samples(df_sub::DataFrame) = summarize_samples_by(df_sub, [:case_tag])
 # ─────────────────────────────────────────────────────────────────────────────
 risk_dirs = filter(d ->
     isdir(joinpath(ROOT, d)) &&
-    occursin("POF", d) &&         # ← 只收集 POF
+    occursin("POF", d) &&         # 只收集 POF
     d != "geo" &&                 # 跳过 geo
     !startswith(d, ".")           # 跳过隐藏目录
 , readdir(ROOT))
