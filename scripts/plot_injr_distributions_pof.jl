@@ -4,7 +4,7 @@
 using CSV, DataFrames, Dates, Printf
 using PyPlot
 using Statistics           # mean / std / quantile
-using JLD2                 # ← 兜底扫描 final.jld2 需要
+using JLD2                 # 兜底扫描 final.jld2 需要
 
 # ==================== CONFIG ====================
 const ROOT    = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
@@ -14,7 +14,7 @@ const LEFT_TAIL_Q = 0.01      # 1%
 const DRAW_ECDF_PANEL   = false
 const DRAW_MEANSTD_BARS = true
 
-# 期望 10 个 eps（按你现在的目录约定；有不同可以改这里）
+# 期望 10 个 eps（按你的目录约定；不同可改）
 const EXPECTED_EPS = sort([0.0, 0.0005, 0.001, 0.002, 0.003, 0.005, 0.01, 0.02, 0.03, 0.05])
 
 # 可选：手动指定要读的 CSV（留空则自动找最新）
@@ -35,13 +35,13 @@ function latest_detail_csv(root::String)
     end
     pofs = filter(f -> occursin(r"^pof_inj_rate_detail_\d{8}_\d{6}\.csv$", f), readdir(root))
     if !isempty(pofs)
-        parse_ts(s) = DateTime(match(r"(\d{8}_\d{6})", s).captures[1], dateformat"yyyymmdd_HHMMSS")
-        return joinpath(root, last(sort(pofs, by=parse_ts)))
+        by_ts_pofs = s -> DateTime(match(r"(\d{8}_\d{6})", s).captures[1], dateformat"yyyymmdd_HHMMSS")
+        return joinpath(root, last(sort(pofs, by=by_ts_pofs)))
     end
     files = filter(f -> occursin(r"^inj_rate_detail_\d{8}_\d{6}\.csv$", f), readdir(root))
     if !isempty(files)
-        parse_ts(s) = DateTime(match(r"(\d{8}_\d{6})", s).captures[1], dateformat"yyyymmdd_HHMMSS")
-        return joinpath(root, last(sort(files, by=parse_ts)))
+        by_ts_files = s -> DateTime(match(r"(\d{8}_\d{6})", s).captures[1], dateformat"yyyymmdd_HHMMSS")
+        return joinpath(root, last(sort(files, by=by_ts_files)))
     end
     allcsv = filter(f -> endswith(f, ".csv") && (occursin("pof_inj_rate_detail_", f) || occursin("inj_rate_detail_", f)), readdir(root))
     @assert !isempty(allcsv) "No detail CSV found under $root"
@@ -116,7 +116,7 @@ function scan_pof_dirs(root::String)
                     push!(rows, (case_tag=case_tag, risk_dir=risk_name, sample=s,
                                  status="ok_final", last_inj_rate=last_inj))
                 catch
-                    # 忽略异常样本；有需要可记录 load_error 表
+                    # 忽略异常样本；如需可记录 load_error 表
                 end
             end
         end
@@ -260,8 +260,7 @@ function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nb
         # zoom window
         xmax = max(q_raw, q_kde) * 1.10
         (!isfinite(xmax) || xmax <= 0) && (xmax = maximum(x) * 0.05)
-        # 进一步兜底，避免视窗过窄
-        xmax = max(xmax, quantile(x, 0.05) * 1.25)
+        xmax = max(xmax, quantile(x, 0.05) * 1.25)   # 保证不太窄
         ax.set_xlim(0, xmax)
 
         n_tail = sum(x .<= q_raw)
@@ -287,7 +286,7 @@ function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nb
 end
 
 # ---------- ECDF（可选） ----------
-function ecdf(x::Vector{Float64})
+function ecdf(x:Vector{Float64})
     x = sort(x); n = length(x); y = (1:n) ./ n; return x, y
 end
 function plot_ecdf_panels(df::DataFrame)
@@ -328,7 +327,7 @@ function ks_statistic(x::Vector{Float64}, y::Vector{Float64})
     maximum(abs.(stepcdf(grid, xs, cdfx) .- stepcdf(grid, ys, cdfy)))
 end
 
-function build_sensitivity_table(df:DataFrame)
+function build_sensitivity_table(df::DataFrame)
     eps_vals = sort(unique(df.eps))
     rows = DataFrame(eps=Float64[], count=Int[], mean=Float64[], std=Float64[],
                      p10=Float64[], p50=Float64[], p90=Float64[], ks_to_eps0=Float64[])
@@ -377,6 +376,19 @@ function build_left_tail_table(df::DataFrame; q::Float64=LEFT_TAIL_Q)
                      join(samples_tail, ",")))
     end
     return rows
+end
+
+# ---------- mean±std 误差棒 ----------
+function plot_meanstd_bars(sens::DataFrame)
+    fig, ax = subplots(1,1; figsize=(8,4))
+    xlab = string.(round.(sens.eps, sigdigits=4))
+    ax.errorbar(1:nrow(sens), sens.mean, yerr=sens.std, fmt="o-")
+    ax.set_xticks(1:nrow(sens), xlab, rotation=0)
+    ax.set_xlabel("POF eps")
+    ax.set_ylabel("mean(last_inj_rate) ± std")
+    ax.grid(true, linestyle="--", alpha=0.3)
+    fig.tight_layout()
+    return fig
 end
 
 # ==================== main ====================
