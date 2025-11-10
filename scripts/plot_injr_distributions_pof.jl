@@ -4,6 +4,7 @@
 using CSV, DataFrames, Dates, Printf
 using PyPlot
 using Statistics           # mean / std / quantile
+using JLD2                 # ← 兜底扫描 final.jld2 需要
 
 # ==================== CONFIG ====================
 const ROOT    = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
@@ -12,39 +13,47 @@ const NBINS   = 12
 const LEFT_TAIL_Q = 0.01      # 1%
 const DRAW_ECDF_PANEL   = false
 const DRAW_MEANSTD_BARS = true
+
+# 期望 10 个 eps（按你现在的目录约定；有不同可以改这里）
+const EXPECTED_EPS = sort([0.0, 0.0005, 0.001, 0.002, 0.003, 0.005, 0.01, 0.02, 0.03, 0.05])
+
+# 可选：手动指定要读的 CSV（留空则自动找最新）
+const DETAIL_CSV_OVERRIDE = ""
+
 # KDE 设置
-const KDE_POINTS = 512        # KDE 评估网格点数
-const KDE_MARGIN = 0.05       # 在[min,max]两侧各加5%范围
+const KDE_POINTS = 512
+const KDE_MARGIN = 0.05
 # ================================================
 
-# ---------- 选最新 inj_rate_detail_*.csv ----------
+# ---------- 选最新明细：优先 pof_*，再 inj_* ----------
 function latest_detail_csv(root::String)
+    if !isempty(DETAIL_CSV_OVERRIDE)
+        return DETAIL_CSV_OVERRIDE
+    end
+    pofs = filter(f -> occursin(r"^pof_inj_rate_detail_\d{8}_\d{6}\.csv$", f), readdir(root))
+    if !isempty(pofs)
+        parse_ts(s) = DateTime(match(r"(\d{8}_\d{6})", s).captures[1], dateformat"yyyymmdd_HHMMSS")
+        return joinpath(root, last(sort(pofs, by=parse_ts)))
+    end
     files = filter(f -> occursin(r"^inj_rate_detail_\d{8}_\d{6}\.csv$", f), readdir(root))
     if !isempty(files)
-        parse_ts(s) = try
-            DateTime(match(r"(\d{8}_\d{6})", s).captures[1], dateformat"yyyymmdd_HHMMSS")
-        catch; DateTime(0); end
-        files_sorted = sort(files, by=parse_ts)
-        return joinpath(root, last(files_sorted))
-    else
-        allcsv = filter(f -> endswith(f, ".csv") && occursin("inj_rate_detail_", f), readdir(root))
-        @assert !isempty(allcsv) "No inj_rate_detail_*.csv found under $root"
-        files_sorted = sort(allcsv, by=f -> stat(joinpath(root, f)).mtime)
-        return joinpath(root, last(files_sorted))
+        parse_ts(s) = DateTime(match(r"(\d{8}_\d{6})", s).captures[1], dateformat"yyyymmdd_HHMMSS")
+        return joinpath(root, last(sort(files, by=parse_ts)))
     end
+    allcsv = filter(f -> endswith(f, ".csv") && (occursin("pof_inj_rate_detail_", f) || occursin("inj_rate_detail_", f)), readdir(root))
+    @assert !isempty(allcsv) "No detail CSV found under $root"
+    return joinpath(root, last(sort(allcsv, by=f -> stat(joinpath(root, f)).mtime)))
 end
 
-# ---------- 只取 POF + sample∈1..32 + ok_final ----------
-# 更鲁棒地解析 eps：先从 case_tag，失败则从 risk_dir 兜底（支持科学计数）
+# ---------- eps 解析（case_tag 优先，risk_dir 兜底；支持科学计数） ----------
 function _extract_eps(case_tag::AbstractString, risk_dir::AbstractString)
     m = match(r"eps\s*=\s*([0-9.eE+\-]+)", case_tag)
-    if m === nothing
-        m = match(r"eps\s*=\s*([0-9.eE+\-]+)", risk_dir)
-    end
+    m === nothing && (m = match(r"eps\s*=\s*([0-9.eE+\-]+)", risk_dir))
     return m === nothing ? NaN : parse(Float64, m.captures[1])
 end
 
-function load_pof_detail(root::String)
+# ---------- 只取 POF + sample∈1..32 + ok_final（从 CSV） ----------
+function load_pof_from_csv(root::String)
     path = latest_detail_csv(root)
     @info "Loading detail CSV" path
     df = CSV.read(path, DataFrame)
@@ -55,7 +64,7 @@ function load_pof_detail(root::String)
     df = df[in.(df.sample, Ref(collect(SAMPLES))), :]
     df = df[df.status .== "ok_final", :]
 
-    has_rd = hasproperty(df, :risk_dir)  # 兜底字段
+    has_rd = hasproperty(df, :risk_dir)
     df.eps = Vector{Float64}(undef, nrow(df))
     for i in 1:nrow(df)
         ct = String(df.case_tag[i])
@@ -67,30 +76,73 @@ function load_pof_detail(root::String)
     return df
 end
 
+# ---------- 兜底：直接扫 POF 目录，读 final.jld2 ----------
+@inline function _get(data, k::AbstractString)
+    haskey(data, k) ? data[k] : (haskey(data, Symbol(k)) ? data[Symbol(k)] : nothing)
+end
+function _first_column(v)
+    ndims(v) == 1 && return collect(v)
+    ndims(v) == 2 && return vec(view(v, :, 1))
+    error("inj_rate_arr has unexpected dimension: $(ndims(v))")
+end
+function last_nonzero_inj_rate(data; init_rate::Float64=1e-4)
+    raw = _get(data, "inj_rate_arr"); raw === nothing && return init_rate
+    col1 = _first_column(raw)
+    clean = filter(x -> !(ismissing(x) || !isfinite(x)), col1)
+    idx = findlast(!iszero, clean)
+    return idx === nothing ? init_rate : clean[idx]
+end
+
+function scan_pof_dirs(root::String)
+    risk_dirs = filter(d ->
+        isdir(joinpath(root, d)) && occursin("POF", d) && d != "geo" && !startswith(d, ".")
+    , readdir(root))
+    sort!(risk_dirs)
+    rows = NamedTuple[]
+    for risk_name in risk_dirs
+        risk_dir = joinpath(root, risk_name)
+        # 构造 case_tag（保证能解析 eps）
+        case_tag = occursin("eps", risk_name) ?
+                   "POF_eps=" * match(r"eps\s*=\s*([0-9.eE+\-]+)", risk_name).captures[1] :
+                   "POF"
+        for s in SAMPLES
+            final_path = joinpath(risk_dir, "sample=$(s)", "final.jld2")
+            if isfile(final_path)
+                try
+                    data = load(final_path)
+                    last_inj = last_nonzero_inj_rate(data)
+                    push!(rows, (case_tag=case_tag, risk_dir=risk_name, sample=s,
+                                 status="ok_final", last_inj_rate=last_inj))
+                catch
+                    # 忽略异常样本；如需可改成记录 load_error
+                end
+            end
+        end
+    end
+    df = DataFrame(rows)
+    df.eps = [ _extract_eps(String(df.case_tag[i]), String(df.risk_dir[i])) for i in 1:nrow(df) ]
+    df = df[.!isnan.(df.eps), :]
+    sort!(df, [:eps, :sample])
+    return df
+end
+
 # ---------- 简易 Gaussian KDE + smoothed quantile ----------
-# Silverman 带宽；为避免 std=0，给个极小值兜底
 silverman_bandwidth(x::Vector{Float64}) = begin
     n = length(x); n == 0 && return 1e-8
     s = std(x); s = s > 0 ? s : (maximum(x) - minimum(x) + eps())/1.349
     1.06 * s * n^(-1/5)
 end
-
-# 梯形法积分
 trapz(x::AbstractVector, y::AbstractVector) =
     sum( (y[1:end-1] .+ y[2:end]) .* diff(x) ) / 2
-
-# 在网格上计算 KDE pdf（高斯核）
 function kde_pdf(x::Vector{Float64}; xmin=nothing, xmax=nothing, npts::Int=KDE_POINTS)
     @assert !isempty(x)
     x = sort(x)
     xmin === nothing && (xmin = x[1] - KDE_MARGIN*(x[end]-x[1] + eps()))
     xmax === nothing && (xmax = x[end] + KDE_MARGIN*(x[end]-x[1] + eps()))
-    xs = collect(range(xmin, xmax; length=npts))   # 确保是 Vector
+    xs = collect(range(xmin, xmax; length=npts))
     h = max(silverman_bandwidth(x), eps())
 
-    @inline function φ(z)  # 标准正态密度
-        0.3989422804014327 * exp(-0.5*z*z)
-    end
+    @inline φ(z) = 0.3989422804014327 * exp(-0.5*z*z)
 
     pdf = zeros(Float64, npts)
     invh = 1/h
@@ -101,31 +153,22 @@ function kde_pdf(x::Vector{Float64}; xmin=nothing, xmax=nothing, npts::Int=KDE_P
         end
         pdf[i] = s / (length(x) * h)
     end
-    # 归一化（数值稳健）
     area = trapz(xs, pdf)
-    if area > 0
-        pdf ./= area
-    end
+    area > 0 && (pdf ./= area)
     return xs, pdf
 end
-
-# 累积积分得到 CDF（接受任意向量类型）
 function kde_cdf(xs::AbstractVector{<:Real}, pdf::AbstractVector{<:Real})
     n = length(xs)
     cdf = zeros(Float64, n)
     for i in 2:n
         cdf[i] = cdf[i-1] + (pdf[i] + pdf[i-1]) * (xs[i] - xs[i-1]) / 2
     end
-    if cdf[end] > 0
-        cdf ./= cdf[end]
-    end
+    cdf[end] > 0 && (cdf ./= cdf[end])
     return cdf
 end
-
-# 求给定 q 的 smoothed quantile：在 KDE-CDF 上反解
 function kde_quantile(x::Vector{Float64}, q::Float64)
     xs, pdf = kde_pdf(x)
-    xs = collect(xs)                     # 再保险一次
+    xs = collect(xs)
     cdf = kde_cdf(xs, pdf)
     idx = findfirst(>=(q), cdf)
     if idx === nothing
@@ -140,15 +183,13 @@ function kde_quantile(x::Vector{Float64}, q::Float64)
     end
 end
 
-# ---------- 直方图（全范围） ----------
+# ---------- 直方图（全范围；固定 2×5 面板，避免拥挤） ----------
 function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
     eps_vals = sort(unique(df.eps))
-    n = length(eps_vals)
-    ncols = n >= 10 ? 5 : min(4, n)
-    nrows = ceil(Int, n / ncols)
-
-    fig, axes = subplots(nrows, ncols; figsize=(3.2*ncols, 2.6*nrows))
-    axes = (nrows == 1 || ncols == 1) ? collect(axes) : vec(axes)
+    nrows, ncols = 2, 5
+    @assert length(eps_vals) <= nrows*ncols "eps count > 10"
+    fig, axes = subplots(nrows, ncols; figsize=(16, 6.2))
+    axes = vec(axes)
 
     valid = df.last_inj_rate[isfinite.(df.last_inj_rate) .& (df.last_inj_rate .>= 0)]
     global_xmax = isempty(valid) ? 1.0 : maximum(valid)
@@ -157,75 +198,60 @@ function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
         ax = axes[i]
         x = collect(skipmissing(df.last_inj_rate[df.eps .== epsv]))
         x = x[isfinite.(x) .& (x .>= 0)]
-        if isempty(x)
-            ax.set_title(@sprintf("POF_eps=%.4g (n=0)", epsv)); ax.axis("off"); continue
-        end
+        isempty(x) && (ax.axis("off"); continue)
         ax.hist(x; bins=nbins, alpha=0.85, edgecolor="none")
-        ax.set_title(@sprintf("POF_eps=%.4g (n=%d)", epsv, length(x)), fontsize=11)
+        ax.set_title(@sprintf("eps=%.4g (n=%d)", epsv, length(x)), fontsize=10.5)
         ax.grid(true, linestyle="--", alpha=0.3)
         ax.set_xlim(0, global_xmax * 1.05)
-        if (i - 1) % ncols == 0; ax.set_ylabel("frequency"); end
-        if i > ncols*(nrows-1);  ax.set_xlabel("last_inj_rate"); end
+        (i > ncols) && ax.set_xlabel("last_inj_rate")
+        ((i - 1) % ncols == 0) && ax.set_ylabel("frequency")
     end
-    for j in (n+1):length(axes); axes[j].axis("off"); end
+    for j in (length(eps_vals)+1):(nrows*ncols); axes[j].axis("off"); end
     fig.suptitle("POF: Histogram of last_inj_rate (samples 1..32, ok_final)", y=0.98, fontsize=14)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     return fig
 end
 
-# ---------- 左 1% 面板：叠加 KDE，标 raw 与 KDE 的 1% ----------
+# ---------- 左 1% 面板：叠加 KDE ----------
 function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nbins::Int=NBINS)
     eps_vals = sort(unique(df.eps))
-    n = length(eps_vals)
-    ncols = n >= 10 ? 5 : min(4, n)
-    nrows = ceil(Int, n / ncols)
-
-    fig, axes = subplots(nrows, ncols; figsize=(3.4*ncols, 2.8*nrows))
-    axes = (nrows == 1 || ncols == 1) ? collect(axes) : vec(axes)
+    nrows, ncols = 2, 5
+    @assert length(eps_vals) <= nrows*ncols "eps count > 10"
+    fig, axes = subplots(nrows, ncols; figsize=(16, 6.2))
+    axes = vec(axes)
 
     for (i, epsv) in enumerate(eps_vals)
         ax = axes[i]
         x = collect(skipmissing(df.last_inj_rate[df.eps .== epsv]))
         x = x[isfinite.(x) .& (x .> 0)]
-        if isempty(x)
-            ax.set_title(@sprintf("POF_eps=%.4g (n=0)", epsv)); ax.axis("off"); continue
-        end
+        isempty(x) && (ax.axis("off"); continue)
 
-        # raw 与 KDE 的 1%
         q_raw = quantile(x, q)
         q_kde = kde_quantile(x, q)
 
-        # 直方图
         ax.hist(x; bins=nbins, alpha=0.65, edgecolor="none")
 
-        # KDE 曲线（右Y轴显示密度）
         xs, pdf = kde_pdf(x)
         ax2 = ax.twinx()
-        ax2.plot(xs, pdf, linewidth=1.8)             # 默认橙色
+        ax2.plot(xs, pdf, linewidth=1.8)
         ax2.set_ylim(0, maximum(pdf)*1.2)
         ax2.set_yticks([])
         ax2.grid(false)
 
-        # 阈值线
-        ax.axvline(q_raw, color="r", linestyle="--", linewidth=1.5, label="raw q1%")
-        ax.axvline(q_kde, color="C1", linestyle="-",  linewidth=1.5, label="KDE q1%")
+        ax.axvline(q_raw, color="r", linestyle="--", linewidth=1.5)
+        ax.axvline(q_kde, color="C1", linestyle="-",  linewidth=1.5)
 
-        # 横轴缩放到 1% 区域
         xmax = max(q_raw, q_kde) * 1.10
-        if !isfinite(xmax) || xmax <= 0
-            xmax = maximum(x) * 0.05
-        end
+        (!isfinite(xmax) || xmax <= 0) && (xmax = maximum(x) * 0.05)
         ax.set_xlim(0, xmax)
 
         n_tail = sum(x .<= q_raw)
-        ax.set_title(@sprintf("POF_eps=%.4g | raw q1%%=%.3e | KDE q1%%=%.3e | n_tail=%d",
-                              epsv, q_raw, q_kde, n_tail), fontsize=9)
+        ax.set_title(@sprintf("eps=%.4g | raw=%.3e | kde=%.3e | n=%d", epsv, q_raw, q_kde, n_tail), fontsize=9.5)
+        (i > ncols) && ax.set_xlabel("last_inj_rate (zoom 1%)")
+        ((i - 1) % ncols == 0) && ax.set_ylabel("frequency")
         ax.grid(true, linestyle="--", alpha=0.3)
-
-        if (i - 1) % ncols == 0; ax.set_ylabel("frequency"); end
-        if i > ncols*(nrows-1);  ax.set_xlabel("last_inj_rate (zoomed to 1%)"); end
     end
-    for j in (n+1):length(axes); axes[j].axis("off"); end
+    for j in (length(eps_vals)+1):(nrows*ncols); axes[j].axis("off"); end
     fig.suptitle(@sprintf("POF: Left %.1f%% Tail (empirical vs KDE, samples 1..32, ok_final)", q*100),
                  y=0.98, fontsize=14)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
@@ -238,23 +264,22 @@ function ecdf(x::Vector{Float64})
 end
 function plot_ecdf_panels(df::DataFrame)
     eps_vals = sort(unique(df.eps))
-    n = length(eps_vals)
-    ncols = n >= 10 ? 5 : min(4, n)
-    nrows = ceil(Int, n / ncols)
-    fig, axes = subplots(nrows, ncols; figsize=(3.2*ncols, 2.6*nrows))
-    axes = (nrows == 1 || ncols == 1) ? collect(axes) : vec(axes)
+    nrows, ncols = 2, 5
+    fig, axes = subplots(nrows, ncols; figsize=(16, 6.2))
+    axes = vec(axes)
     for (i, epsv) in enumerate(eps_vals)
         ax = axes[i]
         x = collect(skipmissing(df.last_inj_rate[df.eps .== epsv]))
         x = x[isfinite.(x) .& (x .>= 0)]
-        if isempty(x); ax.set_title(@sprintf("POF_eps=%.4g (n=0)", epsv)); ax.axis("off"); continue; end
-        xs, ys = ecdf(x); ax.plot(xs, ys)
-        ax.set_title(@sprintf("POF_eps=%.4g", epsv), fontsize=11)
+        isempty(x) && (ax.axis("off"); continue)
+        xs, ys = ecdf(x)
+        ax.plot(xs, ys)
+        ax.set_title(@sprintf("eps=%.4g", epsv), fontsize=11)
         ax.grid(true, linestyle="--", alpha=0.3)
-        if (i - 1) % ncols == 0; ax.set_ylabel("ECDF"); end
-        if i > ncols*(nrows-1);  ax.set_xlabel("last_inj_rate"); end
+        (i > ncols) && ax.set_xlabel("last_inj_rate")
+        ((i - 1) % ncols == 0) && ax.set_ylabel("ECDF")
     end
-    for j in (n+1):length(axes); axes[j].axis("off"); end
+    for j in (length(eps_vals)+1):(nrows*ncols); axes[j].axis("off"); end
     fig.suptitle("POF: ECDF of last_inj_rate (samples 1..32, ok_final)", y=0.98, fontsize=14)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     return fig
@@ -334,9 +359,23 @@ function build_left_tail_table(df::DataFrame; q::Float64=LEFT_TAIL_Q)
 end
 
 # ==================== main ====================
-df_pof = load_pof_detail(ROOT)
-@info "POF rows (ok_final, samples 1..32)" nrow(df_pof)
-@info "EPS set" sort(unique(df_pof.eps))
+df_pof = load_pof_from_csv(ROOT)
+@info "POF rows (from CSV, ok_final, samples 1..32)" nrow(df_pof)
+eps_csv = sort(unique(df_pof.eps))
+@info "EPS set (CSV)" eps_csv
+
+# CSV 不全 -> 兜底扫描目录
+if length(eps_csv) < length(EXPECTED_EPS)
+    @warn "EPS fewer than expected; fallback to scanning POF dirs" eps_csv EXPECTED_EPS
+    df_scan = scan_pof_dirs(ROOT)
+    eps_scan = sort(unique(df_scan.eps))
+    @info "EPS set (scan)" eps_scan
+    if length(eps_scan) >= length(eps_csv)
+        df_pof = df_scan
+        @info "Using scanned data (covers more eps)."
+    end
+end
+
 ts  = Dates.format(now(), "yyyymmdd_HHMMSS")
 pct = Int(round(LEFT_TAIL_Q * 100))
 
