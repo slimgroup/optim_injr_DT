@@ -55,9 +55,7 @@ function load_pof_detail(root::String)
     df = df[in.(df.sample, Ref(collect(SAMPLES))), :]
     df = df[df.status .== "ok_final", :]
 
-    # 尝试读 risk_dir 列（如果 detail CSV 没带，就用空串兜底）
-    has_rd = hasproperty(df, :risk_dir)
-    # 解析 eps
+    has_rd = hasproperty(df, :risk_dir)  # 兜底字段
     df.eps = Vector{Float64}(undef, nrow(df))
     for i in 1:nrow(df)
         ct = String(df.case_tag[i])
@@ -90,8 +88,7 @@ function kde_pdf(x::Vector{Float64}; xmin=nothing, xmax=nothing, npts::Int=KDE_P
     xs = collect(range(xmin, xmax; length=npts))   # 确保是 Vector
     h = max(silverman_bandwidth(x), eps())
 
-    # 标准正态密度
-    @inline function φ(z)
+    @inline function φ(z)  # 标准正态密度
         0.3989422804014327 * exp(-0.5*z*z)
     end
 
@@ -298,7 +295,7 @@ function build_sensitivity_table(df::DataFrame)
     return rows
 end
 
-function plot_meanstd_bars(sens:DataFrame)
+function plot_meanstd_bars(sens::DataFrame)
     fig, ax = subplots(1,1; figsize=(8,4))
     xlab = string.(round.(sens.eps, sigdigits=4))
     ax.errorbar(1:nrow(sens), sens.mean, yerr=sens.std, fmt="o-")
