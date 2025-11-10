@@ -23,6 +23,9 @@ const DETAIL_CSV_OVERRIDE = ""
 # KDE 设置
 const KDE_POINTS = 512
 const KDE_MARGIN = 0.05
+
+# 可选视觉微调
+const PRETTY_AXES = true
 # ================================================
 
 # ---------- 选最新明细：优先 pof_*，再 inj_* ----------
@@ -101,7 +104,6 @@ function scan_pof_dirs(root::String)
     rows = NamedTuple[]
     for risk_name in risk_dirs
         risk_dir = joinpath(root, risk_name)
-        # 构造 case_tag（保证能解析 eps）
         case_tag = occursin("eps", risk_name) ?
                    "POF_eps=" * match(r"eps\s*=\s*([0-9.eE+\-]+)", risk_name).captures[1] :
                    "POF"
@@ -114,7 +116,7 @@ function scan_pof_dirs(root::String)
                     push!(rows, (case_tag=case_tag, risk_dir=risk_name, sample=s,
                                  status="ok_final", last_inj_rate=last_inj))
                 catch
-                    # 忽略异常样本；如需可改成记录 load_error
+                    # 忽略异常样本；有需要可记录 load_error 表
                 end
             end
         end
@@ -148,7 +150,7 @@ function kde_pdf(x::Vector{Float64}; xmin=nothing, xmax=nothing, npts::Int=KDE_P
     invh = 1/h
     for (i,u) in enumerate(xs)
         s = 0.0
-        for xi in x
+        @inbounds for xi in x
             s += φ((u - xi)*invh)
         end
         pdf[i] = s / (length(x) * h)
@@ -183,6 +185,17 @@ function kde_quantile(x::Vector{Float64}, q::Float64)
     end
 end
 
+# ---------- 小工具：美化坐标轴 ----------
+function pretty_axes!(ax)
+    !PRETTY_AXES && return
+    try
+        ax.grid(true, linestyle=":", alpha=0.35)
+        ax.spines["top"].set_visible(false)
+        ax.spines["right"].set_visible(false)
+    catch
+    end
+end
+
 # ---------- 直方图（全范围；固定 2×5 面板，避免拥挤） ----------
 function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
     eps_vals = sort(unique(df.eps))
@@ -200,11 +213,11 @@ function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
         x = x[isfinite.(x) .& (x .>= 0)]
         isempty(x) && (ax.axis("off"); continue)
         ax.hist(x; bins=nbins, alpha=0.85, edgecolor="none")
-        ax.set_title(@sprintf("eps=%.4g (n=%d)", epsv, length(x)), fontsize=10.5)
-        ax.grid(true, linestyle="--", alpha=0.3)
+        ax.set_title(@sprintf("eps = %.4g", epsv), fontsize=10.5)
         ax.set_xlim(0, global_xmax * 1.05)
         (i > ncols) && ax.set_xlabel("last_inj_rate")
         ((i - 1) % ncols == 0) && ax.set_ylabel("frequency")
+        pretty_axes!(ax)
     end
     for j in (length(eps_vals)+1):(nrows*ncols); axes[j].axis("off"); end
     fig.suptitle("POF: Histogram of last_inj_rate (samples 1..32, ok_final)", y=0.98, fontsize=14)
@@ -212,7 +225,7 @@ function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
     return fig
 end
 
-# ---------- 左 1% 面板：叠加 KDE ----------
+# ---------- 左 1% 面板：叠加 KDE（标题简化 + 图内角标） ----------
 function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nbins::Int=NBINS)
     eps_vals = sort(unique(df.eps))
     nrows, ncols = 2, 5
@@ -229,8 +242,10 @@ function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nb
         q_raw = quantile(x, q)
         q_kde = kde_quantile(x, q)
 
+        # hist
         ax.hist(x; bins=nbins, alpha=0.65, edgecolor="none")
 
+        # KDE on twin y-axis
         xs, pdf = kde_pdf(x)
         ax2 = ax.twinx()
         ax2.plot(xs, pdf, linewidth=1.8)
@@ -238,18 +253,31 @@ function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nb
         ax2.set_yticks([])
         ax2.grid(false)
 
+        # quantile markers
         ax.axvline(q_raw, color="r", linestyle="--", linewidth=1.5)
         ax.axvline(q_kde, color="C1", linestyle="-",  linewidth=1.5)
 
+        # zoom window
         xmax = max(q_raw, q_kde) * 1.10
         (!isfinite(xmax) || xmax <= 0) && (xmax = maximum(x) * 0.05)
+        # 进一步兜底，避免视窗过窄
+        xmax = max(xmax, quantile(x, 0.05) * 1.25)
         ax.set_xlim(0, xmax)
 
         n_tail = sum(x .<= q_raw)
-        ax.set_title(@sprintf("eps=%.4g | raw=%.3e | kde=%.3e | n=%d", epsv, q_raw, q_kde, n_tail), fontsize=9.5)
+
+        # Title 精简，只显示 eps
+        ax.set_title(@sprintf("eps = %.4g", epsv), fontsize=10.5)
+
+        # 图内角标（右上角）
+        info = @sprintf("raw=%.3e\nkde=%.3e\nn=%d", q_raw, q_kde, n_tail)
+        ax.text(0.98, 0.98, info, ha="right", va="top",
+                transform=ax.transAxes, fontsize=8.5,
+                bbox=Dict("facecolor"=>"white", "alpha"=>0.6, "edgecolor"=>"none"))
+
         (i > ncols) && ax.set_xlabel("last_inj_rate (zoom 1%)")
         ((i - 1) % ncols == 0) && ax.set_ylabel("frequency")
-        ax.grid(true, linestyle="--", alpha=0.3)
+        pretty_axes!(ax)
     end
     for j in (length(eps_vals)+1):(nrows*ncols); axes[j].axis("off"); end
     fig.suptitle(@sprintf("POF: Left %.1f%% Tail (empirical vs KDE, samples 1..32, ok_final)", q*100),
@@ -274,10 +302,10 @@ function plot_ecdf_panels(df::DataFrame)
         isempty(x) && (ax.axis("off"); continue)
         xs, ys = ecdf(x)
         ax.plot(xs, ys)
-        ax.set_title(@sprintf("eps=%.4g", epsv), fontsize=11)
-        ax.grid(true, linestyle="--", alpha=0.3)
+        ax.set_title(@sprintf("eps = %.4g", epsv), fontsize=11)
         (i > ncols) && ax.set_xlabel("last_inj_rate")
         ((i - 1) % ncols == 0) && ax.set_ylabel("ECDF")
+        pretty_axes!(ax)
     end
     for j in (length(eps_vals)+1):(nrows*ncols); axes[j].axis("off"); end
     fig.suptitle("POF: ECDF of last_inj_rate (samples 1..32, ok_final)", y=0.98, fontsize=14)
@@ -300,7 +328,7 @@ function ks_statistic(x::Vector{Float64}, y::Vector{Float64})
     maximum(abs.(stepcdf(grid, xs, cdfx) .- stepcdf(grid, ys, cdfy)))
 end
 
-function build_sensitivity_table(df::DataFrame)
+function build_sensitivity_table(df:DataFrame)
     eps_vals = sort(unique(df.eps))
     rows = DataFrame(eps=Float64[], count=Int[], mean=Float64[], std=Float64[],
                      p10=Float64[], p50=Float64[], p90=Float64[], ks_to_eps0=Float64[])
@@ -314,25 +342,13 @@ function build_sensitivity_table(df::DataFrame)
             push!(rows, (e, 0, NaN, NaN, NaN, NaN, NaN, NaN)); continue
         end
         p10 = quantile(x, 0.10); p50 = quantile(x, 0.50); p90 = quantile(x, 0.90)
-        ks  = ks_statistic(x, base)
+        ks  = isempty(base) ? NaN : ks_statistic(x, base)
         push!(rows, (e, length(x), mean(x), std(x), p10, p50, p90, ks))
     end
     return rows
 end
 
-function plot_meanstd_bars(sens::DataFrame)
-    fig, ax = subplots(1,1; figsize=(8,4))
-    xlab = string.(round.(sens.eps, sigdigits=4))
-    ax.errorbar(1:nrow(sens), sens.mean, yerr=sens.std, fmt="o-")
-    ax.set_xticks(1:nrow(sens), xlab, rotation=0)
-    ax.set_xlabel("POF eps")
-    ax.set_ylabel("mean(last_inj_rate) ± std")
-    ax.grid(true, linestyle="--", alpha=0.3)
-    fig.tight_layout()
-    return fig
-end
-
-# ---------- 左 1% 明细表（raw vs KDE） ----------
+# ---------- 左 1% 明细表（raw vs KDE）【修复 missing/索引一致性】 ----------
 function build_left_tail_table(df::DataFrame; q::Float64=LEFT_TAIL_Q)
     eps_vals = sort(unique(df.eps))
     rows = DataFrame(eps=Float64[], q1_raw=Float64[], q1_kde=Float64[],
@@ -340,20 +356,25 @@ function build_left_tail_table(df::DataFrame; q::Float64=LEFT_TAIL_Q)
                      samples_tail_raw=String[])
     for e in eps_vals
         sub = df[df.eps .== e, :]
-        x = collect(skipmissing(sub.last_inj_rate))
-        x = x[isfinite.(x) .& (x .> 0)]
-        if isempty(x)
+        vals = collect(skipmissing(sub.last_inj_rate))
+        mask = map(t -> isfinite(t) && t > 0, vals)
+        clean = vals[mask]
+        if isempty(clean)
             push!(rows, (e, NaN, NaN, 0, NaN, NaN, "")); continue
         end
-        q_raw = quantile(x, q)
-        q_kde = kde_quantile(x, q)
-        idx   = findall(t -> t <= q_raw, sub.last_inj_rate)  # raw 左尾样本
-        tail_vals = Vector(sub.last_inj_rate[idx])
-        samples   = Vector(sub.sample[idx])
-        push!(rows, (e, q_raw, q_kde, length(idx),
+        q_raw = quantile(clean, q)
+        q_kde = kde_quantile(clean, q)
+
+        tail_mask = map(t -> t <= q_raw, clean)
+        tail_vals = clean[tail_mask]
+
+        samples_clean = Vector(sub.sample[.!ismissing.(sub.last_inj_rate) .& mask])
+        samples_tail  = samples_clean[tail_mask]
+
+        push!(rows, (e, q_raw, q_kde, sum(tail_mask),
                      isempty(tail_vals) ? NaN : minimum(tail_vals),
                      isempty(tail_vals) ? NaN : maximum(tail_vals),
-                     join(samples, ",")))
+                     join(samples_tail, ",")))
     end
     return rows
 end
