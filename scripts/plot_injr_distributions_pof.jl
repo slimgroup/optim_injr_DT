@@ -3,15 +3,15 @@
 #
 # 产物：
 #   panel_POF_last_inj_rate_hist_*.png     # 全范围直方图面板（每个 eps 一格）
-#   panel_POF_left1pct_hist_*.png          # 左 1% 放大直方图面板（红线为1%分位点）
+#   panel_POF_left1pct_hist_*.png          # 左 1% 放大直方图面板（红线=1%分位点）
 #   panel_POF_last_inj_rate_ecdf_*.png     # （可选）ECDF 面板
 #   panel_POF_last_inj_rate_meanstd_*.png  # （可选）mean±std 误差棒
 #   pof_sensitivity_table_*.csv            # 敏感性表（mean/std/p10/p50/p90/KS→eps=0）
-#   pof_left_tail_1pct_*.csv               # 左 1% 明细（每个 eps 的样本编号等）
+#   pof_left_tail_1pct_*.csv               # 左 1% 明细（阈值、样本编号等）
 
 using CSV, DataFrames, Dates, Printf
 using PyPlot
-using Statistics          # quantile, mean, std
+using Statistics           # quantile, mean, std
 
 # ==================== CONFIG ====================
 const ROOT    = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
@@ -241,41 +241,42 @@ end
 df_pof = load_pof_detail(ROOT)
 @info "POF rows (ok_final, samples 1..32)" nrow(df_pof)
 @info "EPS set" sort(unique(df_pof.eps))
-ts = Dates.format(now(), "yyyymmdd_HHMMSS")
+ts  = Dates.format(now(), "yyyymmdd_HHMMSS")
+pct = Int(round(LEFT_TAIL_Q * 100))   # 1% → 1, 2% → 2 ...
 
 # 面板 1：全范围直方图
 fig1 = plot_hist_panels(df_pof)
-savefig(joinpath(ROOT, "panel_POF_last_inj_rate_hist_$ts.png"), dpi=200)
+savefig(joinpath(ROOT, "panel_POF_last_inj_rate_hist_$(ts).png"), dpi=200)
 close("all")
 
 # 面板 2：左 1% 放大
 fig2 = plot_hist_left1pct_panels(df_pof; q=LEFT_TAIL_Q)
-savefig(joinpath(ROOT, "panel_POF_left1pct_hist_$ts.png"), dpi=200)
+savefig(joinpath(ROOT, "panel_POF_left$(pct)pct_hist_$(ts).png"), dpi=200)
 close("all")
 
 # 表：敏感性 & 左尾
 sens = build_sensitivity_table(df_pof)
-CSV.write(joinpath(ROOT, "pof_sensitivity_table_$ts.csv"), sens)
+CSV.write(joinpath(ROOT, "pof_sensitivity_table_$(ts).csv"), sens)
 
 left_tbl = build_left_tail_table(df_pof; q=LEFT_TAIL_Q)
-CSV.write(joinpath(ROOT, "pof_left_tail_${Int(LEFT_TAIL_Q*100)}pct_$ts.csv"), left_tbl)
+CSV.write(joinpath(ROOT, "pof_left_tail_$(pct)pct_$(ts).csv"), left_tbl)
 
 # 可选图：ECDF & mean±std
 if DRAW_ECDF_PANEL
     fig3 = plot_ecdf_panels(df_pof)
-    savefig(joinpath(ROOT, "panel_POF_last_inj_rate_ecdf_$ts.png"), dpi=200)
+    savefig(joinpath(ROOT, "panel_POF_last_inj_rate_ecdf_$(ts).png"), dpi=200)
     close("all")
 end
 if DRAW_MEANSTD_BARS
     fig4 = plot_meanstd_bars(sens)
-    savefig(joinpath(ROOT, "panel_POF_last_inj_rate_meanstd_$ts.png"), dpi=200)
+    savefig(joinpath(ROOT, "panel_POF_last_inj_rate_meanstd_$(ts).png"), dpi=200)
     close("all")
 end
 
 println("Saved:")
-println("  panel_POF_last_inj_rate_hist_$ts.png")
-println("  panel_POF_left1pct_hist_$ts.png")
-if DRAW_ECDF_PANEL;   println("  panel_POF_last_inj_rate_ecdf_$ts.png"); end
-if DRAW_MEANSTD_BARS; println("  panel_POF_last_inj_rate_meanstd_$ts.png"); end
-println("  pof_sensitivity_table_$ts.csv")
-println("  pof_left_tail_${Int(LEFT_TAIL_Q*100)}pct_$ts.csv")
+println("  panel_POF_last_inj_rate_hist_$(ts).png")
+println("  panel_POF_left$(pct)pct_hist_$(ts).png")
+if DRAW_ECDF_PANEL;   println("  panel_POF_last_inj_rate_ecdf_$(ts).png"); end
+if DRAW_MEANSTD_BARS; println("  panel_POF_last_inj_rate_meanstd_$(ts).png"); end
+println("  pof_sensitivity_table_$(ts).csv")
+println("  pof_left_tail_$(pct)pct_$(ts).csv")
