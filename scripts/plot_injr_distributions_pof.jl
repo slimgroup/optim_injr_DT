@@ -35,6 +35,15 @@ function latest_detail_csv(root::String)
 end
 
 # ---------- 只取 POF + sample∈1..32 + ok_final ----------
+# 更鲁棒地解析 eps：先从 case_tag，失败则从 risk_dir 兜底（支持科学计数）
+function _extract_eps(case_tag::AbstractString, risk_dir::AbstractString)
+    m = match(r"eps\s*=\s*([0-9.eE+\-]+)", case_tag)
+    if m === nothing
+        m = match(r"eps\s*=\s*([0-9.eE+\-]+)", risk_dir)
+    end
+    return m === nothing ? NaN : parse(Float64, m.captures[1])
+end
+
 function load_pof_detail(root::String)
     path = latest_detail_csv(root)
     @info "Loading detail CSV" path
@@ -45,10 +54,15 @@ function load_pof_detail(root::String)
     df = df[occursin.("POF", df.case_tag), :]
     df = df[in.(df.sample, Ref(collect(SAMPLES))), :]
     df = df[df.status .== "ok_final", :]
-    # 解析 eps，支持科学计数/小数
-    df.eps = map(df.case_tag) do s
-        m = match(r"eps\s*=\s*([0-9.eE+-]+)", String(s))
-        m === nothing ? NaN : parse(Float64, m.captures[1])
+
+    # 尝试读 risk_dir 列（如果 detail CSV 没带，就用空串兜底）
+    has_rd = hasproperty(df, :risk_dir)
+    # 解析 eps
+    df.eps = Vector{Float64}(undef, nrow(df))
+    for i in 1:nrow(df)
+        ct = String(df.case_tag[i])
+        rd = has_rd ? String(df.risk_dir[i]) : ""
+        df.eps[i] = _extract_eps(ct, rd)
     end
     df = df[.!isnan.(df.eps), :]
     sort!(df, [:eps, :sample])
@@ -63,19 +77,24 @@ silverman_bandwidth(x::Vector{Float64}) = begin
     1.06 * s * n^(-1/5)
 end
 
+# 梯形法积分
+trapz(x::AbstractVector, y::AbstractVector) =
+    sum( (y[1:end-1] .+ y[2:end]) .* diff(x) ) / 2
+
 # 在网格上计算 KDE pdf（高斯核）
 function kde_pdf(x::Vector{Float64}; xmin=nothing, xmax=nothing, npts::Int=KDE_POINTS)
     @assert !isempty(x)
     x = sort(x)
-    xmin === nothing && (xmin = x[1] - KDE_MARGIN*(x[end]-x[1]+eps()))
-    xmax === nothing && (xmax = x[end] + KDE_MARGIN*(x[end]-x[1]+eps()))
-    xs = range(xmin, xmax; length=npts)
+    xmin === nothing && (xmin = x[1] - KDE_MARGIN*(x[end]-x[1] + eps()))
+    xmax === nothing && (xmax = x[end] + KDE_MARGIN*(x[end]-x[1] + eps()))
+    xs = collect(range(xmin, xmax; length=npts))   # 确保是 Vector
     h = max(silverman_bandwidth(x), eps())
-    # pdf(u) = mean φ((u-x)/h) / h
-    function φ(z)  # 标准正态密度
-        invsqrt2π = 0.3989422804014327
-        return invsqrt2π * exp(-0.5*z*z)
+
+    # 标准正态密度
+    @inline function φ(z)
+        0.3989422804014327 * exp(-0.5*z*z)
     end
+
     pdf = zeros(Float64, npts)
     invh = 1/h
     for (i,u) in enumerate(xs)
@@ -93,14 +112,13 @@ function kde_pdf(x::Vector{Float64}; xmin=nothing, xmax=nothing, npts::Int=KDE_P
     return xs, pdf
 end
 
-# 累积积分（梯形法）得到 CDF
-trapz(x::AbstractVector, y::AbstractVector) = sum( (y[1:end-1] .+ y[2:end]) .* diff(x) ) / 2
-function kde_cdf(xs::Vector{Float64}, pdf::Vector{Float64})
-    cdf = zeros(Float64, length(xs))
-    for i in 2:length(xs)
+# 累积积分得到 CDF（接受任意向量类型）
+function kde_cdf(xs::AbstractVector{<:Real}, pdf::AbstractVector{<:Real})
+    n = length(xs)
+    cdf = zeros(Float64, n)
+    for i in 2:n
         cdf[i] = cdf[i-1] + (pdf[i] + pdf[i-1]) * (xs[i] - xs[i-1]) / 2
     end
-    # 归一化到[0,1]
     if cdf[end] > 0
         cdf ./= cdf[end]
     end
@@ -110,8 +128,8 @@ end
 # 求给定 q 的 smoothed quantile：在 KDE-CDF 上反解
 function kde_quantile(x::Vector{Float64}, q::Float64)
     xs, pdf = kde_pdf(x)
+    xs = collect(xs)                     # 再保险一次
     cdf = kde_cdf(xs, pdf)
-    # 找到第一个 cdf >= q，线性插值
     idx = findfirst(>=(q), cdf)
     if idx === nothing
         return xs[end]
@@ -176,19 +194,17 @@ function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nb
             ax.set_title(@sprintf("POF_eps=%.4g (n=0)", epsv)); ax.axis("off"); continue
         end
 
-        # raw 1%
+        # raw 与 KDE 的 1%
         q_raw = quantile(x, q)
-        # KDE smoothed 1%
         q_kde = kde_quantile(x, q)
 
-        # 直方图（原值）
+        # 直方图
         ax.hist(x; bins=nbins, alpha=0.65, edgecolor="none")
 
-        # KDE 曲线（乘以样本数和bin宽近似到直方图高度，无需精确对齐，仅作形状参考）
+        # KDE 曲线（右Y轴显示密度）
         xs, pdf = kde_pdf(x)
-        # 将 pdf 按当前轴y范围缩放：先画第二条y轴，（或直接标准画pdf）
         ax2 = ax.twinx()
-        ax2.plot(xs, pdf, linewidth=1.8)  # 默认颜色=橙（matplotlib cycle）
+        ax2.plot(xs, pdf, linewidth=1.8)             # 默认橙色
         ax2.set_ylim(0, maximum(pdf)*1.2)
         ax2.set_yticks([])
         ax2.grid(false)
@@ -198,7 +214,7 @@ function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nb
         ax.axvline(q_kde, color="C1", linestyle="-",  linewidth=1.5, label="KDE q1%")
 
         # 横轴缩放到 1% 区域
-        xmax = (q_kde > 0 ? q_kde : q_raw) * 1.10
+        xmax = max(q_raw, q_kde) * 1.10
         if !isfinite(xmax) || xmax <= 0
             xmax = maximum(x) * 0.05
         end
@@ -282,7 +298,7 @@ function build_sensitivity_table(df::DataFrame)
     return rows
 end
 
-function plot_meanstd_bars(sens::DataFrame)
+function plot_meanstd_bars(sens:DataFrame)
     fig, ax = subplots(1,1; figsize=(8,4))
     xlab = string.(round.(sens.eps, sigdigits=4))
     ax.errorbar(1:nrow(sens), sens.mean, yerr=sens.std, fmt="o-")
@@ -327,12 +343,12 @@ df_pof = load_pof_detail(ROOT)
 ts  = Dates.format(now(), "yyyymmdd_HHMMSS")
 pct = Int(round(LEFT_TAIL_Q * 100))
 
-# 面板 1：全范围直方图
+# 面板 1：全范围直方图（全部 eps）
 fig1 = plot_hist_panels(df_pof)
 savefig(joinpath(ROOT, "panel_POF_last_inj_rate_hist_$(ts).png"), dpi=200)
 close("all")
 
-# 面板 2：左 1%，叠加 KDE（所有 eps，自动排版）
+# 面板 2：左 1%，叠加 KDE（全部 eps）
 fig2 = plot_hist_left1pct_panels_kde(df_pof; q=LEFT_TAIL_Q)
 savefig(joinpath(ROOT, "panel_POF_left$(pct)pct_hist_kde_$(ts).png"), dpi=240)
 close("all")
