@@ -285,9 +285,12 @@ function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nb
     return fig
 end
 
-# ---------- ECDF（可选） ----------
-function ecdf(x:Vector{Float64})
-    x = sort(x); n = length(x); y = (1:n) ./ n; return x, y
+# ---------- ECDF（可选；修正类型注解） ----------
+function ecdf(x::AbstractVector{<:Real})
+    xx = sort(Float64.(x))
+    n  = length(xx)
+    y  = (1:n) ./ n
+    return xx, y
 end
 function plot_ecdf_panels(df::DataFrame)
     eps_vals = sort(unique(df.eps))
