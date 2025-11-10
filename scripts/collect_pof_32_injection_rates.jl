@@ -24,7 +24,7 @@ using CSV
 using Statistics
 using Dates
 using Printf
-using DrWatson
+using DrWatson   # for @tagsave
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 参数
@@ -37,12 +37,15 @@ const INIT_RATE = 1e-4           # 若 inj_rate_arr 全 0 的兜底值
 # 工具函数
 # ─────────────────────────────────────────────────────────────────────────────
 
-# 更鲁棒的 eps 抽取（支持 0.0005 / .005 / 1e-3 等），返回 "POF_eps=..." 形式
+# 规范化 case 标签（仅抽取 POF eps；支持科学计数法）
 function normalize_case_tag(risk_dir_name::String)
     if occursin("POF", risk_dir_name)
-        m = match(r"eps\s*=\s*([0-9]+(?:\.[0-9]+)?|(?:\.[0-9]+))(?:[eE][+\-]?\d+)?", risk_dir_name)
-        return m === nothing ? "POF" : "POF_eps=$(m.match[match(r"([0-9]+(?:\.[0-9]+)?|(?:\.[0-9]+))(?:[eE][+\-]?\d+)?", m.match).offset:
-                                                   match(r"([0-9]+(?:\.[0-9]+)?|(?:\.[0-9]+))(?:[eE][+\-]?\d+)?", m.match).offset + length(m.match)-1])"
+        # 支持 0.0005、.005、1e-3、1E-03 等
+        if (m = match(r"eps\s*=\s*((?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+\-]?\d+)?)", risk_dir_name)) !== nothing
+            return "POF_eps=$(m.captures[1])"
+        else
+            return "POF"
+        end
     end
     return risk_dir_name
 end
