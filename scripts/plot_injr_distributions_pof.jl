@@ -1,14 +1,14 @@
 #!/usr/bin/env julia
 
-using CSV, DataFrames, Dates, Printf, StatsBase, KernelDensity
+using CSV, DataFrames, Dates, Printf
 using PyPlot
 
-const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT    = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
 const SAMPLES = 1:32
-const LOG10_X_FOR_KDE = true   # KDE 横轴是否用 log10
-const LOG10_Y_FOR_VIOLIN = true
+const NBINS   = 12        # 直方图 bins
+const DPI     = 200
 
-# ---- 选“最新”的 inj_rate_detail_*.csv ----
+# ── 选“最新”的 inj_rate_detail_*.csv ─────────────────────────────────────────
 function latest_detail_csv(root::String)
     files = filter(f -> occursin(r"^inj_rate_detail_\d{8}_\d{6}\.csv$", f), readdir(root))
     if !isempty(files)
@@ -25,7 +25,7 @@ function latest_detail_csv(root::String)
     end
 end
 
-# ---- 加载 & 过滤为 POF + sample∈1..32 + ok_final ----
+# ── 加载 & 过滤为 POF + sample∈1..32 + ok_final ──────────────────────────────
 function load_pof_detail(root::String)
     path = latest_detail_csv(root)
     @info "Loading detail CSV" path
@@ -48,62 +48,62 @@ function load_pof_detail(root::String)
     return df
 end
 
-# ---- 画 KDE 叠加图 ----
-function plot_kde_overlay(df::DataFrame; log10x::Bool=LOG10_X_FOR_KDE)
-    groups = groupby(df, :eps)
-    figure(figsize=(10, 5))
-    for g in groups
-        epsv = first(g.eps)
-        x = collect(skipmissing(g.last_inj_rate))
-        x = x[isfinite.(x) .& (x .> 0)]
-        isempty(x) && continue
-        xplot = log10x ? log10.(x) : x
-        kd = kde(xplot)
-        plot(kd.x, kd.density, label = @sprintf("eps=%.4g (n=%d)", epsv, length(x)))
-    end
-    xlabel(log10x ? "log10(last_inj_rate)" : "last_inj_rate")
-    ylabel("density")
-    title("POF KDE per eps (samples 1..32)")
-    legend(loc="upper right")
-    tight_layout()
-end
-
-# ---- 画 Violin 图（y 轴 log）----
-function plot_violin(df::DataFrame; log10y::Bool=LOG10_Y_FOR_VIOLIN)
+# ── 画直方图面板（像你截图那样） ──────────────────────────────────────────────
+function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
     eps_vals = sort(unique(df.eps))
-    data = Vector{Vector{Float64}}()
-    for e in eps_vals
-        y = collect(skipmissing(df.last_inj_rate[df.eps .== e]))
-        y = y[isfinite.(y) .& (y .> 0)]
-        push!(data, y)
+    n = length(eps_vals)
+    nrows = ceil(Int, n/3)           # 每行 3 个子图（可改成 2 或 4）
+    ncols = min(n, 3)
+
+    fig, axes = subplots(nrows, ncols; figsize=(12, 6))
+    if nrows == 1 && ncols == 1
+        axes = [axes]
+    elseif nrows == 1
+        axes = collect(axes)         # 1×N
+    elseif ncols == 1
+        axes = collect(axes)         # N×1
+    else
+        axes = vec(axes)             # 展平成一维
     end
-    figure(figsize=(10, 5))
-    vp = violinplot(data; showmeans=true, showextrema=true, widths=0.8)
-    if log10y
-        gca().set_yscale("log")
+
+    global_xmax = maximum(df.last_inj_rate[isfinite.(df.last_inj_rate)])
+    global_xmax = isfinite(global_xmax) ? global_xmax : 1.0
+
+    for (i, epsv) in enumerate(eps_vals)
+        ax = axes[i]
+        x = collect(skipmissing(df.last_inj_rate[df.eps .== epsv]))
+        x = x[isfinite.(x) .& (x .>= 0)]
+        if isempty(x)
+            ax.set_title(@sprintf("POF_eps=%.4g (n=0)", epsv))
+            ax.axis("off")
+            continue
+        end
+
+        ax.hist(x; bins=nbins, alpha=0.8, edgecolor="none")
+        ax.set_title(@sprintf("POF_eps=%.4g", epsv))
+        ax.grid(true, linestyle="--", alpha=0.3)
+        ax.set_xlim(0, global_xmax * 1.05)
+        # 只有左列加 y label，底行加 x label
+        # （让版式更干净）
     end
-    xticks(1:length(eps_vals), string.(round.(eps_vals, sigdigits=4)))
-    xlabel("POF eps")
-    ylabel("last_inj_rate" * (log10y ? " (log scale)" : ""))
-    title("POF Violin (samples 1..32)")
-    grid(true, linestyle="--", alpha=0.3)
-    tight_layout()
+
+    # 清掉多余空轴
+    for j in (length(eps_vals)+1):length(axes)
+        axes[j].axis("off")
+    end
+
+    fig.suptitle("POF: Histogram of last_inj_rate by case (frequency, ok_final)", y=0.98, fontsize=14)
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    return fig
 end
 
-# ---- main ----
+# ── main ─────────────────────────────────────────────────────────────────────
 df_pof = load_pof_detail(ROOT)
 @info "POF rows (ok_final, samples 1..32)" nrow(df_pof)
 @info "EPS set" sort(unique(df_pof.eps))
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
 
-plot_kde_overlay(df_pof)
-savefig(joinpath(ROOT, "panel_POF_last_inj_rate_KDE_$ts.png"), dpi=200)
+fig = plot_hist_panels(df_pof)
+savefig(joinpath(ROOT, "panel_POF_last_inj_rate_hist_$ts.png"), dpi=DPI)
 close("all")
-
-plot_violin(df_pof)
-savefig(joinpath(ROOT, "panel_POF_last_inj_rate_violin_$ts.png"), dpi=200)
-close("all")
-
-println("Saved:")
-println("  panel_POF_last_inj_rate_KDE_$ts.png")
-println("  panel_POF_last_inj_rate_violin_$ts.png")
+println("Saved: panel_POF_last_inj_rate_hist_$ts.png")
