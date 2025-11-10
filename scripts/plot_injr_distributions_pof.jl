@@ -1,21 +1,29 @@
 #!/usr/bin/env julia
 # POF distribution panels + sensitivity & left-tail (1%) analysis  (pure PyPlot)
+#
+# 产物：
+#   panel_POF_last_inj_rate_hist_*.png     # 全范围直方图面板（每个 eps 一格）
+#   panel_POF_left1pct_hist_*.png          # 左 1% 放大直方图面板（红线为1%分位点）
+#   panel_POF_last_inj_rate_ecdf_*.png     # （可选）ECDF 面板
+#   panel_POF_last_inj_rate_meanstd_*.png  # （可选）mean±std 误差棒
+#   pof_sensitivity_table_*.csv            # 敏感性表（mean/std/p10/p50/p90/KS→eps=0）
+#   pof_left_tail_1pct_*.csv               # 左 1% 明细（每个 eps 的样本编号等）
 
 using CSV, DataFrames, Dates, Printf
 using PyPlot
-using Statistics          # ← 修复 quantile/mean/std 未定义
+using Statistics          # quantile, mean, std
 
 # ==================== CONFIG ====================
 const ROOT    = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
 const SAMPLES = 1:32
 const NBINS   = 12
 
-const DRAW_ECDF_PANEL     = false   # 如需 ECDF 面板可改 true
-const DRAW_MEANSTD_BARS   = true
-const LEFT_TAIL_Q         = 0.01    # 左侧 1%
+const DRAW_ECDF_PANEL     = false   # 如需 ECDF 面板改 true
+const DRAW_MEANSTD_BARS   = true    # 是否输出 mean±std 误差棒图
+const LEFT_TAIL_Q         = 0.01    # 左侧 1%（改成 0.005 / 0.02 等）
 # ================================================
 
-# ---------- helper: select latest inj_rate_detail_*.csv ----------
+# ---------- helper: 选最新 inj_rate_detail_*.csv ----------
 function latest_detail_csv(root::String)
     files = filter(f -> occursin(r"^inj_rate_detail_\d{8}_\d{6}\.csv$", f), readdir(root))
     if !isempty(files)
@@ -32,7 +40,7 @@ function latest_detail_csv(root::String)
     end
 end
 
-# ---------- load & filter POF, samples 1..32, ok_final ----------
+# ---------- load & filter：只取 POF + sample∈1..32 + ok_final ----------
 function load_pof_detail(root::String)
     path = latest_detail_csv(root)
     @info "Loading detail CSV" path
@@ -43,6 +51,7 @@ function load_pof_detail(root::String)
     df = df[occursin.("POF", df.case_tag), :]
     df = df[in.(df.sample, Ref(collect(SAMPLES))), :]
     df = df[df.status .== "ok_final", :]
+    # 解析 eps
     df.eps = map(df.case_tag) do s
         m = match(r"POF_eps\s*=\s*([0-9]*\.?[0-9]+)", String(s))
         m === nothing ? NaN : parse(Float64, m.captures[1])
@@ -52,7 +61,7 @@ function load_pof_detail(root::String)
     return df
 end
 
-# ---------- plotting: histogram panel ----------
+# ---------- 直方图面板（全范围） ----------
 function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
     eps_vals = sort(unique(df.eps))
     n = length(eps_vals)
@@ -88,7 +97,7 @@ function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
     return fig
 end
 
-# ---------- 左侧 1% 面板：缩放到 1% 分位点，并画红线 ----------
+# ---------- 左侧 1% 面板（放大到 q=1%） ----------
 function plot_hist_left1pct_panels(df::DataFrame; q::Float64=LEFT_TAIL_Q, nbins::Int=NBINS)
     eps_vals = sort(unique(df.eps))
     n = length(eps_vals)
@@ -113,7 +122,7 @@ function plot_hist_left1pct_panels(df::DataFrame; q::Float64=LEFT_TAIL_Q, nbins:
         ax.hist(x; bins=nbins, alpha=0.85, edgecolor="none")
         ax.axvline(qx, color="r", linestyle="--", linewidth=1.5)  # 1% 分位线
         ax.set_xlim(0, xmax)
-        n_tail = count(<= (qx), x)
+        n_tail = sum(x .<= qx)  # 左 1% 样本数
         ax.set_title(@sprintf("POF_eps=%.4g | q1%%=%.3e | n_tail=%d", epsv, qx, n_tail), fontsize=9)
         ax.grid(true, linestyle="--", alpha=0.3)
         if (i - 1) % ncols == 0; ax.set_ylabel("frequency"); end
@@ -153,7 +162,7 @@ function plot_ecdf_panels(df::DataFrame)
     return fig
 end
 
-# ---------- sensitivity table & mean±std bars ----------
+# ---------- KS 距离 & 敏感性表 ----------
 function ks_statistic(x::Vector{Float64}, y::Vector{Float64})
     xs, cdfx = ecdf(x); ys, cdfy = ecdf(y)
     grid = sort(unique(vcat(xs, ys)))
@@ -172,6 +181,7 @@ function build_sensitivity_table(df::DataFrame)
     eps_vals = sort(unique(df.eps))
     rows = DataFrame(eps=Float64[], count=Int[], mean=Float64[], std=Float64[],
                      p10=Float64[], p50=Float64[], p90=Float64[], ks_to_eps0=Float64[])
+    # 以最小 eps 作为 KS 的基线（通常是 eps=0）
     base_eps = minimum(eps_vals)
     base = collect(skipmissing(df.last_inj_rate[df.eps .== base_eps]))
     base = base[isfinite.(base) .& (base .>= 0)]
@@ -200,7 +210,7 @@ function plot_meanstd_bars(sens::DataFrame)
     return fig
 end
 
-# ---------- left 1% table for tracing outliers ----------
+# ---------- 左 1% 明细表（样本编号回溯） ----------
 function build_left_tail_table(df::DataFrame; q::Float64=LEFT_TAIL_Q)
     eps_vals = sort(unique(df.eps))
     rows = DataFrame(eps=Float64[], q_left=Float64[], n_tail=Int[],
@@ -215,7 +225,7 @@ function build_left_tail_table(df::DataFrame; q::Float64=LEFT_TAIL_Q)
             continue
         end
         qx = quantile(x, q)
-        idx = findall(<= (qx), sub.last_inj_rate)  # 相对原表的索引
+        idx = findall(t -> t <= qx, sub.last_inj_rate)  # 左尾样本索引
         tail_vals = Vector(sub.last_inj_rate[idx])
         samples = Vector(sub.sample[idx])
         push!(rows, (e, qx, length(idx),
@@ -233,24 +243,24 @@ df_pof = load_pof_detail(ROOT)
 @info "EPS set" sort(unique(df_pof.eps))
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
 
-# 全范围直方图面板
+# 面板 1：全范围直方图
 fig1 = plot_hist_panels(df_pof)
 savefig(joinpath(ROOT, "panel_POF_last_inj_rate_hist_$ts.png"), dpi=200)
 close("all")
 
-# 左 1% 放大面板
+# 面板 2：左 1% 放大
 fig2 = plot_hist_left1pct_panels(df_pof; q=LEFT_TAIL_Q)
 savefig(joinpath(ROOT, "panel_POF_left1pct_hist_$ts.png"), dpi=200)
 close("all")
 
-# 敏感性汇总 & 左尾名单
+# 表：敏感性 & 左尾
 sens = build_sensitivity_table(df_pof)
 CSV.write(joinpath(ROOT, "pof_sensitivity_table_$ts.csv"), sens)
 
 left_tbl = build_left_tail_table(df_pof; q=LEFT_TAIL_Q)
 CSV.write(joinpath(ROOT, "pof_left_tail_${Int(LEFT_TAIL_Q*100)}pct_$ts.csv"), left_tbl)
 
-# 可选：ECDF 面板 & mean±std
+# 可选图：ECDF & mean±std
 if DRAW_ECDF_PANEL
     fig3 = plot_ecdf_panels(df_pof)
     savefig(joinpath(ROOT, "panel_POF_last_inj_rate_ecdf_$ts.png"), dpi=200)
