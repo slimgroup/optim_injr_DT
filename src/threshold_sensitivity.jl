@@ -49,6 +49,7 @@ using ArgParse
 using StatsBase
 using Dates
 using Printf
+using Base: time
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PyCall setup
@@ -559,13 +560,17 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
                obj_first, obj_arr, pof_smooth0, cvar0, pof_hard0, r_vals0, w_vals0
     end
 
+    start_time = time()  # Start timing for this threshold
+    
     obj, obj_base, pen_total, pen_pof, pen_cvar,
     sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr,
     obj_first, obj_arr, pof0_smooth, cvar0, pof0_hard, r_vals0, w_vals0 =
         first_forward!(inj_rate)
 
-    println("Threshold = $(threshold) MPa; Iteration 0; Objective = ", obj)
-    println("  base = $(obj_base), penalty = $(pen_total) (pof=$(pen_pof), cvar=$(pen_cvar))")
+    println("\n[Threshold $(threshold) MPa] Iteration 0/$niterations")
+    println("  Objective = $(obj) (base=$(obj_base), penalty=$(pen_total))")
+    println("  POF: smooth=$(pof0_smooth), hard=$(pof0_hard) | CVaR=$(cvar0)")
+    println("  Starting optimization...")
 
     pof_iter[1]      = pof0_smooth
     pof_hard_iter[1] = pof0_hard
@@ -624,7 +629,20 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
                       forward_step=forward_step, ds=ds, collect_states=need_states, inj_start=inj_start)
 
         if j % 5 == 0 || j == niterations
-            println("Threshold = $(threshold) MPa; Iteration $j; Objective = ", obj)
+            elapsed = time() - start_time
+            println("\n[Threshold $(threshold) MPa] Iteration $j/$niterations")
+            println("  Objective = $(obj) (base=$(obj_base), penalty=$(pen_total))")
+            println("  POF: smooth=$(pofj_smooth), hard=$(pofj_hard) | CVaR=$(cvarj)")
+            if j > 0
+                est_remaining = (elapsed / j) * (niterations - j)
+                println("  ⏱️  Elapsed: $(round(elapsed/60, digits=1)) min | Est. remaining: $(round(est_remaining/60, digits=1)) min")
+            else
+                println("  ⏱️  Elapsed: $(round(elapsed, digits=1))s")
+            end
+        elseif j == 1
+            # Always print first iteration for immediate feedback
+            elapsed = time() - start_time
+            println("[Threshold $(threshold) MPa] Iteration 1/$niterations | Elapsed: $(round(elapsed, digits=1))s")
         end
 
         obj_arr_niter[j+1] = obj
@@ -919,15 +937,65 @@ function main()
 
     # Run optimization for each threshold
     results = []
+    overall_start_time = time()
+    
+    # Progress checkpoint file
+    s = args["idx_num"]
+    checkpoint_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
+                              "progress_checkpoint__sample=$(s).jld2")
+    mkpath(dirname(checkpoint_path))
+    
     for (i, thresh) in enumerate(threshold_values)
-        println("\n" * "─" ^ 80)
-        println("Running optimization for threshold = $(thresh) MPa ($(i)/$(length(threshold_values)))")
+        println("\n" * "=" ^ 80)
+        println("THRESHOLD $(i)/$(length(threshold_values)): $(thresh) MPa")
+        println("=" ^ 80)
+        overall_elapsed = time() - overall_start_time
+        println("Overall elapsed time: $(round(overall_elapsed/60, digits=1)) minutes")
+        if i > 1
+            avg_time_per_thresh = overall_elapsed / (i - 1)
+            remaining_thresh = length(threshold_values) - i + 1
+            est_total_remaining = avg_time_per_thresh * remaining_thresh
+            println("Estimated remaining time: $(round(est_total_remaining/60, digits=1)) minutes")
+        end
         println("─" ^ 80)
+        
+        # Save checkpoint BEFORE starting (so we know which threshold is running)
+        @tagsave(checkpoint_path,
+        Dict(
+            "completed_thresholds" => [r.threshold for r in results],
+            "current_threshold" => thresh,
+            "current_index" => i,
+            "total_thresholds" => length(threshold_values),
+            "results_so_far" => results,
+            "overall_elapsed" => time() - overall_start_time,
+            "status" => "starting",
+            "timestamp" => now()
+        );
+        safe=true)
         
         try
             result = run_optimization_for_threshold(thresh, args)
             push!(results, result)
-            println("✓ Completed: threshold=$(thresh), final_inj_rate=$(result.final_inj_rate), final_obj=$(result.final_obj)")
+            
+            # Save progress checkpoint
+            @tagsave(checkpoint_path,
+            Dict(
+                "completed_thresholds" => [r.threshold for r in results],
+                "current_threshold" => thresh,
+                "current_index" => i,
+                "total_thresholds" => length(threshold_values),
+                "results_so_far" => results,
+                "overall_elapsed" => time() - overall_start_time,
+                "timestamp" => now()
+            );
+            safe=true)
+            
+            println("\n✓ Completed threshold $(i)/$(length(threshold_values)): $(thresh) MPa")
+            println("  Final injection rate: $(result.final_inj_rate)")
+            println("  Final objective: $(result.final_obj)")
+            println("  Final POF (smooth): $(result.final_pof_smooth), POF (hard): $(result.final_pof_hard)")
+            println("  Final CVaR: $(result.final_cvar)")
+            println("  Converged: $(result.converged), Iterations: $(result.niter)")
         catch e
             println("❌ ERROR: Failed for threshold=$(thresh)")
             println("   Exception: ", typeof(e))

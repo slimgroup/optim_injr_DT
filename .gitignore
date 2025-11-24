@@ -9,6 +9,39 @@
 /notebooks
 /_research
 
+# Large binary files and data files
+*.jld2
+*.h5
+*.hdf5
+*.mat
+*.nc
+*.npy
+*.npz
+
+# Image files (usually large)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.svg
+
+# Archive files
+*.zip
+*.tar
+*.tar.gz
+*.gz
+*.bz2
+*.7z
+*.rar
+
+# Large log files
+*.log
+*.out
+*.err
+logs/
+
 ################################################################################
 #                                    Julia                                     #
 ################################################################################
