@@ -18,7 +18,7 @@
 
 set -euo pipefail
 module purge
-module load julia/1.10.1 2>/dev/null || true
+module load julia/1.11.3 2>/dev/null || true
 
 # Fixed environment (PyCall stable, single-threaded plotting)
 export JULIA_DEPOT_PATH="$HOME/julia-depot"; mkdir -p "$JULIA_DEPOT_PATH"
