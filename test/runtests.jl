@@ -1,17 +1,17 @@
 using DrWatson, Test
 @quickactivate "optim_injr_DT"
 
-# Here you include files using `srcdir`
-# include(srcdir("file.jl"))
-
 # Run test suite
-println("Starting tests")
+println("Starting tests for optim_injr_DT")
 ti = time()
 
-@testset "optim_injr_DT tests" begin
-    @test 1 == 1
-end
+# Include test files
+include("test_utils.jl")
+include("test_risk_metrics.jl")
+include("test_data_io.jl")
+include("test_optimization.jl")
 
 ti = time() - ti
-println("\nTest took total time of:")
-println(round(ti/60, digits = 3), " minutes")
+println("\nAll tests completed!")
+println("Test took total time of:")
+println(round(ti, digits = 3), " seconds")

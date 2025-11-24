@@ -38,5 +38,14 @@ which auto-activate the project and enable local path handling from DrWatson.
 - `data/`: Data files (experiment data, intermediate results, etc.)
 - `plots/`: Generated image files
 - `test/`: Test code
+  - See [test/README.md](test/README.md) for running tests
 
 For detailed directory structure, please refer to [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md)
+
+## Running Tests
+
+To run the test suite:
+
+```julia
+julia --project=. test/runtests.jl
+```

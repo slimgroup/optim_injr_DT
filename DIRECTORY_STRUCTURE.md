@@ -37,6 +37,12 @@ optim_injr_DT/
 │   └── [other experiment plot directories]/
 │
 ├── test/                         # Test code
+│   ├── runtests.jl              # Main test runner
+│   ├── test_utils.jl            # Utility function tests
+│   ├── test_risk_metrics.jl     # Risk metric tests
+│   ├── test_data_io.jl          # Data I/O tests
+│   ├── test_optimization.jl     # Optimization function tests
+│   └── README.md                # Test documentation
 ├── notebooks/                    # Jupyter notebooks (if needed)
 ├── papers/                       # Paper-related files (if needed)
 └── _research/                    # Research-related files (if needed)

@@ -19,20 +19,50 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1'
+          - '1.11'
         os:
           - ubuntu-latest
         arch:
           - x64
     steps:
       - uses: actions/checkout@v4
+      
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
+      
       - uses: julia-actions/cache@v1
+      
+      - name: Install Python (for PyCall/PyPlot)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          check-latest: true
+      
+      - name: Set environment variables for PyCall
+        run: |
+          export PYTHON=$(which python3)
+          echo "PYTHON=$PYTHON" >> $GITHUB_ENV
+          echo "MPLBACKEND=Agg" >> $GITHUB_ENV
+      
       - uses: julia-actions/julia-buildpkg@v1
-
+        env:
+          PYTHON: ${{ env.PYTHON }}
+          MPLBACKEND: Agg
+          JULIA_PKG_PRECOMPILE_AUTO: 0
+      
+      - name: Build PyCall (if needed)
+        run: |
+          julia --project=. -e 'using Pkg; try; Pkg.build("PyCall"); catch; println("PyCall build skipped or already built"); end'
+        env:
+          PYTHON: ${{ env.PYTHON }}
+          MPLBACKEND: Agg
+      
       - name: Run tests
         run: >
           julia --project=. --color=yes test/runtests.jl
+        env:
+          PYTHON: ${{ env.PYTHON }}
+          MPLBACKEND: Agg
+          JULIA_PKG_PRECOMPILE_AUTO: 0

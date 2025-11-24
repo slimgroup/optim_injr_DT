@@ -848,14 +848,17 @@ function main()
     
     # Alignment check - only relevant if BOTH are enabled
     if use_pof && use_cvar
-        println("⚠️  ALIGNMENT CHECK:")
+        println("ℹ️  ALIGNMENT CHECK (informational, not an error):")
         println("   Current (eps, gamma) = ($(eps_pof), $(gamma_cvar))")
         if gamma_cvar == 0.0 && eps_pof > 0
-            println("   ⚠️  gamma = 0.0 is likely too strict for eps = $(eps_pof)")
+            println("   ⚠️  WARNING: gamma = 0.0 is likely too strict for eps = $(eps_pof)")
             println("   → These values may NOT be aligned!")
             println("   → Recommendation: Use --calibrate_gamma or set gamma manually")
+            println("   → Optimization will proceed, but may have issues")
         else
-            println("   → Values set, but alignment should be verified")
+            println("   ✓ Values are set (eps=$(eps_pof), gamma=$(gamma_cvar))")
+            println("   → Alignment should be verified by checking if POF≈eps implies CVaR≈gamma")
+            println("   → Optimization will proceed normally")
         end
         println()
     elseif !use_pof && !use_cvar
@@ -926,11 +929,23 @@ function main()
             push!(results, result)
             println("✓ Completed: threshold=$(thresh), final_inj_rate=$(result.final_inj_rate), final_obj=$(result.final_obj)")
         catch e
+            println("❌ ERROR: Failed for threshold=$(thresh)")
+            println("   Exception: ", typeof(e))
+            println("   Message: ", e)
+            if isa(e, ErrorException)
+                println("   Full error: ", e.msg)
+            end
+            println("   Stack trace:")
+            for (exc, bt) in Base.catch_stack()
+                showerror(stdout, exc, bt)
+                println()
+            end
             @warn "Failed for threshold=$(thresh)" exception=(e, catch_backtrace())
             push!(results, (threshold=thresh, final_inj_rate=NaN, final_obj=NaN,
                            final_obj_base=NaN, final_penalty=NaN,
                            final_pof_smooth=NaN, final_pof_hard=NaN, final_cvar=NaN,
                            converged=false, niter=0))
+            println("   → Continuing with next threshold...")
         end
     end
 
