@@ -13,8 +13,8 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=hli853@gatech.edu
 
-# 完整运行阈值敏感性分析（启用 POF + CVaR，自动校准）
-# 预计运行时间：10-20 小时（10 个阈值，每个 20 次迭代）
+# Full run threshold sensitivity analysis (POF + CVaR enabled, auto-calibration)
+# Estimated runtime: 10-20 hours (10 thresholds, 20 iterations each)
 
 set -euo pipefail
 module purge
@@ -31,13 +31,13 @@ mkdir -p logs
 
 trap 'echo "[WARN] SIGTERM received; try to save…"' TERM
 
-# 进入项目目录
+# Change to project directory
 cd "$SLURM_SUBMIT_DIR"
 
 echo "Job started at $(date)"
 echo "Running threshold sensitivity analysis (full mode)"
 
-# 运行 Julia 脚本（完整参数）
+# Run Julia script (full parameters)
 julia --project="$SLURM_SUBMIT_DIR" -t 1 src/threshold_sensitivity.jl \
   --idx_num 128 \
   --use_pof \

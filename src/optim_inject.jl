@@ -109,7 +109,7 @@ function parse_commandline()
             help = "Treat CVaR as a hard constraint: if CVaR>γ, objective=Inf"
             action = :store_true
 
-        # kappa 与演示
+        # kappa and demo
         "--kappa_pof"
             help = "κ for POF softplus (zero-baseline)"
             arg_type = Float64
@@ -124,30 +124,30 @@ function parse_commandline()
             help = "Save a demo plot of zero-baseline softplus for given kappas"
             action = :store_true
 
-        # λ 标定（可选）
+        # Lambda calibration (optional)
         "--target_share"
-            help = "目标：软罚在边界附近占 |base| 的比例（例如 0.01 = 1%）"
+            help = "Target: soft penalty near boundary as fraction of |base| (e.g., 0.01 = 1%)"
             arg_type = Float64
             default = 0.01
 
         "--delta_ref"
-            help = "用于标定 λ 的代表性小违约量 δ（例如 0.01）"
+            help = "Representative small violation δ for lambda calibration (e.g., 0.01)"
             arg_type = Float64
             default = 0.01
 
-        # 优化/保存/出图
+        # Optimization/save/plotting
         "--niterations"
             help = "Max GD iterations"
             arg_type = Int
             default = 20
 
         "--inj_start"
-            help = "★ 起始注入速率（取代全局 init_inj_rate）"
+            help = "★ Starting injection rate (replaces global init_inj_rate)"
             arg_type = Float64
             default = 0.0001
 
         "--inj_guess"
-            help = "初始猜测注入速率（上限端）"
+            help = "Initial guess injection rate (upper bound)"
             arg_type = Float64
             default = 0.05
 
@@ -194,7 +194,7 @@ end
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Plotting helpers
-# 关键：pres_thres 需要 p0_ref（参考水压）作为关键字参数传入
+# Key: pres_thres requires p0_ref (reference water pressure) as keyword argument
 function plot_state(data, title_str, file_suffix, plot_path, sample, h, n, d, type, iter=-1, threshold=-1; p0_ref=nothing)
     rc("font", family="serif")
     rc("xtick", labelsize=15); rc("ytick", labelsize=15)
@@ -212,7 +212,7 @@ function plot_state(data, title_str, file_suffix, plot_path, sample, h, n, d, ty
     elseif type == "pres_thres"
         @assert p0_ref !== nothing "plot_state: p0_ref must be provided for type='pres_thres'"
         data_diff = data - p0_ref
-        # 颜色带拆分（≤threshold 用蓝色渐变，>threshold 用红色）
+        # Colorbar split (≤threshold uses blue gradient, >threshold uses red)
         maxdiff = max(1e-9, maximum(data_diff))
         lower_cmap_size = clamp(round(Int, 256 * threshold * 1e6 / maxdiff), 0, 256)
         upper_cmap_size = 256 - lower_cmap_size
@@ -330,8 +330,8 @@ end
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Hard/soft risk metrics
-# ★ NOTE: 由于 r_spacetime_distribution 已把 w 归一化为和为 1，
-# ★ 下面这个 pof_weighted 实际就是 P(violation)（概率而不是质量）
+# ★ NOTE: Since r_spacetime_distribution has normalized w to sum to 1,
+# ★ this pof_weighted is actually P(violation) (probability, not mass)
 pof_weighted(r::Vector{Float64}, w::Vector{Float64}) =
     sum((r[i] < 0.0) ? w[i] : 0.0 for i in eachindex(r))
 
@@ -339,37 +339,37 @@ function pof_smooth(r::Vector{Float64}, w::Vector{Float64}; τ::Float64=0.05)
     return sum(w .* σ.(-r ./ τ))
 end
 
-# ★ ADDED: clean CVaR（严格 worst-α-tail 条件期望）
+# ★ ADDED: clean CVaR (strict worst-α-tail conditional expectation)
 normalize_weights(w) = (sum(w) <= 0 ? (w ./ 1) : (w ./ sum(w)))
 
 """
 cvar_clean(L, w; α) -> (cvar, t_star)
-严格按 worst α-tail 的加权条件期望计算（报告/评估用）
+Strictly compute weighted conditional expectation of worst α-tail (for reporting/evaluation)
 """
 function cvar_clean(L::AbstractVector{<:Real}, w::AbstractVector{<:Real}; α::Float64=0.05)
     @assert length(L) == length(w)
     α = clamp(α, 1e-6, 0.9999)
     wn = normalize_weights(w)
 
-    perm = sortperm(L, rev=true)            # 从大到小
+    perm = sortperm(L, rev=true)            # Sort from largest to smallest
     Ls, ws = L[perm], wn[perm]
 
     target = α
     sumLW  = 0.0
     t_star = Ls[end]
     for i in eachindex(Ls)
-        take = min(ws[i], target)           # 尾部最后一个可能只取一部分权重
+        take = min(ws[i], target)           # Last tail element may only take partial weight
         sumLW += take * Ls[i]
         target -= take
         if target <= 0
-            t_star = Ls[i]                  # VaR 分位点
+            t_star = Ls[i]                  # VaR quantile point
             break
         end
     end
     return sumLW / α, t_star
 end
 
-# ★ ADDED: RU 形式（带 α*sum(w) 归一化；smooth=true 用 softplus）
+# ★ ADDED: RU form (with α*sum(w) normalization; smooth=true uses softplus)
 function cvar_ru_weighted(L::Vector{Float64}, w::Vector{Float64};
                           α::Float64=0.05, smooth::Bool=true, κ::Float64=50.0,
                           tol::Float64=1e-8, maxit::Int=100)
@@ -413,7 +413,7 @@ function cvar_ru_weighted(L::Vector{Float64}, w::Vector{Float64};
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
-# One-time sim builder（复用以提速）
+# One-time sim builder (reuse for speed)
 function build_sim(n, d, ϕ, K; h=0.0, ds=10, dt_firstblock=80/ds)
     model = jutulModel(n, d, ϕ, K1to3(K; kvoverkh=0.36); h=h)
     Sblk  = jutulModeling(model, dt_firstblock * ones(ds))
@@ -422,7 +422,7 @@ function build_sim(n, d, ϕ, K; h=0.0, ds=10, dt_firstblock=80/ds)
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Objective（合并风险统计，避免二次仿真）
+# Objective (merge risk statistics, avoid second simulation)
 function objective(inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                    sat_init, pres_init=nothing,
                    risk = (use_pof=false, λ_pof=0.0, ε=0.01, τ=0.05,
@@ -447,7 +447,7 @@ function objective(inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, 
     pres_bound_diff_arr = collect_states ? [zeros(n[1], n[end]) for _ in 1:time_len] : Vector{Array{Float64,2}}()
     BHP_bound_diff_arr  = collect_states ? [zeros(8)             for _ in 1:time_len] : Vector{Vector{Float64}}()
 
-    # ★ 风险统计的压力序列（与前推合并收集）
+    # ★ Pressure sequence for risk statistics (collected together with forward pass)
     pres_for_risk = Vector{Array{Float64,2}}(undef, time_len)
     tcount = 0
 
@@ -490,7 +490,7 @@ function objective(inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, 
         obj += obj_first[i]
     end
 
-    # —— 风险分布与指标（用 pres_for_risk）——
+    # —— Risk distribution and metrics (using pres_for_risk) ——
     dx, dz = d[1], d[3]
     r_vals, w_vals = r_spacetime_distribution(
         pres_for_risk, p_max; dx=dx, dz=dz, dt_seq=time_step,
@@ -498,16 +498,16 @@ function objective(inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, 
         mask=nothing, weight_mode=risk.weight_mode
     )
 
-    # ★ 这里的 pof_weighted 已经是概率（w 已归一化）
+    # ★ Here pof_weighted is already probability (w is normalized)
     pof_hard_hat   = pof_weighted(r_vals, w_vals)
     pof_smooth_hat = pof_smooth(r_vals, w_vals; τ=risk.τ)
 
-    # CVaR：优化用 RU（可平滑），评估/约束用 clean
+    # CVaR: use RU for optimization (smoothable), use clean for evaluation/constraints
     L = max.(0.0, .-r_vals)
     cvar_smooth, _ = cvar_ru_weighted(L, w_vals; α=risk.α, smooth=risk.cvar_soft, κ=risk.kappa_cvar)   # ★ CHANGED
     cvar_eval,   _ = cvar_clean(L, w_vals; α=risk.α)                                                    # ★ CHANGED
 
-    # 硬约束
+    # Hard constraints
     if risk.use_pof && risk.pof_as_constraint && (pof_hard_hat > risk.ε + 1e-12)
         previous_state = nothing; GC.gc()
         return Inf, obj, 0.0, 0.0, 0.0,
@@ -527,7 +527,7 @@ function objective(inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, 
                r_vals, w_vals
     end
 
-    # 软罚（零基线）
+    # Soft penalties (zero baseline)
     κ_pof  = risk.kappa_pof
     κ_cvar = risk.kappa_cvar
     pen_pof  = risk.use_pof  ? risk.λ_pof  * (softplus(pof_smooth_hat - risk.ε; κ=κ_pof)  - softplus(0.0; κ=κ_pof))  : 0.0
@@ -711,29 +711,29 @@ function main()
     plot_path = plotsdir(sim_name, exp_layer, "states", case_tag)
     mkpath(plot_path)
 
-    # 可选 softplus demo
+    # Optional softplus demo
     if Base.get(args, "plot_softplus_demo", false)
         plot_softplus_demo!(plot_path; κ_pof=risk_opts.kappa_pof, κ_cvar=risk_opts.kappa_cvar)
     end
 
-    # 时间步与注入参数
+    # Time steps and injection parameters
     time_step = 80 / ds * ones(6 * ds * forward_step)
     inj_rate  = [args["inj_guess"]]
     δinj      = 1e-8 * ones(size(inj_rate, 1))
     inj_start = args["inj_start"]
 
-    # 井位置
+    # Well location
     inj_y = 191 + argmax(K[250, 191:200]) - 1
     inj_loc_grid = (250, 1, inj_y)
     inj_loc = (inj_loc_grid[1]*d[1], inj_loc_grid[2]*d[2], inj_loc_grid[3]*d[3])
 
-    # BHP bound（仅日志/出图）
+    # BHP bound (for logging/plotting only)
     BHP_max = p_max[inj_y, 250]
 
-    # 预构建仿真块
+    # Pre-build simulation block
     sim = build_sim(n, d, ϕ, K; h=h, ds=ds, dt_firstblock=80/ds)
 
-    # 固定场图（一次）
+    # Fixed field plots (once)
     if s == 1
         plot_state(transpose(p_max), "Fracture pressure", "_fracture_pressure.png", plot_path, s, h, n, d, "pres")
         plot_state(p0, "Water pressure", "_water_pressure.png", plot_path, s, h, n, d, "pres")
@@ -745,7 +745,7 @@ function main()
     logK = log10.(transpose(K/JutulDarcyRules.md))
     plot_state(logK, "Permeability", "_perm.png", plot_path, s, h, n, d, "perm")
 
-    # 存储与开关
+    # Storage and switches
     niterations = args["niterations"]
     save_plots  = Base.get(args, "save_plots", false)
     plot_stride = args["plot_stride"]
@@ -770,7 +770,7 @@ function main()
     pen_pof_arr   = zeros(Float64, niterations+1)
     pen_cvar_arr  = zeros(Float64, niterations+1)
 
-    # 首次前推（若不满足硬约束则回退缩小）
+    # First forward pass (if hard constraints not met, backtrack and shrink)
     function first_forward!(inj_rate)
         obj, obj_base, pen_total, pen_pof, pen_cvar,
         sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr,
@@ -809,20 +809,20 @@ function main()
         println(@sprintf("  penalty share = %.2f%%", 100*pen_total/obj))
     end
 
-    # λ 建议
+    # Lambda suggestions
     target_share = args["target_share"]; delta_ref = args["delta_ref"]
     σ0 = 0.5
     absbase = max(1.0, abs(obj_base))
     if risk_opts.use_pof
         λ_pof_boundary = (target_share * absbase) / (σ0 * delta_ref + 1e-30)
         λ_pof_current  = (risk_opts.λ_pof > 0 && pen_pof > 0) ? (target_share * absbase) / (pen_pof / risk_opts.λ_pof) : NaN
-        println(@sprintf("λ_pof 建议： boundary≈%.3e, current≈%s", λ_pof_boundary,
+        println(@sprintf("λ_pof suggestion: boundary≈%.3e, current≈%s", λ_pof_boundary,
                 isnan(λ_pof_current) ? "n/a" : @sprintf("%.3e", λ_pof_current)))
     end
     if risk_opts.use_cvar
         λ_cvar_boundary = (target_share * absbase) / (σ0 * delta_ref + 1e-30)
         λ_cvar_current  = (risk_opts.λ_cvar > 0 && pen_cvar > 0) ? (target_share * absbase) / (pen_cvar / risk_opts.λ_cvar) : NaN
-        println(@sprintf("λ_cvar 建议： boundary≈%.3e, current≈%s", λ_cvar_boundary,
+        println(@sprintf("λ_cvar suggestion: boundary≈%.3e, current≈%s", λ_cvar_boundary,
                 isnan(λ_cvar_current) ? "n/a" : @sprintf("%.3e", λ_cvar_current)))
     end
 
@@ -837,7 +837,7 @@ function main()
     pen_pof_arr[1]   = pen_pof
     pen_cvar_arr[1]  = pen_cvar
 
-    # 初始梯度（必须算）
+    # Initial gradient (must compute)
     grad = grad_wrt_inj(inj_rate, δinj, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                         sat_init=sat_init, pres_init=pres_init, risk=risk_opts,
                         forward_step=forward_step, ds=ds,
@@ -850,12 +850,12 @@ function main()
     p = -grad/gnorm
     grad_arr[1, :] = grad
 
-    # 关键帧索引
+    # Key frame indices
     one_sixth   = forward_step * ds
     three_sixths= 3 * forward_step * ds
     six_sixths  = 6 * forward_step * ds
 
-    # iter 0 图
+    # iter 0 plot
     if save_plots
         plot_state(transpose(sat_arr[one_sixth]), "CO2 Saturation", "_co2sat$(one_sixth).png",    plot_path, s, h, n, d, "sat", 0)
         plot_state(transpose(sat_arr[three_sixths]), "CO2 Saturation", "_co2sat$(three_sixths).png", plot_path, s, h, n, d, "sat", 0)
@@ -867,7 +867,7 @@ function main()
         plot_state(transpose(pres_arr[six_sixths]), "Pressure Difference", "_presdiff$(six_sixths).png",   plot_path, s, h, n, d, "pres_thres", 0, threshold; p0_ref=p0)
     end
 
-    # 存第 0 次
+    # Save iteration 0
     @tagsave(joinpath(out_root, savename(@strdict(j=0), "jld2"; digits=6)),
     Dict(
         "sat_arr" => (save_states || save_plots) ? sat_arr : nothing,
@@ -888,7 +888,7 @@ function main()
         );
     safe=true)
 
-    # 迭代
+    # Iteration
     proj(x) = max.(x, 0)
     ls = BackTracking(order=3, iterations=10)
     step_arr = zeros(niterations)
@@ -938,7 +938,7 @@ function main()
         pof_hard_iter[j+1] = pofj_hard
         cvar_iter[j+1]     = cvarj
 
-        # 梯度（每次迭代都算）
+        # Gradient (compute every iteration)
         grad = grad_wrt_inj(inj_rate, δinj, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                             sat_init=sat_init, pres_init=pres_init, risk=risk_opts,
                             forward_step=forward_step, ds=ds,
@@ -951,7 +951,7 @@ function main()
         p = -grad/gnorm
         grad_arr[j+1, :] = grad
 
-        # 存
+        # Save
         if need_save
             @tagsave(joinpath(out_root, savename(@strdict(j), "jld2"; digits=6)),
             Dict(
@@ -974,7 +974,7 @@ function main()
             safe=true)
         end
 
-        # 图（关键帧）
+        # Plot (key frames)
         if need_plots
             plot_state(transpose(sat_arr[one_sixth]),     "CO2 Saturation", "_co2sat$(one_sixth).png",    plot_path, s, h, n, d, "sat", j)
             plot_state(transpose(sat_arr[three_sixths]),  "CO2 Saturation", "_co2sat$(three_sixths).png", plot_path, s, h, n, d, "sat", j)
@@ -1012,10 +1012,10 @@ function main()
         );
     safe=true)
 
-    # penalty 曲线
+    # Penalty curves
     try
         iters = 0:niterations
-        # ↓ CHANGED: eachindex 消除 warning
+        # ↓ CHANGED: eachindex to eliminate warning
         share = [ pen_total_arr[k] / max(1.0, abs(obj_base_arr[k])) for k in eachindex(pen_total_arr) ]
 
         fig, ax = subplots(figsize=(6,4))
@@ -1023,7 +1023,7 @@ function main()
         ax.set_xlabel("iteration"); ax.set_ylabel("penalty share (%)")
         ax.set_title("Penalty share vs iteration")
         plt.tight_layout()
-        # ↓ CHANGED: 文件名包含 sample，避免覆盖
+        # ↓ CHANGED: filename includes sample to avoid overwriting
         safesave(joinpath(plot_path, "penalty_share__sample=$(s).png"), fig); close(fig)
 
         fig, ax = subplots(figsize=(6,4))
@@ -1033,7 +1033,7 @@ function main()
         ax.legend(); ax.set_xlabel("iteration"); ax.set_ylabel("penalty (abs units)")
         ax.set_title("Penalty components")
         plt.tight_layout()
-        # ↓ CHANGED: 文件名包含 sample，避免覆盖
+        # ↓ CHANGED: filename includes sample to avoid overwriting
         safesave(joinpath(plot_path, "penalty_components__sample=$(s).png"), fig); close(fig)
 
         println("Saved curves: penalty_share__sample=$(s).png, penalty_components__sample=$(s).png")

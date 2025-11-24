@@ -1,5 +1,5 @@
 #!/bin/bash
-# 快速运行阈值敏感性分析（启用 POF + CVaR，自动校准）
+# Quick run threshold sensitivity analysis (POF + CVaR enabled, auto-calibration)
 
 julia src/threshold_sensitivity.jl \
   --idx_num 128 \

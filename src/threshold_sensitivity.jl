@@ -205,19 +205,19 @@ function parse_commandline()
             arg_type = Float64
             default = 50.0
 
-        # 优化/保存/出图
+        # Optimization/save/plotting
         "--niterations"
             help = "Max GD iterations"
             arg_type = Int
             default = 20
 
         "--inj_start"
-            help = "起始注入速率（取代全局 init_inj_rate）"
+            help = "Starting injection rate (replaces global init_inj_rate)"
             arg_type = Float64
             default = 0.0001
 
         "--inj_guess"
-            help = "初始猜测注入速率（上限端）"
+            help = "Initial guess injection rate (upper bound)"
             arg_type = Float64
             default = 0.05
 
@@ -490,24 +490,24 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     out_root   = joinpath(data_root, sample_tag)
     mkpath(out_root)
 
-    # 时间步与注入参数
+    # Time steps and injection parameters
     time_step = 80 / ds * ones(6 * ds * forward_step)
     inj_rate  = [args["inj_guess"]]
     δinj      = 1e-8 * ones(size(inj_rate, 1))
     inj_start = args["inj_start"]
 
-    # 井位置
+    # Well location
     inj_y = 191 + argmax(K[250, 191:200]) - 1
     inj_loc_grid = (250, 1, inj_y)
     inj_loc = (inj_loc_grid[1]*d[1], inj_loc_grid[2]*d[2], inj_loc_grid[3]*d[3])
 
-    # BHP bound（仅日志/出图）
+    # BHP bound (for logging/plotting only)
     BHP_max = p_max[inj_y, 250]
 
-    # 预构建仿真块
+    # Pre-build simulation block
     sim = build_sim(n, d, ϕ, K; h=h, ds=ds, dt_firstblock=80/ds)
 
-    # 存储与开关
+    # Storage and switches
     niterations = args["niterations"]
     save_plots  = Base.get(args, "save_plots", false)
     plot_stride = args["plot_stride"]
@@ -532,7 +532,7 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     pen_pof_arr   = zeros(Float64, niterations+1)
     pen_cvar_arr  = zeros(Float64, niterations+1)
 
-    # 首次前推（若不满足硬约束则回退缩小）
+    # First forward pass (if hard constraints not met, backtrack and shrink)
     function first_forward!(inj_rate)
         obj, obj_base, pen_total, pen_pof, pen_cvar,
         sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr,
@@ -583,7 +583,7 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     pen_pof_arr[1]   = pen_pof
     pen_cvar_arr[1]  = pen_cvar
 
-    # 初始梯度（必须算）
+    # Initial gradient (must compute)
     grad = grad_wrt_inj(inj_rate, δinj, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                         sat_init=sat_init, pres_init=pres_init, risk=risk_opts,
                         forward_step=forward_step, ds=ds,
@@ -599,7 +599,7 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     p = -grad/gnorm
     grad_arr[1, :] = grad
 
-    # 迭代
+    # Iteration
     proj(x) = max.(x, 0)
     ls = BackTracking(order=3, iterations=10)
     step_arr = zeros(niterations)
@@ -658,7 +658,7 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
         pof_hard_iter[j+1] = pofj_hard
         cvar_iter[j+1]     = cvarj
 
-        # 梯度（每次迭代都算）
+        # Gradient (compute every iteration)
         grad = grad_wrt_inj(inj_rate, δinj, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                             sat_init=sat_init, pres_init=pres_init, risk=risk_opts,
                             forward_step=forward_step, ds=ds,
