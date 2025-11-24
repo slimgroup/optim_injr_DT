@@ -1,51 +1,222 @@
 # optim_injr_DT
 
-This code base is using the [Julia Language](https://julialang.org/) and
-[DrWatson](https://juliadynamics.github.io/DrWatson.jl/stable/)
-to make a reproducible scientific project named
-> optim_injr_DT
+<div align="center">
 
-It is authored by Haoyun Li.
+**Optimization-based Injection Rate Control for Geological Carbon Storage**
 
-To (locally) reproduce this project, do the following:
+[![Julia](https://img.shields.io/badge/Julia-1.11-blue.svg)](https://julialang.org/)
+[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![CI](https://github.com/haoyunl2/optim_injr_DT/workflows/CI/badge.svg)](https://github.com/haoyunl2/optim_injr_DT/actions)
 
-0. Download this code base. Notice that raw data are typically not included in the
-   git-history and may need to be downloaded independently.
-1. Open a Julia console and do:
+</div>
+
+---
+
+## 📋 Overview
+
+This project implements a **backtracking line search gradient descent optimization solver** for geological carbon storage. The solver maximizes injected CO₂ integral while incorporating risk penalties through **Probability of Failure (POF)** and **Conditional Value at Risk (CVaR)** metrics.
+
+### Key Features
+
+- 🎯 **Risk-aware optimization** with POF and CVaR constraints
+- 🔄 **Soft and hard constraint support** for flexible risk management
+- 📊 **Comprehensive visualization** tools for results analysis
+- 🧪 **Extensive test suite** for reliability
+- 🚀 **HPC-ready** with SLURM job submission scripts
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Julia 1.11+** ([Download](https://julialang.org/downloads/))
+- **Python 3.12+** (for PyCall/PyPlot dependencies)
+- **DrWatson** package (for project management)
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/haoyunl2/optim_injr_DT.git
+   cd optim_injr_DT
    ```
+
+2. **Set up Julia environment:**
+   ```julia
    julia> using Pkg
-   julia> Pkg.add("DrWatson") # install globally, for using `quickactivate`
-   julia> Pkg.activate("path/to/this/project")
-   julia> Pkg.instantiate()
+   julia> Pkg.add("DrWatson")  # Install globally for quickactivate
+   julia> Pkg.activate(".")
+   julia> Pkg.instantiate()    # Install all dependencies
    ```
 
-This will install all necessary packages for you to be able to run the scripts and
-everything should work out of the box, including correctly finding local paths.
+3. **Verify installation:**
+   ```julia
+   julia --project=. test/runtests.jl
+   ```
 
-You may notice that most scripts start with the commands:
+> **Note:** Raw data files are typically not included in git history and may need to be downloaded separately.
+
+---
+
+## 📁 Project Structure
+
+```
+optim_injr_DT/
+├── src/                    # Core optimization modules
+│   ├── optim_inject.jl    # Main optimization solver
+│   ├── optim_inject_vecporo.jl
+│   └── threshold_sensitivity.jl
+│
+├── scripts/               # Analysis and utility scripts
+│   ├── shell/            # SLURM job submission scripts
+│   └── julia_scripts/    # Data processing & visualization
+│
+├── data/                  # Experiment data and results
+├── plots/                 # Generated visualizations
+└── test/                  # Test suite
+```
+
+For detailed structure, see [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md)
+
+---
+
+## 💻 Usage
+
+### Running Optimization
+
+Most scripts use DrWatson's `@quickactivate` for automatic project activation:
+
 ```julia
 using DrWatson
 @quickactivate "optim_injr_DT"
 ```
-which auto-activate the project and enable local path handling from DrWatson.
 
-## Project Structure
+### Example: Run Optimization
 
-- `src/`: Core module code (optim_inject.jl, threshold_sensitivity.jl, etc.)
-- `scripts/`: All script files
-  - `shell/`: Shell scripts (SLURM job submission, etc.)
-  - `julia_scripts/`: Julia scripts (data processing, plotting, analysis, etc.)
-- `data/`: Data files (experiment data, intermediate results, etc.)
-- `plots/`: Generated image files
-- `test/`: Test code
-  - See [test/README.md](test/README.md) for running tests
+```bash
+julia --project=. src/optim_inject.jl --idx_num 1 --use_pof --lambda_pof 8.5e8
+```
 
-For detailed directory structure, please refer to [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md)
+### Running Tests
 
-## Running Tests
-
-To run the test suite:
-
-```julia
+```bash
 julia --project=. test/runtests.jl
 ```
+
+Or from Julia REPL:
+```julia
+include("test/runtests.jl")
+```
+
+See [test/README.md](test/README.md) for more details.
+
+---
+
+## 📚 Documentation
+
+- **[Directory Structure](DIRECTORY_STRUCTURE.md)** - Detailed project organization
+- **[Hard vs Soft Constraints](HARD_VS_SOFT_CONSTRAINTS.md)** - Constraint handling guide
+- **[Threshold Sensitivity Guide](THRESHOLD_SENSITIVITY_GUIDE.md)** - Sensitivity analysis
+- **[Optimization Choice Guide](OPTIMIZATION_CHOICE_GUIDE.md)** - Algorithm selection
+
+---
+
+## 🔧 Key Modules
+
+### `optim_inject.jl`
+Main optimization module supporting:
+- POF/CVaR soft penalties and hard constraints
+- Zero-baseline penalties
+- Configurable kappa for softplus smoothing
+- Comprehensive logging and visualization
+
+### `threshold_sensitivity.jl`
+Threshold sensitivity analysis for risk parameter calibration.
+
+### `optim_inject_vecporo.jl`
+Vector porosity optimization variant.
+
+---
+
+## 🧪 Testing
+
+The project includes comprehensive tests covering:
+- ✅ Utility functions (softplus, array operations)
+- ✅ Risk metrics (POF, CVaR computations)
+- ✅ Data I/O operations
+- ✅ Optimization functions
+
+Run all tests:
+```bash
+julia --project=. test/runtests.jl
+```
+
+---
+
+## 🖥️ HPC Usage
+
+For cluster environments (e.g., PACE), use the scripts in `scripts/shell/`:
+
+```bash
+# Submit batch jobs
+./scripts/shell/submit_all.sh
+
+# Launch specific cases
+./scripts/shell/launch_cases.sh 1-32
+```
+
+---
+
+## 📦 Dependencies
+
+### Core Julia Packages
+- `JutulDarcyRules` - Reservoir simulation
+- `SlimOptim` - Optimization algorithms
+- `DrWatson` - Project management
+- `JLD2` - Data storage
+- `PyCall` / `PyPlot` - Python integration for plotting
+
+See [Project.toml](Project.toml) for complete dependency list.
+
+---
+
+## 👤 Author
+
+**Haoyun Li**
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+## 📝 Citation
+
+If you use this code in your research, please cite:
+
+```bibtex
+@software{optim_injr_DT,
+  author = {Haoyun Li},
+  title = {optim_injr_DT: Optimization-based Injection Rate Control for Geological Carbon Storage},
+  year = {2024},
+  url = {https://github.com/haoyunl2/optim_injr_DT}
+}
+```
+
+---
+
+<div align="center">
+
+**Made with ❤️ using Julia**
+
+</div>

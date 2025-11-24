@@ -18,10 +18,14 @@ optim_injr_DT/
 │   │   └── archive/             # Archived old scripts
 │   │
 │   └── julia_scripts/           # Julia scripts
+│       ├── plotting/            # Plotting scripts (plot_*.jl, plot_*.py)
+│       ├── data_collection/     # Data collection scripts (collect_*.jl)
+│       ├── analysis/            # Analysis scripts (compare_*, posterior_*, injr_*)
 │       ├── test.jl              # Test scripts
-│       ├── plot_*.jl            # Plotting scripts
-│       ├── collect_*.jl         # Data collection scripts
-│       ├── compare_*.jl         # Comparison scripts
+│       ├── optim_inject_from_second.jl
+│       ├── optimize_h.jl
+│       ├── regu_tune.jl
+│       ├── scaling_*.jl
 │       └── archive/             # Archived old version scripts
 │
 ├── data/                         # Data files
@@ -34,6 +38,7 @@ optim_injr_DT/
 ├── plots/                        # Image files
 │   ├── root/                    # Images moved from root directory
 │   ├── DT_control/              # Main experiment plots
+│   ├── archive/                 # Archived plot directories (plots_fake, plots_sep, etc.)
 │   └── [other experiment plot directories]/
 │
 ├── test/                         # Test code
