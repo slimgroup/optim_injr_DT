@@ -28,3 +28,15 @@ using DrWatson
 @quickactivate "optim_injr_DT"
 ```
 which auto-activate the project and enable local path handling from DrWatson.
+
+## Project Structure
+
+- `src/`: Core module code (optim_inject.jl, threshold_sensitivity.jl, etc.)
+- `scripts/`: All script files
+  - `shell/`: Shell scripts (SLURM job submission, etc.)
+  - `julia_scripts/`: Julia scripts (data processing, plotting, analysis, etc.)
+- `data/`: Data files (experiment data, intermediate results, etc.)
+- `plots/`: Generated image files
+- `test/`: Test code
+
+For detailed directory structure, please refer to [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md)

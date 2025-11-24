@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import erf
 
-# ---------------- 全局样式 ----------------
+# ---------------- Global style ----------------
 plt.rcParams["figure.figsize"] = (6.5, 4.0)
 plt.rcParams["font.size"] = 14
 
 fig, ax = plt.subplots()
 
-# ---------------- 构造一个右偏的 "pdf" ----------------
+# ---------------- Construct a right-skewed "pdf" ----------------
 x = np.linspace(0.0, 1.0, 600)
 mu, sigma = 0.35, 0.18
 pdf = np.exp(- (x - mu) ** 2 / (2 * sigma ** 2))
@@ -22,7 +22,7 @@ q_alpha = x[idx]
 ax.set_xlim(-0.05, 1.05)
 ax.set_ylim(-0.25, 1.05)
 
-# ---------------- 填色区域 ----------------
+# ---------------- Fill areas ----------------
 mask_left = x <= q_alpha
 mask_right = x >= q_alpha
 
@@ -33,7 +33,7 @@ ax.fill_between(x[mask_right], 0, pdf[mask_right],
 
 ax.plot(x, pdf, color="black", linewidth=2.2)
 
-# ---------------- 自定义带箭头坐标轴 ----------------
+# ---------------- Custom axes with arrows ----------------
 ax.set_xticks([])
 ax.set_yticks([])
 for spine in ax.spines.values():
@@ -54,8 +54,8 @@ ax.vlines(q_alpha, 0, pdf[mask_right][0],
           linestyles="--", linewidth=1.6, color="black")
 ax.text(q_alpha, -0.10, r"$Q_\alpha$", ha="center", va="top")
 
-# ---------------- 内部文字 ----------------
-# POF：回到曲线内部（新版）
+# ---------------- Internal text ----------------
+# POF: back inside the curve (new version)
 ax.text(0.28, 0.72, "POF",
         ha="center", va="center")
 
@@ -76,7 +76,7 @@ ax.annotate(
     arrowprops=dict(arrowstyle="->", linewidth=1.4),
 )
 
-# ---------------- 标题 ----------------
+# ---------------- Title ----------------
 ax.set_title("Relationship between POF and CVaR", pad=12)
 
 plt.tight_layout()

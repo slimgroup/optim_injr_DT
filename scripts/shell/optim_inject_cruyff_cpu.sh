@@ -16,6 +16,6 @@ module load Julia/1.8/5 Miniconda/3
 # Dynamically assign CPU cores to each task based on the task ID
 task_id=$SLURM_ARRAY_TASK_ID
 
-julia src/optim_inject_cruyff.jl --idx_num $task_id
+julia scripts/julia_scripts/archive/optim_inject_cruyff.jl --idx_num $task_id
 
 ## commented sbatch --array=1-2 optim_inject_cpu.sh

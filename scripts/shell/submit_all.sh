@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 计算 repo 根目录和 sbatch 文件路径
+# Calculate repo root directory and sbatch file path
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SBATCH_FILE="${SCRIPT_DIR}/optim_inject_pace.sh"
 
 if [[ ! -f "${SBATCH_FILE}" ]]; then
-  echo "ERROR: 找不到 ${SBATCH_FILE}"
+  echo "ERROR: Cannot find ${SBATCH_FILE}"
   exit 1
 fi
 
-# 串联提交，避免 QOS submit 上限
+# Chain submissions to avoid QOS submit limit
 submit_chain () {
   local CASE_TAG="$1"; shift
   local RISK_ARGS="$*"
@@ -27,7 +27,7 @@ submit_chain () {
   DEP_OPT="--dependency=afterany:${JOBID}"
 }
 
-# ------- 1) POF 五个 eps -------
+# ------- 1) POF five eps values -------
 POF_BASE="--use_pof --pof_as_constraint \
           --lambda_pof 8.5e8 --tau_pof 0.05 --kappa_pof 50 \
           --risk_mode relative --weight_mode voltime"
@@ -39,7 +39,7 @@ submit_chain "DT_POF_eps=0.01"   ${POF_BASE} --eps_pof 0.01
 submit_chain "DT_POF_eps=0.02"   ${POF_BASE} --eps_pof 0.02
 submit_chain "DT_POF_eps=0.05"   ${POF_BASE} --eps_pof 0.05
 
-# ------- 2) CVaR 九个 (γ×α 组合) -------
+# ------- 2) CVaR nine combinations (γ×α) -------
 CVAR_BASE="--use_cvar --cvar_as_constraint --cvar_soft \
            --lambda_cvar 3.0e9 --kappa_cvar 50 \
            --risk_mode relative --weight_mode voltime"
