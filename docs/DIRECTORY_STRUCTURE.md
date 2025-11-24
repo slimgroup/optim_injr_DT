@@ -21,11 +21,7 @@ optim_injr_DT/
 │       ├── plotting/            # Plotting scripts (plot_*.jl, plot_*.py)
 │       ├── data_collection/     # Data collection scripts (collect_*.jl)
 │       ├── analysis/            # Analysis scripts (compare_*, posterior_*, injr_*)
-│       ├── test.jl              # Test scripts
-│       ├── optim_inject_from_second.jl
-│       ├── optimize_h.jl
-│       ├── regu_tune.jl
-│       ├── scaling_*.jl
+│       ├── utilities/           # Utility scripts (scaling, tuning, etc.)
 │       └── archive/             # Archived old version scripts
 │
 ├── data/                         # Data files
@@ -48,6 +44,15 @@ optim_injr_DT/
 │   ├── test_data_io.jl          # Data I/O tests
 │   ├── test_optimization.jl     # Optimization function tests
 │   └── README.md                # Test documentation
+├── docs/                         # Documentation files
+│   ├── DIRECTORY_STRUCTURE.md   # This file
+│   ├── CHANGELOG.md             # Project changelog
+│   ├── HARD_VS_SOFT_CONSTRAINTS.md
+│   ├── OPTIMIZATION_CHOICE_GUIDE.md
+│   ├── THRESHOLD_SENSITIVITY_GUIDE.md
+│   ├── SUBMIT_GUIDE.md          # Job submission guide
+│   ├── SCRIPT_EXPLANATION.md    # Script documentation
+│   └── [other documentation files]
 ├── notebooks/                    # Jupyter notebooks (if needed)
 ├── papers/                       # Paper-related files (if needed)
 └── _research/                    # Research-related files (if needed)

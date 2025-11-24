@@ -71,14 +71,19 @@ optim_injr_DT/
 │
 ├── scripts/               # Analysis and utility scripts
 │   ├── shell/            # SLURM job submission scripts
-│   └── julia_scripts/    # Data processing & visualization
+│   └── julia_scripts/    # Julia scripts (organized by function)
+│       ├── plotting/     # Plotting scripts
+│       ├── data_collection/ # Data collection
+│       ├── analysis/     # Analysis scripts
+│       └── utilities/    # Utility scripts
 │
+├── docs/                  # Documentation files
 ├── data/                  # Experiment data and results
 ├── plots/                 # Generated visualizations
 └── test/                  # Test suite
 ```
 
-For detailed structure, see [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md)
+For detailed structure, see [docs/DIRECTORY_STRUCTURE.md](docs/DIRECTORY_STRUCTURE.md)
 
 ---
 
@@ -116,10 +121,13 @@ See [test/README.md](test/README.md) for more details.
 
 ## 📚 Documentation
 
-- **[Directory Structure](DIRECTORY_STRUCTURE.md)** - Detailed project organization
-- **[Hard vs Soft Constraints](HARD_VS_SOFT_CONSTRAINTS.md)** - Constraint handling guide
-- **[Threshold Sensitivity Guide](THRESHOLD_SENSITIVITY_GUIDE.md)** - Sensitivity analysis
-- **[Optimization Choice Guide](OPTIMIZATION_CHOICE_GUIDE.md)** - Algorithm selection
+- **[Directory Structure](docs/DIRECTORY_STRUCTURE.md)** - Detailed project organization
+- **[Hard vs Soft Constraints](docs/HARD_VS_SOFT_CONSTRAINTS.md)** - Constraint handling guide
+- **[Threshold Sensitivity Guide](docs/THRESHOLD_SENSITIVITY_GUIDE.md)** - Sensitivity analysis
+- **[Optimization Choice Guide](docs/OPTIMIZATION_CHOICE_GUIDE.md)** - Algorithm selection
+- **[Submit Guide](docs/SUBMIT_GUIDE.md)** - Job submission guide
+- **[Script Explanation](docs/SCRIPT_EXPLANATION.md)** - Script documentation
+- **[Quick Run Guide](docs/QUICK_RUN_WITH_RISK.md)** - Quick start with risk parameters
 
 ---
 

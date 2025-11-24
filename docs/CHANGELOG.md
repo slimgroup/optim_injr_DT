@@ -1,5 +1,27 @@
 # Changelog
 
+## Repository Organization (2024-11-24) - Updated
+
+### ✨ Latest Improvements
+
+#### Documentation Organization
+- **Created `docs/` directory** for all documentation files
+  - Moved all `.md` documentation files to `docs/`
+  - Created `docs/README.md` as documentation index
+  - Updated all documentation links in main README
+
+#### Script Organization
+- **Created `scripts/julia_scripts/utilities/`** directory
+  - Moved utility scripts (scaling, tuning, etc.) to utilities/
+  - Better categorization of scripts by function
+
+#### Root Directory Cleanup
+- **Moved `run_quick_sensitivity.sh`** to `scripts/shell/`
+- **Moved `check_progress.jl`** to `scripts/julia_scripts/utilities/`
+- Root directory now only contains essential files (README.md, Project.toml, Manifest.toml)
+
+---
+
 ## Repository Organization (2024-11-24)
 
 ### ✨ Improvements
