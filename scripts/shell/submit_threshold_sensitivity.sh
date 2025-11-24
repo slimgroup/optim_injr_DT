@@ -7,8 +7,8 @@
 #SBATCH --mem=32G
 #SBATCH -t 12:00:00
 #SBATCH -q inferno
-#SBATCH --output=logs/threshold_sensitivity_%j.out
-#SBATCH --error=logs/threshold_sensitivity_%j.err
+#SBATCH --output=logs/threshold_sensitivity_%j.txt
+#SBATCH --error=logs/threshold_sensitivity_%j.txt
 #SBATCH --signal=TERM@60
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=hli853@gatech.edu
