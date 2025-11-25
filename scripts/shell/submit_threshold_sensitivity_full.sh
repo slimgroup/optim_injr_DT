@@ -29,6 +29,30 @@ export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=1
 mkdir -p logs
 
+# Threshold list handling (supports SLURM array splitting)
+THRESHOLD_VALUES="${THRESHOLD_VALUES:-2.0,2.444444,2.888889,3.333333,3.777778,4.222222,4.666667,5.111111,5.555556,6.0}"
+THRESHOLD_VALUES="${THRESHOLD_VALUES//[$'\t\r\n ']/}"
+IFS=',' read -r -a THRESH_ARRAY <<< "$THRESHOLD_VALUES"
+THRESH_COUNT="${#THRESH_ARRAY[@]}"
+if [[ "${THRESH_COUNT}" -eq 0 ]]; then
+  echo "[ERROR] THRESHOLD_VALUES is empty. Provide comma-separated list." >&2
+  exit 1
+fi
+
+if [[ -n "${SLURM_ARRAY_TASK_ID:-}" ]]; then
+  TASK_ID="${SLURM_ARRAY_TASK_ID}"
+  if (( TASK_ID < 1 || TASK_ID > THRESH_COUNT )); then
+    echo "[ERROR] SLURM_ARRAY_TASK_ID=${TASK_ID} outside 1-${THRESH_COUNT}" >&2
+    exit 2
+  fi
+  SELECTED_THRESHOLD="${THRESH_ARRAY[$((TASK_ID-1))]}"
+  echo "Split run detected: task ${TASK_ID}/${SLURM_ARRAY_TASK_MAX:-$THRESH_COUNT} -> threshold=${SELECTED_THRESHOLD} MPa"
+  THRESH_ARGS=(--threshold_list "${SELECTED_THRESHOLD}" --split_threshold_jobs --split_job_index "${TASK_ID}" --split_job_total "${THRESH_COUNT}" --merge_results)
+else
+  echo "Running all thresholds in a single job: ${THRESHOLD_VALUES}"
+  THRESH_ARGS=(--threshold_list "${THRESHOLD_VALUES}")
+fi
+
 trap 'echo "[WARN] SIGTERM received; try to save…"' TERM
 
 # Change to project directory
@@ -49,7 +73,8 @@ julia --project="$SLURM_SUBMIT_DIR" -t 1 src/threshold_sensitivity.jl \
   --niterations 20 \
   --threshold_num 10 \
   --threshold_min 2.0 \
-  --threshold_max 6.0
+  --threshold_max 6.0 \
+  "${THRESH_ARGS[@]}"
 
 echo "Job completed at $(date)"
 

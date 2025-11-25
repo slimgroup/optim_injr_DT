@@ -132,6 +132,24 @@ function parse_commandline()
             arg_type = String
             default = ""
 
+        "--split_threshold_jobs"
+            help = "Run only a single threshold per invocation (for SLURM arrays); requires split_job_index"
+            action = :store_true
+
+        "--split_job_index"
+            help = "1-based index of the threshold to run when --split_threshold_jobs is enabled"
+            arg_type = Int
+            default = 1
+
+        "--split_job_total"
+            help = "Total number of thresholds when --split_threshold_jobs is enabled (for logging only)"
+            arg_type = Int
+            default = 1
+
+        "--merge_results"
+            help = "Merge this run's results into any existing summary file (use with split jobs)"
+            action = :store_true
+
         "--alpha"
             help = "Tail level for space–time CVaR (e.g., 0.05)"
             arg_type = Float64
@@ -729,15 +747,123 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
             niter=final_iter)
 end
 
+function _safe_get(vec, idx, default)
+    if vec === nothing || idx > length(vec)
+        return default
+    end
+    return vec[idx]
+end
+
+function merge_summary_data(existing_summary::Union{Nothing,Dict}, new_results::Vector)
+    combined = Dict{Float64,NamedTuple}()
+
+    if existing_summary !== nothing
+        old_thresholds = get(existing_summary, "thresholds", Float64[])
+        old_inj = get(existing_summary, "final_inj_rates", nothing)
+        old_obj = get(existing_summary, "final_objs", nothing)
+        old_obj_base = get(existing_summary, "final_obj_bases", nothing)
+        old_penalty = get(existing_summary, "final_penalties", nothing)
+        old_pof_smooth = get(existing_summary, "final_pof_smooth", nothing)
+        old_pof_hard = get(existing_summary, "final_pof_hard", nothing)
+        old_cvar = get(existing_summary, "final_cvar", nothing)
+        old_converged = get(existing_summary, "converged", nothing)
+        old_niters = get(existing_summary, "niters", nothing)
+
+        for idx in eachindex(old_thresholds)
+            t = old_thresholds[idx]
+            combined[t] = (
+                final_inj_rate=_safe_get(old_inj, idx, NaN),
+                final_obj=_safe_get(old_obj, idx, NaN),
+                final_obj_base=_safe_get(old_obj_base, idx, NaN),
+                final_penalty=_safe_get(old_penalty, idx, NaN),
+                final_pof_smooth=_safe_get(old_pof_smooth, idx, NaN),
+                final_pof_hard=_safe_get(old_pof_hard, idx, NaN),
+                final_cvar=_safe_get(old_cvar, idx, NaN),
+                converged=_safe_get(old_converged, idx, false),
+                niter=_safe_get(old_niters, idx, 0)
+            )
+        end
+    end
+
+    for r in new_results
+        combined[r.threshold] = (
+            final_inj_rate=r.final_inj_rate,
+            final_obj=r.final_obj,
+            final_obj_base=r.final_obj_base,
+            final_penalty=r.final_penalty,
+            final_pof_smooth=r.final_pof_smooth,
+            final_pof_hard=r.final_pof_hard,
+            final_cvar=r.final_cvar,
+            converged=r.converged,
+            niter=r.niter
+        )
+    end
+
+    sorted_thresholds = sort(collect(keys(combined)))
+
+    return (
+        thresholds = sorted_thresholds,
+        final_inj_rates = [combined[t].final_inj_rate for t in sorted_thresholds],
+        final_objs = [combined[t].final_obj for t in sorted_thresholds],
+        final_obj_bases = [combined[t].final_obj_base for t in sorted_thresholds],
+        final_penalties = [combined[t].final_penalty for t in sorted_thresholds],
+        final_pof_smooth = [combined[t].final_pof_smooth for t in sorted_thresholds],
+        final_pof_hard = [combined[t].final_pof_hard for t in sorted_thresholds],
+        final_cvar = [combined[t].final_cvar for t in sorted_thresholds],
+        converged = [combined[t].converged for t in sorted_thresholds],
+        niters = [combined[t].niter for t in sorted_thresholds]
+    )
+end
+
+function parse_threshold_list(raw::String)
+    cleaned = strip(raw)
+    if isempty(cleaned)
+        return Float64[]
+    end
+    parts = split(cleaned, ",")
+    return [parse(Float64, strip(val)) for val in parts if !isempty(strip(val))]
+end
+
+function with_summary_lock(f::Function, summary_path::String; retry_sleep::Float64=1.0, timeout::Float64=600.0)
+    lock_dir = summary_path * ".lock"
+    start_time = time()
+    while true
+        try
+            mkdir(lock_dir)
+            break
+        catch e
+            if isa(e, SystemError)
+                if time() - start_time > timeout
+                    error("Timed out while waiting for lock on summary file: $(summary_path)")
+                end
+                sleep(retry_sleep)
+            else
+                rethrow(e)
+            end
+        end
+    end
+    try
+        return f()
+    finally
+        if isdir(lock_dir)
+            try
+                rm(lock_dir; recursive=true, force=true)
+            catch
+                # Ignore cleanup failures
+            end
+        end
+    end
+end
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Main sensitivity analysis
 function main()
     args = parse_commandline()
     
     # Determine threshold values
-    if args["threshold_list"] != ""
-        # Use provided list
-        threshold_values = [parse(Float64, x) for x in split(args["threshold_list"], ",")]
+    raw_threshold_list = args["threshold_list"]
+    if !isempty(strip(raw_threshold_list))
+        threshold_values = parse_threshold_list(raw_threshold_list)
     else
         # Generate range
         threshold_min = args["threshold_min"]
@@ -745,13 +871,35 @@ function main()
         threshold_num = args["threshold_num"]
         threshold_values = collect(range(threshold_min, threshold_max, length=threshold_num))
     end
+    if isempty(threshold_values)
+        error("No valid thresholds provided. Check --threshold_list or min/max/num inputs.")
+    end
 
-    println("=" ^ 80)
-    println("Threshold Sensitivity Analysis")
-    println("=" ^ 80)
-    println("Testing thresholds: ", threshold_values)
-    println("Number of thresholds: ", length(threshold_values))
-    println()
+    split_mode = Base.get(args, "split_threshold_jobs", false)
+    split_idx = args["split_job_index"]
+    split_total = max(args["split_job_total"], length(threshold_values))
+    if split_mode
+        if split_idx < 1 || split_idx > length(threshold_values)
+            error("split_job_index=$(split_idx) is out of bounds for $(length(threshold_values)) thresholds")
+        end
+        selected = threshold_values[split_idx]
+        threshold_values = [selected]
+        println("=" ^ 80)
+        println("Split threshold job mode enabled")
+        println("  Running threshold index $(split_idx)/$(split_total)")
+        println("  Threshold value for this run: $(selected) MPa")
+        println("=" ^ 80)
+        println()
+    else
+        println("=" ^ 80)
+        println("Threshold Sensitivity Analysis")
+        println("=" ^ 80)
+        println("Testing thresholds: ", threshold_values)
+        println("Number of thresholds: ", length(threshold_values))
+        println()
+    end
+
+    total_threshold_count = split_mode ? split_total : length(threshold_values)
     
     # ★ CALIBRATION: If user wants to calibrate gamma for eps, do it first
     eps_pof = args["eps_pof"]
@@ -946,8 +1094,9 @@ function main()
     mkpath(dirname(checkpoint_path))
     
     for (i, thresh) in enumerate(threshold_values)
+        global_idx = split_mode ? split_idx : i
         println("\n" * "=" ^ 80)
-        println("THRESHOLD $(i)/$(length(threshold_values)): $(thresh) MPa")
+        println("THRESHOLD $(global_idx)/$(total_threshold_count): $(thresh) MPa")
         println("=" ^ 80)
         overall_elapsed = time() - overall_start_time
         println("Overall elapsed time: $(round(overall_elapsed/60, digits=1)) minutes")
@@ -964,8 +1113,8 @@ function main()
         Dict(
             "completed_thresholds" => [r.threshold for r in results],
             "current_threshold" => thresh,
-            "current_index" => i,
-            "total_thresholds" => length(threshold_values),
+            "current_index" => global_idx,
+            "total_thresholds" => total_threshold_count,
             "results_so_far" => results,
             "overall_elapsed" => time() - overall_start_time,
             "status" => "starting",
@@ -982,8 +1131,8 @@ function main()
             Dict(
                 "completed_thresholds" => [r.threshold for r in results],
                 "current_threshold" => thresh,
-                "current_index" => i,
-                "total_thresholds" => length(threshold_values),
+                "current_index" => global_idx,
+                "total_thresholds" => total_threshold_count,
                 "results_so_far" => results,
                 "overall_elapsed" => time() - overall_start_time,
                 "timestamp" => now()
@@ -1017,56 +1166,60 @@ function main()
         end
     end
 
-    # Collect results into arrays
-    thresholds = [r.threshold for r in results]
-    final_inj_rates = [r.final_inj_rate for r in results]
-    final_objs = [r.final_obj for r in results]
-    final_obj_bases = [r.final_obj_base for r in results]
-    final_penalties = [r.final_penalty for r in results]
-    final_pof_smooth = [r.final_pof_smooth for r in results]
-    final_pof_hard = [r.final_pof_hard for r in results]
-    final_cvar = [r.final_cvar for r in results]
-    converged = [r.converged for r in results]
-    niters = [r.niter for r in results]
+    merge_flag = split_mode || Base.get(args, "merge_results", false)
 
-    # Save summary results
+    # Save summary results (with optional merging + file lock for split jobs)
     s = args["idx_num"]
     summary_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
                           "summary__sample=$(s).jld2")
     mkpath(dirname(summary_path))
-    
-    @tagsave(summary_path,
-    Dict(
-        "thresholds" => thresholds,
-        "final_inj_rates" => final_inj_rates,
-        "final_objs" => final_objs,
-        "final_obj_bases" => final_obj_bases,
-        "final_penalties" => final_penalties,
-        "final_pof_smooth" => final_pof_smooth,
-        "final_pof_hard" => final_pof_hard,
-        "final_cvar" => final_cvar,
-        "converged" => converged,
-        "niters" => niters,
-        "args" => args,
-        # ★ Save risk parameters explicitly for easy access
-        "risk_params" => Dict(
-            "use_pof" => use_pof,
-            "eps_pof" => use_pof ? eps_pof : nothing,
-            "tau_pof" => use_pof ? args["tau_pof"] : nothing,
-            "lambda_pof" => use_pof ? args["lambda_pof"] : nothing,
-            "pof_as_constraint" => use_pof ? Base.get(args, "pof_as_constraint", false) : false,
-            "use_cvar" => use_cvar,
-            "gamma_cvar" => use_cvar ? gamma_cvar : nothing,
-            "alpha_cvar" => use_cvar ? alpha_tail : nothing,
-            "lambda_cvar" => use_cvar ? args["lambda_cvar"] : nothing,
-            "cvar_as_constraint" => use_cvar ? Base.get(args, "cvar_as_constraint", false) : false,
-            "cvar_soft" => use_cvar ? Base.get(args, "cvar_soft", false) : false,
-            "risk_mode" => args["risk_mode"],
-            "weight_mode" => args["weight_mode"]
-        ),
-        "meta" => (idx=s, timestamp=now())
-    );
-    safe=true)
+
+    summary_combined = with_summary_lock(summary_path) do
+        existing_summary = (merge_flag && isfile(summary_path)) ? JLD2.load(summary_path) : nothing
+        combined = merge_summary_data(existing_summary, results)
+        summary_payload = Dict(
+            "thresholds" => combined.thresholds,
+            "final_inj_rates" => combined.final_inj_rates,
+            "final_objs" => combined.final_objs,
+            "final_obj_bases" => combined.final_obj_bases,
+            "final_penalties" => combined.final_penalties,
+            "final_pof_smooth" => combined.final_pof_smooth,
+            "final_pof_hard" => combined.final_pof_hard,
+            "final_cvar" => combined.final_cvar,
+            "converged" => combined.converged,
+            "niters" => combined.niters,
+            "args" => args,
+            "risk_params" => Dict(
+                "use_pof" => use_pof,
+                "eps_pof" => use_pof ? eps_pof : nothing,
+                "tau_pof" => use_pof ? args["tau_pof"] : nothing,
+                "lambda_pof" => use_pof ? args["lambda_pof"] : nothing,
+                "pof_as_constraint" => use_pof ? Base.get(args, "pof_as_constraint", false) : false,
+                "use_cvar" => use_cvar,
+                "gamma_cvar" => use_cvar ? gamma_cvar : nothing,
+                "alpha_cvar" => use_cvar ? alpha_tail : nothing,
+                "lambda_cvar" => use_cvar ? args["lambda_cvar"] : nothing,
+                "cvar_as_constraint" => use_cvar ? Base.get(args, "cvar_as_constraint", false) : false,
+                "cvar_soft" => use_cvar ? Base.get(args, "cvar_soft", false) : false,
+                "risk_mode" => args["risk_mode"],
+                "weight_mode" => args["weight_mode"]
+            ),
+            "meta" => (idx=s, timestamp=now(), split_mode=split_mode, total_thresholds=total_threshold_count)
+        )
+        @tagsave(summary_path, summary_payload; safe=true)
+        combined
+    end
+
+    thresholds = summary_combined.thresholds
+    final_inj_rates = summary_combined.final_inj_rates
+    final_objs = summary_combined.final_objs
+    final_obj_bases = summary_combined.final_obj_bases
+    final_penalties = summary_combined.final_penalties
+    final_pof_smooth = summary_combined.final_pof_smooth
+    final_pof_hard = summary_combined.final_pof_hard
+    final_cvar = summary_combined.final_cvar
+    converged = summary_combined.converged
+    niters = summary_combined.niters
 
     println("\n" * "=" ^ 80)
     println("Sensitivity Analysis Complete")
