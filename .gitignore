@@ -11,6 +11,8 @@
 
 # Large binary files and data files
 *.jld2
+# Exception: gamma lookup tables (small, version-controlled)
+!scripts/gamma_tables/*.jld2
 *.h5
 *.hdf5
 *.mat
