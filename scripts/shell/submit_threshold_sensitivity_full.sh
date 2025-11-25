@@ -13,8 +13,17 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=hli853@gatech.edu
 
-# Full run threshold sensitivity analysis (POF + CVaR enabled, auto-calibration)
+# Full run threshold sensitivity analysis (POF + CVaR enabled, using gamma lookup table)
 # Estimated runtime: 10-20 hours (10 thresholds, 20 iterations each)
+# 
+# Usage:
+#   # Use default gamma table (eps=0.01)
+#   sbatch --array=1-10 scripts/shell/submit_threshold_sensitivity_full.sh
+#   
+#   # Use custom gamma table and eps
+#   export GAMMA_TABLE_PATH=scripts/gamma_tables/gamma_table__sample=128__20251125_122949.jld2
+#   export EPS_POF=0.005
+#   sbatch --array=1-10 scripts/shell/submit_threshold_sensitivity_full.sh
 
 set -euo pipefail
 module purge
@@ -61,15 +70,35 @@ cd "$SLURM_SUBMIT_DIR"
 echo "Job started at $(date)"
 echo "Running threshold sensitivity analysis (full mode)"
 
+# Gamma table configuration
+GAMMA_TABLE_PATH="${GAMMA_TABLE_PATH:-scripts/gamma_tables/gamma_table__sample=128__20251125_122949.jld2}"
+EPS_POF="${EPS_POF:-0.01}"
+
+# Resolve absolute path if relative
+if [[ ! "$GAMMA_TABLE_PATH" =~ ^/ ]]; then
+  GAMMA_TABLE_PATH="$SLURM_SUBMIT_DIR/$GAMMA_TABLE_PATH"
+fi
+
+if [[ ! -f "$GAMMA_TABLE_PATH" ]]; then
+  echo "[ERROR] Gamma table not found: $GAMMA_TABLE_PATH" >&2
+  echo "  Generate it first with:" >&2
+  echo "    julia --project=. src/threshold_sensitivity.jl --gamma_table_generate auto --gamma_table_eps_list 0.005,0.01 ..." >&2
+  exit 1
+fi
+
+echo "Using gamma table: $GAMMA_TABLE_PATH"
+echo "Using eps_pof: $EPS_POF"
+
 # Run Julia script (full parameters)
 julia --project="$SLURM_SUBMIT_DIR" -t 1 src/threshold_sensitivity.jl \
   --idx_num 128 \
   --use_pof \
   --use_cvar \
-  --eps_pof 0.01 \
+  --eps_pof "$EPS_POF" \
   --lambda_pof 1.0 \
   --lambda_cvar 1.0 \
-  --calibrate_gamma \
+  --gamma_table_path "$GAMMA_TABLE_PATH" \
+  --gamma_table_eps "$EPS_POF" \
   --niterations 20 \
   --threshold_num 10 \
   --threshold_min 2.0 \

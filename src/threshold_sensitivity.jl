@@ -132,6 +132,30 @@ function parse_commandline()
             arg_type = String
             default = ""
 
+        "--gamma_table_generate"
+            help = "If non-empty, generate (threshold, eps) → gamma table and save to this path (then exit)"
+            arg_type = String
+            default = ""
+
+        "--gamma_table_eps_list"
+            help = "Comma-separated eps values to include when generating a gamma table (defaults to --eps_pof)"
+            arg_type = String
+            default = ""
+
+        "--gamma_table_path"
+            help = "Path to previously generated gamma lookup table (per-threshold gamma overrides)"
+            arg_type = String
+            default = ""
+
+        "--gamma_table_eps"
+            help = "When using gamma table, which eps entry to use (defaults to --eps_pof)"
+            arg_type = Float64
+            default = NaN
+
+        "--gamma_table_strict"
+            help = "Raise error if gamma table lacks a requested threshold entry"
+            action = :store_true
+
         "--split_threshold_jobs"
             help = "Run only a single threshold per invocation (for SLURM arrays); requires split_job_index"
             action = :store_true
@@ -397,9 +421,51 @@ function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any},
             suggested_gamma=cvar)  # Use current CVaR as suggested gamma
 end
 
+function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vector{Float64},
+                              args::Dict{String,Any})
+    alpha_tail = args["alpha"]
+    entries = Dict{Float64,Dict{Float64,NamedTuple{(:gamma,:pof,:cvar),NTuple{3,Float64}}}}()
+    println("=" ^ 80)
+    println("Generating gamma lookup table")
+    println("=" ^ 80)
+    println("Thresholds: ", threshold_values)
+    println("Eps values: ", eps_values)
+    println()
+
+    for (eps_idx, eps) in enumerate(eps_values)
+        per_eps = Dict{Float64,NamedTuple{(:gamma,:pof,:cvar),NTuple{3,Float64}}}()
+        println("→ eps[$(eps_idx)] = $(eps)")
+        for (t_idx, thresh) in enumerate(threshold_values)
+            print("   - Threshold $(t_idx)/$(length(threshold_values)) = $(thresh) MPa ... ")
+            flush(stdout)
+            result = calibrate_gamma_for_eps(thresh, args, eps, alpha_tail;
+                                             inj_rate_guess=args["inj_guess"])
+            per_eps[thresh] = (gamma=result.suggested_gamma,
+                               pof=result.pof_hard,
+                               cvar=result.cvar)
+            println("gamma ≈ $(result.suggested_gamma)")
+        end
+        entries[eps] = per_eps
+    end
+
+    return Dict(
+        "gamma_entries" => entries,
+        "eps_values" => eps_values,
+        "thresholds" => threshold_values,
+        "meta" => (
+            idx = args["idx_num"],
+            alpha = alpha_tail,
+            timestamp = now(),
+            inj_guess = args["inj_guess"]
+        )
+    )
+end
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Modified main function that accepts threshold as parameter
-function run_optimization_for_threshold(threshold::Float64, args::Dict{String,Any})
+function run_optimization_for_threshold(threshold::Float64, args::Dict{String,Any};
+                                        gamma_override::Union{Nothing,Float64}=nothing,
+                                        eps_override::Union{Nothing,Float64}=nothing)
     s = args["idx_num"]
     α_tail = args["alpha"]
 
@@ -459,15 +525,17 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     @assert sat_init !== nothing "sat_init must be defined before calling objective"
 
     # risk opts
+    eps_value = isnothing(eps_override) ? args["eps_pof"] : eps_override
+    gamma_value = isnothing(gamma_override) ? args["gamma_cvar"] : gamma_override
     risk_opts = (
         use_pof = Base.get(args, "use_pof", false),
         λ_pof   = args["lambda_pof"],
-        ε       = args["eps_pof"],
+        ε       = eps_value,
         τ       = args["tau_pof"],
 
         use_cvar = Base.get(args, "use_cvar", false),
         λ_cvar   = args["lambda_cvar"],
-        γ        = args["gamma_cvar"],
+        γ        = gamma_value,
         α        = α_tail,
 
         mode     = risk_mode,
@@ -743,6 +811,8 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
             final_pof_smooth=pof_iter[final_iter],
             final_pof_hard=pof_hard_iter[final_iter],
             final_cvar=cvar_iter[final_iter],
+            gamma_used=risk_opts.γ,
+            eps_used=risk_opts.ε,
             converged=(gnorm > 0),
             niter=final_iter)
 end
@@ -766,6 +836,8 @@ function merge_summary_data(existing_summary::Union{Nothing,Dict}, new_results::
         old_pof_smooth = get(existing_summary, "final_pof_smooth", nothing)
         old_pof_hard = get(existing_summary, "final_pof_hard", nothing)
         old_cvar = get(existing_summary, "final_cvar", nothing)
+        old_gamma_used = get(existing_summary, "gamma_used", nothing)
+        old_eps_used = get(existing_summary, "eps_used", nothing)
         old_converged = get(existing_summary, "converged", nothing)
         old_niters = get(existing_summary, "niters", nothing)
 
@@ -779,6 +851,8 @@ function merge_summary_data(existing_summary::Union{Nothing,Dict}, new_results::
                 final_pof_smooth=_safe_get(old_pof_smooth, idx, NaN),
                 final_pof_hard=_safe_get(old_pof_hard, idx, NaN),
                 final_cvar=_safe_get(old_cvar, idx, NaN),
+                gamma_used=_safe_get(old_gamma_used, idx, NaN),
+                eps_used=_safe_get(old_eps_used, idx, NaN),
                 converged=_safe_get(old_converged, idx, false),
                 niter=_safe_get(old_niters, idx, 0)
             )
@@ -794,6 +868,8 @@ function merge_summary_data(existing_summary::Union{Nothing,Dict}, new_results::
             final_pof_smooth=r.final_pof_smooth,
             final_pof_hard=r.final_pof_hard,
             final_cvar=r.final_cvar,
+            gamma_used=r.gamma_used,
+            eps_used=r.eps_used,
             converged=r.converged,
             niter=r.niter
         )
@@ -810,6 +886,8 @@ function merge_summary_data(existing_summary::Union{Nothing,Dict}, new_results::
         final_pof_smooth = [combined[t].final_pof_smooth for t in sorted_thresholds],
         final_pof_hard = [combined[t].final_pof_hard for t in sorted_thresholds],
         final_cvar = [combined[t].final_cvar for t in sorted_thresholds],
+        gamma_used = [combined[t].gamma_used for t in sorted_thresholds],
+        eps_used = [combined[t].eps_used for t in sorted_thresholds],
         converged = [combined[t].converged for t in sorted_thresholds],
         niters = [combined[t].niter for t in sorted_thresholds]
     )
@@ -822,6 +900,47 @@ function parse_threshold_list(raw::String)
     end
     parts = split(cleaned, ",")
     return [parse(Float64, strip(val)) for val in parts if !isempty(strip(val))]
+end
+
+function parse_float_list(raw::AbstractString)
+    cleaned = strip(raw)
+    if isempty(cleaned)
+        return Float64[]
+    end
+    parts = split(cleaned, ",")
+    return [parse(Float64, strip(val)) for val in parts if !isempty(strip(val))]
+end
+
+const _GAMMA_MATCH_TOL = 1e-8
+
+function match_float_key(keys_iter, target::Float64; atol::Float64=_GAMMA_MATCH_TOL)
+    for key in keys_iter
+        if abs(key - target) <= atol
+            return key
+        end
+    end
+    return nothing
+end
+
+function gamma_lookup_entry(table_data::Dict, eps::Float64, threshold::Float64; strict::Bool=false)
+    entries = get(table_data, "gamma_entries", nothing)
+    entries === nothing && error("Gamma table missing 'gamma_entries' key")
+
+    eps_key = match_float_key(keys(entries), eps)
+    if eps_key === nothing
+        msg = "Gamma table has no entry for eps=$(eps)"
+        strict ? error(msg) : (@warn msg; return nothing)
+    end
+
+    per_eps = entries[eps_key]
+    thresh_key = match_float_key(keys(per_eps), threshold)
+    if thresh_key === nothing
+        msg = "Gamma table missing threshold=$(threshold) MPa for eps=$(eps)"
+        strict ? error(msg) : (@warn msg; return nothing)
+    end
+
+    entry = per_eps[thresh_key]
+    return (gamma=entry.gamma, eps=eps_key, threshold=thresh_key, pof=entry.pof, cvar=entry.cvar)
 end
 
 function with_summary_lock(f::Function, summary_path::String; retry_sleep::Float64=1.0, timeout::Float64=600.0)
@@ -900,16 +1019,73 @@ function main()
     end
 
     total_threshold_count = split_mode ? split_total : length(threshold_values)
-    
-    # ★ CALIBRATION: If user wants to calibrate gamma for eps, do it first
+
     eps_pof = args["eps_pof"]
     gamma_cvar = args["gamma_cvar"]
     alpha_tail = args["alpha"]
     use_cvar = Base.get(args, "use_cvar", false)
     use_pof = Base.get(args, "use_pof", false)
+
+    gamma_table_output = strip(args["gamma_table_generate"])
+    if !isempty(gamma_table_output)
+        eps_list_raw = strip(args["gamma_table_eps_list"])
+        eps_values = isempty(eps_list_raw) ? [eps_pof] : parse_float_list(eps_list_raw)
+        if isempty(eps_values)
+            eps_values = [eps_pof]
+        end
+        table = generate_gamma_table(threshold_values, eps_values, args)
+        output_path = gamma_table_output == "auto" ?
+            datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
+                    "gamma_table__sample=$(args["idx_num"])__" *
+                    Dates.format(now(), "yyyymmdd_HHMMSS") * ".jld2") :
+            (isabspath(gamma_table_output) ?
+                gamma_table_output :
+                joinpath(pwd(), gamma_table_output))
+        mkpath(dirname(output_path))
+        @tagsave(output_path, table; safe=true)
+        println("✓ Gamma lookup table saved to: ", output_path)
+        println("   Entries: thresholds=$(threshold_values), eps=$(eps_values)")
+        println("   Re-run this script with --gamma_table_path=$(output_path) to reuse the mapping.")
+        return
+    end
+
+    # Load gamma table (if provided)
+    gamma_overrides = Dict{Float64,NamedTuple{(:gamma,:eps,:source),Tuple{Float64,Float64,String}}}()
+    gamma_table_source = ""
+    gamma_table_path = strip(args["gamma_table_path"])
+    gamma_table_eps_target = isnan(args["gamma_table_eps"]) ? eps_pof : args["gamma_table_eps"]
+    if !isempty(gamma_table_path)
+        resolved_path = isabspath(gamma_table_path) ? gamma_table_path : joinpath(pwd(), gamma_table_path)
+        if !isfile(resolved_path)
+            error("gamma_table_path=$(resolved_path) does not exist")
+        end
+        gamma_table_source = resolved_path
+        table_data = JLD2.load(resolved_path)
+        println("=" ^ 80)
+        println("Loaded gamma lookup table: ", resolved_path)
+        println("Using eps entry = $(gamma_table_eps_target)")
+        println("=" ^ 80)
+        for thresh in threshold_values
+            entry = gamma_lookup_entry(table_data, gamma_table_eps_target, thresh;
+                                       strict=Base.get(args, "gamma_table_strict", false))
+            if entry !== nothing
+                gamma_overrides[thresh] = (gamma=entry.gamma, eps=entry.eps, source=resolved_path)
+                println("  ✓ threshold=$(thresh) MPa → gamma=$(entry.gamma)")
+            else
+                println("  ⚠️ Missing gamma entry for threshold=$(thresh) MPa")
+            end
+        end
+        println()
+    end
     
     # ★ CALIBRATION: Auto-calibrate gamma for eps if requested
-    if Base.get(args, "calibrate_gamma", false) && use_pof && use_cvar
+    gamma_override_active = !isempty(gamma_overrides)
+    if gamma_override_active
+        println("Per-threshold gamma overrides detected; skipping global auto-calibration.")
+        println("  Thresholds with overrides: ", collect(keys(gamma_overrides)))
+        println("  Remaining thresholds (if any) will use gamma = $(gamma_cvar).")
+        println()
+    elseif Base.get(args, "calibrate_gamma", false) && use_pof && use_cvar
         println("─" ^ 80)
         println("CALIBRATION: Determining gamma_cvar for eps_pof = $(eps_pof)")
         println("─" ^ 80)
@@ -954,7 +1130,7 @@ function main()
             println("  ⚠️  Calibration failed. Proceeding with gamma_cvar = $(gamma_cvar)")
             println()
         end
-    elseif use_pof && use_cvar && gamma_cvar == 0.0
+    elseif use_pof && use_cvar && gamma_cvar == 0.0 && !gamma_override_active
         println("⚠️  WARNING: POF and CVaR both enabled, but gamma_cvar = 0.0")
         println("   Consider using --calibrate_gamma to auto-determine gamma for eps_pof = $(eps_pof)")
         println("   Or set --gamma_cvar manually based on your risk tolerance.")
@@ -986,7 +1162,11 @@ function main()
     println()
     if use_cvar
         println("  ✓ CVaR enabled:")
-        println("     gamma (γ) = $(gamma_cvar)  (allowable CVaR level)")
+        if gamma_override_active
+            println("     gamma (γ) = per-threshold lookup (table source: $(gamma_table_source))")
+        else
+            println("     gamma (γ) = $(gamma_cvar)  (allowable CVaR level)")
+        end
         println("     alpha (α) = $(alpha_tail)  (tail level = $(alpha_tail*100)%)")
         println("     kappa_cvar = $(args["kappa_cvar"])")
         if Base.get(args, "cvar_soft", false)
@@ -999,8 +1179,11 @@ function main()
         else
             println("     → Used as SOFT penalty (lambda_cvar = $(args["lambda_cvar"]))")
         end
+        if gamma_override_active
+            println("     ✓ Using gamma lookup table entries (source=$(gamma_table_source))")
+        end
         # Warning if gamma seems misaligned with eps
-        if use_pof && gamma_cvar == 0.0 && eps_pof > 0
+        if use_pof && gamma_cvar == 0.0 && eps_pof > 0 && !gamma_override_active
             println()
             println("     ⚠️  WARNING: gamma = 0.0 may be too strict for eps = $(eps_pof)")
             println("        Consider using --calibrate_gamma to find appropriate gamma")
@@ -1016,7 +1199,7 @@ function main()
     if use_pof && use_cvar
         println("ℹ️  ALIGNMENT CHECK (informational, not an error):")
         println("   Current (eps, gamma) = ($(eps_pof), $(gamma_cvar))")
-        if gamma_cvar == 0.0 && eps_pof > 0
+        if gamma_cvar == 0.0 && eps_pof > 0 && !gamma_override_active
             println("   ⚠️  WARNING: gamma = 0.0 is likely too strict for eps = $(eps_pof)")
             println("   → These values may NOT be aligned!")
             println("   → Recommendation: Use --calibrate_gamma or set gamma manually")
@@ -1122,8 +1305,14 @@ function main()
         );
         safe=true)
         
+        override_entry = get(gamma_overrides, thresh, nothing)
+        gamma_override_val = override_entry === nothing ? nothing : override_entry.gamma
+        eps_override_val = override_entry === nothing ? nothing : override_entry.eps
+
         try
-            result = run_optimization_for_threshold(thresh, args)
+            result = run_optimization_for_threshold(thresh, args;
+                                                    gamma_override=gamma_override_val,
+                                                    eps_override=eps_override_val)
             push!(results, result)
             
             # Save progress checkpoint
@@ -1161,6 +1350,7 @@ function main()
             push!(results, (threshold=thresh, final_inj_rate=NaN, final_obj=NaN,
                            final_obj_base=NaN, final_penalty=NaN,
                            final_pof_smooth=NaN, final_pof_hard=NaN, final_cvar=NaN,
+                           gamma_used=NaN, eps_used=NaN,
                            converged=false, niter=0))
             println("   → Continuing with next threshold...")
         end
@@ -1177,6 +1367,7 @@ function main()
     summary_combined = with_summary_lock(summary_path) do
         existing_summary = (merge_flag && isfile(summary_path)) ? JLD2.load(summary_path) : nothing
         combined = merge_summary_data(existing_summary, results)
+        per_thresholds = combined.thresholds
         summary_payload = Dict(
             "thresholds" => combined.thresholds,
             "final_inj_rates" => combined.final_inj_rates,
@@ -1186,6 +1377,8 @@ function main()
             "final_pof_smooth" => combined.final_pof_smooth,
             "final_pof_hard" => combined.final_pof_hard,
             "final_cvar" => combined.final_cvar,
+            "gamma_used" => combined.gamma_used,
+            "eps_used" => combined.eps_used,
             "converged" => combined.converged,
             "niters" => combined.niters,
             "args" => args,
@@ -1202,7 +1395,10 @@ function main()
                 "cvar_as_constraint" => use_cvar ? Base.get(args, "cvar_as_constraint", false) : false,
                 "cvar_soft" => use_cvar ? Base.get(args, "cvar_soft", false) : false,
                 "risk_mode" => args["risk_mode"],
-                "weight_mode" => args["weight_mode"]
+                "weight_mode" => args["weight_mode"],
+                "gamma_lookup_source" => gamma_override_active ? gamma_table_source : "",
+                "per_threshold_gamma" => Dict(zip(per_thresholds, combined.gamma_used)),
+                "per_threshold_eps" => Dict(zip(per_thresholds, combined.eps_used))
             ),
             "meta" => (idx=s, timestamp=now(), split_mode=split_mode, total_thresholds=total_threshold_count)
         )
@@ -1220,6 +1416,8 @@ function main()
     final_cvar = summary_combined.final_cvar
     converged = summary_combined.converged
     niters = summary_combined.niters
+    gamma_used = summary_combined.gamma_used
+    eps_used = summary_combined.eps_used
 
     println("\n" * "=" ^ 80)
     println("Sensitivity Analysis Complete")
@@ -1240,13 +1438,14 @@ function main()
     end
     println()
     println("─" ^ 80)
-    println(@sprintf("%-12s %-15s %-15s %-12s %-12s %-12s",
-                     "Threshold", "Inj Rate", "Objective", "POF (smooth)", "POF (hard)", "CVaR"))
+    println(@sprintf("%-12s %-15s %-15s %-12s %-12s %-12s %-10s %-10s",
+                     "Threshold", "Inj Rate", "Objective", "POF (smooth)", "POF (hard)", "CVaR", "eps", "gamma"))
     println("─" ^ 80)
     for i in eachindex(thresholds)
-        println(@sprintf("%-12.2f %-15.6e %-15.6e %-12.6f %-12.6f %-12.6f",
+        println(@sprintf("%-12.2f %-15.6e %-15.6e %-12.6f %-12.6f %-12.6f %-10.4f %-10.4f",
                          thresholds[i], final_inj_rates[i], final_objs[i],
-                         final_pof_smooth[i], final_pof_hard[i], final_cvar[i]))
+                         final_pof_smooth[i], final_pof_hard[i], final_cvar[i],
+                         eps_used[i], gamma_used[i]))
     end
     println("─" ^ 80)
     println()
