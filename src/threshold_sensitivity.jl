@@ -996,12 +996,29 @@ function main()
 
     split_mode = Base.get(args, "split_threshold_jobs", false)
     split_idx = args["split_job_index"]
-    split_total = max(args["split_job_total"], length(threshold_values))
+    split_total = args["split_job_total"]
+    
     if split_mode
-        if split_idx < 1 || split_idx > length(threshold_values)
-            error("split_job_index=$(split_idx) is out of bounds for $(length(threshold_values)) thresholds")
+        # In split mode, threshold_values may already be a single value from --threshold_list
+        # We need to validate split_idx against split_total, not the current threshold_values length
+        if split_total <= 0
+            # Fallback: use threshold_values length if split_total not provided
+            split_total = length(threshold_values)
         end
-        selected = threshold_values[split_idx]
+        if split_idx < 1 || split_idx > split_total
+            error("split_job_index=$(split_idx) is out of bounds for split_job_total=$(split_total)")
+        end
+        
+        # If threshold_values has only one element, use it (already selected by shell script)
+        # Otherwise, select the one at split_idx
+        if length(threshold_values) == 1
+            selected = threshold_values[1]
+        else
+            if split_idx > length(threshold_values)
+                error("split_job_index=$(split_idx) exceeds available thresholds ($(length(threshold_values)))")
+            end
+            selected = threshold_values[split_idx]
+        end
         threshold_values = [selected]
         println("=" ^ 80)
         println("Split threshold job mode enabled")
@@ -1010,6 +1027,7 @@ function main()
         println("=" ^ 80)
         println()
     else
+        split_total = length(threshold_values)
         println("=" ^ 80)
         println("Threshold Sensitivity Analysis")
         println("=" ^ 80)
