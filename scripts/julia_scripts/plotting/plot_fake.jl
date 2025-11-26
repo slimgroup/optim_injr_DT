@@ -1,5 +1,10 @@
 ########################  RUN-ME  ########################
-using Pkg; Pkg.activate(".")
+using Pkg
+Pkg.activate(".")
+
+using DrWatson
+@quickactivate "optim_injr_DT"
+
 using PyPlot, KernelDensity, Statistics, StatsBase, Distributions
 using Printf
 import Base.Filesystem: mkpath

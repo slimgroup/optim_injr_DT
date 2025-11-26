@@ -9,6 +9,8 @@ Pkg.activate(".")
 Pkg.instantiate()
 
 using DrWatson
+@quickactivate "optim_injr_DT"
+
 using JutulDarcyRules
 using LinearAlgebra
 using PyPlot
@@ -24,16 +26,8 @@ using Dates
 using Printf
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PyCall setup
-function setup_pycall()
-    if Base.get(ENV, "LMOD_SITE_NAME", "") == "PACE"
-        println("PACE environment detected. Setting PyCall Python path...")
-        ENV["PYTHON"] = "/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python"
-        Pkg.build("PyCall")
-    else
-        println("Non-PACE environment detected. Skipping PyCall config.")
-    end
-end
+# PyCall setup (using shared utility)
+include("utils.jl")
 setup_pycall()
 
 # ─────────────────────────────────────────────────────────────────────────────

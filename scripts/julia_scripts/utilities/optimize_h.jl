@@ -1,3 +1,9 @@
+using Pkg
+Pkg.activate(".")
+
+using DrWatson
+@quickactivate "optim_injr_DT"
+
 using KernelDensity, Optim, Statistics, Interpolations
 
 # Leave-one-out KDE log-likelihood loss
@@ -26,9 +32,6 @@ function loo_cv_loglik(h, data)
 
     return -total_loglik  # Minimize negative log-likelihood
 end
-
-
-using Statistics
 
 function bandwidth_bounds(data)
     n = length(data)

@@ -5,8 +5,11 @@
 
 using Pkg
 Pkg.activate(".")
-using JLD2
+
 using DrWatson
+@quickactivate "optim_injr_DT"
+
+using JLD2
 using Dates
 
 function main()

@@ -1,8 +1,9 @@
 # Activate the project environment
 using Pkg
 Pkg.activate(".")
+
 using DrWatson
-# @quickactivate "optim_injr_DT" # <- project name
+@quickactivate "optim_injr_DT"
 using JLD2
 using JutulDarcyRules
 using PyPlot

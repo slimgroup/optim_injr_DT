@@ -36,6 +36,8 @@ Pkg.activate(".")
 Pkg.instantiate()
 
 using DrWatson
+@quickactivate "optim_injr_DT"
+
 using JutulDarcyRules
 using LinearAlgebra
 using PyPlot
@@ -52,16 +54,8 @@ using Printf
 using Base: time
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PyCall setup
-function setup_pycall()
-    if Base.get(ENV, "LMOD_SITE_NAME", "") == "PACE"
-        println("PACE environment detected. Setting PyCall Python path...")
-        ENV["PYTHON"] = "/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python"
-        Pkg.build("PyCall")
-    else
-        println("Non-PACE environment detected. Skipping PyCall config.")
-    end
-end
+# PyCall setup (using shared utility)
+include("utils.jl")
 setup_pycall()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -299,16 +293,30 @@ function parse_commandline()
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Helper function: Compute CVaR corresponding to a given POF level
-# This helps establish the relationship between eps (POF threshold) and gamma (CVaR threshold)
+# Gamma Calibration Functions
+# ─────────────────────────────────────────────────────────────────────────────
+
+"""
+    compute_cvar_for_pof_level(r_vals, w_vals, target_pof, α=0.05)
+
+Compute CVaR value corresponding to a given POF level.
+
+This helps establish the relationship between eps (POF threshold) and gamma (CVaR threshold).
+
+# Arguments
+- `r_vals`: Vector of relative pressure margins
+- `w_vals`: Vector of space-time weights
+- `target_pof`: Target POF level
+- `α`: Tail level for CVaR (default: 0.05)
+
+# Returns
+- CVaR value when POF ≈ target_pof
+
+# Strategy
+Find the quantile Q such that POF(Q) = target_pof, then compute CVaR at that level.
+"""
 function compute_cvar_for_pof_level(r_vals::Vector{Float64}, w_vals::Vector{Float64},
                                     target_pof::Float64, α::Float64=0.05)
-    """
-    Given r_vals and w_vals, find the CVaR value when POF = target_pof.
-    This helps determine what gamma should be for a given eps.
-    
-    Strategy: Find the quantile Q such that POF(Q) = target_pof, then compute CVaR at that level.
-    """
     # Sort by r (ascending, so violations are at the beginning)
     perm = sortperm(r_vals)
     r_sorted = r_vals[perm]
@@ -332,17 +340,31 @@ function compute_cvar_for_pof_level(r_vals::Vector{Float64}, w_vals::Vector{Floa
     return cvar
 end
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Helper function: Run a quick forward pass to determine appropriate gamma for given eps
+"""
+    calibrate_gamma_for_eps(threshold, args, eps_target, α=0.05; inj_rate_guess=0.05)
+
+Run a single forward simulation to determine appropriate gamma (CVaR threshold) 
+for a given eps (POF threshold) at a specific pressure threshold.
+
+This helps establish consistent (eps, gamma) pairs before doing full optimization.
+
+# Arguments
+- `threshold`: Pressure threshold (MPa)
+- `args`: Configuration dictionary
+- `eps_target`: Target POF threshold (ε)
+- `α`: Tail level for CVaR (default: 0.05)
+- `inj_rate_guess`: Initial injection rate guess (default: 0.05)
+
+# Returns
+Named tuple with:
+- `pof_hard`: Hard POF value
+- `pof_smooth`: Smooth POF value
+- `cvar`: CVaR value
+- `suggested_gamma`: Suggested gamma value (equals cvar)
+"""
 function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any}, 
                                   eps_target::Float64, α::Float64=0.05;
                                   inj_rate_guess::Float64=0.05)
-    """
-    Run a single forward simulation to determine what gamma (CVaR threshold) 
-    corresponds to a given eps (POF threshold) at a specific threshold.
-    
-    This helps establish consistent (eps, gamma) pairs before doing full optimization.
-    """
     # Setup (similar to run_optimization_for_threshold but minimal)
     s = args["idx_num"]
     n = (512, 1, 256)
@@ -408,19 +430,35 @@ function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any},
     BHP_max = p_max[inj_y0, 250]
     sim = build_sim(n, d, ϕ, K; h=h, ds=ds, dt_firstblock=80/ds)
     
-    # Run one forward pass
+    # Run one forward pass to estimate gamma
     _, _, _, _, _, _, _, _, _, _, _, _, pof_smooth, cvar, pof_hard, r_vals, w_vals =
         objective([inj_rate_guess], time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                   sat_init=sat_init, pres_init=nothing, risk=risk_opts,
                   forward_step=forward_step, ds=ds, collect_states=false,
                   inj_start=args["inj_start"])
     
-    # The CVaR at this point gives us an idea of what gamma should be
-    # when POF is around eps_target
+    # Use current CVaR as suggested gamma (when POF ≈ eps_target)
     return (pof_hard=pof_hard, pof_smooth=pof_smooth, cvar=cvar, 
-            suggested_gamma=cvar)  # Use current CVaR as suggested gamma
+            suggested_gamma=cvar)
 end
 
+"""
+    generate_gamma_table(threshold_values, eps_values, args)
+
+Generate a lookup table mapping (threshold, eps) pairs to gamma values.
+
+# Arguments
+- `threshold_values`: Vector of pressure thresholds (MPa)
+- `eps_values`: Vector of POF threshold values (ε)
+- `args`: Configuration dictionary
+
+# Returns
+Dictionary containing:
+- `gamma_entries`: Nested dictionary mapping eps → threshold → (gamma, pof, cvar)
+- `eps_values`: List of eps values
+- `thresholds`: List of threshold values
+- `meta`: Metadata (idx, alpha, timestamp, inj_guess)
+"""
 function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vector{Float64},
                               args::Dict{String,Any})
     alpha_tail = args["alpha"]
@@ -462,14 +500,42 @@ function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vec
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Modified main function that accepts threshold as parameter
+# Optimization Functions
+# ─────────────────────────────────────────────────────────────────────────────
+
+"""
+    run_optimization_for_threshold(threshold, args; gamma_override=nothing, eps_override=nothing)
+
+Run optimization for a single pressure threshold value.
+
+# Arguments
+- `threshold`: Pressure threshold (MPa)
+- `args`: Configuration dictionary
+- `gamma_override`: Optional gamma value to override default (for per-threshold calibration)
+- `eps_override`: Optional eps value to override default (for per-threshold calibration)
+
+# Returns
+Named tuple with optimization results:
+- `threshold`: Pressure threshold used
+- `final_inj_rate`: Final optimal injection rate
+- `final_obj`: Final objective value
+- `final_obj_base`: Final base objective (without penalties)
+- `final_penalty`: Final penalty value
+- `final_pof_smooth`: Final smooth POF
+- `final_pof_hard`: Final hard POF
+- `final_cvar`: Final CVaR
+- `gamma_used`: Gamma value used
+- `eps_used`: Eps value used
+- `converged`: Whether optimization converged
+- `niter`: Number of iterations completed
+"""
 function run_optimization_for_threshold(threshold::Float64, args::Dict{String,Any};
                                         gamma_override::Union{Nothing,Float64}=nothing,
                                         eps_override::Union{Nothing,Float64}=nothing)
     s = args["idx_num"]
     α_tail = args["alpha"]
 
-    # domain/data
+    # Domain and data setup
     n = (512, 1, 256)
     d = (6.25, 100.0, 6.25)
     h = 0.0
@@ -477,25 +543,30 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     ds = 10
     forward_step = 2
 
+    # Load permeability data
     perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
     perm_data = JLD2.load(perm_path)
     BroadK = perm_data["BroadK"]
 
+    # Load state data
     monitoring_step = 1
-    state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
+    state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * 
+                         "_rtm1_broad_NL_SNR28.jld2")
     state_data = JLD2.load(state_path)
 
+    # Risk mode configuration
     risk_mode = args["risk_mode"] == "window" ? :window : :relative
 
+    # Select permeability field
     idices = state_data["idx_t" * string(monitoring_step)]
     idx = idices[s]
     K = BroadK[idx, :, :] * JutulDarcyRules.md
 
+    # Pressure bounds: p_max = p0 + threshold * 10^6 (Pa)
     p0 = (repeat(collect(1:256), 1, 512) * d[3] .+ h) * JutulDarcyRules.ρH2O * 10
-    # ★ Use provided threshold instead of fixed 4.0
     p_max = p0' .+ threshold * 10^6
 
-    # prior state
+    # Initial state setup
     sat_init = nothing
     pres_init = nothing
     if monitoring_step == 1
@@ -524,7 +595,7 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     end
     @assert sat_init !== nothing "sat_init must be defined before calling objective"
 
-    # risk opts
+    # Risk parameter configuration (with optional overrides)
     eps_value = isnothing(eps_override) ? args["eps_pof"] : eps_override
     gamma_value = isnothing(gamma_override) ? args["gamma_cvar"] : gamma_override
     risk_opts = (
@@ -549,7 +620,7 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
         cvar_as_constraint = Base.get(args, "cvar_as_constraint", false)
     )
 
-    # tags/paths
+    # Generate output paths and tags
     function scenariotag(risk; step::Int, idx::Int, thresh::Float64)
         parts = String[
             "step$(step)", "idx$(idx)", "thresh=$(thresh)",
@@ -576,13 +647,13 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     out_root   = joinpath(data_root, sample_tag)
     mkpath(out_root)
 
-    # Time steps and injection parameters
+    # Time stepping and injection parameters
     time_step = 80 / ds * ones(6 * ds * forward_step)
     inj_rate  = [args["inj_guess"]]
     δinj      = 1e-8 * ones(size(inj_rate, 1))
     inj_start = args["inj_start"]
 
-    # Well location
+    # Injection well location
     inj_y = 191 + argmax(K[250, 191:200]) - 1
     inj_loc_grid = (250, 1, inj_y)
     inj_loc = (inj_loc_grid[1]*d[1], inj_loc_grid[2]*d[2], inj_loc_grid[3]*d[3])
@@ -590,10 +661,10 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     # BHP bound (for logging/plotting only)
     BHP_max = p_max[inj_y, 250]
 
-    # Pre-build simulation block
+    # Pre-build simulation object
     sim = build_sim(n, d, ϕ, K; h=h, ds=ds, dt_firstblock=80/ds)
 
-    # Storage and switches
+    # Optimization and output settings
     niterations = args["niterations"]
     save_plots  = Base.get(args, "save_plots", false)
     plot_stride = args["plot_stride"]
@@ -618,7 +689,7 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     pen_pof_arr   = zeros(Float64, niterations+1)
     pen_cvar_arr  = zeros(Float64, niterations+1)
 
-    # First forward pass (if hard constraints not met, backtrack and shrink)
+    # Initial forward pass with backtracking if hard constraints violated
     function first_forward!(inj_rate)
         obj, obj_base, pen_total, pen_pof, pen_cvar,
         sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr,
@@ -646,7 +717,8 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
                obj_first, obj_arr, pof_smooth0, cvar0, pof_hard0, r_vals0, w_vals0
     end
 
-    start_time = time()  # Start timing for this threshold
+    # Start timing for this threshold
+    start_time = time()
     
     obj, obj_base, pen_total, pen_pof, pen_cvar,
     sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr,
@@ -685,8 +757,8 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
     p = -grad/gnorm
     grad_arr[1, :] = grad
 
-    # Iteration
-    proj(x) = max.(x, 0)
+    # Optimization setup
+    proj(x) = max.(x, 0)  # Projection to non-negative injection rates
     ls = BackTracking(order=3, iterations=10)
     step_arr = zeros(niterations)
     ex_step_size = 0.1
@@ -780,7 +852,7 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
         "pen_total_arr" => pen_total_arr,
         "pen_pof_arr"   => pen_pof_arr,
         "pen_cvar_arr"  => pen_cvar_arr,
-        # ★ Save risk parameters explicitly
+        # Save risk parameters explicitly for reproducibility
         "risk_params" => Dict(
             "use_pof" => risk_opts.use_pof,
             "eps_pof" => risk_opts.use_pof ? risk_opts.ε : nothing,
@@ -817,6 +889,23 @@ function run_optimization_for_threshold(threshold::Float64, args::Dict{String,An
             niter=final_iter)
 end
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Summary and Merge Functions
+# ─────────────────────────────────────────────────────────────────────────────
+
+"""
+    _safe_get(vec, idx, default)
+
+Safely get element from vector with default fallback.
+
+# Arguments
+- `vec`: Vector (may be nothing)
+- `idx`: Index
+- `default`: Default value if index out of bounds or vec is nothing
+
+# Returns
+Element at index or default value.
+"""
 function _safe_get(vec, idx, default)
     if vec === nothing || idx > length(vec)
         return default
@@ -824,6 +913,18 @@ function _safe_get(vec, idx, default)
     return vec[idx]
 end
 
+"""
+    merge_summary_data(existing_summary, new_results)
+
+Merge new optimization results with existing summary data.
+
+# Arguments
+- `existing_summary`: Existing summary dictionary (or nothing)
+- `new_results`: Vector of new result named tuples
+
+# Returns
+Named tuple with merged data arrays (thresholds, final_inj_rates, etc.)
+"""
 function merge_summary_data(existing_summary::Union{Nothing,Dict}, new_results::Vector)
     combined = Dict{Float64,NamedTuple}()
 
@@ -893,6 +994,21 @@ function merge_summary_data(existing_summary::Union{Nothing,Dict}, new_results::
     )
 end
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Parsing and Utility Functions
+# ─────────────────────────────────────────────────────────────────────────────
+
+"""
+    parse_threshold_list(raw)
+
+Parse comma-separated threshold values from string.
+
+# Arguments
+- `raw`: Comma-separated string of threshold values
+
+# Returns
+Vector of Float64 threshold values.
+"""
 function parse_threshold_list(raw::String)
     cleaned = strip(raw)
     if isempty(cleaned)
@@ -902,6 +1018,17 @@ function parse_threshold_list(raw::String)
     return [parse(Float64, strip(val)) for val in parts if !isempty(strip(val))]
 end
 
+"""
+    parse_float_list(raw)
+
+Parse comma-separated float values from string.
+
+# Arguments
+- `raw`: Comma-separated string of float values
+
+# Returns
+Vector of Float64 values.
+"""
 function parse_float_list(raw::AbstractString)
     cleaned = strip(raw)
     if isempty(cleaned)
@@ -913,6 +1040,19 @@ end
 
 const _GAMMA_MATCH_TOL = 1e-8
 
+"""
+    match_float_key(keys_iter, target; atol=_GAMMA_MATCH_TOL)
+
+Find matching float key in iterator using approximate equality.
+
+# Arguments
+- `keys_iter`: Iterator of float keys
+- `target`: Target float value
+- `atol`: Absolute tolerance for matching (default: 1e-8)
+
+# Returns
+Matching key or nothing if no match found.
+"""
 function match_float_key(keys_iter, target::Float64; atol::Float64=_GAMMA_MATCH_TOL)
     for key in keys_iter
         if abs(key - target) <= atol
@@ -922,6 +1062,20 @@ function match_float_key(keys_iter, target::Float64; atol::Float64=_GAMMA_MATCH_
     return nothing
 end
 
+"""
+    gamma_lookup_entry(table_data, eps, threshold; strict=false)
+
+Look up gamma value from gamma table for given (eps, threshold) pair.
+
+# Arguments
+- `table_data`: Gamma table dictionary
+- `eps`: POF threshold (ε)
+- `threshold`: Pressure threshold (MPa)
+- `strict`: If true, raise error on missing entry; if false, warn and return nothing
+
+# Returns
+Named tuple with (gamma, eps, threshold, pof, cvar) or nothing if not found.
+"""
 function gamma_lookup_entry(table_data::Dict, eps::Float64, threshold::Float64; strict::Bool=false)
     entries = get(table_data, "gamma_entries", nothing)
     entries === nothing && error("Gamma table missing 'gamma_entries' key")
@@ -943,6 +1097,20 @@ function gamma_lookup_entry(table_data::Dict, eps::Float64, threshold::Float64; 
     return (gamma=entry.gamma, eps=eps_key, threshold=thresh_key, pof=entry.pof, cvar=entry.cvar)
 end
 
+"""
+    with_summary_lock(f, summary_path; retry_sleep=1.0, timeout=600.0)
+
+Execute function with file lock to prevent race conditions in parallel jobs.
+
+# Arguments
+- `f`: Function to execute
+- `summary_path`: Path to summary file (lock file will be summary_path.lock)
+- `retry_sleep`: Sleep time between retries (seconds, default: 1.0)
+- `timeout`: Maximum time to wait for lock (seconds, default: 600.0)
+
+# Returns
+Return value of function `f`.
+"""
 function with_summary_lock(f::Function, summary_path::String; retry_sleep::Float64=1.0, timeout::Float64=600.0)
     lock_dir = summary_path * ".lock"
     start_time = time()
@@ -975,7 +1143,23 @@ function with_summary_lock(f::Function, summary_path::String; retry_sleep::Float
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Main sensitivity analysis
+# Main Function
+# ─────────────────────────────────────────────────────────────────────────────
+
+"""
+    main()
+
+Main entry point for threshold sensitivity analysis.
+
+Orchestrates:
+1. Command-line argument parsing
+2. Gamma table generation (if requested)
+3. Gamma table loading (if provided)
+4. Risk parameter calibration
+5. Optimization runs for each threshold
+6. Result merging and summary generation
+7. Plotting
+"""
 function main()
     args = parse_commandline()
     
@@ -1079,7 +1263,7 @@ function main()
         println()
     end
     
-    # ★ CALIBRATION: Auto-calibrate gamma for eps if requested
+    # CALIBRATION: Auto-calibrate gamma for eps if requested
     gamma_override_active = !isempty(gamma_overrides)
     if gamma_override_active
         println("Per-threshold gamma overrides detected; skipping global auto-calibration.")
@@ -1142,7 +1326,7 @@ function main()
         println()
     end
     
-    # Print and save (eps, gamma) settings
+    # Print and save risk parameter settings
     println("=" ^ 80)
     println("RISK PARAMETER SETTINGS:")
     println("=" ^ 80)

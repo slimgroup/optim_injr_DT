@@ -4,6 +4,9 @@
 using Pkg
 Pkg.activate(".")
 
+using DrWatson
+@quickactivate "optim_injr_DT"
+
 using JLD2
 using Printf
 

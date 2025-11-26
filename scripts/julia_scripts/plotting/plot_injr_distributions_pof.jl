@@ -1,6 +1,12 @@
 #!/usr/bin/env julia
 # POF distributions + left 1% tail with KDE smoothing (pure PyPlot)
 
+using Pkg
+Pkg.activate(".")
+
+using DrWatson
+@quickactivate "optim_injr_DT"
+
 using CSV, DataFrames, Dates, Printf
 using PyPlot
 using Statistics           # mean / std / quantile

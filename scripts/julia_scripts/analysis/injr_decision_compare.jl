@@ -2,6 +2,12 @@
 # against the average distribution from 10 trials of 64 samples each, 
 # using histograms and kernel density estimates (KDEs).
 
+using Pkg
+Pkg.activate(".")
+
+using DrWatson
+@quickactivate "optim_injr_DT"
+
 using StatsBase
 using Interpolations
 

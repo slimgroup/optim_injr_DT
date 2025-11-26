@@ -1,5 +1,10 @@
+using Pkg
+Pkg.activate(".")
+
+using DrWatson
+@quickactivate "optim_injr_DT"
+
 using JLD2, PyPlot, Printf
-using Printf
 using Statistics   # 如果你已经 using StatsBase 也行
 
 """

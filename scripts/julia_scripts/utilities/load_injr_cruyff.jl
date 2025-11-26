@@ -3,7 +3,7 @@ using Pkg
 Pkg.activate(".")
 
 using DrWatson
-# @quickactivate "optim_injr_DT" # <- project name
+@quickactivate "optim_injr_DT"
 using JLD2
 # using FilePathsBase  # Only needed if you're working with paths as objects
 # using FileIO  # Needed for `@tagload`

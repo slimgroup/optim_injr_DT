@@ -6,6 +6,9 @@
 using Pkg
 Pkg.activate(".")
 
+using DrWatson
+@quickactivate "optim_injr_DT"
+
 using CSV, DataFrames, Dates
 using PyPlot
 

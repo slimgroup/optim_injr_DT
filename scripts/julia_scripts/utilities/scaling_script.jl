@@ -1,5 +1,11 @@
 # Run Jutul simulation and do the scaling analysis.
 
+using Pkg
+Pkg.activate(".")
+
+using DrWatson
+@quickactivate "optim_injr_DT"
+
 using Dates
 
 timings = Dict{Int, Float64}()

@@ -17,13 +17,15 @@
 using Pkg
 Pkg.activate(".")
 
+using DrWatson
+@quickactivate "optim_injr_DT"
+
 using JLD2
 using DataFrames
 using CSV
 using Statistics
 using Dates
 using Printf
-using DrWatson
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 参数

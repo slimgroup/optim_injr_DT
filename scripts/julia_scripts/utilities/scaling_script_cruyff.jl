@@ -1,16 +1,13 @@
 # Activate the project environment
 using Pkg
 Pkg.activate(".")
+Pkg.instantiate()
 
 using DrWatson
-# @quickactivate "optim_injr_DT" # <- project name
-
-using Pkg
-Pkg.instantiate()
+@quickactivate "optim_injr_DT"
 
 using Dates
 using PyPlot
-using DrWatson
 
 timings = Dict{Int, Float64}()
 
