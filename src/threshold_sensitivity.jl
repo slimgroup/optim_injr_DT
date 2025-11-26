@@ -430,16 +430,63 @@ function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any},
     BHP_max = p_max[inj_y0, 250]
     sim = build_sim(n, d, ϕ, K; h=h, ds=ds, dt_firstblock=80/ds)
     
-    # Run one forward pass to estimate gamma
-    _, _, _, _, _, _, _, _, _, _, _, _, pof_smooth, cvar, pof_hard, r_vals, w_vals =
-        objective([inj_rate_guess], time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
-                  sat_init=sat_init, pres_init=nothing, risk=risk_opts,
-                  forward_step=forward_step, ds=ds, collect_states=false,
-                  inj_start=args["inj_start"])
+    # Find injection rate that makes POF ≈ eps_target using binary search
+    # This ensures accurate (eps, gamma) correspondence
+    function evaluate_pof(inj_rate_val)
+        _, _, _, _, _, _, _, _, _, _, _, _, pof_smooth, cvar, pof_hard, r_vals, w_vals =
+            objective([inj_rate_val], time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
+                      sat_init=sat_init, pres_init=nothing, risk=risk_opts,
+                      forward_step=forward_step, ds=ds, collect_states=false,
+                      inj_start=args["inj_start"])
+        return pof_hard, cvar, pof_smooth
+    end
     
-    # Use current CVaR as suggested gamma (when POF ≈ eps_target)
-    return (pof_hard=pof_hard, pof_smooth=pof_smooth, cvar=cvar, 
-            suggested_gamma=cvar)
+    # Binary search to find injection rate where POF ≈ eps_target
+    tol = 0.001  # Tolerance for POF matching (0.1% of eps_target)
+    max_iter = 20
+    inj_low = 0.0001
+    inj_high = 1.5  # Upper bound (adjust if needed)
+    
+    # First, check if initial guess is close enough
+    pof_init, cvar_init, pof_smooth_init = evaluate_pof(inj_rate_guess)
+    if abs(pof_init - eps_target) <= tol
+        println("   Initial guess gives POF ≈ eps_target: POF=$(pof_init), CVaR=$(cvar_init)")
+        return (pof_hard=pof_init, pof_smooth=pof_smooth_init, cvar=cvar_init, 
+                suggested_gamma=cvar_init)
+    end
+    
+    # Binary search
+    println("   Finding injection rate where POF ≈ $(eps_target) (tolerance=$(tol))...")
+    for iter in 1:max_iter
+        inj_mid = (inj_low + inj_high) / 2
+        pof_mid, cvar_mid, pof_smooth_mid = evaluate_pof(inj_mid)
+        
+        if abs(pof_mid - eps_target) <= tol
+            println("   ✓ Found: inj_rate=$(inj_mid), POF=$(pof_mid), CVaR=$(cvar_mid)")
+            return (pof_hard=pof_mid, pof_smooth=pof_smooth_mid, cvar=cvar_mid, 
+                    suggested_gamma=cvar_mid)
+        elseif pof_mid > eps_target
+            # POF too high, need lower injection rate
+            inj_high = inj_mid
+        else
+            # POF too low, need higher injection rate
+            inj_low = inj_mid
+        end
+        
+        if (inj_high - inj_low) < 1e-6
+            # Search converged but didn't reach target
+            println("   ⚠️  Search converged: inj_rate=$(inj_mid), POF=$(pof_mid) (target=$(eps_target))")
+            return (pof_hard=pof_mid, pof_smooth=pof_smooth_mid, cvar=cvar_mid, 
+                    suggested_gamma=cvar_mid)
+        end
+    end
+    
+    # If binary search didn't converge, use the best estimate
+    inj_final = (inj_low + inj_high) / 2
+    pof_final, cvar_final, pof_smooth_final = evaluate_pof(inj_final)
+    println("   ⚠️  Max iterations reached: inj_rate=$(inj_final), POF=$(pof_final), CVaR=$(cvar_final)")
+    return (pof_hard=pof_final, pof_smooth=pof_smooth_final, cvar=cvar_final, 
+            suggested_gamma=cvar_final)
 end
 
 """
@@ -494,7 +541,9 @@ function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vec
             idx = args["idx_num"],
             alpha = alpha_tail,
             timestamp = now(),
-            inj_guess = args["inj_guess"]
+            inj_guess = args["inj_guess"],
+            calibration_method = "binary_search",  # Mark that this uses improved method
+            version = "2.0"  # Version marker for improved calibration
         )
     )
 end
@@ -1419,10 +1468,19 @@ function main()
         println()
     end
     
-    # Save risk parameters to a separate file for easy reference
+    # Save risk parameters to a separate file for easy reference (use risk_label)
     s = args["idx_num"]
+    risk_label_params = if use_pof && use_cvar
+        "POF_CVaR"
+    elseif use_pof
+        "POF"
+    elseif use_cvar
+        "CVaR"
+    else
+        "NoRisk"
+    end
     risk_params_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
-                               "risk_params__sample=$(s).jld2")
+                               "risk_params__$(risk_label_params)__sample=$(s).jld2")
     mkpath(dirname(risk_params_path))
     
     risk_params_dict = Dict(
@@ -1455,10 +1513,19 @@ function main()
     results = []
     overall_start_time = time()
     
-    # Progress checkpoint file
+    # Progress checkpoint file (also use risk_label to avoid conflicts)
     s = args["idx_num"]
+    risk_label_checkpoint = if use_pof && use_cvar
+        "POF_CVaR"
+    elseif use_pof
+        "POF"
+    elseif use_cvar
+        "CVaR"
+    else
+        "NoRisk"
+    end
     checkpoint_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
-                              "progress_checkpoint__sample=$(s).jld2")
+                              "progress_checkpoint__$(risk_label_checkpoint)__sample=$(s).jld2")
     mkpath(dirname(checkpoint_path))
     
     for (i, thresh) in enumerate(threshold_values)
@@ -1545,8 +1612,20 @@ function main()
 
     # Save summary results (with optional merging + file lock for split jobs)
     s = args["idx_num"]
+    
+    # Simple risk label for file naming: avoids POF-only and CVaR-only runs overwriting each other
+    risk_label = if use_pof && use_cvar
+        "POF_CVaR"
+    elseif use_pof
+        "POF"
+    elseif use_cvar
+        "CVaR"
+    else
+        "NoRisk"
+    end
+    
     summary_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
-                          "summary__sample=$(s).jld2")
+                          "summary__$(risk_label)__sample=$(s).jld2")
     mkpath(dirname(summary_path))
 
     summary_combined = with_summary_lock(summary_path) do
