@@ -39,6 +39,22 @@ sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_cvar_only.sh
 
 这会生成：`summary__CVaR__sample=128.jld2`
 
+### 步骤 0: 检查现有 Gamma Table（可选）
+
+如果想检查现有 gamma table 的准确性：
+
+```bash
+salloc -N1 -t 30 --account=gts-fherrmann9 -q inferno
+module load julia/1.11.3
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+export JULIA_PKG_PRECOMPILE_AUTO=0
+export MPLBACKEND=Agg
+julia --project=. scripts/julia_scripts/utilities/check_gamma_table.jl \
+  scripts/gamma_tables/gamma_table__sample=128__20251125_122949.jld2
+```
+
+如果看到很多 ⚠️（POF 误差 > 5%），建议重新生成。
+
 ### 步骤 3: 生成对比图
 
 等两个作业都完成后，在交互式节点上运行：
@@ -102,10 +118,23 @@ sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_cvar_only.sh
 
 ### 3. 生成 Gamma Table（如果需要）
 
-如果还没有 gamma table，先运行：
+如果还没有 gamma table，或想用改进方法重新生成：
+
+**方法 1: 提交作业（推荐）**
 
 ```bash
-# 在交互式节点或提交作业
+sbatch scripts/shell/submit_gamma_table_generation.sh
+```
+
+**方法 2: 交互式运行**
+
+```bash
+salloc -N1 -t 120 --account=gts-fherrmann9 -q inferno
+module load julia/1.11.3
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+export JULIA_PKG_PRECOMPILE_AUTO=0
+export MPLBACKEND=Agg
+
 julia --project=. src/threshold_sensitivity.jl \
   --idx_num 128 \
   --threshold_min 2.0 --threshold_max 6.0 --threshold_num 5 \
@@ -114,6 +143,8 @@ julia --project=. src/threshold_sensitivity.jl \
 ```
 
 这会生成 gamma table 并保存到 `data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__sample=128__*.jld2`
+
+**注意**：新方法使用二分搜索，确保 POF ≈ eps_target，更准确但需要更长时间（约 15-25 分钟）。
 
 ### 4. 检查作业状态
 

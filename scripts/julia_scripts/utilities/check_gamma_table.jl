@@ -1,14 +1,37 @@
 #!/usr/bin/env julia
 # Check gamma table metadata and accuracy
 
+# Set Julia depot path (same as submit scripts) - do this BEFORE loading Pkg
+if Base.get(ENV, "LMOD_SITE_NAME", "") == "PACE"
+    if !haskey(ENV, "JULIA_DEPOT_PATH")
+        ENV["JULIA_DEPOT_PATH"] = get(ENV, "HOME", "") * "/julia-depot"
+    end
+    mkpath(ENV["JULIA_DEPOT_PATH"])
+    println("Using Julia depot: $(ENV["JULIA_DEPOT_PATH"])")
+end
+
 using Pkg
 Pkg.activate(".")
 
-using DrWatson
+# Only instantiate if DrWatson is not available (avoid unnecessary reinstalls)
+try
+    using DrWatson
+catch
+    println("DrWatson not found, running Pkg.instantiate()...")
+    Pkg.instantiate()
+    using DrWatson
+end
+
 @quickactivate "optim_injr_DT"
 
 using JLD2
 using Printf
+
+# PyCall setup (if needed)
+if Base.get(ENV, "LMOD_SITE_NAME", "") == "PACE"
+    include(joinpath(@__DIR__, "..", "..", "..", "src", "utils.jl"))
+    setup_pycall()
+end
 
 function check_gamma_table(table_path::String)
     if !isfile(table_path)

@@ -9,7 +9,15 @@
 
 ## 如何检查现有 Gamma Table
 
+**在 PACE 上运行**（需要 salloc 和设置环境）：
+
 ```bash
+salloc -N1 -t 30 --account=gts-fherrmann9 -q inferno
+module load julia/1.11.3
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+export JULIA_PKG_PRECOMPILE_AUTO=0
+export MPLBACKEND=Agg
+
 julia --project=. scripts/julia_scripts/utilities/check_gamma_table.jl \
   scripts/gamma_tables/gamma_table__sample=128__20251125_122949.jld2
 ```
@@ -18,6 +26,8 @@ julia --project=. scripts/julia_scripts/utilities/check_gamma_table.jl \
 - Gamma table 的元数据
 - 每个 (eps, threshold) 对的 POF 和 CVaR 值
 - POF 与目标 eps 的误差（如果误差 > 5%，建议重新生成）
+
+**注意**：脚本会自动检测 PACE 环境并设置 `JULIA_DEPOT_PATH`，但仍需要手动加载 Julia 模块。
 
 ## 重新生成 Gamma Table（使用改进方法）
 
@@ -94,9 +104,15 @@ sbatch scripts/shell/submit_gamma_table_generation.sh
 
 ## 验证新生成的 Table
 
-生成后，检查准确性：
+生成后，检查准确性（在 PACE 上）：
 
 ```bash
+salloc -N1 -t 30 --account=gts-fherrmann9 -q inferno
+module load julia/1.11.3
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+export JULIA_PKG_PRECOMPILE_AUTO=0
+export MPLBACKEND=Agg
+
 julia --project=. scripts/julia_scripts/utilities/check_gamma_table.jl \
   data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__sample=128__*.jld2
 ```
