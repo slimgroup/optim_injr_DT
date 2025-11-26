@@ -52,6 +52,7 @@ using StatsBase
 using Dates
 using Printf
 using Base: time
+using Base.Threads
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PyCall setup (using shared utility)
@@ -569,29 +570,60 @@ Dictionary containing:
 function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vector{Float64},
                               args::Dict{String,Any})
     alpha_tail = args["alpha"]
-    entries = Dict{Float64,Dict{Float64,NamedTuple{(:gamma,:pof,:cvar),NTuple{3,Float64}}}}()
+    
     println("=" ^ 80)
-    println("Generating gamma lookup table")
+    println("Generating gamma lookup table (PARALLEL)")
     println("=" ^ 80)
     println("Thresholds: ", threshold_values)
     println("Eps values: ", eps_values)
+    println("Using $(nthreads()) threads for parallel generation")
     println()
-
-    for (eps_idx, eps) in enumerate(eps_values)
-        per_eps = Dict{Float64,NamedTuple{(:gamma,:pof,:cvar),NTuple{3,Float64}}}()
-        println("→ eps[$(eps_idx)] = $(eps)")
-        for (t_idx, thresh) in enumerate(threshold_values)
-            print("   - Threshold $(t_idx)/$(length(threshold_values)) = $(thresh) MPa ... ")
-            flush(stdout)
-            result = calibrate_gamma_for_eps(thresh, args, eps, alpha_tail;
-                                             inj_rate_guess=args["inj_guess"])
-            per_eps[thresh] = (gamma=result.suggested_gamma,
-                               pof=result.pof_hard,
-                               cvar=result.cvar)
-            println("gamma ≈ $(result.suggested_gamma)")
+    
+    # Create all (eps, threshold) pairs for parallel processing
+    tasks = Vector{Tuple{Float64, Float64}}()
+    for eps in eps_values
+        for thresh in threshold_values
+            push!(tasks, (eps, thresh))
         end
-        entries[eps] = per_eps
     end
+    
+    # Thread-safe storage: use locks for dictionary updates
+    entries_lock = ReentrantLock()
+    entries = Dict{Float64,Dict{Float64,NamedTuple{(:gamma,:pof,:cvar),NTuple{3,Float64}}}}()
+    
+    # Initialize nested dictionaries
+    for eps in eps_values
+        entries[eps] = Dict{Float64,NamedTuple{(:gamma,:pof,:cvar),NTuple{3,Float64}}}()
+    end
+    
+    # Print lock for thread-safe output
+    print_lock = ReentrantLock()
+    
+    # Parallel processing
+    @threads for (eps, thresh) in tasks
+        thread_id = threadid()
+        lock(print_lock) do
+            println("[Thread $(thread_id)] Processing: eps=$(eps), threshold=$(thresh) MPa ...")
+        end
+        
+        result = calibrate_gamma_for_eps(thresh, args, eps, alpha_tail;
+                                         inj_rate_guess=args["inj_guess"])
+        
+        lock(entries_lock) do
+            entries[eps][thresh] = (gamma=result.suggested_gamma,
+                                   pof=result.pof_hard,
+                                   cvar=result.cvar)
+        end
+        
+        lock(print_lock) do
+            println("[Thread $(thread_id)] ✓ Completed: eps=$(eps), threshold=$(thresh) MPa, gamma ≈ $(result.suggested_gamma)")
+        end
+    end
+    
+    println()
+    println("=" ^ 80)
+    println("Gamma table generation completed")
+    println("=" ^ 80)
 
     return Dict(
         "gamma_entries" => entries,
@@ -602,8 +634,9 @@ function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vec
             alpha = alpha_tail,
             timestamp = now(),
             inj_guess = args["inj_guess"],
-            calibration_method = "binary_search",  # Mark that this uses improved method
-            version = "2.0"  # Version marker for improved calibration
+            calibration_method = "binary_search_parallel",  # Mark that this uses improved parallel method
+            version = "2.1",  # Version marker for parallel calibration
+            nthreads = nthreads()
         )
     )
 end

@@ -2,7 +2,7 @@
 
 ## 完整运行流程（按顺序）
 
-### 步骤 1: 生成 Gamma Table（必须，约 15-25 分钟）
+### 步骤 1: 生成 Gamma Table（必须，约 3-5 分钟，并行处理）
 
 **方法 A: 提交作业（推荐）**
 
@@ -141,7 +141,7 @@ julia --project=. scripts/julia_scripts/plotting/plot_pof_vs_cvar.jl --idx_num 1
 
 ## 时间估算
 
-- **步骤 1 (Gamma Table)**: 15-25 分钟
+- **步骤 1 (Gamma Table)**: 3-5 分钟（并行处理，使用 8 线程）
 - **步骤 2 (验证)**: 1-2 分钟
 - **步骤 3 (POF-only)**: 1-3 小时（5 个阈值，每个约 20-30 分钟）
 - **步骤 4 (CVaR-only)**: 1-3 小时（5 个阈值，每个约 20-30 分钟）

@@ -45,7 +45,9 @@ julia --project=. src/threshold_sensitivity.jl \
   --gamma_table_eps_list 0.01
 ```
 
-**注意**：新方法使用二分搜索，会找到使 POF ≈ eps_target 的注入率，确保对应关系。
+**注意**：
+- 新方法使用**二分搜索**，会找到使 POF ≈ eps_target 的注入率，确保对应关系
+- 使用**多线程并行处理**，所有阈值同时计算，大幅缩短生成时间（约 3-5 分钟 vs 15-25 分钟）
 
 ## 快速开始
 

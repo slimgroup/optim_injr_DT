@@ -47,8 +47,8 @@ echo "  Eps values: $EPS_LIST"
 echo "  Thresholds: $THRESHOLD_MIN to $THRESHOLD_MAX ($THRESHOLD_NUM values)"
 echo ""
 
-# Run gamma table generation
-julia --project="$SLURM_SUBMIT_DIR" -t 1 src/threshold_sensitivity.jl \
+# Run gamma table generation (use all available threads for parallel processing)
+julia --project="$SLURM_SUBMIT_DIR" -t "$SLURM_CPUS_PER_TASK" src/threshold_sensitivity.jl \
   --idx_num 128 \
   --threshold_min "$THRESHOLD_MIN" \
   --threshold_max "$THRESHOLD_MAX" \
