@@ -40,7 +40,7 @@ function plot_row_comparison(hf_mat, lf_mat, row_idx, outname)
     savefig(outname, dpi=300)
 end
 
-# 绘制 1st, 2nd, 3rd 最小压力分布
+# Plot 1st, 2nd, 3rd minimum pressure distributions
 plot_row_comparison(jtp_min_three, rtp_min_three, 1, "min_pressure_row1.png")
 plot_row_comparison(jtp_min_three, rtp_min_three, 2, "min_pressure_row2.png")
 plot_row_comparison(jtp_min_three, rtp_min_three, 3, "min_pressure_row3.png")

@@ -5,11 +5,11 @@ using DrWatson
 @quickactivate "optim_injr_DT"
 
 using JLD2, PyPlot, Printf
-using Statistics   # 如果你已经 using StatsBase 也行
+using Statistics   # Can also use StatsBase if needed
 
 """
 load_final(path) -> Dict
-  返回包含 inj_rate_arr, step_arr, stp_cause, stp_alpha_ratio 等的字典
+  Returns a dictionary containing inj_rate_arr, step_arr, stp_cause, stp_alpha_ratio, etc.
 """
 function load_final(path::AbstractString)
     @assert isfile(path) "No file: $path"
@@ -19,7 +19,7 @@ end
 
 """
 get_inj_curve(data) -> (iters, inj_vec)
-  提取每轮迭代的注入率（假设单控制量），长度 = niterations+1
+  Extracts injection rate for each iteration (assuming single control variable), length = niterations+1
 """
 function get_inj_curve(data)
     inj = data["inj_rate_arr"][:, 1]
@@ -71,7 +71,7 @@ function plot_two_cases(file_a::AbstractString, label_a::AbstractString,
     savefig(out, dpi=180); close()
     println("Saved: $(out)")
 
-    # 3) stp_cause timeline（0/1/2）
+    # 3) stp_cause timeline (0/1/2)
     causeA = get(A, "stp_cause", Int[])
     causeB = get(B, "stp_cause", Int[])
     len = max(length(causeA), length(causeB))
@@ -84,11 +84,11 @@ function plot_two_cases(file_a::AbstractString, label_a::AbstractString,
     xlabel("iteration (1..n)"); ylabel("stp_cause")
     title("Step cause per iteration")
     legend(); tight_layout()
-    savefig(replace(out, ".png"=>"__cause.png"), dpi=180); close()
-    println("Saved: ", replace(out, ".png"=>"__cause.png"))
+    savefig(replace(out, ".png"=>"_cause.png"), dpi=180); close()
+    println("Saved: ", replace(out, ".png"=>"_cause.png"))
 end
 
-# —— 单案可视化（如果你只传一个文件）
+# Single case visualization (if only one file is provided)
 function plot_single_case(file::AbstractString; out::AbstractString="inj_single.png")
     D = load_final(file)
     print_cause_stats!(basename(dirname(file)), D)
@@ -108,7 +108,7 @@ function plot_single_case(file::AbstractString; out::AbstractString="inj_single.
         yticks([0,1,2], ["other","feas","armijo"])
         xlabel("iteration (1..n)"); ylabel("stp_cause")
         title("Step cause per iteration")
-        tight_layout(); savefig(replace(out, ".png"=>"__cause.png"), dpi=180); close()
-        println("Saved: ", replace(out, ".png"=>"__cause.png"))
+        tight_layout(); savefig(replace(out, ".png"=>"_cause.png"), dpi=180); close()
+        println("Saved: ", replace(out, ".png"=>"_cause.png"))
     end
 end

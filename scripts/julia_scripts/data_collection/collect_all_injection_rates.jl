@@ -1,17 +1,17 @@
 #!/usr/bin/env julia
 # =============================================================================
-# 规则：
-# - 假定每个 case 下 sample=1..64 目录都存在
-# - 仅当 sample 目录下存在 final.jld2 才读取并统计，否则记为 missing
-# - 严禁使用 j=*.jld2 回退
-# 导出：
-#   1) inj_rate_detail_*.csv        逐样本明细（含 missing/load_error）
-#   2) inj_rate_stats_*.csv         仅 OK 样本的均值/方差
-#   3) inj_rate_missing_*.csv       按规范化标签(case_tag)汇总的 missing 列表
-#   4) inj_rate_load_errors_*.csv   按规范化标签(case_tag)的加载错误列表
-#   5) inj_rate_all_*.jld2          打包以上内容
-#   6) inj_rate_missing_by_dir_*.csv        【新增】按目录(risk_dir)汇总的 missing
-#   7) inj_rate_load_errors_by_dir_*.csv   【新增】按目录(risk_dir)汇总的 load_error
+# Rules:
+# - Assumes sample=1..64 directories exist under each case
+# - Only reads and counts if final.jld2 exists in sample directory, otherwise marks as missing
+# - Strictly prohibits using j=*.jld2 fallback
+# Exports:
+#   1) inj_rate_detail_*.csv        Per-sample details (including missing/load_error)
+#   2) inj_rate_stats_*.csv         Mean/variance for OK samples only
+#   3) inj_rate_missing_*.csv        Missing list aggregated by normalized tag (case_tag)
+#   4) inj_rate_load_errors_*.csv    Load error list aggregated by normalized tag (case_tag)
+#   5) inj_rate_all_*.jld2           Package containing all above content
+#   6) inj_rate_missing_by_dir_*.csv        [NEW] Missing aggregated by directory (risk_dir)
+#   7) inj_rate_load_errors_by_dir_*.csv   [NEW] Load errors aggregated by directory (risk_dir)
 # =============================================================================
 
 using Pkg
@@ -28,17 +28,17 @@ using Dates
 using Printf
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 参数
+# Parameters
 # ─────────────────────────────────────────────────────────────────────────────
 const ROOT      = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
 const SAMPLES   = 1:64
-const INIT_RATE = 1e-4  # 若 inj_rate_arr 全 0 的兜底值
+const INIT_RATE = 1e-4  # Fallback value if inj_rate_arr is all zeros
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 工具函数
+# Utility functions
 # ─────────────────────────────────────────────────────────────────────────────
 
-# 规范化 case 标签（仅抽取 POF eps / CVaR gamma, alpha；其余超参不进入标签）
+# Normalize case tag (extract only POF eps / CVaR gamma, alpha; other hyperparameters not included in tag)
 function normalize_case_tag(risk_dir_name::String)
     if occursin("POF", risk_dir_name)
         if (m = match(r"eps\s*=\s*([0-9]*\.?[0-9]+)", risk_dir_name)) !== nothing
@@ -57,7 +57,7 @@ function normalize_case_tag(risk_dir_name::String)
     return risk_dir_name
 end
 
-# 兼容 String/Symbol 键
+# Compatible with String/Symbol keys
 @inline function _get(data, k::AbstractString)
     if haskey(data, k)
         return data[k]
@@ -68,7 +68,7 @@ end
     end
 end
 
-# 取第一列（容忍向量或矩阵；若是一维向量就直接用）
+# Extract first column (tolerates vector or matrix; if 1D vector, use directly)
 function _first_column(v)
     if ndims(v) == 1
         return collect(v)
@@ -79,7 +79,7 @@ function _first_column(v)
     end
 end
 
-# 读取最后一个非零注入率（第一列），忽略 missing/NaN；若全零/不存在则用 INIT_RATE
+# Read last nonzero injection rate (first column), ignore missing/NaN; use INIT_RATE if all zeros/not exists
 function last_nonzero_inj_rate(data; init_rate::Float64=INIT_RATE)
     raw = _get(data, "inj_rate_arr")
     raw === nothing && return init_rate
@@ -89,7 +89,7 @@ function last_nonzero_inj_rate(data; init_rate::Float64=INIT_RATE)
     return idx === nothing ? init_rate : clean[idx]
 end
 
-# 分组统计（仅 OK 样本），单样本 std=0.0
+# Group statistics (OK samples only), single sample std=0.0
 function group_stats(df::DataFrame)
     g = groupby(df, :case_tag)
     combine(g,
@@ -99,7 +99,7 @@ function group_stats(df::DataFrame)
     )
 end
 
-# 通用汇总：按给定列分组，汇总缺失 sample 列表；count=length(samples)
+# General summary: group by given columns, aggregate missing sample list; count=length(samples)
 function summarize_samples_by(df_sub::DataFrame, group_cols::Vector{Symbol})
     if nrow(df_sub) == 0
         return DataFrame([c => Vector{String}() for c in group_cols if c != :sample]...,
@@ -114,11 +114,11 @@ function summarize_samples_by(df_sub::DataFrame, group_cols::Vector{Symbol})
     return tmp
 end
 
-# 兼容旧名：按标签(case_tag)汇总
+# Compatible with old name: aggregate by tag (case_tag)
 summarize_samples(df_sub::DataFrame) = summarize_samples_by(df_sub, [:case_tag])
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 主过程
+# Main process
 # ─────────────────────────────────────────────────────────────────────────────
 risk_dirs = filter(d -> isdir(joinpath(ROOT, d)), readdir(ROOT))
 sort!(risk_dirs)
@@ -170,28 +170,28 @@ end
 df = DataFrame(rows)
 println("Scanned rows (cases × samples in 1..64): ", nrow(df))
 
-# 统计（仅 OK）
+# Statistics (OK only)
 df_ok = df[df.status .== "ok_final", :]
 stats = group_stats(df_ok)
 
-# 缺失与加载错误明细
+# Missing and load error details
 df_missing = df[df.status .== "missing", [:case_tag, :sample, :risk_dir, :status, :note]]
 df_loaderr = df[df.status .== "load_error", [:case_tag, :sample, :risk_dir, :status, :note]]
 
-# 汇总：按标签
+# Summary: by tag
 missing_summary_tag = summarize_samples(df_missing)
 loaderr_summary_tag = summarize_samples(df_loaderr)
 
-# 汇总：按目录
+# Summary: by directory
 missing_summary_dir = summarize_samples_by(df_missing, [:risk_dir])
 loaderr_summary_dir = summarize_samples_by(df_loaderr, [:risk_dir])
 
-# 也可查看 标签+目录（仅入包与打印，不额外导出）
+# Can also view tag+directory (only packaged and printed, not exported separately)
 missing_summary_both = summarize_samples_by(df_missing, [:case_tag, :risk_dir])
 loaderr_summary_both = summarize_samples_by(df_loaderr, [:case_tag, :risk_dir])
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 保存
+# Save
 # ─────────────────────────────────────────────────────────────────────────────
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
 csv_detail          = joinpath(ROOT, "inj_rate_detail_$ts.csv")
@@ -222,7 +222,7 @@ CSV.write(csv_loaderr_by_dir, loaderr_summary_dir)
 ); safe=true)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 终端输出
+# Terminal output
 # ─────────────────────────────────────────────────────────────────────────────
 println("\nSaved:")
 println("  detail CSV            : ", csv_detail)

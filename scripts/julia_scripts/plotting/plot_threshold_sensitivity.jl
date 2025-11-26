@@ -2,11 +2,35 @@
 # Plot threshold sensitivity analysis results
 # Reads summary data from threshold_sensitivity.jl output and generates plots
 
+# Set Julia depot path (same as submit scripts)
+if Base.get(ENV, "LMOD_SITE_NAME", "") == "PACE"
+    if !haskey(ENV, "JULIA_DEPOT_PATH")
+        ENV["JULIA_DEPOT_PATH"] = get(ENV, "HOME", "") * "/julia-depot"
+    end
+    mkpath(ENV["JULIA_DEPOT_PATH"])
+end
+
+# Set Julia depot path (same as submit scripts) - do this BEFORE loading Pkg
+if Base.get(ENV, "LMOD_SITE_NAME", "") == "PACE"
+    if !haskey(ENV, "JULIA_DEPOT_PATH")
+        ENV["JULIA_DEPOT_PATH"] = get(ENV, "HOME", "") * "/julia-depot"
+    end
+    mkpath(ENV["JULIA_DEPOT_PATH"])
+    println("Using Julia depot: $(ENV["JULIA_DEPOT_PATH"])")
+end
+
 using Pkg
 Pkg.activate(".")
-Pkg.instantiate()
 
-using DrWatson
+# Only instantiate if DrWatson is not available (avoid unnecessary reinstalls)
+try
+    using DrWatson
+catch
+    println("DrWatson not found, running Pkg.instantiate()...")
+    Pkg.instantiate()
+    using DrWatson
+end
+
 @quickactivate "optim_injr_DT"
 
 using JLD2

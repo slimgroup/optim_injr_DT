@@ -115,7 +115,7 @@ function main()
     Δ = A.inj - B.inj
     @printf "Δ(injection rate) = %+.10g   (%s - %s)\n" Δ args["label1"] args["label2"]
 
-    # 1) 条形对比
+    # 1) Bar comparison
     fig, ax = subplots(figsize=(5,4))
     ax.bar(1:2, [A.inj, B.inj])
     ax.set_xticks(1:2, [args["label1"], args["label2"]])
@@ -124,7 +124,7 @@ function main()
     plt.tight_layout(); savefig(args["out"]); close(fig)
     println("Saved → ", args["out"])
 
-    # 2) 轨迹对比 + 标注选中的“最后非零”点
+    # 2) Trajectory comparison + annotate selected "last nonzero" point
     nA = length(A.traj); nB = length(B.traj)
     fig, ax = subplots(figsize=(6,4))
     ax.plot(0:nA-1, A.traj, label=args["label1"])

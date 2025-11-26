@@ -10,7 +10,7 @@ using DrWatson
 using CSV, DataFrames, Dates, Printf
 using PyPlot
 using Statistics           # mean / std / quantile
-using JLD2                 # 兜底扫描 final.jld2 需要
+using JLD2                 # Required for fallback scanning of final.jld2
 
 # ==================== CONFIG ====================
 const ROOT    = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
@@ -20,21 +20,21 @@ const LEFT_TAIL_Q = 0.01      # 1%
 const DRAW_ECDF_PANEL   = false
 const DRAW_MEANSTD_BARS = true
 
-# 期望 10 个 eps（按你的目录约定；不同可改）
+# Expect 10 eps values (according to your directory convention; can be changed)
 const EXPECTED_EPS = sort([0.0, 0.0005, 0.001, 0.002, 0.003, 0.005, 0.01, 0.02, 0.03, 0.05])
 
-# 可选：手动指定要读的 CSV（留空则自动找最新）
+# Optional: manually specify CSV to read (leave empty to auto-find latest)
 const DETAIL_CSV_OVERRIDE = ""
 
-# KDE 设置
+# KDE settings
 const KDE_POINTS = 512
 const KDE_MARGIN = 0.05
 
-# 可选视觉微调
+# Optional visual fine-tuning
 const PRETTY_AXES = true
 # ================================================
 
-# ---------- 选最新明细：优先 pof_*，再 inj_* ----------
+# ---------- Select latest detail: prioritize pof_*, then inj_* ----------
 function latest_detail_csv(root::String)
     if !isempty(DETAIL_CSV_OVERRIDE)
         return DETAIL_CSV_OVERRIDE
@@ -54,14 +54,14 @@ function latest_detail_csv(root::String)
     return joinpath(root, last(sort(allcsv, by=f -> stat(joinpath(root, f)).mtime)))
 end
 
-# ---------- eps 解析（case_tag 优先，risk_dir 兜底；支持科学计数） ----------
+# ---------- eps parsing (case_tag priority, risk_dir fallback; supports scientific notation) ----------
 function _extract_eps(case_tag::AbstractString, risk_dir::AbstractString)
     m = match(r"eps\s*=\s*([0-9.eE+\-]+)", case_tag)
     m === nothing && (m = match(r"eps\s*=\s*([0-9.eE+\-]+)", risk_dir))
     return m === nothing ? NaN : parse(Float64, m.captures[1])
 end
 
-# ---------- 只取 POF + sample∈1..32 + ok_final（从 CSV） ----------
+# ---------- Only take POF + sample∈1..32 + ok_final (from CSV) ----------
 function load_pof_from_csv(root::String)
     path = latest_detail_csv(root)
     @info "Loading detail CSV" path
@@ -85,7 +85,7 @@ function load_pof_from_csv(root::String)
     return df
 end
 
-# ---------- 兜底：直接扫 POF 目录，读 final.jld2 ----------
+# ---------- Fallback: directly scan POF directories, read final.jld2 ----------
 @inline function _get(data, k::AbstractString)
     haskey(data, k) ? data[k] : (haskey(data, Symbol(k)) ? data[Symbol(k)] : nothing)
 end
@@ -134,7 +134,7 @@ function scan_pof_dirs(root::String)
     return df
 end
 
-# ---------- 简易 Gaussian KDE + smoothed quantile ----------
+# ---------- Simple Gaussian KDE + smoothed quantile ----------
 silverman_bandwidth(x::Vector{Float64}) = begin
     n = length(x); n == 0 && return 1e-8
     s = std(x); s = s > 0 ? s : (maximum(x) - minimum(x) + eps())/1.349
@@ -191,7 +191,7 @@ function kde_quantile(x::Vector{Float64}, q::Float64)
     end
 end
 
-# ---------- 小工具：美化坐标轴 ----------
+# ---------- Small utility: prettify axes ----------
 function pretty_axes!(ax)
     !PRETTY_AXES && return
     try
@@ -202,7 +202,7 @@ function pretty_axes!(ax)
     end
 end
 
-# ---------- 直方图（全范围；固定 2×5 面板，避免拥挤） ----------
+# ---------- Histogram (full range; fixed 2×5 panels to avoid crowding) ----------
 function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
     eps_vals = sort(unique(df.eps))
     nrows, ncols = 2, 5
@@ -231,7 +231,7 @@ function plot_hist_panels(df::DataFrame; nbins::Int=NBINS)
     return fig
 end
 
-# ---------- 左 1% 面板：叠加 KDE（标题简化 + 图内角标） ----------
+# ---------- Left 1% panel: overlay KDE (simplified title + in-figure annotations) ----------
 function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nbins::Int=NBINS)
     eps_vals = sort(unique(df.eps))
     nrows, ncols = 2, 5
@@ -291,7 +291,7 @@ function plot_hist_left1pct_panels_kde(df::DataFrame; q::Float64=LEFT_TAIL_Q, nb
     return fig
 end
 
-# ---------- ECDF（可选；修正类型注解） ----------
+# ---------- ECDF (optional; corrected type annotations) ----------
 function ecdf(x::AbstractVector{<:Real})
     xx = sort(Float64.(x))
     n  = length(xx)
@@ -321,7 +321,7 @@ function plot_ecdf_panels(df::DataFrame)
     return fig
 end
 
-# ---------- KS 距离 & 敏感性表 ----------
+# ---------- KS distance & sensitivity table ----------
 function ks_statistic(x::Vector{Float64}, y::Vector{Float64})
     xs, cdfx = ecdf(x); ys, cdfy = ecdf(y)
     grid = sort(unique(vcat(xs, ys)))
@@ -356,7 +356,7 @@ function build_sensitivity_table(df::DataFrame)
     return rows
 end
 
-# ---------- 左 1% 明细表（raw vs KDE）【修复 missing/索引一致性】 ----------
+# ---------- Left 1% detail table (raw vs KDE) [fixed missing/index consistency] ----------
 function build_left_tail_table(df::DataFrame; q::Float64=LEFT_TAIL_Q)
     eps_vals = sort(unique(df.eps))
     rows = DataFrame(eps=Float64[], q1_raw=Float64[], q1_kde=Float64[],
@@ -387,7 +387,7 @@ function build_left_tail_table(df::DataFrame; q::Float64=LEFT_TAIL_Q)
     return rows
 end
 
-# ---------- mean±std 误差棒 ----------
+# ---------- mean±std error bars ----------
 function plot_meanstd_bars(sens::DataFrame)
     fig, ax = subplots(1,1; figsize=(8,4))
     xlab = string.(round.(sens.eps, sigdigits=4))
@@ -406,7 +406,7 @@ df_pof = load_pof_from_csv(ROOT)
 eps_csv = sort(unique(df_pof.eps))
 @info "EPS set (CSV)" eps_csv
 
-# CSV 不全 -> 兜底扫描目录
+# CSV incomplete -> fallback to scanning directories
 if length(eps_csv) < length(EXPECTED_EPS)
     @warn "EPS fewer than expected; fallback to scanning POF dirs" eps_csv EXPECTED_EPS
     df_scan = scan_pof_dirs(ROOT)
@@ -421,24 +421,24 @@ end
 ts  = Dates.format(now(), "yyyymmdd_HHMMSS")
 pct = Int(round(LEFT_TAIL_Q * 100))
 
-# 面板 1：全范围直方图（全部 eps）
+# Panel 1: full range histogram (all eps)
 fig1 = plot_hist_panels(df_pof)
 savefig(joinpath(ROOT, "panel_POF_last_inj_rate_hist_$(ts).png"), dpi=200)
 close("all")
 
-# 面板 2：左 1%，叠加 KDE（全部 eps）
+# Panel 2: left 1%, overlay KDE (all eps)
 fig2 = plot_hist_left1pct_panels_kde(df_pof; q=LEFT_TAIL_Q)
 savefig(joinpath(ROOT, "panel_POF_left$(pct)pct_hist_kde_$(ts).png"), dpi=240)
 close("all")
 
-# 表：敏感性 & 左尾
+# Table: sensitivity & left tail
 sens = build_sensitivity_table(df_pof)
 CSV.write(joinpath(ROOT, "pof_sensitivity_table_$(ts).csv"), sens)
 
 left_tbl = build_left_tail_table(df_pof; q=LEFT_TAIL_Q)
 CSV.write(joinpath(ROOT, "pof_left_tail_$(pct)pct_$(ts).csv"), left_tbl)
 
-# 可选：ECDF & mean±std
+# Optional: ECDF & mean±std
 if DRAW_ECDF_PANEL
     fig3 = plot_ecdf_panels(df_pof)
     savefig(joinpath(ROOT, "panel_POF_last_inj_rate_ecdf_$(ts).png"), dpi=200)

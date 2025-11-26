@@ -25,7 +25,7 @@ function expand_with_noise(arr; n_target::Int=64, noise_level::Float64=0.05, cla
     return out
 end
 
-# ===== 原始样本 =====
+# ===== Original samples =====
 POF_base = [
     0.037721, 0.025968, 0.057297, 0.059773, 0.043569, 0.053381, 0.079868,
     0.065726, 0.059119, 0.058767, 0.036899, 0.063845, 0.029158, 0.043277,
@@ -61,12 +61,12 @@ datasets = [
     ("CVaR (α = 5%)", CVaR5pct_arr),
 ]
 
-# ===== 统一直方图范围（仅直方图用）=====
+# ===== Unified histogram range (for histograms only) =====
 global_xmin = minimum([minimum(POF_arr), minimum(CVaR2pct_arr), minimum(CVaR5pct_arr)])
 global_xmax = maximum([maximum(POF_arr), maximum(CVaR2pct_arr), maximum(CVaR5pct_arr)])
 xlim_hist = (global_xmin, global_xmax)
 
-# ===== 工具函数 =====
+# ===== Utility functions =====
 function kde_pdf_cdf_local(v; bandwidth=nothing, ngrid::Int=16_000)
     kd = bandwidth === nothing ? kde(v) : kde(v; bandwidth=bandwidth)
     x = Base.range(minimum(v), stop=maximum(v), length=ngrid)
@@ -96,7 +96,7 @@ function cdf_ci_band(cdfv::AbstractVector, n::Int; conf_level::Float64=0.95)
     return lo, hi
 end
 
-# ===== 绘图函数 =====
+# ===== Plotting functions =====
 outdir = "plots_sep"; mkpath(outdir)
 bins = 20; bandwidth = nothing
 conf_level = 0.95; target_p = 0.01; ngrid = 16_000

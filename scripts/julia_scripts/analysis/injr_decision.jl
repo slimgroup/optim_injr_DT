@@ -62,7 +62,7 @@ elseif monitoring_step == 2
     # step 2 initial injection rate
     init_inj_rate = [0.026245454545454544]
     
-    # 存在文件的 sample ids（排除缺失）
+    # Sample ids with existing files (excluding missing)
     missing_ids = Set([40, 113])
     valid_ids = setdiff(1:num_s, missing_ids)
 
@@ -392,8 +392,8 @@ if zoomed_in
 
     elseif monitoring_step == 2 
         # Zoom limits for step 2
-        xlim(0.042, 0.062)  # 聚焦注水速率的交叉区域，去掉左侧空白
-        ylim(0, 5)          # 上限从10降到3，更好聚焦在1% fracture 位置
+        xlim(0.042, 0.062)  # Focus on intersection region of injection rates, remove left blank space
+        ylim(0, 5)          # Upper limit reduced from 10 to 3, better focus on 1% fracture position
 
         # Annotations
         annotate("Injection Rate at " * string(Int(fracture_prob_threshold*100)) * "% Probability: $(round(inj_rate_at_cdf, digits=5)) m³/s",
@@ -426,14 +426,14 @@ else
             arrowprops=Dict("arrowstyle" => "->"),
             fontsize=11)
 
-        # Left CI annotation — 放左边，避免重叠
+        # Left CI annotation — place on left to avoid overlap
         annotate("Left CI: $(round(inj_rate_at_ci_upper, digits=5)) m³/s",
             xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
             xytext=(inj_rate_at_ci_upper+0.025,30),
             arrowprops=Dict("arrowstyle" => "->"),
             fontsize=11)
 
-        # Right CI annotation — 放右边低一点
+        # Right CI annotation — place on right, lower position
         annotate("Right CI: $(round(inj_rate_at_ci_lower, digits=5)) m³/s",
             xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
             xytext=(inj_rate_at_ci_lower+0.075, 45),
@@ -448,14 +448,14 @@ else
             arrowprops=Dict("arrowstyle" => "->"),
             fontsize=11)
 
-        # Left CI annotation — 放左边，避免重叠
+        # Left CI annotation — place on left to avoid overlap
         annotate("Left CI: $(round(inj_rate_at_ci_upper, digits=5)) m³/s",
             xy=(inj_rate_at_ci_upper, fracture_prob_threshold * 100),
             xytext=(inj_rate_at_ci_upper+0.025,30),
             arrowprops=Dict("arrowstyle" => "->"),
             fontsize=11)
 
-        # Right CI annotation — 放右边低一点
+        # Right CI annotation — place on right, lower position
         annotate("Right CI: $(round(inj_rate_at_ci_lower, digits=5)) m³/s",
             xy=(inj_rate_at_ci_lower, fracture_prob_threshold * 100),
             xytext=(inj_rate_at_ci_lower+0.075, 45),

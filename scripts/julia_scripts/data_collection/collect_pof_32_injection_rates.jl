@@ -1,18 +1,18 @@
 #!/usr/bin/env julia
 # =============================================================================
-# 仅收集 POF 案例，样本范围 1..32
-# 规则：
-# - 假定每个 case 下 sample=1..32 目录都存在
-# - 仅当 sample 目录下存在 final.jld2 才读取并统计，否则记为 missing
-# - 严禁使用 j=*.jld2 回退
-# 导出：
-#   1) pof_inj_rate_detail_*.csv              逐样本明细（含 missing/load_error）
-#   2) pof_inj_rate_stats_*.csv               仅 OK 样本的均值/方差
-#   3) pof_inj_rate_missing_*.csv             按规范化标签(case_tag)汇总的 missing 列表
-#   4) pof_inj_rate_load_errors_*.csv         按规范化标签(case_tag)的加载错误列表
-#   5) pof_inj_rate_all_*.jld2                打包以上内容
-#   6) pof_inj_rate_missing_by_dir_*.csv      按目录(risk_dir)汇总的 missing
-#   7) pof_inj_rate_load_errors_by_dir_*.csv  按目录(risk_dir)汇总的 load_error
+# Collect POF cases only, sample range 1..32
+# Rules:
+# - Assumes sample=1..32 directories exist under each case
+# - Only reads and counts if final.jld2 exists in sample directory, otherwise marks as missing
+# - Strictly prohibits using j=*.jld2 fallback
+# Exports:
+#   1) pof_inj_rate_detail_*.csv              Per-sample details (including missing/load_error)
+#   2) pof_inj_rate_stats_*.csv               Mean/variance for OK samples only
+#   3) pof_inj_rate_missing_*.csv             Missing list aggregated by normalized tag (case_tag)
+#   4) pof_inj_rate_load_errors_*.csv         Load error list aggregated by normalized tag (case_tag)
+#   5) pof_inj_rate_all_*.jld2                Package containing all above content
+#   6) pof_inj_rate_missing_by_dir_*.csv       Missing aggregated by directory (risk_dir)
+#   7) pof_inj_rate_load_errors_by_dir_*.csv  Load errors aggregated by directory (risk_dir)
 # =============================================================================
 
 using Pkg
@@ -29,20 +29,20 @@ using Dates
 using Printf
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 参数
+# Parameters
 # ─────────────────────────────────────────────────────────────────────────────
 const ROOT      = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
-const SAMPLES   = 1:32           # 只收集 1..32
-const INIT_RATE = 1e-4           # 若 inj_rate_arr 全 0 的兜底值
+const SAMPLES   = 1:32           # Only collect 1..32
+const INIT_RATE = 1e-4           # Fallback value if inj_rate_arr is all zeros
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 工具函数
+# Utility functions
 # ─────────────────────────────────────────────────────────────────────────────
 
-# 规范化 case 标签（仅抽取 POF eps；支持科学计数法）
+# Normalize case tag (extract only POF eps; supports scientific notation)
 function normalize_case_tag(risk_dir_name::String)
     if occursin("POF", risk_dir_name)
-        # 支持 0.0005、.005、1e-3、1E-03 等
+        # Supports 0.0005, .005, 1e-3, 1E-03, etc.
         if (m = match(r"eps\s*=\s*((?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)(?:[eE][+\-]?\d+)?)", risk_dir_name)) !== nothing
             return "POF_eps=$(m.captures[1])"
         else
@@ -52,7 +52,7 @@ function normalize_case_tag(risk_dir_name::String)
     return risk_dir_name
 end
 
-# 兼容 String/Symbol 键
+# Compatible with String/Symbol keys
 @inline function _get(data, k::AbstractString)
     if haskey(data, k)
         return data[k]
