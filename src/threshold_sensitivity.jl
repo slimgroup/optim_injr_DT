@@ -442,10 +442,10 @@ function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any},
     end
     
     # Binary search to find injection rate where POF ≈ eps_target
-    tol = 0.001  # Tolerance for POF matching (0.1% of eps_target)
-    max_iter = 20
+    tol = max(0.0001, eps_target * 0.05)  # Tolerance: 5% of eps_target, but at least 0.0001
+    max_iter = 30
     inj_low = 0.0001
-    inj_high = 1.5  # Upper bound (adjust if needed)
+    inj_high = 2.0  # Upper bound (adjust if needed)
     
     # First, check if initial guess is close enough
     pof_init, cvar_init, pof_smooth_init = evaluate_pof(inj_rate_guess)
@@ -455,13 +455,75 @@ function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any},
                 suggested_gamma=cvar_init)
     end
     
+    # Find initial bounds: need to find inj_low where POF < eps_target and inj_high where POF > eps_target
+    # Start by checking if we need to expand the search range
+    if pof_init < eps_target
+        # POF too low, need to find upper bound
+        test_inj = inj_rate_guess
+        while test_inj < inj_high && pof_init < eps_target
+            test_inj *= 2.0
+            pof_init, cvar_init, pof_smooth_init = evaluate_pof(test_inj)
+            if pof_init >= eps_target
+                inj_high = test_inj
+                break
+            end
+        end
+        if pof_init < eps_target
+            # Even at high injection rate, POF is still below target
+            # This means the threshold is too high - return the best we can get
+            println("   ⚠️  Cannot reach POF=$(eps_target) even at high injection rate: POF=$(pof_init)")
+            println("      This may indicate threshold=$(threshold) MPa is too high for this eps.")
+            return (pof_hard=pof_init, pof_smooth=pof_smooth_init, cvar=cvar_init, 
+                    suggested_gamma=cvar_init)
+        end
+        inj_low = inj_rate_guess
+    else
+        # POF too high, need to find lower bound
+        test_inj = inj_rate_guess
+        while test_inj > inj_low && pof_init > eps_target
+            test_inj /= 2.0
+            if test_inj < inj_low
+                test_inj = inj_low
+            end
+            pof_init, cvar_init, pof_smooth_init = evaluate_pof(test_inj)
+            if pof_init <= eps_target
+                inj_low = test_inj
+                break
+            end
+        end
+        if pof_init > eps_target && test_inj <= inj_low
+            # Even at very low injection rate, POF is still above target
+            # This means the threshold is too low - return the best we can get
+            println("   ⚠️  Cannot reach POF=$(eps_target) even at low injection rate: POF=$(pof_init)")
+            println("      This may indicate threshold=$(threshold) MPa is too low for this eps.")
+            return (pof_hard=pof_init, pof_smooth=pof_smooth_init, cvar=cvar_init, 
+                    suggested_gamma=cvar_init)
+        end
+        inj_high = inj_rate_guess
+    end
+    
     # Binary search
     println("   Finding injection rate where POF ≈ $(eps_target) (tolerance=$(tol))...")
+    println("   Search range: [$(inj_low), $(inj_high)]")
+    best_inj = inj_rate_guess
+    best_pof = pof_init
+    best_cvar = cvar_init
+    best_error = abs(pof_init - eps_target)
+    
     for iter in 1:max_iter
         inj_mid = (inj_low + inj_high) / 2
         pof_mid, cvar_mid, pof_smooth_mid = evaluate_pof(inj_mid)
+        error_mid = abs(pof_mid - eps_target)
         
-        if abs(pof_mid - eps_target) <= tol
+        # Track best solution
+        if error_mid < best_error
+            best_inj = inj_mid
+            best_pof = pof_mid
+            best_cvar = cvar_mid
+            best_error = error_mid
+        end
+        
+        if error_mid <= tol
             println("   ✓ Found: inj_rate=$(inj_mid), POF=$(pof_mid), CVaR=$(cvar_mid)")
             return (pof_hard=pof_mid, pof_smooth=pof_smooth_mid, cvar=cvar_mid, 
                     suggested_gamma=cvar_mid)
@@ -475,18 +537,16 @@ function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any},
         
         if (inj_high - inj_low) < 1e-6
             # Search converged but didn't reach target
-            println("   ⚠️  Search converged: inj_rate=$(inj_mid), POF=$(pof_mid) (target=$(eps_target))")
-            return (pof_hard=pof_mid, pof_smooth=pof_smooth_mid, cvar=cvar_mid, 
-                    suggested_gamma=cvar_mid)
+            println("   ⚠️  Search converged: inj_rate=$(best_inj), POF=$(best_pof) (target=$(eps_target), error=$(best_error))")
+            return (pof_hard=best_pof, pof_smooth=best_pof, cvar=best_cvar, 
+                    suggested_gamma=best_cvar)
         end
     end
     
     # If binary search didn't converge, use the best estimate
-    inj_final = (inj_low + inj_high) / 2
-    pof_final, cvar_final, pof_smooth_final = evaluate_pof(inj_final)
-    println("   ⚠️  Max iterations reached: inj_rate=$(inj_final), POF=$(pof_final), CVaR=$(cvar_final)")
-    return (pof_hard=pof_final, pof_smooth=pof_smooth_final, cvar=cvar_final, 
-            suggested_gamma=cvar_final)
+    println("   ⚠️  Max iterations reached: using best estimate: inj_rate=$(best_inj), POF=$(best_pof), CVaR=$(best_cvar)")
+    return (pof_hard=best_pof, pof_smooth=best_pof, cvar=best_cvar, 
+            suggested_gamma=best_cvar)
 end
 
 """

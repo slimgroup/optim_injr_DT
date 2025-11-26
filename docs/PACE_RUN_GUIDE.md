@@ -18,6 +18,35 @@
 
 详见 `docs/EPS_GAMMA_ALIGNMENT.md`。
 
+## ⚠️ 重要：先检查并重新生成 Gamma Table
+
+根据检查结果，**现有的 gamma table 不准确**（所有条目都有 ⚠️ 标记）。**必须先重新生成**，然后再运行优化。
+
+### 步骤 0: 重新生成 Gamma Table（必须）
+
+```bash
+# 提交作业生成（推荐，约 15-25 分钟）
+sbatch scripts/shell/submit_gamma_table_generation.sh
+```
+
+或者交互式运行：
+
+```bash
+salloc -N1 -t 120 --account=gts-fherrmann9 -q inferno
+module load julia/1.11.3
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+export JULIA_PKG_PRECOMPILE_AUTO=0
+export MPLBACKEND=Agg
+
+julia --project=. src/threshold_sensitivity.jl \
+  --idx_num 128 \
+  --threshold_min 2.0 --threshold_max 6.0 --threshold_num 5 \
+  --gamma_table_generate auto \
+  --gamma_table_eps_list 0.01
+```
+
+**注意**：新方法使用二分搜索，会找到使 POF ≈ eps_target 的注入率，确保对应关系。
+
 ## 快速开始
 
 ### 步骤 1: 运行 POF-only 优化
