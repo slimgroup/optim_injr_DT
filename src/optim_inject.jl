@@ -547,25 +547,36 @@ function grad_wrt_inj(inj_rate, delta_inj_rate, time_step,
                       sat_init, pres_init=nothing, risk=nothing,
                       forward_step::Int=2, ds::Int=10,
                       inj_start::Float64=0.0001, use_forward::Bool=false)
-    grad = zeros(size(inj_rate, 1))
+    nctrl = length(inj_rate)
+    grad  = zeros(nctrl)
     if use_forward
-        for i in 1:size(inj_rate, 1)
-            fwd = objective(inj_rate + delta_inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
+        # baseline value
+        f0 = objective(inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
+                       sat_init=sat_init, pres_init=pres_init, risk=risk,
+                       forward_step=forward_step, ds=ds,
+                       collect_states=false, inj_start=inj_start)[1]
+        for i in 1:nctrl
+            e = zeros(nctrl)
+            e[i] = delta_inj_rate[i]
+            fwd = objective(inj_rate .+ e, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                             sat_init=sat_init, pres_init=pres_init, risk=risk,
-                            forward_step=forward_step, ds=ds, collect_states=false, inj_start=inj_start)[1]
-            cur = objective(inj_rate,                time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
-                            sat_init=sat_init, pres_init=pres_init, risk=risk,
-                            forward_step=forward_step, ds=ds, collect_states=false, inj_start=inj_start)[1]
-            grad[i] = (fwd - cur) / (delta_inj_rate[i])
+                            forward_step=forward_step, ds=ds,
+                            collect_states=false, inj_start=inj_start)[1]
+            grad[i] = (fwd - f0) / delta_inj_rate[i]
         end
     else
-        for i in 1:size(inj_rate, 1)
-            fwd = objective(inj_rate + delta_inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
+        # central differences
+        for i in 1:nctrl
+            e = zeros(nctrl)
+            e[i] = delta_inj_rate[i]
+            fwd = objective(inj_rate .+ e, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                             sat_init=sat_init, pres_init=pres_init, risk=risk,
-                            forward_step=forward_step, ds=ds, collect_states=false, inj_start=inj_start)[1]
-            bwd = objective(inj_rate - delta_inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
+                            forward_step=forward_step, ds=ds,
+                            collect_states=false, inj_start=inj_start)[1]
+            bwd = objective(inj_rate .- e, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
                             sat_init=sat_init, pres_init=pres_init, risk=risk,
-                            forward_step=forward_step, ds=ds, collect_states=false, inj_start=inj_start)[1]
+                            forward_step=forward_step, ds=ds,
+                            collect_states=false, inj_start=inj_start)[1]
             grad[i] = (fwd - bwd) / (2 * delta_inj_rate[i])
         end
     end
