@@ -365,7 +365,8 @@ Named tuple with:
 """
 function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any}, 
                                   eps_target::Float64, α::Float64=0.05;
-                                  inj_rate_guess::Float64=0.05)
+                                  inj_rate_guess::Float64=0.05,
+                                  BroadK=nothing, state_data=nothing)
     # Setup (similar to run_optimization_for_threshold but minimal)
     s = args["idx_num"]
     n = (512, 1, 256)
@@ -375,13 +376,18 @@ function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any},
     ds = 10
     forward_step = 2
     
-    perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
-    perm_data = JLD2.load(perm_path)
-    BroadK = perm_data["BroadK"]
-    
+    # Load files only if not provided (for thread safety, load before parallel section)
     monitoring_step = 1
-    state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
-    state_data = JLD2.load(state_path)
+    if BroadK === nothing
+        perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
+        perm_data = JLD2.load(perm_path)
+        BroadK = perm_data["BroadK"]
+    end
+    
+    if state_data === nothing
+        state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
+        state_data = JLD2.load(state_path)
+    end
     
     idices = state_data["idx_t" * string(monitoring_step)]
     idx = idices[s]
@@ -599,6 +605,18 @@ function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vec
     # Print lock for thread-safe output
     print_lock = ReentrantLock()
     
+    # Pre-load files in main thread to avoid concurrent JLD2 access issues
+    println("Pre-loading data files (thread-safe)...")
+    perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
+    perm_data = JLD2.load(perm_path)
+    BroadK_shared = perm_data["BroadK"]
+    
+    monitoring_step = 1
+    state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
+    state_data_shared = JLD2.load(state_path)
+    println("Data files loaded successfully.")
+    println()
+    
     # Parallel processing
     @threads for (eps, thresh) in tasks
         thread_id = threadid()
@@ -607,7 +625,9 @@ function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vec
         end
         
         result = calibrate_gamma_for_eps(thresh, args, eps, alpha_tail;
-                                         inj_rate_guess=args["inj_guess"])
+                                         inj_rate_guess=args["inj_guess"],
+                                         BroadK=BroadK_shared,
+                                         state_data=state_data_shared)
         
         lock(entries_lock) do
             entries[eps][thresh] = (gamma=result.suggested_gamma,
