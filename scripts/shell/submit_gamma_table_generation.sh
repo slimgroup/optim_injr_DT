@@ -12,8 +12,16 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=hli853@gatech.edu
 
-# Generate gamma table using improved binary search method
+# Generate gamma lookup table for threshold sensitivity analysis
 # Estimated runtime: 15-25 minutes (5 thresholds, 1 eps value)
+#
+# Usage:
+#   # Default settings (eps=0.01, 5 thresholds: 2.0-6.0)
+#   sbatch scripts/shell/submit_gamma_table_generation.sh
+#   
+#   # Custom eps values and thresholds
+#   export EPS_LIST=0.005,0.01,0.02 THRESHOLD_MIN=2.0 THRESHOLD_MAX=6.0 THRESHOLD_NUM=10
+#   sbatch scripts/shell/submit_gamma_table_generation.sh
 
 set -euo pipefail
 module purge
@@ -28,28 +36,28 @@ export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=1
 mkdir -p logs
 
-# Change to project directory
 cd "$SLURM_SUBMIT_DIR"
 
 echo "Job started at $(date)"
-echo "Generating gamma table with improved binary search method"
+echo "Generating gamma lookup table"
 echo ""
 
-# Configuration
+# Configuration (with defaults)
+IDX_NUM="${IDX_NUM:-128}"
 EPS_LIST="${EPS_LIST:-0.01}"
 THRESHOLD_MIN="${THRESHOLD_MIN:-2.0}"
 THRESHOLD_MAX="${THRESHOLD_MAX:-6.0}"
 THRESHOLD_NUM="${THRESHOLD_NUM:-5}"
 
 echo "Configuration:"
-echo "  Sample index: 128"
+echo "  Sample index: $IDX_NUM"
 echo "  Eps values: $EPS_LIST"
 echo "  Thresholds: $THRESHOLD_MIN to $THRESHOLD_MAX ($THRESHOLD_NUM values)"
 echo ""
 
 # Run gamma table generation (use all available threads for parallel processing)
 julia --project="$SLURM_SUBMIT_DIR" -t "$SLURM_CPUS_PER_TASK" src/threshold_sensitivity.jl \
-  --idx_num 128 \
+  --idx_num "$IDX_NUM" \
   --threshold_min "$THRESHOLD_MIN" \
   --threshold_max "$THRESHOLD_MAX" \
   --threshold_num "$THRESHOLD_NUM" \
@@ -59,8 +67,4 @@ julia --project="$SLURM_SUBMIT_DIR" -t "$SLURM_CPUS_PER_TASK" src/threshold_sens
 echo ""
 echo "Job completed at $(date)"
 echo ""
-echo "Gamma table saved to: data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__sample=128__*.jld2"
-echo ""
-echo "To verify accuracy, run:"
-echo "  julia --project=. scripts/julia_scripts/utilities/check_gamma_table.jl <table_path>"
-
+echo "Gamma table saved to: data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__sample=${IDX_NUM}__*.jld2"

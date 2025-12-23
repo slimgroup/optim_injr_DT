@@ -864,6 +864,7 @@ function main()
     if save_plots
         plot_state(transpose(sat_arr[one_sixth]), "CO2 Saturation", "_co2sat$(one_sixth).png",    plot_path, s, h, n, d, "sat", 0)
         plot_state(transpose(sat_arr[three_sixths]), "CO2 Saturation", "_co2sat$(three_sixths).png", plot_path, s, h, n, d, "sat", 0)
+        plot_state(transpose(sat_arr[six_sixths]), "CO2 Saturation", "_co2sat$(six_sixths).png", plot_path, s, h, n, d, "sat", 0)
         plot_state(transpose(pres_arr[one_sixth]), "Pressure", "_pres$(one_sixth).png",            plot_path, s, h, n, d, "pres", 0)
         plot_state(transpose(pres_arr[three_sixths]), "Pressure", "_pres$(three_sixths).png",      plot_path, s, h, n, d, "pres", 0)
         plot_state(transpose(pres_arr[six_sixths]), "Pressure", "_pres$(six_sixths).png",          plot_path, s, h, n, d, "pres", 0)
@@ -956,6 +957,31 @@ function main()
         p = -grad/gnorm
         grad_arr[j+1, :] = grad
 
+        # Additional stopping criteria (non-conflicting with step size criterion)
+        # These are supplementary checks that can trigger early stopping
+        # while preserving the step-size criterion for 95% correctness guarantee
+        
+        # 1. Gradient norm check (if gradient is very small, likely converged)
+        if j >= 2 && gnorm < 1e-5
+            println("Converged: gradient norm < 1e-5 at iter $j.")
+            break
+        end
+        
+        # 2. Objective function relative change check (if objective barely changes)
+        if j >= 3
+            obj_prev = obj_arr_niter[j]
+            obj_prev2 = obj_arr_niter[j-1]
+            rel_change = abs(obj - obj_prev) / max(abs(obj_prev), 1e-10)
+            rel_change_2 = abs(obj_prev - obj_prev2) / max(abs(obj_prev2), 1e-10)
+            
+            # If objective changed by less than 1e-6 for 2 consecutive iterations
+            if rel_change < 1e-6 && rel_change_2 < 1e-6
+                println("Converged: objective relative change < 1e-6 for 2 consecutive iterations at iter $j.")
+                println("  Final objective: $obj, previous: $obj_prev")
+                break
+            end
+        end
+
         # Save
         if need_save
             @tagsave(joinpath(out_root, savename(@strdict(j), "jld2"; digits=6)),
@@ -983,6 +1009,7 @@ function main()
         if need_plots
             plot_state(transpose(sat_arr[one_sixth]),     "CO2 Saturation", "_co2sat$(one_sixth).png",    plot_path, s, h, n, d, "sat", j)
             plot_state(transpose(sat_arr[three_sixths]),  "CO2 Saturation", "_co2sat$(three_sixths).png", plot_path, s, h, n, d, "sat", j)
+            plot_state(transpose(sat_arr[six_sixths]),    "CO2 Saturation", "_co2sat$(six_sixths).png",  plot_path, s, h, n, d, "sat", j)
             plot_state(transpose(pres_arr[one_sixth]),    "Pressure", "_pres$(one_sixth).png",            plot_path, s, h, n, d, "pres", j)
             plot_state(transpose(pres_arr[three_sixths]), "Pressure", "_pres$(three_sixths).png",         plot_path, s, h, n, d, "pres", j)
             plot_state(transpose(pres_arr[six_sixths]),   "Pressure", "_pres$(six_sixths).png",           plot_path, s, h, n, d, "pres", j)

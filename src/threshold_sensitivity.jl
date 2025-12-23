@@ -379,14 +379,14 @@ function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any},
     # Load files only if not provided (for thread safety, load before parallel section)
     monitoring_step = 1
     if BroadK === nothing
-        perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
-        perm_data = JLD2.load(perm_path)
-        BroadK = perm_data["BroadK"]
+    perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
+    perm_data = JLD2.load(perm_path)
+    BroadK = perm_data["BroadK"]
     end
     
     if state_data === nothing
-        state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
-        state_data = JLD2.load(state_path)
+    state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
+    state_data = JLD2.load(state_path)
     end
     
     idices = state_data["idx_t" * string(monitoring_step)]
@@ -399,7 +399,9 @@ function calibrate_gamma_for_eps(threshold::Float64, args::Dict{String,Any},
     # Initial state
     inj_y0 = 191 + argmax(K[250, 191:200]) - 1
     S0 = zeros(Float64, n[1], n[end])
-    Random.seed!(2025 + s - 1)
+    # Use thread-safe random seed: combine sample index with thread ID for uniqueness
+    thread_id = Base.Threads.threadid()
+    Random.seed!(2025 + s - 1 + thread_id * 10000)
     value = 0.2 + rand(Float64) * 0.6
     S0[249:251, inj_y0-4] .= value
     S0[248:252, inj_y0-3] .= value
@@ -605,6 +607,10 @@ function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vec
     # Print lock for thread-safe output
     print_lock = ReentrantLock()
     
+    # Jutul execution lock - Jutul's internal parallelism conflicts with @threads
+    # We need to serialize Jutul calls to avoid UndefRefError
+    jutul_lock = ReentrantLock()
+    
     # Pre-load files in main thread to avoid concurrent JLD2 access issues
     println("Pre-loading data files (thread-safe)...")
     perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
@@ -624,10 +630,13 @@ function generate_gamma_table(threshold_values::Vector{Float64}, eps_values::Vec
             println("[Thread $(thread_id)] Processing: eps=$(eps), threshold=$(thresh) MPa ...")
         end
         
-        result = calibrate_gamma_for_eps(thresh, args, eps, alpha_tail;
-                                         inj_rate_guess=args["inj_guess"],
-                                         BroadK=BroadK_shared,
-                                         state_data=state_data_shared)
+        # Serialize Jutul calls to avoid internal parallelism conflicts
+        result = lock(jutul_lock) do
+            calibrate_gamma_for_eps(thresh, args, eps, alpha_tail;
+                                   inj_rate_guess=args["inj_guess"],
+                                   BroadK=BroadK_shared,
+                                   state_data=state_data_shared)
+        end
         
         lock(entries_lock) do
             entries[eps][thresh] = (gamma=result.suggested_gamma,
@@ -1737,8 +1746,14 @@ function main()
         "NoRisk"
     end
     
-    summary_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
-                          "summary__$(risk_label)__sample=$(s).jld2")
+    # In split mode, include job index in filename to avoid conflicts
+    if split_mode && split_idx > 0
+        summary_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
+                              "summary_$(risk_label)__sample=$(s)_#$(split_idx).jld2")
+    else
+        summary_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
+                              "summary_$(risk_label)__sample=$(s).jld2")
+    end
     mkpath(dirname(summary_path))
 
     summary_combined = with_summary_lock(summary_path) do
