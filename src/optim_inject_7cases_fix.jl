@@ -143,7 +143,7 @@ function parse_commandline()
         "--inj_guess"
             help = "Initial guess injection rate (upper bound)"
             arg_type = Float64
-            default = 0.20
+            default = 0.25
 
         "--save_plots"
             help = "Save plots during optimization"
@@ -1077,24 +1077,39 @@ function main()
     end
 
     # final
-    @tagsave(joinpath(out_root, "final.jld2"),
-    Dict(
-        "inj_rate_arr"  => inj_rate_arr,
-        "step_arr"      => step_arr,
-        "obj_arr_niter" => obj_arr_niter,
-        "obj_1_arr"     => obj_1_arr,
-        "obj_arr_arr"   => obj_arr_arr,
-        "grad_arr"      => grad_arr,
-        "pof_iter"      => pof_iter,
-        "pof_hard_iter" => pof_hard_iter,
-        "cvar_iter"     => cvar_iter,
-        "obj_base_arr"  => obj_base_arr,
-        "pen_total_arr" => pen_total_arr,
-        "pen_pof_arr"   => pen_pof_arr,
-        "pen_cvar_arr"  => pen_cvar_arr,
-        "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step)
-        );
-    safe=true)
+    # Ensure directory exists before saving
+    if !isdir(out_root)
+        println("Warning: out_root directory does not exist, creating: $out_root")
+        mkpath(out_root)
+    end
+    final_path = joinpath(out_root, "final.jld2")
+    try
+        @tagsave(final_path,
+        Dict(
+            "inj_rate_arr"  => inj_rate_arr,
+            "step_arr"      => step_arr,
+            "obj_arr_niter" => obj_arr_niter,
+            "obj_1_arr"     => obj_1_arr,
+            "obj_arr_arr"   => obj_arr_arr,
+            "grad_arr"      => grad_arr,
+            "pof_iter"      => pof_iter,
+            "pof_hard_iter" => pof_hard_iter,
+            "cvar_iter"     => cvar_iter,
+            "obj_base_arr"  => obj_base_arr,
+            "pen_total_arr" => pen_total_arr,
+            "pen_pof_arr"   => pen_pof_arr,
+            "pen_cvar_arr"  => pen_cvar_arr,
+            "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step)
+            );
+        safe=true)
+        if isfile(final_path)
+            println("✓ Successfully saved final.jld2 to: $final_path")
+        else
+            @warn "final.jld2 save may have failed: file does not exist after @tagsave" final_path
+        end
+    catch e
+        @error "Failed to save final.jld2" exception=(e, catch_backtrace()) final_path out_root
+    end
 
     # Penalty curves
     try
