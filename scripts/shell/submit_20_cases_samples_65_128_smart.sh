@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# Smart submission script for 20 CVaR cases, samples 65-128
+# Features:
+#   - Skips already submitted/completed jobs (checks queue, final.jld2, and sacct)
+#   - Monitors queue size and waits if queue is full
+#   - Handles QOS submission limits gracefully
+#   - Can be resumed after QOS limit is reached
+#   - 20 CVaR cases × 64 samples (65-128) = 1280 jobs total
 
-# Smart submission script: Continuously submit jobs until all 1280 are queued/completed
-# - Runs in background (designed for nohup)
-# - Skips already submitted/completed jobs
-# - Monitors queue size and waits if needed
-# - Continues until all 1280 jobs are submitted
-# - 20 CVaR cases × 64 samples (65-128) = 1280 jobs
+set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"  # Project root for logs
@@ -28,42 +29,42 @@ CVAR_BASE="--use_cvar --cvar_as_constraint --cvar_soft \
            --lambda_cvar 3.0e9 --kappa_cvar 50 \
            --risk_mode relative --weight_mode voltime"
 
-# Function to convert TAG to output directory name
-# TAG format: DT_CVaR_a=0.0_g=0.0
-# Output format: CVaR__HARD__alpha=0.0__gamma=0.0__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0
+# Convert TAG to output directory name
+# Input:  DT_CVaR_a=0.0_g=0.0
+# Output: CVaR__HARD__alpha=0.0__gamma=0.0__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0
 tag_to_dir() {
   local TAG="$1"
-  # Extract alpha and gamma from TAG
-  local alpha=$(echo "${TAG}" | grep -oE "a=[0-9.]+" | cut -d= -f2)
-  local gamma=$(echo "${TAG}" | grep -oE "g=[0-9.]+" | cut -d= -f2)
+  local alpha=$(echo "${TAG}" | grep -oE "a=[0-9.]+" 2>/dev/null | cut -d= -f2 2>/dev/null || echo "")
+  local gamma=$(echo "${TAG}" | grep -oE "g=[0-9.]+" 2>/dev/null | cut -d= -f2 2>/dev/null || echo "")
   
-  # Build directory name (fixed format for CVaR cases)
+  if [ -z "${alpha}" ] || [ -z "${gamma}" ]; then
+    return 1
+  fi
   echo "CVaR__HARD__alpha=${alpha}__gamma=${gamma}__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0"
 }
 
-# Function to check if a sample for a case is already submitted/completed
+# Check if a job is already submitted/completed
+# Returns: 0 if submitted/completed, 1 if not
 is_submitted() {
   local TAG="$1"
   local SAMPLE="$2"
   local jobname="${TAG}_s${SAMPLE}"
   
-  # Method 1: Check queue (fast and reliable)
-  if squeue -u $USER 2>/dev/null | grep -q "${jobname}"; then
-    return 0  # Already in queue
+  # Method 1: Check queue (fastest)
+  if squeue -u $USER 2>/dev/null | grep -q "${jobname}" 2>/dev/null; then
+    return 0
   fi
   
-  # Method 2: Check if final.jld2 output file exists (most reliable indicator of success)
-  local case_dir=$(tag_to_dir "${TAG}")
-  local data_root="${ROOT_DIR}/data/DT_control/exp_name=step1/${case_dir}"
-  local sample_dir="${data_root}/sample=${SAMPLE}"
-  local final_file="${sample_dir}/final.jld2"
-  
-  if [ -f "${final_file}" ]; then
-    return 0  # Output file exists, job completed successfully
+  # Method 2: Check final.jld2 file (most reliable)
+  local case_dir=$(tag_to_dir "${TAG}" 2>/dev/null || echo "")
+  if [ -n "${case_dir}" ]; then
+    local final_file="${ROOT_DIR}/data/DT_control/exp_name=step1/${case_dir}/sample=${SAMPLE}/final.jld2"
+    if [ -f "${final_file}" ] 2>/dev/null; then
+      return 0
+    fi
   fi
   
   # Method 3: Check sacct for completed jobs (last 7 days)
-  # Only trust COMPLETED status, not just any log file
   local startdate
   if date -d "7 days ago" +%Y-%m-%d >/dev/null 2>&1; then
     startdate=$(date -d "7 days ago" +%Y-%m-%d)
@@ -74,64 +75,53 @@ is_submitted() {
   fi
   
   if sacct -u $USER --format=JobName,State --starttime="${startdate}" 2>/dev/null | \
-     grep -q "${jobname}.*COMPLETED"; then
-    # Double-check: if marked COMPLETED but no final.jld2, might have failed
-    # In this case, we'll still return 0 to avoid re-submission spam, but log a warning
-    if [ ! -f "${final_file}" ]; then
-      echo "[WARN] Job ${jobname} marked COMPLETED but no final.jld2 found. May have failed." >&2
-    fi
-    return 0  # Marked as completed in sacct
+     grep -q "${jobname}.*COMPLETED" 2>/dev/null; then
+    return 0
   fi
   
-  return 1  # Not submitted or not completed
+  return 1
 }
 
-# Function to get current queue size
+# Get current queue size for DT_CVaR jobs
 get_queue_size() {
   squeue -u $USER 2>/dev/null | grep "DT_CVaR" | wc -l | tr -d ' '
 }
 
-# Function to submit one sample
-# Returns: 0=success, 1=skip/failed, 2=QOS limit reached (should stop)
+# Submit one sample job
+# Returns: 0=success, 1=skip/failed, 2=QOS limit reached
 submit_one_sample() {
-  local TAG="$1"; shift
-  local ARGS="$1"; shift
-  local SAMPLE="$1"; shift
+  local TAG="$1" ARGS="$2" SAMPLE="$3"
 
-  # Check if already submitted
   if is_submitted "${TAG}" "${SAMPLE}" 2>/dev/null; then
     echo "[SKIP] ${TAG}  sample=${SAMPLE} (already submitted/completed)" >&2
-    return 1  # Skip
+    return 1
   fi
 
   echo "[SUBMIT] ${TAG}  sample=${SAMPLE}" >&2
-  # Use explicit array range to override default array=1-32 in optim_inject_pace.sh
-  # Capture sbatch output for debugging
   SBATCH_OUTPUT=$(sbatch --parsable --array="${SAMPLE}-${SAMPLE}" --chdir="${SCRIPT_DIR}/.." \
     --job-name="${TAG}_s${SAMPLE}" \
     --export=ALL,CASE_TAG="${TAG}",RISK_ARGS="${ARGS}" \
     "${SBATCH_FILE}" 2>&1)
   SBATCH_EXIT=$?
   
-  # Check if submission was successful
-  # --parsable returns job ID on success (numeric string)
+  # Check if submission was successful (--parsable returns job ID on success)
   if [ ${SBATCH_EXIT} -eq 0 ] && [ -n "${SBATCH_OUTPUT}" ] && [[ "${SBATCH_OUTPUT}" =~ ^[0-9]+$ ]]; then
     sleep 0.02
     return 0
-  else
-    # Check if error is QOSMaxSubmitJobPerUserLimit
-    if echo "${SBATCH_OUTPUT}" | grep -q "QOSMaxSubmitJobPerUserLimit"; then
-      echo "[QOS_LIMIT] Reached QOSMaxSubmitJobPerUserLimit. Stopping submission." >&2
-      echo "[QOS_LIMIT] Error: ${SBATCH_OUTPUT}" >&2
-      return 2  # QOS limit reached
-    fi
-    
-    # Only log error if it's not already submitted (avoid spam)
-    if ! is_submitted "${TAG}" "${SAMPLE}" 2>/dev/null; then
-      echo "[ERROR] Failed to submit ${TAG} sample=${SAMPLE}: ${SBATCH_OUTPUT}" >&2
-    fi
-    return 1
   fi
+  
+  # Check for QOS limit error
+  if echo "${SBATCH_OUTPUT}" | grep -q "QOSMaxSubmitJobPerUserLimit"; then
+    echo "[QOS_LIMIT] Reached QOSMaxSubmitJobPerUserLimit. Stopping submission." >&2
+    echo "[QOS_LIMIT] Error: ${SBATCH_OUTPUT}" >&2
+    return 2
+  fi
+  
+  # Log error only if job is not already submitted
+  if ! is_submitted "${TAG}" "${SAMPLE}" 2>/dev/null; then
+    echo "[ERROR] Failed to submit ${TAG} sample=${SAMPLE}: ${SBATCH_OUTPUT}" >&2
+  fi
+  return 1
 }
 
 echo "=========================================="
@@ -210,9 +200,15 @@ while [ ${CURRENT_INDEX} -lt ${TOTAL_TASKS} ]; do
   
   QOS_LIMIT_REACHED=0
   for ((i=${BATCH_START}; i<${BATCH_END}; i++)); do
-    IFS='|' read -r TAG ARGS SAMPLE <<< "${TASKS[$i]}"
+    IFS='|' read -r TAG ARGS SAMPLE <<< "${TASKS[$i]}" || continue
+    if [ -z "${TAG}" ] || [ -z "${SAMPLE}" ]; then
+      continue
+    fi
+    # Temporarily disable exit-on-error to prevent script exit if submission fails
+    set +e
     submit_one_sample "${TAG}" "${ARGS}" "${SAMPLE}"
     SUBMIT_RESULT=$?
+    set -e
     
     if [ ${SUBMIT_RESULT} -eq 0 ]; then
       ((SUBMITTED_COUNT++)) || true
