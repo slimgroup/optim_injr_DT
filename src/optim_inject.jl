@@ -1000,26 +1000,26 @@ function main()
         # These are supplementary checks that can trigger early stopping
         # while preserving the step-size criterion for 95% correctness guarantee
         
-        # 1. Gradient norm check (if gradient is very small, likely converged)
-        if j >= 2 && gnorm < 1e-5
-            println("Converged: gradient norm < 1e-5 at iter $j.")
-            break
-        end
+        # # 1. Gradient norm check (if gradient is very small, likely converged)
+        # if j >= 2 && gnorm < 1e-5
+        #     println("Converged: gradient norm < 1e-5 at iter $j.")
+        #     break
+        # end
         
-        # 2. Objective function relative change check (if objective barely changes)
-        if j >= 3
-            obj_prev = obj_arr_niter[j]
-            obj_prev2 = obj_arr_niter[j-1]
-            rel_change = abs(obj - obj_prev) / max(abs(obj_prev), 1e-10)
-            rel_change_2 = abs(obj_prev - obj_prev2) / max(abs(obj_prev2), 1e-10)
-            
-            # If objective changed by less than 1e-6 for 2 consecutive iterations
-            if rel_change < 1e-6 && rel_change_2 < 1e-6
-                println("Converged: objective relative change < 1e-6 for 2 consecutive iterations at iter $j.")
-                println("  Final objective: $obj, previous: $obj_prev")
-                break
-            end
-        end
+        # # 2. Objective function relative change check (if objective barely changes)
+        # if j >= 3
+        #     obj_prev = obj_arr_niter[j]
+        #     obj_prev2 = obj_arr_niter[j-1]
+        #     rel_change = abs(obj - obj_prev) / max(abs(obj_prev), 1e-10)
+        #     rel_change_2 = abs(obj_prev - obj_prev2) / max(abs(obj_prev2), 1e-10)
+        #     
+        #     # If objective changed by less than 1e-6 for 2 consecutive iterations
+        #     if rel_change < 1e-6 && rel_change_2 < 1e-6
+        #         println("Converged: objective relative change < 1e-6 for 2 consecutive iterations at iter $j.")
+        #         println("  Final objective: $obj, previous: $obj_prev")
+        #         break
+        #     end
+        # end
 
         # Save (to scratch to save space)
         if need_save
