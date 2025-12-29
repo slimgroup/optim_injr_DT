@@ -143,7 +143,7 @@ function parse_commandline()
         "--inj_guess"
             help = "Initial guess injection rate (upper bound)"
             arg_type = Float64
-            default = 0.25
+            default = 0.20
 
         "--save_plots"
             help = "Save plots during optimization"
@@ -934,19 +934,32 @@ function main()
 
         # Initialize stp to avoid UndefVarError if ls() doesn't return properly
         stp = ex_step_size
+        obj_valid = false
         try
             stp, obj = ls(θ, ex_step_size, obj, dot(grad, p))
+            obj_valid = isfinite(obj) && obj != Inf
         catch e
             # If line search fails completely, try a very small step
             println("Warning: line search failed at iteration $j: ", e)
             println("  Trying very small step size: 0.001")
-            stp = 0.001
-            obj = θ(stp)
-            if !isfinite(obj) || obj == Inf
-                println("  Small step also failed, breaking optimization")
-                break
+            stp = 0.001  # Ensure stp is always defined
+            try
+                obj = θ(stp)
+                obj_valid = isfinite(obj) && obj != Inf
+            catch e2
+                println("  Small step evaluation also failed: ", e2)
+                obj_valid = false
             end
         end
+        
+        # If objective is invalid, break the optimization loop
+        if !obj_valid
+            println("  Optimization failed: unable to find valid step size, breaking")
+            # Ensure stp is defined before break (for potential use after loop)
+            stp = ex_step_size
+            break
+        end
+        
         ex_step_size = stp
 
         step_arr[j] = stp

@@ -28,7 +28,20 @@ CVAR_BASE="--use_cvar --cvar_as_constraint --cvar_soft \
            --lambda_cvar 3.0e9 --kappa_cvar 50 \
            --risk_mode relative --weight_mode voltime"
 
-# Function to check if a sample for a case is already submitted
+# Function to convert TAG to output directory name
+# TAG format: DT_CVaR_a=0.0_g=0.0
+# Output format: CVaR__HARD__alpha=0.0__gamma=0.0__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0
+tag_to_dir() {
+  local TAG="$1"
+  # Extract alpha and gamma from TAG
+  local alpha=$(echo "${TAG}" | grep -oE "a=[0-9.]+" | cut -d= -f2)
+  local gamma=$(echo "${TAG}" | grep -oE "g=[0-9.]+" | cut -d= -f2)
+  
+  # Build directory name (fixed format for CVaR cases)
+  echo "CVaR__HARD__alpha=${alpha}__gamma=${gamma}__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0"
+}
+
+# Function to check if a sample for a case is already submitted/completed
 is_submitted() {
   local TAG="$1"
   local SAMPLE="$2"
@@ -39,13 +52,18 @@ is_submitted() {
     return 0  # Already in queue
   fi
   
-  # Method 2: Check logs files (logs are in project root logs/ directory)
-  local logs_dir="${ROOT_DIR}/logs"
-  if ls "${logs_dir}"/*${jobname}* 2>/dev/null | head -1 | grep -q . 2>/dev/null; then
-    return 0  # Has logs, assume already processed
+  # Method 2: Check if final.jld2 output file exists (most reliable indicator of success)
+  local case_dir=$(tag_to_dir "${TAG}")
+  local data_root="${ROOT_DIR}/data/DT_control/exp_name=step1/${case_dir}"
+  local sample_dir="${data_root}/sample=${SAMPLE}"
+  local final_file="${sample_dir}/final.jld2"
+  
+  if [ -f "${final_file}" ]; then
+    return 0  # Output file exists, job completed successfully
   fi
   
   # Method 3: Check sacct for completed jobs (last 7 days)
+  # Only trust COMPLETED status, not just any log file
   local startdate
   if date -d "7 days ago" +%Y-%m-%d >/dev/null 2>&1; then
     startdate=$(date -d "7 days ago" +%Y-%m-%d)
@@ -57,10 +75,15 @@ is_submitted() {
   
   if sacct -u $USER --format=JobName,State --starttime="${startdate}" 2>/dev/null | \
      grep -q "${jobname}.*COMPLETED"; then
-    return 0  # Already completed
+    # Double-check: if marked COMPLETED but no final.jld2, might have failed
+    # In this case, we'll still return 0 to avoid re-submission spam, but log a warning
+    if [ ! -f "${final_file}" ]; then
+      echo "[WARN] Job ${jobname} marked COMPLETED but no final.jld2 found. May have failed." >&2
+    fi
+    return 0  # Marked as completed in sacct
   fi
   
-  return 1  # Not submitted
+  return 1  # Not submitted or not completed
 }
 
 # Function to get current queue size
@@ -69,6 +92,7 @@ get_queue_size() {
 }
 
 # Function to submit one sample
+# Returns: 0=success, 1=skip/failed, 2=QOS limit reached (should stop)
 submit_one_sample() {
   local TAG="$1"; shift
   local ARGS="$1"; shift
@@ -95,6 +119,13 @@ submit_one_sample() {
     sleep 0.02
     return 0
   else
+    # Check if error is QOSMaxSubmitJobPerUserLimit
+    if echo "${SBATCH_OUTPUT}" | grep -q "QOSMaxSubmitJobPerUserLimit"; then
+      echo "[QOS_LIMIT] Reached QOSMaxSubmitJobPerUserLimit. Stopping submission." >&2
+      echo "[QOS_LIMIT] Error: ${SBATCH_OUTPUT}" >&2
+      return 2  # QOS limit reached
+    fi
+    
     # Only log error if it's not already submitted (avoid spam)
     if ! is_submitted "${TAG}" "${SAMPLE}" 2>/dev/null; then
       echo "[ERROR] Failed to submit ${TAG} sample=${SAMPLE}: ${SBATCH_OUTPUT}" >&2
@@ -177,14 +208,31 @@ while [ ${CURRENT_INDEX} -lt ${TOTAL_TASKS} ]; do
   
   echo "[BATCH] Processing tasks ${BATCH_START}-$((BATCH_END - 1)) (Queue: ${QUEUE_SIZE}/${MAX_QUEUE_SIZE})" >&2
   
+  QOS_LIMIT_REACHED=0
   for ((i=${BATCH_START}; i<${BATCH_END}; i++)); do
     IFS='|' read -r TAG ARGS SAMPLE <<< "${TASKS[$i]}"
-    if submit_one_sample "${TAG}" "${ARGS}" "${SAMPLE}"; then
+    submit_one_sample "${TAG}" "${ARGS}" "${SAMPLE}"
+    SUBMIT_RESULT=$?
+    
+    if [ ${SUBMIT_RESULT} -eq 0 ]; then
       ((SUBMITTED_COUNT++)) || true
+    elif [ ${SUBMIT_RESULT} -eq 2 ]; then
+      # QOS limit reached - stop immediately
+      QOS_LIMIT_REACHED=1
+      CURRENT_INDEX=$i  # Save current position
+      break
     else
       ((SKIPPED_COUNT++)) || true
     fi
   done
+  
+  # If QOS limit reached, exit the loop
+  if [ ${QOS_LIMIT_REACHED} -eq 1 ]; then
+    echo "" >&2
+    echo "[STOP] QOS submission limit reached. Stopping submission." >&2
+    echo "[STOP] Progress saved. Resume by running this script again." >&2
+    break
+  fi
   
   CURRENT_INDEX=${BATCH_END}
   
@@ -197,11 +245,24 @@ while [ ${CURRENT_INDEX} -lt ${TOTAL_TASKS} ]; do
 done
 
 echo "=========================================="
-echo "Smart submission complete!"
-echo "  Submitted: ${SUBMITTED_COUNT} jobs"
-echo "  Skipped (already submitted/completed): ${SKIPPED_COUNT} jobs"
-echo "  Total processed: ${TOTAL_TASKS} tasks"
+if [ ${CURRENT_INDEX} -ge ${TOTAL_TASKS} ]; then
+  echo "Smart submission complete!"
+  echo "  Submitted: ${SUBMITTED_COUNT} jobs"
+  echo "  Skipped (already submitted/completed): ${SKIPPED_COUNT} jobs"
+  echo "  Total processed: ${TOTAL_TASKS} tasks"
+  echo ""
+  echo "All 1280 jobs are now submitted. They will run automatically as resources become available."
+else
+  echo "Submission paused due to QOS limit"
+  echo "  Submitted: ${SUBMITTED_COUNT} jobs"
+  echo "  Skipped (already submitted/completed): ${SKIPPED_COUNT} jobs"
+  echo "  Processed: ${CURRENT_INDEX}/${TOTAL_TASKS} tasks"
+  echo "  Remaining: $((TOTAL_TASKS - CURRENT_INDEX)) tasks"
+  echo ""
+  echo "To resume submission, run this script again:"
+  echo "  bash ${0}"
+  echo ""
+  echo "The script will automatically skip already submitted/completed jobs."
+fi
 echo "=========================================="
-echo ""
-echo "All 1280 jobs are now submitted. They will run automatically as resources become available."
 
