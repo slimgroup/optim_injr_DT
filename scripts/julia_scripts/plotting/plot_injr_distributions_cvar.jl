@@ -1,5 +1,5 @@
 #!/usr/bin/env julia
-# Panel histograms (frequency) for POF: Distribution of optimized injectivities by case
+# Panel histograms (frequency) for CVaR: Distribution of optimized injectivities by case
 
 using Pkg
 Pkg.activate(".")
@@ -7,43 +7,36 @@ Pkg.activate(".")
 using DrWatson
 @quickactivate "optim_injr_DT"
 
-using CSV, DataFrames, Dates, Printf
+using CSV, DataFrames, Dates
 using PyPlot
-using Statistics
 
-# ==================== CONFIG ====================
-const ROOT    = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
-const USE_LOGX = false
-const NBINS   = 30
-const PAD     = 0.05
+# ===================== Config =====================
+const ROOT     = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const USE_LOGX = false       # Set to true if injection rate spans large orders of magnitude (log x-axis)
+const NBINS    = 30          # Number of histogram bins
+const PAD      = 0.05        # Left/right padding ratio for x-axis (when using linear axis)
 
 # Font sizes (larger for better readability)
-const FONT_SIZE_TITLE = 16      # Subplot title
+const FONT_SIZE_TITLE = 14      # Subplot title (slightly increased)
 const FONT_SIZE_SUPTITLE = 18   # Main title
-const FONT_SIZE_LABEL = 12      # Axis labels
-const FONT_SIZE_TICK = 11       # Tick labels
-# ================================================
+const FONT_SIZE_LABEL = 16      # Axis labels (increased from 14)
+const FONT_SIZE_TICK = 13       # Tick labels
+# ==================================================
 
-# ========== Find latest detail CSV ==========
-function latest_detail_csv(root::String)
-    pofs = filter(f -> occursin(r"^pof_inj_rate_detail_\d{8}_\d{6}\.csv$", f), readdir(root))
-    if !isempty(pofs)
-        by_ts_pofs = s -> DateTime(match(r"(\d{8}_\d{6})", s).captures[1], dateformat"yyyymmdd_HHMMSS")
-        return joinpath(root, last(sort(pofs, by=by_ts_pofs)))
-    end
-    files = filter(f -> occursin(r"^inj_rate_detail_\d{8}_\d{6}\.csv$", f), readdir(root))
-    if !isempty(files)
-        by_ts_files = s -> DateTime(match(r"(\d{8}_\d{6})", s).captures[1], dateformat"yyyymmdd_HHMMSS")
-        return joinpath(root, last(sort(files, by=by_ts_files)))
-    end
-    allcsv = filter(f -> endswith(f, ".csv") && (occursin("pof_inj_rate_detail_", f) || occursin("inj_rate_detail_", f)), readdir(root))
-    @assert !isempty(allcsv) "No detail CSV found under $root"
-    return joinpath(root, last(sort(allcsv, by=f -> stat(joinpath(root, f)).mtime)))
+# ========== Find latest inj_rate_detail_*.csv ==========
+function latest_detail_csv(root::AbstractString)
+    files = filter(f -> occursin(r"^inj_rate_detail_.*\.csv$", f), readdir(root))
+    isempty(files) && error("Cannot find inj_rate_detail_*.csv, please run collection script first.")
+    joinpath(root, sort(files)[end])
 end
 
-# ========== Utility: get unique case list by prefix (sorted) ==========
+# ========== Utility: get unique case list by prefix (sorted with g=0.0 first) ==========
 function cases_with_prefix(df::DataFrame, prefix::AbstractString)
-    unique(filter!(x -> startswith(x, prefix), unique(df.case_tag))) |> sort
+    cases = unique(filter!(x -> startswith(x, prefix), unique(df.case_tag)))
+    # Sort: g=0.0 cases first, then others
+    g_zero = filter(c -> occursin(r"g=0\.0_", c), cases)
+    g_other = filter(c -> !occursin(r"g=0\.0_", c), cases)
+    return vcat(sort(g_zero), sort(g_other))
 end
 
 # ========== Utility: collect all values for a group of cases, determine unified bins/xlim/ylim ==========
@@ -81,7 +74,7 @@ function grid_rc(n::Int)
 end
 
 # ========== Panel plotting function (frequency, aligned axes) ==========
-function plot_pof_panels(
+function plot_cvar_panels(
         df::DataFrame,
         case_list::Vector{String};
         filename::AbstractString,
@@ -121,9 +114,16 @@ function plot_pof_panels(
 
     n = length(case_list)
     nrows, ncols = grid_rc(n)
-    fig = PyPlot.figure(figsize=(3.8*ncols, 2.8*nrows))
-    PyPlot.suptitle("POF: Distribution of Optimized Injectivities", 
-                    fontsize=FONT_SIZE_SUPTITLE, fontweight="bold", y=0.98)
+    # Increase figure size slightly and adjust subplot spacing to reduce whitespace
+    fig = PyPlot.figure(figsize=(4.0*ncols, 3.0*nrows))
+    PyPlot.suptitle("CVaR: Distribution of Optimized Injectivities", 
+                    fontsize=FONT_SIZE_SUPTITLE, fontweight="bold", y=0.99)
+    
+    # Adjust subplot spacing: reduce space between histograms, increase space below title
+    # wspace: width space between subplots (reduced), hspace: height space between subplots (reduced)
+    # top: reduced to give more space between title and plots
+    PyPlot.subplots_adjust(left=0.08, right=0.95, top=0.91, bottom=0.06, 
+                           wspace=0.15, hspace=0.25)
 
     for (i, ct) in enumerate(case_list)
         ax = PyPlot.subplot(nrows, ncols, i)
@@ -147,7 +147,9 @@ function plot_pof_panels(
             end
         end
 
-        PyPlot.title(ct, fontsize=FONT_SIZE_TITLE, fontweight="bold")
+        # Replace underscores with spaces in title
+        title_text = replace(ct, "_" => " ")
+        PyPlot.title(title_text, fontsize=FONT_SIZE_TITLE)
         
         if i > (nrows-1)*ncols
             PyPlot.xlabel(use_logx ? "Injectivity (log scale)" : "Injectivity (m³/s)", 
@@ -162,7 +164,8 @@ function plot_pof_panels(
         PyPlot.grid(true, linestyle="--", linewidth=0.4, alpha=0.5)
     end
 
-    PyPlot.tight_layout(rect=[0, 0.0, 1, 0.96])  # Leave space for suptitle
+    # Use tight_layout with adjusted parameters, or rely on subplots_adjust above
+    # PyPlot.tight_layout(rect=[0, 0.0, 1, 0.96])  # Leave space for suptitle
     PyPlot.savefig(filename, dpi=200, bbox_inches="tight")
     PyPlot.close(fig)
     println("Saved: ", filename)
@@ -179,21 +182,22 @@ df_ok = df[df.status .== "ok_final", :]
 # Convert case_tag to String
 df_ok.case_tag = String.(df_ok.case_tag)
 
-# Get POF cases
-cases_pof = cases_with_prefix(df_ok, "POF")
-println("Found POF cases: ", cases_pof)
+# Get CVaR cases
+cases_cvar = cases_with_prefix(df_ok, "CVaR")
+println("Found CVaR cases: ", cases_cvar)
 
-if isempty(cases_pof)
-    error("No POF cases found in the data!")
+if isempty(cases_cvar)
+    error("No CVaR cases found in the data!")
 end
 
 # Generate plot
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-out_pof = joinpath(ROOT, "panel_POF_distribution_optimized_injectivities_$ts.png")
+out_cvar = joinpath(ROOT, "panel_CVaR_distribution_optimized_injectivities_$ts.png")
 
-plot_pof_panels(df_ok, cases_pof;
-    filename=out_pof,
+plot_cvar_panels(df_ok, cases_cvar;
+    filename=out_cvar,
     use_logx=USE_LOGX,
     nbins=NBINS)
 
 println("Done.")
+

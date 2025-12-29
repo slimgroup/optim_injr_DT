@@ -74,14 +74,15 @@ function grid_rc(n::Int)
     return r, c
 end
 
-# ========== Panel plotting function (frequency) ==========
+# ========== Panel plotting function (density or frequency) ==========
 function plot_case_panels(
         df::DataFrame,
         case_list::Vector{String};
         fig_title::AbstractString,
         filename::AbstractString,
         use_logx::Bool=false,
-        nbins::Int=30)
+        nbins::Int=30,
+        use_density::Bool=true)  # Add option for density vs frequency
 
     vals_by_case, xmin, xmax = collect_group_values(df, case_list)
 
@@ -118,13 +119,13 @@ function plot_case_panels(
             PyPlot.text(0.5, 0.5, "No data", ha="center", va="center", transform=ax.transAxes)
         else
             if use_logx
-                PyPlot.hist(x, bins=nbins, density=false, alpha=0.85)  # ⇐ frequency
+                PyPlot.hist(x, bins=nbins, density=use_density, alpha=0.85)
                 PyPlot.xscale("log")
             else
                 if edges === nothing
-                    PyPlot.hist(x, bins=nbins, density=false, alpha=0.85)  # ⇐ frequency
+                    PyPlot.hist(x, bins=nbins, density=use_density, alpha=0.85)
                 else
-                    PyPlot.hist(x, bins=edges, density=false, alpha=0.85)  # ⇐ frequency
+                    PyPlot.hist(x, bins=edges, density=use_density, alpha=0.85)
                 end
                 if isfinite(xmin) && isfinite(xmax) && xmin != xmax
                     PyPlot.xlim(xmin, xmax)
@@ -137,7 +138,7 @@ function plot_case_panels(
             PyPlot.xlabel(use_logx ? "last_inj_rate (log)" : "last_inj_rate", fontsize=9)
         end
         if (i-1) % ncols == 0
-            PyPlot.ylabel("frequency", fontsize=9)  # frequency
+            PyPlot.ylabel(use_density ? "density" : "frequency", fontsize=9)
         end
         PyPlot.grid(true, linestyle="--", linewidth=0.4, alpha=0.5)
     end
@@ -154,15 +155,17 @@ out_pof  = joinpath(ROOT, "panel_POF_last_inj_rate_freq_$ts.png")
 out_cvar = joinpath(ROOT, "panel_CVaR_last_inj_rate_freq_$ts.png")
 
 plot_case_panels(df_ok, cases_pof;
-    fig_title="POF: Histogram of last_inj_rate by case (frequency, ok_final)",
+    fig_title="POF: Distribution of last_inj_rate by case (ok_final)",
     filename=out_pof,
     use_logx=USE_LOGX,
-    nbins=NBINS)
+    nbins=NBINS,
+    use_density=true)
 
 plot_case_panels(df_ok, cases_cvar;
-    fig_title="CVaR: Histogram of last_inj_rate by case (frequency, ok_final)",
+    fig_title="CVaR: Distribution of last_inj_rate by case (ok_final)",
     filename=out_cvar,
     use_logx=USE_LOGX,
-    nbins=NBINS)
+    nbins=NBINS,
+    use_density=true)
 
 println("Done.")

@@ -11,7 +11,8 @@ submit_one_sample () {
   local SAMPLE="$1"; shift
 
   echo "[RERUN] ${TAG}  sample=${SAMPLE}"
-  sbatch --array="${SAMPLE}" --chdir="${ROOT_DIR}" \
+  # Use explicit array range to override default array=1-32 in optim_inject_pace.sh
+  sbatch --array="${SAMPLE}-${SAMPLE}" --chdir="${ROOT_DIR}" \
     --job-name="${TAG}_rerun_${SAMPLE}" \
     --export=ALL,CASE_TAG="${TAG}",RISK_ARGS="${ARGS}" \
     "${SBATCH_FILE}"

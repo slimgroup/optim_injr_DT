@@ -13,8 +13,6 @@ optim_injr_DT/
 │   ├── shell/                   # Shell scripts (SLURM job submission, etc.)
 │   │   ├── optim_inject_pace.sh # PACE cluster job script
 │   │   ├── submit_all.sh        # Batch submission script
-│   │   ├── launch_cases.sh      # Case launch script
-│   │   ├── cases.list           # Case list
 │   │   └── archive/             # Archived old scripts
 │   │
 │   └── julia_scripts/           # Julia scripts

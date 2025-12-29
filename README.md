@@ -171,8 +171,7 @@ For cluster environments (e.g., PACE), use the scripts in `scripts/shell/`:
 # Submit batch jobs
 ./scripts/shell/submit_all.sh
 
-# Launch specific cases
-./scripts/shell/launch_cases.sh 1-32
+# Submit specific cases and samples (see rerun_two_cases.sh for example)
 ```
 
 ---

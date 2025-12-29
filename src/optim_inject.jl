@@ -450,16 +450,29 @@ function objective(inj_rate, time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, 
         f = jutulVWell(inj_rate[i], [(inj_loc[1], inj_loc[2])];
                        startz = [inj_loc[3]], endz = [inj_loc[3] + 6*d[3]])
 
-        if i == 1
-            state0 = jutulSimpleState(sim.model)
-            state0[1:n[1]*n[3]] = vec(sat_init)
-            if !isnothing(pres_init); state0[n[1]*n[3]+1:end] = vec(pres_init); end
-            states = sim.Sblk(sim.logTrans, f; state0=state0)
-        else
-            states = sim.Sblk(sim.logTrans, f; state0=previous_state)
+        states = nothing  # Initialize states variable
+        try
+            if i == 1
+                state0 = jutulSimpleState(sim.model)
+                state0[1:n[1]*n[3]] = vec(sat_init)
+                if !isnothing(pres_init); state0[n[1]*n[3]+1:end] = vec(pres_init); end
+                states = sim.Sblk(sim.logTrans, f; state0=state0)
+            else
+                states = sim.Sblk(sim.logTrans, f; state0=previous_state)
+            end
+            previous_state = states.states[end]
+        catch e
+            # If simulation fails (invalid updates, NaN/Inf, etc.), return Inf
+            previous_state = nothing; GC.gc()
+            return Inf, 0.0, 0.0, 0.0, 0.0,
+                   sat_arr, pres_arr, BHP_arr,
+                   pres_bound_diff_arr, BHP_bound_diff_arr,
+                   obj_first, obj_arr,
+                   0.0, 0.0, 0.0,
+                   Float64[], Float64[]
         end
-        previous_state = states.states[end]
 
+        # states should be defined here if we reach this point (catch block returns early)
         sat_tmp  = [reshape(states.states[k][1:n[1]*n[3]], n[1], n[end]) for k in 1:ds]
         pres_tmp = [reshape(states.states[k][n[1]*n[3]+1:end], n[1], n[end]) for k in 1:ds]
         BHP_tmp  = [states.states[k].state[:Injector][:Pressure] for k in 1:ds]
@@ -896,18 +909,36 @@ function main()
 
     # Iteration
     proj(x) = max.(x, 0)
-    ls = BackTracking(order=3, iterations=10)
+    ls = BackTracking(order=3, iterations=15)  # Increased from 10 to 15 for better convergence on difficult cases
     step_arr = zeros(niterations)
     ex_step_size = 0.1
 
     for j=1:niterations
         function θ(α)
-            objective(proj(inj_rate + α * p), time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
-                      sat_init=sat_init, pres_init=pres_init, risk=risk_opts,
-                      forward_step=forward_step, ds=ds, collect_states=false, inj_start=inj_start)[1]
+            try
+                objective(proj(inj_rate + α * p), time_step, sim, inj_loc, p_max, BHP_max, p0, n, d, h, ϕ;
+                          sat_init=sat_init, pres_init=pres_init, risk=risk_opts,
+                          forward_step=forward_step, ds=ds, collect_states=false, inj_start=inj_start)[1]
+            catch e
+                # If simulation fails (e.g., invalid updates, NaN/Inf), return Inf
+                # This allows line search to try smaller steps
+                return Inf
+            end
         end
 
-        stp, obj = ls(θ, ex_step_size, obj, dot(grad, p))
+        try
+            stp, obj = ls(θ, ex_step_size, obj, dot(grad, p))
+        catch e
+            # If line search fails completely, try a very small step
+            println("Warning: line search failed at iteration $j: ", e)
+            println("  Trying very small step size: 0.001")
+            stp = 0.001
+            obj = θ(stp)
+            if !isfinite(obj) || obj == Inf
+                println("  Small step also failed, breaking optimization")
+                break
+            end
+        end
         ex_step_size = stp
 
         step_arr[j] = stp

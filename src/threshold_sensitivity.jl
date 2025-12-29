@@ -1748,7 +1748,7 @@ function main()
     
     # In split mode, include job index in filename to avoid conflicts
     if split_mode && split_idx > 0
-        summary_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
+    summary_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
                               "summary_$(risk_label)__sample=$(s)_#$(split_idx).jld2")
     else
         summary_path = datadir("DT_control", "exp_name=step1", "threshold_sensitivity",
