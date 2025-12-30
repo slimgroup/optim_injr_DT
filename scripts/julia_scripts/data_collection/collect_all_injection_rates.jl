@@ -31,8 +31,9 @@ using Printf
 # Parameters
 # ─────────────────────────────────────────────────────────────────────────────
 const ROOT      = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
-const SAMPLES   = 1:64
+const SAMPLES   = 1:128
 const INIT_RATE = 1e-4  # Fallback value if inj_rate_arr is all zeros
+const INJ_START = 0.0001  # Default inj_start for step1
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Utility functions
@@ -79,14 +80,22 @@ function _first_column(v)
     end
 end
 
-# Read last nonzero injection rate (first column), ignore missing/NaN; use INIT_RATE if all zeros/not exists
-function last_nonzero_inj_rate(data; init_rate::Float64=INIT_RATE)
+# Read last nonzero injection rate (first column), ignore missing/NaN
+# Logic: find last nonzero element, then take average with inj_start (default 0.0001 for step1)
+function last_nonzero_inj_rate(data; init_rate::Float64=INIT_RATE, inj_start::Float64=INJ_START)
     raw = _get(data, "inj_rate_arr")
-    raw === nothing && return init_rate
+    raw === nothing && return (init_rate + inj_start) / 2.0
     col1 = _first_column(raw)
     clean = filter(x -> !(ismissing(x) || !isfinite(x)), col1)
     idx = findlast(!iszero, clean)
-    return idx === nothing ? init_rate : clean[idx]
+    if idx === nothing
+        # If all zeros, return average of init_rate and inj_start
+        return (init_rate + inj_start) / 2.0
+    else
+        # Find last nonzero element, then take average with inj_start
+        last_nonzero = clean[idx]
+        return (last_nonzero + inj_start) / 2.0
+    end
 end
 
 # Group statistics (OK samples only), single sample std=0.0
@@ -139,7 +148,7 @@ for risk_name in risk_dirs
             last_inj = NaN
             try
                 data = load(final_path)
-                last_inj = last_nonzero_inj_rate(data; init_rate=INIT_RATE)
+                last_inj = last_nonzero_inj_rate(data; init_rate=INIT_RATE, inj_start=INJ_START)
             catch err
                 status = "load_error"
                 note = sprint(showerror, err)
@@ -168,7 +177,7 @@ for risk_name in risk_dirs
 end
 
 df = DataFrame(rows)
-println("Scanned rows (cases × samples in 1..64): ", nrow(df))
+println("Scanned rows (cases × samples in 1..128): ", nrow(df))
 
 # Statistics (OK only)
 df_ok = df[df.status .== "ok_final", :]
@@ -233,7 +242,7 @@ println("  missing (by dir) CSV  : ", csv_missing_by_dir)
 println("  loaderr (by dir) CSV  : ", csv_loaderr_by_dir)
 println("  JLD2                  : ", jld_path)
 
-println("\n=== SUMMARY (samples 1..64) ===")
+println("\n=== SUMMARY (samples 1..128) ===")
 println("OK (final)        : ", sum(df.status .== "ok_final"))
 println("Missing (no final): ", sum(df.status .== "missing"))
 println("Load errors       : ", sum(df.status .== "load_error"))

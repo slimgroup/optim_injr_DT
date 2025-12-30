@@ -16,8 +16,9 @@ using Dates
 
 # ===================== Parameters =====================
 const ROOT      = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
-const SAMPLES   = 1:64
+const SAMPLES   = 1:128
 const INIT_RATE = 1e-4
+const INJ_START = 0.0001  # Default inj_start for step1
 
 # ===================== Utility Functions =====================
 function normalize_case_tag(risk_dir_name::String)
@@ -51,13 +52,22 @@ function _first_column(v)
     end
 end
 
-function last_nonzero_inj_rate(data; init_rate::Float64=INIT_RATE)
+# Read last nonzero injection rate (first column), ignore missing/NaN
+# Logic: find last nonzero element, then take average with inj_start (default 0.0001 for step1)
+function last_nonzero_inj_rate(data; init_rate::Float64=INIT_RATE, inj_start::Float64=INJ_START)
     raw = _get(data, "inj_rate_arr")
-    raw === nothing && return init_rate
+    raw === nothing && return (init_rate + inj_start) / 2.0
     col1 = _first_column(raw)
     clean = filter(x -> !(ismissing(x) || !isfinite(x)), col1)
     idx = findlast(!iszero, clean)
-    return idx === nothing ? init_rate : clean[idx]
+    if idx === nothing
+        # If all zeros, return average of init_rate and inj_start
+        return (init_rate + inj_start) / 2.0
+    else
+        # Find last nonzero element, then take average with inj_start
+        last_nonzero = clean[idx]
+        return (last_nonzero + inj_start) / 2.0
+    end
 end
 
 # ===================== Main Process =====================
@@ -87,7 +97,7 @@ for risk_name in all_dirs
             last_inj = NaN
             try
                 data = load(final_path)
-                last_inj = last_nonzero_inj_rate(data; init_rate=INIT_RATE)
+                last_inj = last_nonzero_inj_rate(data; init_rate=INIT_RATE, inj_start=INJ_START)
             catch err
                 status = "load_error"
                 note = sprint(showerror, err)
