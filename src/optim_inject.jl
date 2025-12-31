@@ -742,7 +742,13 @@ function main()
 
     # Time steps and injection parameters
     time_step = 80 / ds * ones(6 * ds * forward_step)
-    inj_rate  = [args["inj_guess"]]
+    # Use smaller initial guess for POF cases (data shows POF injection rates are ~28% smaller)
+    if risk_opts.pof_as_constraint
+        inj_guess_adj = args["inj_guess"] * 0.7  # Reduce by ~30% for POF cases
+    else
+        inj_guess_adj = args["inj_guess"]
+    end
+    inj_rate  = [inj_guess_adj]
     δinj      = 1e-8 * ones(size(inj_rate, 1))
     inj_start = args["inj_start"]
 
@@ -917,7 +923,15 @@ function main()
     proj(x) = max.(x, 0)
     ls = BackTracking(order=3, iterations=15)  # Increased from 10 to 15 for better convergence on difficult cases
     step_arr = zeros(niterations)
-    ex_step_size = 0.2
+    # Use different initial step sizes for POF vs CVaR hard constraint cases
+    # Data shows POF cases have ~28% smaller injection rates, so smaller steps are more appropriate
+    if risk_opts.pof_as_constraint
+        ex_step_size = 0.15  # Smaller initial step for POF constrained optimization
+    elseif risk_opts.cvar_as_constraint
+        ex_step_size = 0.2   # Standard step for CVaR constrained optimization
+    else
+        ex_step_size = 0.2   # Default for other cases
+    end
 
     for j=1:niterations
         function θ(α)
