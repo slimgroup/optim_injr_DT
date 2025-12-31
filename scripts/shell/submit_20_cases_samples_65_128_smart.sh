@@ -43,6 +43,10 @@ tag_to_dir() {
   echo "CVaR__HARD__alpha=${alpha}__gamma=${gamma}__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0"
 }
 
+# Associative array to track submitted jobs in this script run
+# This prevents duplicate submissions within the same script execution
+declare -A SUBMITTED_IN_THIS_RUN
+
 # Check if a job is already submitted/completed
 # Returns: 0 if submitted/completed, 1 if not
 is_submitted() {
@@ -50,8 +54,14 @@ is_submitted() {
   local SAMPLE="$2"
   local jobname="${TAG}_s${SAMPLE}"
   
+  # Method 0: Check if already submitted in this script run (NEW: prevents duplicate submissions)
+  if [[ -n "${SUBMITTED_IN_THIS_RUN[${jobname}]:-}" ]]; then
+    return 0
+  fi
+  
   # Method 1: Check queue (fastest)
-  if squeue -u $USER 2>/dev/null | grep -q "${jobname}" 2>/dev/null; then
+  # Use -w to ensure whole word match, avoid partial matches
+  if squeue -u $USER 2>/dev/null | grep -wq "${jobname}" 2>/dev/null; then
     return 0
   fi
   
@@ -106,6 +116,9 @@ submit_one_sample() {
   
   # Check if submission was successful (--parsable returns job ID on success)
   if [ ${SBATCH_EXIT} -eq 0 ] && [ -n "${SBATCH_OUTPUT}" ] && [[ "${SBATCH_OUTPUT}" =~ ^[0-9]+$ ]]; then
+    # Mark as submitted in this script run (NEW: prevents duplicate submissions)
+    local jobname="${TAG}_s${SAMPLE}"
+    SUBMITTED_IN_THIS_RUN["${jobname}"]=1
     sleep 0.02
     return 0
   fi

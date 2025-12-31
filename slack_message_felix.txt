@@ -1,0 +1,31 @@
+Hi Felix,
+
+I wanted to share a new visualization that directly addresses our ongoing discussion about comparing POF with CVaR. This figure demonstrates how CVaR provides the ability to control the severity of outliers, which has been a key point we've been exploring.
+
+**Key Message:**
+The plot shows that CVaR can achieve different levels of control through the gamma parameter, while maintaining a direct correspondence between CVaR's alpha and POF's epsilon.
+
+**What the figure shows:**
+- **First row**: 5 POF cases with epsilon (ε) = 0.0, 0.001, 0.01, 0.02, 0.05
+- **Subsequent rows**: 20 CVaR cases organized by gamma (γ) and alpha (α) parameters
+  - Rows are ordered: γ=0.01, γ=0.0, γ=0.02, γ=0.05 (with γ=0.0 placed second to highlight its role)
+  - Columns vary alpha (α) = 0.0, 0.001, 0.01, 0.02, 0.05
+- Each subplot shows the distribution of optimized injectivities with histogram (steelblue) and KDE curve overlay (red)
+
+**Key insights:**
+1. **Alpha-epsilon correspondence**: CVaR's α parameter corresponds directly to POF's ε, allowing us to target the same tail probability level
+2. **Gamma controls distribution width**: By adjusting γ, we can control the range of the optimized injection rate distribution:
+   - **Small γ (e.g., 0.01, 0.0)**: CVaR produces narrower distributions than POF (more conservative/strict control)
+   - **Large γ (e.g., 0.05, potentially larger)**: CVaR can produce wider distributions than POF (more permissive control)
+3. **Flexibility advantage**: The side-by-side layout demonstrates that CVaR offers more flexibility than POF—we can tune γ to achieve either tighter or looser control compared to POF, depending on our risk tolerance
+
+**Note on current results:**
+The current figure shows gamma values up to 0.05. We observe that even at γ=0.05, some CVaR cases still show narrower distributions than POF, suggesting that to fully demonstrate CVaR's ability to achieve wider distributions than POF, we may need to explore larger gamma values (e.g., γ=0.1, 0.15). This would complete the narrative that CVaR can be tuned to be either more conservative (narrower) or more permissive (wider) than POF.
+
+The figure illustrates that while POF only controls the probability of violation, CVaR (through gamma) allows us to additionally control both the severity and the overall spread of the distribution. This flexibility is the key advantage we wanted to demonstrate.
+
+Let me know if you'd like to discuss any specific aspects of the results!
+
+Best,
+[Your name]
+

@@ -66,18 +66,24 @@ is_submitted() {
     fi
   fi
   
-  # Method 3: Check sacct for completed jobs (last 7 days)
+  # Method 3: Check sacct for any job state (not just COMPLETED)
+  # This catches jobs that are RUNNING, PENDING, COMPLETED, FAILED, etc.
+  # Use 30 days to catch older jobs that may have been cancelled/failed
   local startdate
-  if date -d "7 days ago" +%Y-%m-%d >/dev/null 2>&1; then
-    startdate=$(date -d "7 days ago" +%Y-%m-%d)
-  elif date -v-7d +%Y-%m-%d >/dev/null 2>&1; then
-    startdate=$(date -v-7d +%Y-%m-%d)
+  if date -d "30 days ago" +%Y-%m-%d >/dev/null 2>&1; then
+    startdate=$(date -d "30 days ago" +%Y-%m-%d)
+  elif date -v-30d +%Y-%m-%d >/dev/null 2>&1; then
+    startdate=$(date -v-30d +%Y-%m-%d)
   else
     startdate=$(date +%Y-%m-%d)
   fi
   
-  if sacct -u $USER --format=JobName,State --starttime="${startdate}" 2>/dev/null | \
-     grep -q "${jobname}.*COMPLETED" 2>/dev/null; then
+  # Check for any job with this name in sacct (any state)
+  # Note: sacct output format may truncate JobName, so we need to specify width
+  # Also, sacct may show jobname with array index like "DT_POF_eps=0.003_s77[77]"
+  # We check if the base jobname (without array index) matches
+  if sacct -u $USER --format=JobID,JobName%50,State --starttime="${startdate}" 2>/dev/null | \
+     grep -q "${jobname}" 2>/dev/null; then
     return 0
   fi
   
@@ -100,16 +106,42 @@ submit_one_sample() {
   fi
 
   echo "[SUBMIT] ${TAG}  sample=${SAMPLE}" >&2
+  local jobname="${TAG}_s${SAMPLE}"
   SBATCH_OUTPUT=$(sbatch --parsable --array="${SAMPLE}-${SAMPLE}" --chdir="${SCRIPT_DIR}/.." \
-    --job-name="${TAG}_s${SAMPLE}" \
+    --job-name="${jobname}" \
     --export=ALL,CASE_TAG="${TAG}",RISK_ARGS="${ARGS}" \
     "${SBATCH_FILE}" 2>&1)
   SBATCH_EXIT=$?
   
   # Check if submission was successful (--parsable returns job ID on success)
   if [ ${SBATCH_EXIT} -eq 0 ] && [ -n "${SBATCH_OUTPUT}" ] && [[ "${SBATCH_OUTPUT}" =~ ^[0-9]+$ ]]; then
-    sleep 0.02
-    return 0
+    # Verify job is actually in queue (sbatch may return success but job could be rejected)
+    sleep 0.1  # Brief delay to allow job to appear in queue
+    if squeue -u $USER 2>/dev/null | grep -q "${jobname}" 2>/dev/null; then
+      sleep 0.02
+      return 0
+    else
+      # Job submitted but not in queue - might be rejected or already completed
+      # Check sacct to see if it was submitted before (use 30 days to catch older jobs)
+      local startdate
+      if date -d "30 days ago" +%Y-%m-%d >/dev/null 2>&1; then
+        startdate=$(date -d "30 days ago" +%Y-%m-%d)
+      elif date -v-30d +%Y-%m-%d >/dev/null 2>&1; then
+        startdate=$(date -v-30d +%Y-%m-%d)
+      else
+        startdate=$(date +%Y-%m-%d)
+      fi
+      if sacct -u $USER --format=JobID,JobName%50,State --starttime="${startdate}" 2>/dev/null | \
+         grep -q "${jobname}" 2>/dev/null; then
+        # Job was submitted before, skip
+        echo "[SKIP] ${TAG}  sample=${SAMPLE} (already in sacct)" >&2
+        return 1
+      else
+        # Job submission may have failed silently
+        echo "[WARN] ${TAG}  sample=${SAMPLE} submitted (job ID: ${SBATCH_OUTPUT}) but not in queue" >&2
+        return 0  # Still count as submitted attempt
+      fi
+    fi
   fi
   
   # Check for QOS limit error
