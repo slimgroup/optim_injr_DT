@@ -19,6 +19,8 @@ const ROOT     = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/dat
 const USE_LOGX = false       # Set to true if injection rate spans large orders of magnitude (log x-axis)
 const NBINS    = 30          # Number of histogram bins
 const PAD      = 0.05        # Left/right padding ratio for x-axis (when using linear axis)
+const KDE_BANDWIDTH = nothing  # KDE bandwidth (nothing = use default/Silverman's rule)
+                                # Can specify a value like 0.01 for custom bandwidth
 
 # Font sizes (larger for better readability)
 const FONT_SIZE_TITLE = 14      # Subplot title (slightly increased)
@@ -123,19 +125,41 @@ function cases_with_prefix(df::DataFrame, prefix::AbstractString)
 end
 
 # ========== Utility: collect all values for a group of cases, determine unified bins/xlim/ylim ==========
-function collect_group_values(df::DataFrame, case_list::Vector{String}, xmin::Float64, xmax::Float64, nbins::Int)
+function collect_group_values(df::DataFrame, case_list::Vector{String}, xmin::Float64, xmax::Float64, nbins::Int; kde_bandwidth=nothing)
     # 返回：Dict(case_tag => Vector{Float64}), global_ymax
     vals_by_case = Dict{String, Vector{Float64}}()
     global_ymax = 0.0
     
     # Create unified bin edges
     edges = collect(range(xmin, xmax; length=nbins+1))
+    bin_width = edges[2] - edges[1]
     
     for ct in case_list
         x = collect(skipmissing(df.last_inj_rate[df.case_tag .== ct]))
         vals_by_case[ct] = x
-        if !isempty(x)
+        if !isempty(x) && length(x) > 1
             # Calculate histogram counts using a temporary figure
+            fig_temp = PyPlot.figure(figsize=(1,1))
+            counts, _ = PyPlot.hist(x, bins=edges, density=false)
+            PyPlot.close(fig_temp)
+            if length(counts) > 0
+                local_ymax_hist = maximum(counts)
+                global_ymax = max(global_ymax, local_ymax_hist)
+                
+                # Also calculate KDE maximum to ensure KDE curve is not truncated
+                try
+                    kde_result = kde_bandwidth === nothing ? kde(x) : kde(x, bandwidth=kde_bandwidth)
+                    # Scale KDE to match histogram frequency
+                    kde_scaled = kde_result.density .* length(x) .* bin_width
+                    local_ymax_kde = maximum(kde_scaled)
+                    global_ymax = max(global_ymax, local_ymax_kde)
+                catch e
+                    # If KDE fails, just use histogram max
+                    @warn "KDE calculation failed for case $ct when computing ymax: $e"
+                end
+            end
+        elseif !isempty(x)
+            # Single data point, just use histogram
             fig_temp = PyPlot.figure(figsize=(1,1))
             counts, _ = PyPlot.hist(x, bins=edges, density=false)
             PyPlot.close(fig_temp)
@@ -188,35 +212,23 @@ function sort_pof_cases_by_eps(cases::Vector{String})
 end
 
 # ========== Utility: sort CVaR cases by gamma then alpha ==========
-# Special ordering: g=0.01 first, then g=0.0, then g=0.02, then g=0.05
+# Sort by gamma value in ascending order (0.0, 0.01, 0.02, 0.05, ...)
 function sort_cvar_cases(cases::Vector{String})
     function extract_params(case_tag::String)
         # Handle both "g=" and "gamma=", "a=" and "alpha="
         g_match = match(r"[g_]gamma[_\s]*=\s*([0-9.]+)", case_tag)
         if g_match === nothing
-            g_match = match(r"\bg\s*=\s*([0-9.]+)", case_tag)
+            g_match = match(r"g\s*=\s*([0-9.]+)", case_tag)  # Removed \b to match g=0.0 correctly
         end
         a_match = match(r"[a_]alpha[_\s]*=\s*([0-9.]+)", case_tag)
         if a_match === nothing
-            a_match = match(r"\ba\s*=\s*([0-9.]+)", case_tag)
+            a_match = match(r"a\s*=\s*([0-9.]+)", case_tag)  # Removed \b to match a=0.0 correctly
         end
         g_val = g_match !== nothing ? parse(Float64, g_match.captures[1]) : Inf
         a_val = a_match !== nothing ? parse(Float64, a_match.captures[1]) : Inf
         
-        # Custom ordering: 0.01 -> 0.0 -> 0.02 -> 0.05 -> others
-        g_order = if g_val ≈ 0.01
-            1
-        elseif g_val ≈ 0.0
-            2
-        elseif g_val ≈ 0.02
-            3
-        elseif g_val ≈ 0.05
-            4
-        else
-            5
-        end
-        
-        return (g_order, g_val, a_val)
+        # Sort by gamma value (ascending), then by alpha value (ascending)
+        return (g_val, a_val)
     end
     return sort(cases, by=extract_params)
 end
@@ -262,8 +274,8 @@ function plot_cvar_vs_pof_panels(
         xmax = global_max
     end
 
-    # Second pass: collect values and calculate unified ymax
-    vals_by_case, ymax, edges = collect_group_values(df, all_cases, xmin, xmax, nbins)
+    # Second pass: collect values and calculate unified ymax (including KDE)
+    vals_by_case, ymax, edges = collect_group_values(df, all_cases, xmin, xmax, nbins; kde_bandwidth=KDE_BANDWIDTH)
     
     # Add padding to ymax for better visualization
     ymax = ymax * 1.1
@@ -298,8 +310,9 @@ function plot_cvar_vs_pof_panels(
                     fontsize=FONT_SIZE_SUPTITLE, fontweight="bold", y=0.98)
     
     # Adjust subplot spacing - reduce top margin to bring title closer to plots
+    # Increased hspace to add more spacing between rows (especially between gamma=0.0 row and others)
     PyPlot.subplots_adjust(left=0.08, right=0.95, top=0.94, bottom=0.06, 
-                           wspace=0.15, hspace=0.20)
+                           wspace=0.15, hspace=0.23)
 
     # Plot POF cases in first row (if any)
     if n_pof > 0
@@ -330,7 +343,7 @@ function plot_cvar_vs_pof_panels(
                 # Add KDE curve (red)
                 if length(x) > 1
                     try
-                        kde_result = kde(x)
+                        kde_result = KDE_BANDWIDTH === nothing ? kde(x) : kde(x, bandwidth=KDE_BANDWIDTH)
                         # Scale KDE to match histogram frequency
                         kde_scaled = kde_result.density .* length(x) .* bin_width
                         # Plot KDE curve
@@ -404,7 +417,7 @@ function plot_cvar_vs_pof_panels(
                 # Add KDE curve (red)
                 if length(x) > 1
                     try
-                        kde_result = kde(x)
+                        kde_result = KDE_BANDWIDTH === nothing ? kde(x) : kde(x, bandwidth=KDE_BANDWIDTH)
                         # Scale KDE to match histogram frequency
                         kde_scaled = kde_result.density .* length(x) .* bin_width
                         # Plot KDE curve

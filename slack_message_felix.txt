@@ -1,31 +1,24 @@
 Hi Felix,
 
-I wanted to share a new visualization that directly addresses our ongoing discussion about comparing POF with CVaR. This figure demonstrates how CVaR provides the ability to control the severity of outliers, which has been a key point we've been exploring.
+I wanted to share the latest update on our comparison between POF and CVaR. These three figures are generated from the first monitoring step using 128 full posterior samples, and they clearly demonstrate the key message we wanted to prove: CVaR can control outlier severity through the gamma parameter, which allows us to control the severity of fracture occurrences.
 
-**Key Message:**
-The plot shows that CVaR can achieve different levels of control through the gamma parameter, while maintaining a direct correspondence between CVaR's alpha and POF's epsilon.
+This is most directly visible in panel 3 (the zoomed-in CDF with confidence intervals).
 
-**What the figure shows:**
-- **First row**: 5 POF cases with epsilon (ε) = 0.0, 0.001, 0.01, 0.02, 0.05
-- **Subsequent rows**: 20 CVaR cases organized by gamma (γ) and alpha (α) parameters
-  - Rows are ordered: γ=0.01, γ=0.0, γ=0.02, γ=0.05 (with γ=0.0 placed second to highlight its role)
-  - Columns vary alpha (α) = 0.0, 0.001, 0.01, 0.02, 0.05
-- Each subplot shows the distribution of optimized injectivities with histogram (steelblue) and KDE curve overlay (red)
+First, let me establish the correspondence: POF's epsilon and CVaR's alpha are directly corresponding, which has been proven in Wilcox's paper. This correspondence allows us to analyze the data column by column, comparing POF with CVaR cases that have the same alpha/epsilon values.
 
-**Key insights:**
-1. **Alpha-epsilon correspondence**: CVaR's α parameter corresponds directly to POF's ε, allowing us to target the same tail probability level
-2. **Gamma controls distribution width**: By adjusting γ, we can control the range of the optimized injection rate distribution:
-   - **Small γ (e.g., 0.01, 0.0)**: CVaR produces narrower distributions than POF (more conservative/strict control)
-   - **Large γ (e.g., 0.05, potentially larger)**: CVaR can produce wider distributions than POF (more permissive control)
-3. **Flexibility advantage**: The side-by-side layout demonstrates that CVaR offers more flexibility than POF—we can tune γ to achieve either tighter or looser control compared to POF, depending on our risk tolerance
+For our final injection rate selection, we choose the left confidence interval (the conservative bound).
 
-**Note on current results:**
-The current figure shows gamma values up to 0.05. We observe that even at γ=0.05, some CVaR cases still show narrower distributions than POF, suggesting that to fully demonstrate CVaR's ability to achieve wider distributions than POF, we may need to explore larger gamma values (e.g., γ=0.1, 0.15). This would complete the narrative that CVaR can be tuned to be either more conservative (narrower) or more permissive (wider) than POF.
+Now, looking at each column (each corresponding eps/alpha pair), we observe a very clear and consistent pattern:
 
-The figure illustrates that while POF only controls the probability of violation, CVaR (through gamma) allows us to additionally control both the severity and the overall spread of the distribution. This flexibility is the key advantage we wanted to demonstrate.
+When gamma = 0.0 (the minimum value), CVaR is always more conservative than POF across all columns. This means CVaR with gamma = 0.0 selects lower optimal injection rates compared to POF.
 
-Let me know if you'd like to discuss any specific aspects of the results!
+As we increase gamma, we can control the severity of outliers (those cases where fractures occur) according to our needs. By increasing gamma, we can make CVaR's selected optimal injection rate greater than POF's. Furthermore, the larger the gamma value, the larger the optimal injection rate that CVaR selects.
+
+This phenomenon holds consistently across every column, for every eps/alpha pair. It's very reasonable and demonstrates the fundamental advantage of CVaR: the ability to control not just the probability of violations (through alpha, which corresponds to epsilon), but also the severity of violations when they do occur (through gamma).
+
+This is my latest update, and I find it very exciting and very clear. The figures provide strong evidence for CVaR's superior capability in managing risk when severity matters.
+
+Let me know if you'd like to discuss any specific aspects of these results!
 
 Best,
 [Your name]
-
