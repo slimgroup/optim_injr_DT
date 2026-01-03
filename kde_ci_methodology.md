@@ -60,12 +60,26 @@ Confidence intervals are computed for the Cumulative Distribution Function (CDF)
    x_grid = collect(range(x_min, stop=x_max, length=num_grid))  # Default: 16,000 points
    dx = x_grid[2] - x_grid[1]  # Grid spacing
    ```
+   - **Grid Size Selection (16,000 points)**:
+     - **Purpose**: High-resolution grid for smooth CDF curves and accurate numerical integration
+     - **Rationale**: 
+       - Sufficiently dense to capture smooth KDE curves (128 samples → 16,000 evaluation points = ~125x denser)
+       - Ensures accurate numerical integration (CDF via cumulative sum) with small discretization error
+       - Enables precise threshold crossing detection (e.g., finding 1% fracture probability)
+       - Balance between computational efficiency and numerical accuracy
+     - **Typical Range**: In practice, 10,000-20,000 points is common for KDE CDF evaluation
+     - **Trade-off**: 
+       - Too few points (< 5,000): May miss fine features, less accurate threshold detection
+       - Too many points (> 50,000): Diminishing returns, increased computation time
+       - 16,000: Good balance for typical injection rate distributions (range ~0.01-0.2 m³/s)
+   - The grid spans from `minimum(data)` to `maximum(data)` to cover the full range of injection rates
 
 2. **Compute PDF Values**:
    ```julia
    pdf_vals = pdf(kde_result, x_grid)
    ```
    - Evaluates the KDE PDF at each grid point
+   - **Key Concept**: The KDE is a continuous function fitted from 128 samples. We evaluate it at 16,000 grid points to obtain a dense, smooth PDF representation. This is not "expanding" 128 samples to 16,000 samples, but rather **dense evaluation** of the fitted smooth curve
 
 3. **Compute CDF by Cumulative Sum**:
    ```julia
@@ -97,6 +111,20 @@ for each grid point i:
 - **Standard Error**: `se = sqrt(p̂(1-p̂)/n)` is the standard error for a proportion under the Bernoulli assumption
 - **Confidence Level**: Default is 95% (`conf_level = 0.95`)
 - **Bounds**: `ci_lower` and `ci_upper` are clipped to [0, 1] to ensure valid probability values
+
+**Limitations and Considerations**:
+- **Wald Method Limitations**: 
+  - Can be inaccurate for small samples or when `p̂` is near 0 or 1
+  - May have coverage issues (actual coverage < nominal 95%) in these cases
+  - For our use case: sample size n=128 is reasonably large, which helps mitigate these issues
+- **Alternative Methods**: 
+  - **Wilson score interval**: More accurate, especially for small samples or extreme probabilities
+  - **Agresti-Coull interval**: A simple adjustment that improves coverage
+  - **Clopper-Pearson (exact) interval**: Most conservative, guaranteed coverage but wider intervals
+- **Current Choice Rationale**: 
+  - Wald method is computationally simple and widely understood
+  - With n=128 samples, Wald typically provides adequate coverage for moderate probabilities
+  - The method is applied to KDE-derived CDF values (smooth estimates) rather than raw binary outcomes, which may help with accuracy
 
 ### Interpretation
 - **ci_upper**: Upper confidence bound (higher probability) - reaches threshold at **smaller** injection rate = **Left CI** (conservative estimate)
