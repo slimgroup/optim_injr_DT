@@ -19,25 +19,24 @@ echo ""
 
 # Check if final.jld2 files exist
 echo "=== Output Files ==="
-for eps in "0.01" "0.05"; do
-    for sample in "18" "64"; do
-        if [ "$eps" = "0.01" ] && [ "$sample" = "18" ]; then
-            final_path="${DATA_DIR}/POF__HARD__eps=0.01__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0/sample=${sample}/final.jld2"
-        elif [ "$eps" = "0.05" ] && [ "$sample" = "64" ]; then
-            final_path="${DATA_DIR}/POF__HARD__eps=0.05__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0/sample=${sample}/final.jld2"
-        else
-            continue
-        fi
-        
-        if [ -f "$final_path" ]; then
-            size=$(ls -lh "$final_path" | awk '{print $5}')
-            mtime=$(stat -c %y "$final_path" | cut -d'.' -f1)
-            echo "✓ POF eps=${eps}, sample=${sample}: final.jld2 exists (${size}, modified: ${mtime})"
-        else
-            echo "✗ POF eps=${eps}, sample=${sample}: final.jld2 not found yet"
-        fi
-    done
-done
+final_path1="${DATA_DIR}/POF__HARD__eps=0.01__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0/sample=18/final.jld2"
+final_path2="${DATA_DIR}/POF__HARD__eps=0.05__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0/sample=64/final.jld2"
+
+if [ -f "$final_path1" ]; then
+    size=$(ls -lh "$final_path1" | awk '{print $5}')
+    mtime=$(stat -c %y "$final_path1" | cut -d'.' -f1)
+    echo "✓ POF eps=0.01, sample=18: final.jld2 exists (${size}, modified: ${mtime})"
+else
+    echo "✗ POF eps=0.01, sample=18: final.jld2 not found yet"
+fi
+
+if [ -f "$final_path2" ]; then
+    size=$(ls -lh "$final_path2" | awk '{print $5}')
+    mtime=$(stat -c %y "$final_path2" | cut -d'.' -f1)
+    echo "✓ POF eps=0.05, sample=64: final.jld2 exists (${size}, modified: ${mtime})"
+else
+    echo "✗ POF eps=0.05, sample=64: final.jld2 not found yet"
+fi
 echo ""
 
 # Check latest log entries
@@ -87,17 +86,6 @@ if [ -f "$err_file2" ]; then
         echo "✓ POF eps=0.05, sample=64: No errors in log"
     fi
 fi
-    
-    if [ -f "$err_file" ]; then
-        err_size=$(wc -l < "$err_file" 2>/dev/null || echo "0")
-        if [ "$err_size" -gt 0 ]; then
-            echo "--- POF eps=0.${eps}, sample=${sample} errors (last 3 lines) ---"
-            tail -3 "$err_file" 2>/dev/null || echo "  (error reading log)"
-        else
-            echo "✓ POF eps=0.${eps}, sample=${sample}: No errors in log"
-        fi
-    fi
-done
 echo ""
 
 # Check job history
@@ -108,4 +96,3 @@ echo ""
 echo "=========================================="
 echo "Check complete!"
 echo "=========================================="
-

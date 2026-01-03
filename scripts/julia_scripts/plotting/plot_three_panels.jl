@@ -25,6 +25,7 @@ const KDE_BANDWIDTH = nothing
 const NUM_GRID = 16000
 const CONF_LEVEL = 0.95
 const FRACTURE_PROB_THRESHOLD = 0.01
+const FORWARD_STEP = 2  # MPC forward steps (must match optim_inject.jl)
 
 # Font sizes
 const FONT_SIZE_TITLE = 14
@@ -49,21 +50,35 @@ end
 
 # ========== Collect POF data from directories ==========
 function collect_pof_from_dirs(root::AbstractString, target_eps::String)
-    function last_nonzero_inj_rate(data; init_rate::Float64=1e-4, inj_start::Float64=0.0001)
+    function last_nonzero_inj_rate(data; init_rate::Float64=1e-4, inj_start::Float64=0.0001, forward_step::Int=FORWARD_STEP)
         raw = get(data, "inj_rate_arr", nothing)
         raw === nothing && return (init_rate + inj_start) / 2.0
         col1 = ndims(raw) == 1 ? collect(raw) : vec(view(raw, :, 1))
         clean = filter(x -> !(ismissing(x) || !isfinite(x)), col1)
+        
+        # Find the last nonzero element from inj_rate_arr
         idx = findlast(!iszero, clean)
         if idx === nothing
             return (init_rate + inj_start) / 2.0
+        end
+        
+        last_nonzero = clean[idx]  # This is the last nonzero element
+        # Reconstruct the full injection rate array: range(inj_start, last_nonzero, forward_step * 6)
+        # This matches the logic in optim_inject.jl line 430: inj_rate = collect(range(inj_start, inj_rate[1], forward_step * 6))
+        inj_rate_full = collect(range(inj_start, last_nonzero, forward_step * 6))
+        # Select the 6th element (1-based indexing, i.e., index 6)
+        # range produces (forward_step * 6) = 12 elements, so we have indices 1 through 12
+        if length(inj_rate_full) >= 6
+            inj_rate_at_index6 = inj_rate_full[6]
+            return (inj_rate_at_index6 + inj_start) / 2.0
         else
-            last_nonzero = clean[idx]
+            # Fallback: if array is too short, use last_nonzero
             return (last_nonzero + inj_start) / 2.0
         end
     end
     
     rows = NamedTuple[]
+    seen_samples = Set{Int}()  # Track which samples we've already processed
     risk_dirs = filter(d ->
         isdir(joinpath(root, d)) &&
         occursin("POF", d) &&
@@ -78,6 +93,11 @@ function collect_pof_from_dirs(root::AbstractString, target_eps::String)
         
         risk_dir = joinpath(root, risk_name)
         for s in 1:128
+            # Skip if we've already processed this sample
+            if s in seen_samples
+                continue
+            end
+            
             sdir = joinpath(risk_dir, "sample=$(s)")
             final_path = joinpath(sdir, "final.jld2")
             
@@ -100,6 +120,7 @@ function collect_pof_from_dirs(root::AbstractString, target_eps::String)
                     file_used = final_path,
                     note = ""
                 ))
+                push!(seen_samples, s)  # Mark this sample as processed
             end
         end
     end
@@ -109,21 +130,35 @@ end
 
 # ========== Collect CVaR data from directories ==========
 function collect_cvar_from_dirs(root::AbstractString, target_alpha::String, target_gamma::String)
-    function last_nonzero_inj_rate(data; init_rate::Float64=1e-4, inj_start::Float64=0.0001)
+    function last_nonzero_inj_rate(data; init_rate::Float64=1e-4, inj_start::Float64=0.0001, forward_step::Int=FORWARD_STEP)
         raw = get(data, "inj_rate_arr", nothing)
         raw === nothing && return (init_rate + inj_start) / 2.0
         col1 = ndims(raw) == 1 ? collect(raw) : vec(view(raw, :, 1))
         clean = filter(x -> !(ismissing(x) || !isfinite(x)), col1)
+        
+        # Find the last nonzero element from inj_rate_arr
         idx = findlast(!iszero, clean)
         if idx === nothing
             return (init_rate + inj_start) / 2.0
+        end
+        
+        last_nonzero = clean[idx]  # This is the last nonzero element
+        # Reconstruct the full injection rate array: range(inj_start, last_nonzero, forward_step * 6)
+        # This matches the logic in optim_inject.jl line 430: inj_rate = collect(range(inj_start, inj_rate[1], forward_step * 6))
+        inj_rate_full = collect(range(inj_start, last_nonzero, forward_step * 6))
+        # Select the 6th element (1-based indexing, i.e., index 6)
+        # range produces (forward_step * 6) = 12 elements, so we have indices 1 through 12
+        if length(inj_rate_full) >= 6
+            inj_rate_at_index6 = inj_rate_full[6]
+            return (inj_rate_at_index6 + inj_start) / 2.0
         else
-            last_nonzero = clean[idx]
+            # Fallback: if array is too short, use last_nonzero
             return (last_nonzero + inj_start) / 2.0
         end
     end
     
     rows = NamedTuple[]
+    seen_samples = Set{Int}()  # Track which samples we've already processed
     risk_dirs = filter(d ->
         isdir(joinpath(root, d)) &&
         occursin("CVaR", d) &&
@@ -131,18 +166,78 @@ function collect_cvar_from_dirs(root::AbstractString, target_alpha::String, targ
         !startswith(d, ".")
     , readdir(root))
     
+    # For gamma=0.0, alpha=0.0: prefer alpha=0.0 directory over alpha=0.001
+    # First, check if alpha=0.0 directory exists; if yes, only use that
+    # If no, then fall back to alpha=0.001
+    alpha_0_dir_exists = false
+    if target_gamma == "0.0" && target_alpha == "0.0"
+        gamma_pattern = r"gamma=([0-9.]+)"
+        alpha_pattern = r"alpha=([0-9.]+)"
+        for d in risk_dirs
+            if (gm = match(gamma_pattern, d)) !== nothing && 
+               (am = match(alpha_pattern, d)) !== nothing &&
+               abs(parse(Float64, gm.captures[1]) - 0.0) < 1e-6 &&
+               abs(parse(Float64, am.captures[1]) - 0.0) < 1e-6
+                alpha_0_dir_exists = true
+                break
+            end
+        end
+    end
+    
     for risk_name in risk_dirs
-        alpha_match = occursin("alpha=$target_alpha", risk_name) || occursin("alpha=$(parse(Float64, target_alpha))", risk_name)
-        gamma_match = occursin("gamma=$target_gamma", risk_name) || occursin("gamma=$(parse(Float64, target_gamma))", risk_name)
+        # More precise matching: use regex to match exact values
+        # For alpha: match "alpha=0.0" to "alpha=0.001", and exact match for others
+        # But if alpha=0.0 directory exists, only use that (don't use alpha=0.001)
+        alpha_pattern = r"alpha=([0-9.]+)"
+        alpha_match = false
+        alpha_val_matched = nothing
+        if (m = match(alpha_pattern, risk_name)) !== nothing
+            alpha_val = parse(Float64, m.captures[1])
+            target_alpha_val = parse(Float64, target_alpha)
+            # alpha=0.0 in case_tag maps to alpha=0.001 in directory name, but prefer alpha=0.0 if exists
+            if target_alpha_val == 0.0
+                if alpha_0_dir_exists
+                    # If alpha=0.0 directory exists, only match alpha=0.0, not alpha=0.001
+                    alpha_match = abs(alpha_val - 0.0) < 1e-6
+                else
+                    # If alpha=0.0 directory doesn't exist, fall back to alpha=0.001
+                    alpha_match = (alpha_val == 0.001 || abs(alpha_val - 0.0) < 1e-6)
+                end
+            else
+                alpha_match = abs(alpha_val - target_alpha_val) < 1e-6
+            end
+            if alpha_match
+                alpha_val_matched = alpha_val
+            end
+        end
+        
+        # For gamma: match "gamma=0.0" but not "gamma=0.01"
+        gamma_pattern = r"gamma=([0-9.]+)"
+        gamma_match = false
+        if (m = match(gamma_pattern, risk_name)) !== nothing
+            gamma_val = parse(Float64, m.captures[1])
+            target_gamma_val = parse(Float64, target_gamma)
+            gamma_match = abs(gamma_val - target_gamma_val) < 1e-6
+        end
         
         if !alpha_match || !gamma_match
             continue
+        end
+        
+        # Debug: print which directory is being used
+        if target_gamma == "0.0"
+            println("  Matching directory: $risk_name (alpha=$alpha_val_matched, gamma=$gamma_val)")
         end
         
         case_tag = "CVaR_g=$(target_gamma)_a=$(target_alpha)"
         
         risk_dir = joinpath(root, risk_name)
         for s in 1:128
+            # Skip if we've already processed this sample
+            if s in seen_samples
+                continue
+            end
+            
             sdir = joinpath(risk_dir, "sample=$(s)")
             final_path = joinpath(sdir, "final.jld2")
             
@@ -165,6 +260,7 @@ function collect_cvar_from_dirs(root::AbstractString, target_alpha::String, targ
                     file_used = final_path,
                     note = ""
                 ))
+                push!(seen_samples, s)  # Mark this sample as processed
             end
         end
     end
@@ -391,30 +487,33 @@ function plot_cdf_ci_panel(cases_data::Vector{Tuple{String, Vector{Float64}}}, f
         @warn "Expected 12 cases, got $ncases"
     end
     
-    # Compute CDF and CI for all cases
+    # Compute CDF and CI for all cases - keep track of original index
     all_results = []
-    for (case_tag, data) in cases_data
+    for (orig_idx, (case_tag, data)) in enumerate(cases_data)
         if isempty(data) || length(data) < 2
+            push!(all_results, (orig_idx, case_tag, nothing, nothing, nothing, nothing, nothing, nothing, nothing))
             continue
         end
         try
             x_grid, cdf, ci_lower, ci_upper = compute_cdf_ci(data; kde_bandwidth=kde_bandwidth, 
                                                               num_grid=num_grid, conf_level=conf_level)
             x_left_ci, x_cdf, x_right_ci = find_threshold_crossings(x_grid, cdf, ci_lower, ci_upper, threshold)
-            push!(all_results, (case_tag, x_grid, cdf, ci_lower, ci_upper, x_left_ci, x_cdf, x_right_ci))
+            push!(all_results, (orig_idx, case_tag, x_grid, cdf, ci_lower, ci_upper, x_left_ci, x_cdf, x_right_ci))
         catch e
             @warn "Failed to compute CDF for case $case_tag: $e"
+            push!(all_results, (orig_idx, case_tag, nothing, nothing, nothing, nothing, nothing, nothing, nothing))
         end
     end
     
-    if isempty(all_results)
+    # Determine global x range (only from valid results)
+    valid_results = [r for r in all_results if r[3] !== nothing]
+    if isempty(valid_results)
         @warn "No valid data to plot"
         return
     end
     
-    # Determine global x range
-    all_x_min = minimum([minimum(r[2]) for r in all_results])
-    all_x_max = maximum([maximum(r[2]) for r in all_results])
+    all_x_min = minimum([minimum(r[3]) for r in valid_results])
+    all_x_max = maximum([maximum(r[3]) for r in valid_results])
     
     # Color palette
     colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b",
@@ -427,32 +526,45 @@ function plot_cdf_ci_panel(cases_data::Vector{Tuple{String, Vector{Float64}}}, f
     PyPlot.subplots_adjust(left=0.08, right=0.95, top=0.94, bottom=0.06, 
                            wspace=0.15, hspace=0.25)
     
-    # Plot each case
-    for (idx, result) in enumerate(all_results)
-        case_tag, x_grid, cdf, ci_lower, ci_upper, x_left_ci, x_cdf, x_right_ci = result
+    # Plot each case using original index
+    for result in all_results
+        orig_idx, case_tag, x_grid, cdf, ci_lower, ci_upper, x_left_ci, x_cdf, x_right_ci = result
         
-        row = div(idx - 1, 3) + 1
-        col = mod(idx - 1, 3) + 1
+        # Skip if no valid data
+        if x_grid === nothing
+            row = div(orig_idx - 1, 3) + 1
+            col = mod(orig_idx - 1, 3) + 1
+            subplot_idx = (row - 1) * 3 + col
+            ax = PyPlot.subplot(4, 3, subplot_idx)
+            PyPlot.text(0.5, 0.5, "No data", ha="center", va="center", 
+                       transform=ax.transAxes, fontsize=FONT_SIZE_LABEL)
+            title_text = format_case_title(case_tag)
+            PyPlot.title(title_text, fontsize=FONT_SIZE_TITLE, fontweight="bold")
+            continue
+        end
+        
+        row = div(orig_idx - 1, 3) + 1
+        col = mod(orig_idx - 1, 3) + 1
         subplot_idx = (row - 1) * 3 + col
         
         ax = PyPlot.subplot(4, 3, subplot_idx)
         
         # Plot CDF
-        PyPlot.plot(x_grid, cdf .* 100, color=colors[idx], linewidth=2.5, label="CDF")
+        PyPlot.plot(x_grid, cdf .* 100, color=colors[orig_idx], linewidth=2.5, label="CDF")
         
         # Plot CI
         PyPlot.fill_between(x_grid, ci_lower .* 100, ci_upper .* 100, 
                            color="lightgray", alpha=0.3, 
-                           label=(idx==1 ? "$(Int(conf_level * 100))% CI" : ""))
+                           label=(orig_idx==1 ? "$(Int(conf_level * 100))% CI" : ""))
         
         # Plot threshold line
         PyPlot.axhline(y=threshold * 100, color="red", linestyle="--", linewidth=1.5,
-                      label=(idx==1 ? "$(Int(threshold * 100))% Fracture Probability" : ""))
+                      label=(orig_idx==1 ? "$(Int(threshold * 100))% Fracture Probability" : ""))
         
         # Add annotations (Left CI and CDF)
         if x_left_ci !== nothing
             y_left = threshold * 100
-            PyPlot.plot(x_left_ci, y_left, "o", color=colors[idx], markersize=6)
+            PyPlot.plot(x_left_ci, y_left, "o", color=colors[orig_idx], markersize=6)
             # Adjust annotation position to avoid going outside plot
             x_offset = x_left_ci < (all_x_min + (all_x_max - all_x_min) * 0.25) ? 40 : -60
             PyPlot.annotate("Left CI: $(round(x_left_ci, digits=5))", 
@@ -465,7 +577,7 @@ function plot_cdf_ci_panel(cases_data::Vector{Tuple{String, Vector{Float64}}}, f
         
         if x_cdf !== nothing
             y_cdf = threshold * 100
-            PyPlot.plot(x_cdf, y_cdf, "o", color=colors[idx], markersize=6)
+            PyPlot.plot(x_cdf, y_cdf, "o", color=colors[orig_idx], markersize=6)
             PyPlot.annotate("CDF: $(round(x_cdf, digits=5))", 
                            xy=(x_cdf, y_cdf), 
                            xytext=(0, 40), textcoords="offset points",
@@ -480,7 +592,7 @@ function plot_cdf_ci_panel(cases_data::Vector{Tuple{String, Vector{Float64}}}, f
         PyPlot.xlim(all_x_min, all_x_max)
         PyPlot.ylim(0, 100)
         
-        if idx == 1
+        if orig_idx == 1
             PyPlot.legend(loc="lower right", fontsize=9, framealpha=0.9)
         end
         
@@ -510,30 +622,33 @@ function plot_cdf_ci_zoom_panel(cases_data::Vector{Tuple{String, Vector{Float64}
         @warn "Expected 12 cases, got $ncases"
     end
     
-    # Compute CDF and CI for all cases
+    # Compute CDF and CI for all cases - keep track of original index
     all_results = []
-    for (case_tag, data) in cases_data
+    for (orig_idx, (case_tag, data)) in enumerate(cases_data)
         if isempty(data) || length(data) < 2
+            push!(all_results, (orig_idx, case_tag, nothing, nothing, nothing, nothing, nothing, nothing, nothing))
             continue
         end
         try
             x_grid, cdf, ci_lower, ci_upper = compute_cdf_ci(data; kde_bandwidth=kde_bandwidth, 
                                                               num_grid=num_grid, conf_level=conf_level)
             x_left_ci, x_cdf, x_right_ci = find_threshold_crossings(x_grid, cdf, ci_lower, ci_upper, threshold)
-            push!(all_results, (case_tag, x_grid, cdf, ci_lower, ci_upper, x_left_ci, x_cdf, x_right_ci))
+            push!(all_results, (orig_idx, case_tag, x_grid, cdf, ci_lower, ci_upper, x_left_ci, x_cdf, x_right_ci))
         catch e
             @warn "Failed to compute CDF for case $case_tag: $e"
+            push!(all_results, (orig_idx, case_tag, nothing, nothing, nothing, nothing, nothing, nothing, nothing))
         end
     end
     
-    if isempty(all_results)
+    # Determine zoom-in range (around 1% threshold area) - only from valid results
+    valid_results = [r for r in all_results if r[3] !== nothing]
+    if isempty(valid_results)
         @warn "No valid data to plot"
         return
     end
     
-    # Determine zoom-in range (around 1% threshold area)
     all_x_cdf = []
-    for result in all_results
+    for result in valid_results
         _, _, _, _, _, _, x_cdf, _ = result
         if x_cdf !== nothing
             push!(all_x_cdf, x_cdf)
@@ -546,8 +661,8 @@ function plot_cdf_ci_zoom_panel(cases_data::Vector{Tuple{String, Vector{Float64}
         zoom_y_max = threshold * 100 * 4  # Show up to 4% for zoom
     else
         # Fallback: use global range
-        all_x_min = minimum([minimum(r[2]) for r in all_results])
-        all_x_max = maximum([maximum(r[2]) for r in all_results])
+        all_x_min = minimum([minimum(r[3]) for r in valid_results])
+        all_x_max = maximum([maximum(r[3]) for r in valid_results])
         zoom_x_min = all_x_min
         zoom_x_max = all_x_max
         zoom_y_max = threshold * 100 * 4
@@ -564,32 +679,45 @@ function plot_cdf_ci_zoom_panel(cases_data::Vector{Tuple{String, Vector{Float64}
     PyPlot.subplots_adjust(left=0.08, right=0.95, top=0.94, bottom=0.06, 
                            wspace=0.15, hspace=0.25)
     
-    # Plot each case
-    for (idx, result) in enumerate(all_results)
-        case_tag, x_grid, cdf, ci_lower, ci_upper, x_left_ci, x_cdf, x_right_ci = result
+    # Plot each case using original index
+    for result in all_results
+        orig_idx, case_tag, x_grid, cdf, ci_lower, ci_upper, x_left_ci, x_cdf, x_right_ci = result
         
-        row = div(idx - 1, 3) + 1
-        col = mod(idx - 1, 3) + 1
+        # Skip if no valid data
+        if x_grid === nothing
+            row = div(orig_idx - 1, 3) + 1
+            col = mod(orig_idx - 1, 3) + 1
+            subplot_idx = (row - 1) * 3 + col
+            ax = PyPlot.subplot(4, 3, subplot_idx)
+            PyPlot.text(0.5, 0.5, "No data", ha="center", va="center", 
+                       transform=ax.transAxes, fontsize=FONT_SIZE_LABEL)
+            title_text = format_case_title(case_tag)
+            PyPlot.title("$title_text (Zoomed In)", fontsize=FONT_SIZE_TITLE, fontweight="bold")
+            continue
+        end
+        
+        row = div(orig_idx - 1, 3) + 1
+        col = mod(orig_idx - 1, 3) + 1
         subplot_idx = (row - 1) * 3 + col
         
         ax = PyPlot.subplot(4, 3, subplot_idx)
         
         # Plot CDF
-        PyPlot.plot(x_grid, cdf .* 100, color=colors[idx], linewidth=2.5, label="CDF")
+        PyPlot.plot(x_grid, cdf .* 100, color=colors[orig_idx], linewidth=2.5, label="CDF")
         
         # Plot CI
         PyPlot.fill_between(x_grid, ci_lower .* 100, ci_upper .* 100, 
                            color="lightgray", alpha=0.3, 
-                           label=(idx==1 ? "$(Int(conf_level * 100))% CI" : ""))
+                           label=(orig_idx==1 ? "$(Int(conf_level * 100))% CI" : ""))
         
         # Plot threshold line
         PyPlot.axhline(y=threshold * 100, color="red", linestyle="--", linewidth=1.5,
-                      label=(idx==1 ? "$(Int(threshold * 100))% Fracture Probability" : ""))
+                      label=(orig_idx==1 ? "$(Int(threshold * 100))% Fracture Probability" : ""))
         
         # Add annotations (Left CI and CDF)
         if x_left_ci !== nothing
             y_left = threshold * 100
-            PyPlot.plot(x_left_ci, y_left, "o", color=colors[idx], markersize=8)
+            PyPlot.plot(x_left_ci, y_left, "o", color=colors[orig_idx], markersize=8)
             # Adjust annotation position to avoid going outside plot
             x_offset = x_left_ci < (zoom_x_min + (zoom_x_max - zoom_x_min) * 0.25) ? 40 : -60
             PyPlot.annotate("Left CI: $(round(x_left_ci, digits=5))", 
@@ -602,7 +730,7 @@ function plot_cdf_ci_zoom_panel(cases_data::Vector{Tuple{String, Vector{Float64}
         
         if x_cdf !== nothing
             y_cdf = threshold * 100
-            PyPlot.plot(x_cdf, y_cdf, "o", color=colors[idx], markersize=8)
+            PyPlot.plot(x_cdf, y_cdf, "o", color=colors[orig_idx], markersize=8)
             PyPlot.annotate("CDF: $(round(x_cdf, digits=5))", 
                            xy=(x_cdf, y_cdf), 
                            xytext=(0, 40), textcoords="offset points",
@@ -617,7 +745,7 @@ function plot_cdf_ci_zoom_panel(cases_data::Vector{Tuple{String, Vector{Float64}
         PyPlot.xlim(zoom_x_min, zoom_x_max)
         PyPlot.ylim(0, zoom_y_max)
         
-        if idx == 1
+        if orig_idx == 1
             PyPlot.legend(loc="lower right", fontsize=9, framealpha=0.9)
         end
         
@@ -749,19 +877,13 @@ for case_tag in cases_to_plot
     if startswith(case_tag, "POF")
         eps_match = match(r"eps[_\s]*=\s*([0-9.]+)", case_tag)
         if eps_match !== nothing
-            eps_val = eps_match.captures[1]
-            case_data = filter(row -> begin
-                ct = row.case_tag
-                occursin("POF", ct) && (occursin("eps=$eps_val", ct) || occursin("eps=$(parse(Float64, eps_val))", ct))
-            end, df_ok)
-            
-            if nrow(case_data) == 0
-                println("POF case $case_tag not found in CSV, collecting from directories...")
-                local df_pof_dirs_local = collect_pof_from_dirs(ROOT, eps_val)
-                if nrow(df_pof_dirs_local) > 0
-                    df_pof_dirs_local.case_tag = String.(df_pof_dirs_local.case_tag)
-                    case_data = df_pof_dirs_local[df_pof_dirs_local.status .== "ok_final", :]
-                end
+            eps_val = String(eps_match.captures[1])
+            # Always collect from directories to ensure updated calculation logic is used
+            println("POF case $case_tag: collecting from directories with updated calculation...")
+            local df_pof_dirs_local = collect_pof_from_dirs(ROOT, eps_val)
+            if nrow(df_pof_dirs_local) > 0
+                df_pof_dirs_local.case_tag = String.(df_pof_dirs_local.case_tag)
+                case_data = df_pof_dirs_local[df_pof_dirs_local.status .== "ok_final", :]
             end
         end
     elseif startswith(case_tag, "CVaR")
@@ -773,17 +895,20 @@ for case_tag in cases_to_plot
             g_val = String(g_match.captures[1])
             a_val = String(a_match.captures[1])
             
-            case_data = filter(row -> begin
-                ct = row.case_tag
-                occursin("CVaR", ct) && occursin("g=$g_val", ct) && occursin("a=$a_val", ct)
-            end, df_ok)
-            
-            if nrow(case_data) == 0
-                println("CVaR g=$g_val a=$a_val not found in CSV, collecting from directories...")
-                local df_cvar_dirs_local = collect_cvar_from_dirs(ROOT, a_val, g_val)
-                if nrow(df_cvar_dirs_local) > 0
-                    df_cvar_dirs_local.case_tag = String.(df_cvar_dirs_local.case_tag)
-                    case_data = df_cvar_dirs_local[df_cvar_dirs_local.status .== "ok_final", :]
+            # Always collect from directories to ensure updated calculation logic is used
+            println("CVaR g=$g_val a=$a_val: collecting from directories with updated calculation...")
+            local df_cvar_dirs_local = collect_cvar_from_dirs(ROOT, a_val, g_val)
+            if nrow(df_cvar_dirs_local) > 0
+                df_cvar_dirs_local.case_tag = String.(df_cvar_dirs_local.case_tag)
+                case_data = df_cvar_dirs_local[df_cvar_dirs_local.status .== "ok_final", :]
+                # Debug: print which directories were used
+                if g_val == "0.0"
+                    used_dirs = unique(case_data.risk_dir)
+                    println("  Used directories: $used_dirs")
+                    println("  Number of samples: $(nrow(case_data))")
+                    if length(used_dirs) > 1
+                        @warn "  WARNING: Multiple directories matched for g=$g_val a=$a_val: $used_dirs"
+                    end
                 end
             end
         end
