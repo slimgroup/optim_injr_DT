@@ -1,0 +1,1 @@
+srun: error: Unable to allocate resources: Invalid account or account/partition combination specified
