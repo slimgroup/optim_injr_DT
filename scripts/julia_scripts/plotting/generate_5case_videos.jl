@@ -207,13 +207,14 @@ function create_frame(sat, pres, p_max, p0, frame_idx, case_name, output_path;
     ax2.set_ylabel("Depth[m]", fontsize=15)
     ax2.set_title("Saturation", fontsize=14)
     
-    # Super title (centered, reduced padding)
-    fig.suptitle("$case_name    t = $(Int(time_days)) days", fontsize=16, fontweight="bold", y=0.96)
+    # Super title (centered over entire figure, shifted right to account for colorbar)
+    fig.suptitle("$case_name    t = $(Int(time_days)) days", fontsize=16, fontweight="bold", 
+                 x=0.54, y=0.98, ha="center")
     
-    plt.tight_layout(rect=[0, 0, 1, 0.94], h_pad=1.5)
+    plt.tight_layout(rect=[0, 0, 1, 0.95], h_pad=1.5)
     
     frame_file = joinpath(output_path, @sprintf("frame_%04d.png", frame_idx))
-    savefig(frame_file, dpi=150, bbox_inches="tight")
+    savefig(frame_file, dpi=150)
     close(fig)
     
     return frame_file

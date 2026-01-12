@@ -40,17 +40,17 @@ function create_frame(K, sample_idx, actual_idx, output_path; n=N, d=D, h=H)
     im_ratio = n[3] * d[3] / (n[1] * d[1])
     extent = (0, (n[1]-1)*d[1], h+(n[3]-1)*d[3], h)
     
-    # Plot log10 permeability (in mD) - using cet_rainbow4 like optim_inject.jl
+    # Plot log10 permeability (in mD)
     logK = log10.(K ./ JutulDarcyRules.md)  # Convert to mD and take log10
     
-    # Use cet_rainbow4 colormap (matching optim_inject.jl)
-    im = ax.imshow(transpose(logK), vmin=0, vmax=4, extent=extent, cmap="cet_rainbow4")
+    # Use jet colormap (rainbow style matching optim_inject.jl)
+    im = ax.imshow(transpose(logK), vmin=0, vmax=4, extent=extent, cmap="jet")
     
     clb = fig.colorbar(im, ax=ax, fraction=0.046*im_ratio, pad=0.04)
-    clb.ax.set_title("mD", fontsize=15)
-    # Set ticks at log10([1, 10, 1000]) = [0, 1, 3]
-    clb.set_ticks([0, 1, 2, 3])
-    clb.set_ticklabels(["1", "10", "100", "1000"])
+    clb.ax.set_title("Md", fontsize=15)
+    # Set ticks at log10([1, 10, 1000]) = [0, 1, 3] - matching optim_inject.jl
+    clb.set_ticks([0, 1, 3])
+    clb.set_ticklabels(["1", "1e1", "1e3"])
     
     ax.set_xlabel("X[m]", fontsize=15)
     ax.set_ylabel("Depth[m]", fontsize=15)
