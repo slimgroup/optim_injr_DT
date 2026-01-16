@@ -55,7 +55,7 @@ function create_frame(K, sample_idx, actual_idx, output_path; n=N, d=D, h=H)
     ax.set_xlabel("X[m]", fontsize=15)
     ax.set_ylabel("Depth[m]", fontsize=15)
     ax.set_title("Permeability Sample $sample_idx / $N_SAMPLES  (idx=$actual_idx)", 
-                 fontsize=16, fontweight="bold")
+                 fontsize=20, fontweight="bold")
     
     plt.tight_layout(pad=0.5)
     
