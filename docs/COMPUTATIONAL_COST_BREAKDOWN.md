@@ -245,16 +245,22 @@ Each Sblk call always simulates **80 days** regardless of `ds` (`ds × 80/ds = 8
 2. **Newton iteration count is physics-driven**: The nonlinearity of the CO2-brine system determines how many Newton iterations are needed, not the number of report steps.
 3. **Overhead per report step is tiny**: Report step I/O and state storage add negligible overhead compared to Newton solves.
 
-### Expected Runtime by `ds`
+### Experimental Verification (Job 3142671, Jan 3 2026)
 
-| ds | Est. time per objective eval | Relative to ds=10 | Note |
-|----|-----------------------------|--------------------|------|
-| 1 | ~4-5 min | ~0.85-0.95× | Slightly faster (less I/O overhead) |
-| 2 | ~4-5 min | ~0.90-0.98× | Nearly identical |
-| 5 | ~4-5 min | ~0.95-1.0× | Nearly identical |
-| 10 | ~4-5 min | 1.0× (baseline) | Current setting |
+The test script `test_ds_minimal.jl` was run via `scripts/shell/test_ds_verification.sh` on PACE (single CPU, 8GB RAM). It runs one complete forward simulation (960 days, 12 injection periods) for each `ds` value, with a warmup run to eliminate JIT effects.
 
-**Estimated difference: <15%** across all `ds` values.
+**Results** (from `logs/ds_verification_3142671.out`):
+
+| ds | Simulation Time (s) | Total Report Steps | Seconds/Step | Relative to ds=1 |
+|----|--------------------:|-------------------:|-------------:|------------------:|
+| 1 | 351.21 | 12 | 29.268 | 1.00× |
+| 2 | 356.63 | 24 | 14.860 | 1.02× |
+| 5 | 397.93 | 60 | 6.632 | 1.13× |
+| 10 | 412.78 | 120 | 3.440 | **1.18×** |
+
+**Key finding**: ds=10 has **10× more report steps** than ds=1, but only **18% longer runtime**. This confirms that Jutul's adaptive ministeps dominate the computation cost, and the report step overhead is minimal.
+
+**Per-step time decreases with larger ds** (29.3 s/step for ds=1 vs 3.4 s/step for ds=10), because each report step covers a shorter time interval and requires fewer internal ministeps. But the total ministep count across the entire 80-day block is similar regardless of ds.
 
 ### What `ds` DOES Affect
 
@@ -262,9 +268,9 @@ Each Sblk call always simulates **80 days** regardless of `ds` (`ds × 80/ds = 8
 2. **Objective function integration accuracy**: Finer time discretization → more accurate time-weighted injection volume
 3. **Memory**: ds=10 stores 120 state snapshots vs ds=1 stores 12
 
-**Recommendation**: Keep `ds=10` for its superior temporal resolution in risk assessment, with negligible runtime penalty.
+**Recommendation**: Keep `ds=10` for its superior temporal resolution in risk assessment, with only ~18% runtime overhead vs ds=1.
 
-**Note**: A test script (`test_ds_minimal.jl`) and submission script (`scripts/shell/test_ds_verification.sh`) were prepared to experimentally verify these theoretical predictions, but no successful results have been obtained yet.
+**Test infrastructure**: `test_ds_minimal.jl` (test script), `scripts/shell/test_ds_verification.sh` (SBATCH submission), `check_ds_verification.sh` (result checker), `logs/ds_verification_3142671.out` (full results).
 
 ---
 
