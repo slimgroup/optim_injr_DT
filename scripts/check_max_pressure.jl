@@ -1,5 +1,5 @@
-using Pkg
-Pkg.activate(".")
+# Skip Pkg.activate to avoid permission issues - just load JLD2 directly
+push!(LOAD_PATH, joinpath(@__DIR__, ".."))
 using JLD2
 using Printf
 
@@ -11,7 +11,7 @@ function main()
         "POF__HARD__eps=0.05__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0",
         "sample=64/j=0.jld2")
 
-    println("Loading sample=64 data...")
+    println("Loading sample=64 ...")
     data = JLD2.load(f64)
     BHP_arr = data["BHP_arr"]
     pres_arr = data["pres_arr"]
@@ -56,13 +56,10 @@ function main()
             aw = (cx == x_idx && cz in well_z_range) ? " [WELL]" : ""
             @printf("    #%d: %.4f MPa at (x=%d, z=%d)%s\n", k, top5_vals[k]/1e6, cx, cz, aw)
         end
-        top100_idx = partialsortperm(flat, 1:100, rev=true)
-        n_at_well = count(i -> (mod1(i,n[1])==x_idx && div(i-1,n[1])+1 in well_z_range), top100_idx)
-        println("  Of top-100 highest P cells: $n_at_well at well")
     end
 
     println("\n\n" * "=" ^ 70)
-    println("BHP vs P_res SUMMARY (sample=64)")
+    println("BHP vs P_res (sample=64, all timesteps)")
     println("=" ^ 70)
     ng = 0; nl = 0; nt = 0
     for ts in 1:length(BHP_arr)
@@ -74,14 +71,6 @@ function main()
     end
     @printf("BHP > P_res: %d / %d (%.1f%%)\n", ng, nt, 100.0*ng/nt)
     @printf("BHP <= P_res: %d / %d (%.1f%%)\n", nl, nt, 100.0*nl/nt)
-
-    println("\nPer-timestep:")
-    for ts in [1,5,10,15,20,30,40,50,60,80,100,120]
-        if ts > length(BHP_arr); continue; end
-        bhp = BHP_arr[ts]; pres_2d = pres_arr[ts]
-        cnt = sum(bhp[j] > pres_2d[x_idx, inj_y+j-1] for j in 1:bhp_len)
-        println("  ts=$ts: $cnt/8 perfs have BHP > P_res")
-    end
 
     println("\n\n" * "=" ^ 70)
     println("SAMPLE=18: MAX PRESSURE LOCATION")
