@@ -4,6 +4,7 @@ Create videos from existing frames using imageio
 """
 import os
 import glob
+import argparse
 import imageio
 
 def create_video_from_frames(frames_dir, output_video, fps=10):
@@ -47,24 +48,46 @@ def create_gif_from_frames(frames_dir, output_gif, fps=4):
     print(f"GIF created: {output_gif}")
     return True
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Create videos from saved frame folders.")
+    parser.add_argument(
+        "directories",
+        nargs="*",
+        help="Optional specific output directories to process. If omitted, scan all known DT_control video folders.",
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
     base_dir = "/storage/coda1/p-fherrmann9/0/hli853/optim_injr_DT/plots/DT_control"
-    
-    # Find all frame directories
-    video_dirs = [
-        d for d in glob.glob(os.path.join(base_dir, "videos_5cases_*"))
-        if os.path.isdir(d)
-    ]
-    perm_dirs = [
-        d for d in glob.glob(os.path.join(base_dir, "video_128perm_*"))
-        if os.path.isdir(d)
-    ]
+
+    if args.directories:
+        target_dirs = [os.path.abspath(d) for d in args.directories if os.path.isdir(d)]
+        video_dirs = [
+            d for d in target_dirs
+            if os.path.basename(d).startswith(("videos_5cases_", "videos_stat3cases_"))
+        ]
+        perm_dirs = [
+            d for d in target_dirs
+            if os.path.basename(d).startswith("video_128perm_")
+        ]
+    else:
+        video_dirs = [
+            d for pattern in ("videos_5cases_*", "videos_stat3cases_*")
+            for d in glob.glob(os.path.join(base_dir, pattern))
+            if os.path.isdir(d)
+        ]
+        perm_dirs = [
+            d for d in glob.glob(os.path.join(base_dir, "video_128perm_*"))
+            if os.path.isdir(d)
+        ]
     
     print("=" * 60)
     print("Creating videos from existing frames")
     print("=" * 60)
     
-    # Process 5-case videos
+    # Process control-case video folders
     for video_dir in video_dirs:
         print(f"\nProcessing: {video_dir}")
         frame_dirs = glob.glob(os.path.join(video_dir, "frames_*"))

@@ -54,11 +54,11 @@ def make_pressure_fallback():
         "pressure_fallback",
         [
             (0.00, "#ffffff"),
-            (0.12, "#f5f5f5"),
-            (0.20, "#e7e89a"),
-            (0.40, "#ffcc33"),
-            (0.62, "#ff6b1a"),
-            (0.82, "#8f1d5a"),
+            (0.12, "#f9f9f3"),
+            (0.22, "#ecec98"),
+            (0.40, "#ffd42a"),
+            (0.62, "#f28e74"),
+            (0.82, "#b22222"),
             (1.00, "#050505"),
         ],
     )
@@ -70,12 +70,12 @@ def make_saturation_fallback():
         [
             (0.00, "#ffffff"),
             (0.10, "#f4f4f4"),
-            (0.22, "#ddd8c8"),
-            (0.32, "#b8bf4a"),
-            (0.45, "#43a86d"),
-            (0.65, "#1e9aa5"),
-            (0.82, "#2271b2"),
-            (1.00, "#5b2a86"),
+            (0.22, "#d8cf92"),
+            (0.34, "#9fbe4a"),
+            (0.50, "#49a65f"),
+            (0.66, "#2b8cbe"),
+            (0.82, "#5e3c99"),
+            (1.00, "#050505"),
         ],
     )
 
@@ -91,8 +91,8 @@ for ck, _ in cases:
     rates = np.asarray(data[f"{ck}_rates"], dtype=float).ravel()
     total_volume = float(np.sum(rates) * period_seconds)
     case_annotations[ck] = (
-        f"Injection rate: {rates[-1]:.4f} m$^3$/s\n"
-        f"Total injected CO$_2$ amount: {format_total_mass_mt(total_volume)}"
+        f"Rate: {rates[-1]:.4f} m$^3$/s\n"
+        f"CO$_2$: {format_total_mass_mt(total_volume)}"
     )
 
 # ── Colormaps ──────────────────────────────────────────────────────────────
@@ -149,7 +149,7 @@ for row_idx in range(3):
             ax.text(
                 0.03, 0.96, case_annotations[ck],
                 transform=ax.transAxes,
-                fontsize=16,
+                fontsize=19,
                 ha="left",
                 va="top",
                 bbox=dict(boxstyle="round,pad=0.25", facecolor="white", alpha=0.82, edgecolor="0.6"),
