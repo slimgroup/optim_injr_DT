@@ -22,6 +22,7 @@ using SlimPlotting
 using ArgParse
 @pyimport cmasher
 using StatsBase
+using Statistics
 using Dates
 using Printf
 
@@ -45,6 +46,21 @@ function parse_commandline()
             help = "Tail level for space–time CVaR (e.g., 0.05)"
             arg_type = Float64
             default = 0.05
+
+        "--monitoring_step"
+            help = "Monitoring step to optimize (1-based)"
+            arg_type = Int
+            default = 1
+
+        "--prior_mode"
+            help = "Prior state mode: legacy_previous_step | pointwise_median | paired_posterior_sample"
+            arg_type = String
+            default = "legacy_previous_step"
+
+        "--case_key"
+            help = "Case selector: auto | pof_eps0.0 | pof_eps0.01 | cvar_g0.1_a0.01"
+            arg_type = String
+            default = "auto"
 
         # Risk toggles and weights
         "--use_pof"
@@ -336,6 +352,179 @@ end
 # ★ ADDED: clean CVaR (strict worst-α-tail conditional expectation)
 normalize_weights(w) = (sum(w) <= 0 ? (w ./ 1) : (w ./ sum(w)))
 
+const DEFAULT_INJ_START = 0.0001
+const CASE_TO_POST_KEY = Dict(
+    "pof_eps0.0" => "X_post1",
+    "pof_eps0.01" => "X_post2",
+    "cvar_g0.1_a0.01" => "X_post3",
+)
+const CASE_TO_INJ_START = Dict(
+    "pof_eps0.0" => 0.02630,
+    "pof_eps0.01" => 0.04530,
+    "cvar_g0.1_a0.01" => 0.07470,
+)
+
+function canonical_case_key(case_key::AbstractString)
+    key = lowercase(strip(case_key))
+    key = replace(key, " " => "", "ε" => "eps", "γ" => "g", "," => "", ";" => "")
+    aliases = Dict(
+        "auto" => "auto",
+        "pof_eps=0.0" => "pof_eps0.0",
+        "pof_eps=0" => "pof_eps0.0",
+        "pof_eps0" => "pof_eps0.0",
+        "pof_eps0.0" => "pof_eps0.0",
+        "pof_eps=0.01" => "pof_eps0.01",
+        "pof_eps0.01" => "pof_eps0.01",
+        "cvar_g=0.1_a=0.01" => "cvar_g0.1_a0.01",
+        "cvar_g0.1_a0.01" => "cvar_g0.1_a0.01",
+        "cvar_gamma0.1_alpha0.01" => "cvar_g0.1_a0.01",
+    )
+    return get(aliases, key, key)
+end
+
+function canonical_prior_mode(prior_mode::AbstractString)
+    mode = lowercase(strip(prior_mode))
+    mode = replace(mode, "-" => "_", " " => "_")
+    aliases = Dict(
+        "legacy" => "legacy_previous_step",
+        "legacy_previous_step" => "legacy_previous_step",
+        "pointwise_median" => "pointwise_median",
+        "median" => "pointwise_median",
+        "paired_posterior_sample" => "paired_posterior_sample",
+        "paired" => "paired_posterior_sample",
+    )
+    haskey(aliases, mode) || error("Unsupported prior_mode: $(prior_mode)")
+    return aliases[mode]
+end
+
+function infer_case_key(risk_opts; requested::AbstractString="auto")
+    case_key = canonical_case_key(requested)
+    case_key != "auto" && return case_key
+
+    if risk_opts.use_cvar && isapprox(risk_opts.γ, 0.1; atol=1e-12) && isapprox(risk_opts.α, 0.01; atol=1e-12)
+        return "cvar_g0.1_a0.01"
+    elseif risk_opts.use_pof && isapprox(risk_opts.ε, 0.01; atol=1e-12)
+        return "pof_eps0.01"
+    elseif risk_opts.use_pof && isapprox(risk_opts.ε, 0.0; atol=1e-12)
+        return "pof_eps0.0"
+    end
+
+    error("Could not infer case_key from risk settings. Please pass --case_key explicitly.")
+end
+
+function align_state_grid(field::AbstractMatrix, target_size::Tuple{Int,Int})
+    if size(field) == target_size
+        return Float64.(field)
+    elseif size(field) == reverse(target_size)
+        return Float64.(permutedims(field, (2, 1)))
+    end
+    error("State field has incompatible size $(size(field)); expected $(target_size) or $(reverse(target_size)).")
+end
+
+function slice_sample_3d(samples::AbstractArray{<:Real,3}, sample_idx::Int, target_size::Tuple{Int,Int})
+    sample_axis = findfirst(==(128), size(samples))
+    sample_axis === nothing && error("Could not locate sample axis in array with size $(size(samples)).")
+    field = if sample_axis == 1
+        samples[sample_idx, :, :]
+    elseif sample_axis == 2
+        samples[:, sample_idx, :]
+    else
+        samples[:, :, sample_idx]
+    end
+    return align_state_grid(field, target_size)
+end
+
+function pointwise_median_3d(samples::AbstractArray{<:Real,3}, target_size::Tuple{Int,Int})
+    sample_axis = findfirst(==(128), size(samples))
+    sample_axis === nothing && error("Could not locate sample axis in array with size $(size(samples)).")
+    sample_axis == 1 && return align_state_grid(dropdims(mapslices(median, samples; dims=(1,)); dims=1), target_size)
+    sample_axis == 2 && return align_state_grid(dropdims(mapslices(median, samples; dims=(2,)); dims=2), target_size)
+    return align_state_grid(dropdims(mapslices(median, samples; dims=(3,)); dims=3), target_size)
+end
+
+function default_inj_start(case_key::String, monitoring_step::Int, cli_inj_start::Float64)
+    if monitoring_step > 1 && isapprox(cli_inj_start, DEFAULT_INJ_START; atol=1e-12)
+        haskey(CASE_TO_INJ_START, case_key) || error("No default inj_start configured for case_key=$(case_key)")
+        return CASE_TO_INJ_START[case_key]
+    end
+    return cli_inj_start
+end
+
+function load_step_context(monitoring_step::Int, s::Int, BroadK)
+    state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
+    state_data = JLD2.load(state_path)
+    indices = state_data["idx_t" * string(monitoring_step)]
+    idx = indices[s]
+    K = BroadK[idx, :, :] * JutulDarcyRules.md
+    return state_data, indices, idx, K
+end
+
+function load_posterior_case_cube(case_key::String)
+    post_key = get(CASE_TO_POST_KEY, case_key, nothing)
+    post_key === nothing && error("No posterior dataset configured for case_key=$(case_key)")
+    posterior_path = joinpath(projectdir(), "three_set_posteriro_samples_t1_pof_cvar.jld2")
+    posterior_data = JLD2.load(posterior_path)
+    haskey(posterior_data, post_key) || error("Posterior dataset $(post_key) not found in $(posterior_path)")
+    return posterior_data[post_key], post_key
+end
+
+function load_previous_step_prior(monitoring_step::Int, p_max::Array{Float64,2})
+    prior_path = datadir("state/Wise_128SatPres_for_Optim_Inj_vec_ir_k" * string(monitoring_step - 1) * ".jld2")
+    prior_data = JLD2.load(prior_path)
+    pres_samples = prior_data["pres_samples"]
+    sat_samples = prior_data["sat_samples"]
+    nsamples = 128
+    min_each_sample = map(i -> minimum(p_max - slice_sample_3d(pres_samples, i, size(p_max))), 1:nsamples)
+    global_min_idx = argmin(min_each_sample)
+    sat_init = slice_sample_3d(sat_samples, global_min_idx, size(p_max))
+    pres_init = slice_sample_3d(pres_samples, global_min_idx, size(p_max))
+    return sat_init, pres_init, Dict("source" => "legacy_previous_step", "posterior_key" => "legacy", "sample_idx" => global_min_idx)
+end
+
+function load_posterior_prior(prior_mode::String, monitoring_step::Int, case_key::String, s::Int, p_max::Array{Float64,2})
+    monitoring_step == 2 || error("Posterior-based prior_mode=$(prior_mode) is currently supported only for monitoring_step=2.")
+    posterior_cube, post_key = load_posterior_case_cube(case_key)
+    size(posterior_cube, 4) >= s || error("Posterior cube $(post_key) has only $(size(posterior_cube, 4)) samples; requested sample $(s).")
+
+    sat_init = if prior_mode == "pointwise_median"
+        align_state_grid(dropdims(mapslices(median, posterior_cube[:, :, 1, :]; dims=(3,)); dims=3), size(p_max))
+    else
+        align_state_grid(posterior_cube[:, :, 1, s], size(p_max))
+    end
+    pres_init = if prior_mode == "pointwise_median"
+        align_state_grid(dropdims(mapslices(median, posterior_cube[:, :, 2, :]; dims=(3,)); dims=3), size(p_max))
+    else
+        align_state_grid(posterior_cube[:, :, 2, s], size(p_max))
+    end
+    sample_idx = prior_mode == "paired_posterior_sample" ? s : 0
+    return sat_init, pres_init, Dict("source" => prior_mode, "posterior_key" => post_key, "sample_idx" => sample_idx)
+end
+
+function load_prior_state(prior_mode::String, monitoring_step::Int, case_key::String, s::Int,
+                          p_max::Array{Float64,2}, K, n)
+    if monitoring_step == 1
+        inj_y0 = 191 + argmax(K[250, 191:200]) - 1
+        S0 = zeros(Float64, n[1], n[end])
+        Random.seed!(2025 + s - 1)
+        value = 0.2 + rand(Float64) * 0.6
+        S0[249:251, inj_y0-4] .= value
+        S0[248:252, inj_y0-3] .= value
+        S0[247:253, inj_y0-2] .= value
+        S0[246:254, inj_y0-1] .= value
+        S0[246:254, inj_y0]   .= value
+        S0[246:254, inj_y0+1] .= value
+        S0[247:253, inj_y0+2] .= value
+        S0[248:252, inj_y0+3] .= value
+        S0[249:251, inj_y0+4] .= value
+        return S0, nothing, Dict("source" => "step1_randomized", "posterior_key" => "none", "sample_idx" => 0)
+    end
+
+    if prior_mode == "legacy_previous_step"
+        return load_previous_step_prior(monitoring_step, p_max)
+    end
+    return load_posterior_prior(prior_mode, monitoring_step, case_key, s, p_max)
+end
+
 """
 cvar_clean(L, w; α) -> (cvar, t_star)
 Strictly compute weighted conditional expectation of worst α-tail (for reporting/evaluation)
@@ -610,53 +799,18 @@ function main()
     ϕ = 0.25
     ds = 10
     forward_step = 2
+    monitoring_step = args["monitoring_step"]
+    prior_mode = canonical_prior_mode(args["prior_mode"])
 
     perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
     perm_data = JLD2.load(perm_path)
     BroadK = perm_data["BroadK"]
 
-    monitoring_step = 1
-    state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
-    state_data = JLD2.load(state_path)
-
     risk_mode = args["risk_mode"] == "window" ? :window : :relative
-
-    idices = state_data["idx_t" * string(monitoring_step)]
-    idx = idices[s]
-    K = BroadK[idx, :, :] * JutulDarcyRules.md
 
     p0 = (repeat(collect(1:256), 1, 512) * d[3] .+ h) * JutulDarcyRules.ρH2O * 10
     threshold = 4.0
     p_max = p0' .+ threshold * 10^6
-
-    # prior state
-    sat_init = nothing
-    pres_init = nothing
-    if monitoring_step == 1
-        inj_y0 = 191 + argmax(K[250, 191:200]) - 1
-        S0 = zeros(Float64, n[1], n[end])
-        Random.seed!(2025 + s - 1)
-        value = 0.2 + rand(Float64) * 0.6
-        S0[249:251, inj_y0-4] .= value
-        S0[248:252, inj_y0-3] .= value
-        S0[247:253, inj_y0-2] .= value
-        S0[246:254, inj_y0-1] .= value
-        S0[246:254, inj_y0]   .= value
-        S0[246:254, inj_y0+1] .= value
-        S0[247:253, inj_y0+2] .= value
-        S0[248:252, inj_y0+3] .= value
-        S0[249:251, inj_y0+4] .= value
-        sat_init = S0
-    else
-        prior_path = datadir("state/Wise_128SatPres_for_Optim_Inj_vec_ir_k" * string(monitoring_step - 1) * ".jld2")
-        prior_data = JLD2.load(prior_path)
-        pres_samples = prior_data["pres_samples"]
-        min_each_sample = map(i -> minimum(p_max - pres_samples[i, :, :]), 1:size(pres_samples, 1))
-        global_min_idx = argmin(min_each_sample)
-        sat_init = prior_data["sat_samples"][global_min_idx, :, :]
-        pres_init = prior_data["pres_samples"][global_min_idx, :, :]
-    end
-    @assert sat_init !== nothing "sat_init must be defined before calling objective"
 
     # risk opts
     risk_opts = (
@@ -682,10 +836,21 @@ function main()
     )
     println("Risk options: ", risk_opts)
 
+    case_key = infer_case_key(risk_opts; requested=args["case_key"])
+    state_data, indices, idx, K = load_step_context(monitoring_step, s, BroadK)
+    sat_init, pres_init, prior_meta = load_prior_state(prior_mode, monitoring_step, case_key, s, p_max, K, n)
+    @assert sat_init !== nothing "sat_init must be defined before calling objective"
+
+    println("Monitoring step: ", monitoring_step)
+    println("Case key: ", case_key)
+    println("Prior mode: ", prior_mode)
+    println("Matched permeability sample idx_t$(monitoring_step)[$(s)] = ", idx)
+    println("Prior source: ", prior_meta)
+
     # tags/paths
-    function scenariotag(risk; step::Int, idx::Int)
+    function scenariotag(risk; step::Int, idx::Int, case_key::String, prior_mode::String)
         parts = String[
-            "step$(step)", "idx$(idx)",
+            "step$(step)", "idx$(idx)", "case=$(case_key)", "prior=$(prior_mode)",
             risk.use_pof ? "POF" : "", risk.use_cvar ? "CVaR" : "",
             ((risk.pof_as_constraint || risk.cvar_as_constraint) ? "HARD" : "SOFT"),
             risk.use_pof  ? "eps=$(risk.ε)" : "",
@@ -699,8 +864,9 @@ function main()
         ]
         join(filter(!isempty, parts), "__")
     end
-    function casetag(risk)
+    function casetag(risk; case_key::String, prior_mode::String)
         parts = String[
+            "case=$(case_key)", "prior=$(prior_mode)",
             risk.use_pof ? "POF" : "",
             risk.use_cvar ? "CVaR" : "",
             ((risk.pof_as_constraint || risk.cvar_as_constraint) ? "HARD" : "SOFT"),
@@ -717,8 +883,8 @@ function main()
     end
 
     sim_name = "DT_control"
-    run_tag = scenariotag(risk_opts; step=monitoring_step, idx=s)
-    case_tag = casetag(risk_opts)
+    run_tag = scenariotag(risk_opts; step=monitoring_step, idx=s, case_key=case_key, prior_mode=prior_mode)
+    case_tag = casetag(risk_opts; case_key=case_key, prior_mode=prior_mode)
     exp_layer = "exp_name=step$(monitoring_step)"
 
     data_root  = datadir(sim_name, exp_layer, case_tag)
@@ -727,8 +893,10 @@ function main()
     mkpath(out_root)
     
     # Scratch directory for iteration files
-    scratch_root = get(ENV, "SCRATCH", "/storage/home/hcoda1/6/$(ENV["USER"])/scratch")
-    isdir(scratch_root) || error("Scratch directory not found: $scratch_root")
+    scratch_root = get(ENV, "SCRATCH") do
+        joinpath(homedir(), "scratch")
+    end
+    mkpath(scratch_root)
     scratch_out_root = joinpath(scratch_root, "optim_injr_DT", sim_name, exp_layer, case_tag, sample_tag)
     mkpath(scratch_out_root)
 
@@ -750,7 +918,8 @@ function main()
     end
     inj_rate  = [inj_guess_adj]
     δinj      = 1e-8 * ones(size(inj_rate, 1))
-    inj_start = args["inj_start"]
+    inj_start = default_inj_start(case_key, monitoring_step, args["inj_start"])
+    println("Using inj_start = ", inj_start)
 
     # Well location
     inj_y = 191 + argmax(K[250, 191:200]) - 1
@@ -915,7 +1084,8 @@ function main()
         "pen_cvar"  => pen_cvar,
         "r_vals" => r_vals0,
         "w_vals" => w_vals0,
-        "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step)
+        "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step,
+                   case_key=case_key, prior_mode=prior_mode, prior_source=prior_meta)
         );
     safe=true)
 
@@ -1053,7 +1223,8 @@ function main()
                 "pen_cvar"  => pen_cvar,
                 "r_vals" => r_valsj,
                 "w_vals" => w_valsj,
-                "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step)
+                "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step,
+                           case_key=case_key, prior_mode=prior_mode, prior_source=prior_meta)
                 );
             safe=true)
         end
@@ -1093,7 +1264,8 @@ function main()
         "pen_total_arr" => pen_total_arr,
         "pen_pof_arr"   => pen_pof_arr,
         "pen_cvar_arr"  => pen_cvar_arr,
-        "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step)
+        "meta" => (risk_opts=risk_opts, run_tag=run_tag, idx=s, step=monitoring_step,
+                   case_key=case_key, prior_mode=prior_mode, prior_source=prior_meta)
         );
     safe=true)
 
