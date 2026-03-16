@@ -6,7 +6,6 @@
 
 using Pkg
 Pkg.activate(".")
-Pkg.instantiate()
 
 using DrWatson
 @quickactivate "optim_injr_DT"

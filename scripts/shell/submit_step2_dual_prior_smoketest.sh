@@ -20,22 +20,19 @@ if [[ ! -f "${SBATCH_FILE}" ]]; then
   exit 1
 fi
 
-DEP_OPT=""
-
 submit_bucket() {
   local case_tag="$1"; shift
   local risk_args="$*"
   local jobline
   local jobid
 
-  echo "[SUBMIT] ${case_tag}  samples=${SAMPLE_RANGE} ${DEP_OPT:+(dep ${DEP_OPT})}"
-  jobline=$(sbatch ${DEP_OPT} --parsable --array="${SAMPLE_RANGE}" --chdir="${ROOT_DIR}" \
+  echo "[SUBMIT] ${case_tag}  samples=${SAMPLE_RANGE}"
+  jobline=$(sbatch --parsable --array="${SAMPLE_RANGE}" --chdir="${ROOT_DIR}" \
     --job-name="${case_tag}" \
     --export=ALL,CASE_TAG="${case_tag}",RISK_ARGS="${risk_args}" \
     "${SBATCH_FILE}")
   jobid="${jobline%%_*}"
   echo "  -> jobid ${jobid}"
-  DEP_OPT="--dependency=afterany:${jobid}"
 }
 
 POF_BASE="--monitoring_step 2 --case_key pof_eps0.01 \

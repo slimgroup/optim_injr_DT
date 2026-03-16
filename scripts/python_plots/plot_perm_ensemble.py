@@ -51,56 +51,68 @@ cmap_perm = cc.cm["rainbow4"]   # colorcet rainbow4
 # ── 3-panel figure ────────────────────────────────────────────────────────
 plt.rcParams.update({
     "font.family": "serif",
-    "font.size": 13,
-    "axes.labelsize": 14,
-    "axes.titlesize": 15,
-    "xtick.labelsize": 12,
-    "ytick.labelsize": 12,
+    "font.size": 22,
+    "axes.labelsize": 24,
+    "axes.titlesize": 30,
+    "xtick.labelsize": 20,
+    "ytick.labelsize": 20,
 })
 
-fig, axes = plt.subplots(1, 3, figsize=(16.5, 4.5), sharey=True)
+fig, axes = plt.subplots(1, 3, figsize=(21, 7), sharey=True)
 
-# Shared perm color range (matches optim_inject.jl: vmin=0, vmax=4)
 vmin_p, vmax_p = 0, 4
 
-# (a) Ground truth
 im0 = axes[0].imshow(logK_gt.T, vmin=vmin_p, vmax=vmax_p,
                      extent=extent, cmap=cmap_perm, aspect="auto")
-axes[0].set_title("(a)  Ground Truth")
 axes[0].set_xlabel("X [m]")
 axes[0].set_ylabel("Depth [m]")
 
-# (b) Ensemble mean
 im1 = axes[1].imshow(logK_mean.T, vmin=vmin_p, vmax=vmax_p,
                      extent=extent, cmap=cmap_perm, aspect="auto")
-axes[1].set_title(f"(b)  Ensemble Mean  (N = {BroadK.shape[0]})")
 axes[1].set_xlabel("X [m]")
 
-# (c) Ensemble std
-vmax_std = float(np.ceil(logK_std.max() * 10) / 10)   # round up
+vmax_std = float(np.ceil(logK_std.max() * 10) / 10)
 im2 = axes[2].imshow(logK_std.T, vmin=0, vmax=vmax_std,
                      extent=extent, cmap="cet_CET_L8", aspect="auto")
-axes[2].set_title("(c)  Ensemble Std Dev")
 axes[2].set_xlabel("X [m]")
 
-# ── Colorbars (matching optim_inject.jl ticks) ───────────────────────────
-fig.subplots_adjust(bottom=0.22, top=0.90, left=0.05, right=0.88, wspace=0.10)
+fig.subplots_adjust(bottom=0.24, top=0.88, left=0.07, right=0.98, wspace=0.18)
 
-# Shared colorbar for (a) and (b)
-cax1 = fig.add_axes([0.05, 0.07, 0.52, 0.03])
+pos0 = axes[0].get_position()
+pos1 = axes[1].get_position()
+pos2 = axes[2].get_position()
+
+cbar_y = 0.06
+cbar_h = 0.03
+
+cax1 = fig.add_axes([pos0.x0, cbar_y, pos1.x1 - pos0.x0, cbar_h])
 clb1 = fig.colorbar(im1, cax=cax1, orientation="horizontal")
 clb1.set_ticks(np.log10([1, 10, 1000]))
 clb1.set_ticklabels(["1", "1e1", "1e3"])
-clb1.set_label("log$_{10}$(K)  [mD]", fontsize=13)
+clb1.set_label("log$_{10}$(K)  [mD]", fontsize=22)
 
-# Colorbar for (c)
-cax2 = fig.add_axes([0.62, 0.07, 0.25, 0.03])
+cax2 = fig.add_axes([pos2.x0, cbar_y, pos2.width, cbar_h])
 clb2 = fig.colorbar(im2, cax=cax2, orientation="horizontal")
-clb2.set_label("Std Dev  [log$_{10}$(mD)]", fontsize=13)
+clb2.set_label("Std Dev  [log$_{10}$(mD)]", fontsize=22)
+
+# Render to get accurate visual extents, then place titles centered over
+# each subplot's full visual area (including ylabel/ticks)
+fig.canvas.draw()
+renderer = fig.canvas.get_renderer()
+inv = fig.transFigure.inverted()
+titles = ["(a) Ground Truth", f"(b) Ensemble Mean (N={BroadK.shape[0]})", "(c) Ensemble Std Dev"]
+for i, ax in enumerate(axes):
+    pos = ax.get_position()
+    tb = ax.get_tightbbox(renderer).transformed(inv)
+    vis_cx = (tb.x0 + tb.x1) / 2
+    ax_cx = pos.x0 + pos.width / 2
+    x_offset = (vis_cx - ax_cx) / pos.width
+    ax.set_title(titles[i], fontsize=30, fontweight="bold", pad=12,
+                 x=0.5 + x_offset)
 
 for ext in ["png", "pdf"]:
     fname = os.path.join(OUT_DIR, f"perm_ensemble_statistics.{ext}")
-    fig.savefig(fname, dpi=300, bbox_inches="tight")
+    fig.savefig(fname, dpi=300)
     print(f"Saved: {fname}")
 plt.close(fig)
 

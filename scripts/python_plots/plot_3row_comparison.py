@@ -15,6 +15,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
+import colorcet as cc
+import cmasher
 BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_FILE = os.path.join(BASE, "plots", "paper_figures", "forward_sim_data.jld2")
 OUT_DIR   = os.path.join(BASE, "plots", "paper_figures")
@@ -49,37 +51,6 @@ cases = [
 ]
 
 
-def make_pressure_fallback():
-    return mcolors.LinearSegmentedColormap.from_list(
-        "pressure_fallback",
-        [
-            (0.00, "#ffffff"),
-            (0.12, "#f9f9f3"),
-            (0.22, "#ecec98"),
-            (0.40, "#ffd42a"),
-            (0.62, "#f28e74"),
-            (0.82, "#b22222"),
-            (1.00, "#050505"),
-        ],
-    )
-
-
-def make_saturation_fallback():
-    return mcolors.LinearSegmentedColormap.from_list(
-        "saturation_fallback",
-        [
-            (0.00, "#ffffff"),
-            (0.10, "#f4f4f4"),
-            (0.22, "#d8cf92"),
-            (0.34, "#9fbe4a"),
-            (0.50, "#49a65f"),
-            (0.66, "#2b8cbe"),
-            (0.82, "#5e3c99"),
-            (1.00, "#050505"),
-        ],
-    )
-
-
 def format_total_mass_mt(total_volume_m3):
     total_mass_mt = total_volume_m3 * RHO_CO2 / 1e9
     return f"{total_mass_mt:.2f} Mt"
@@ -100,8 +71,8 @@ cmap_margin = mcolors.ListedColormap(np.vstack([
     plt.cm.Reds_r(np.linspace(0.0, 0.85, 26)),
     plt.cm.Blues(np.linspace(0.0, 1.0, 230)),
 ]))
-cmap_pres = make_pressure_fallback()
-cmap_sat = make_saturation_fallback()
+cmap_pres = cc.cm["CET_L3_r"]
+cmap_sat = cmasher.rainforest_r
 
 dp_vmax = 0
 for ck, _ in cases:
@@ -149,10 +120,10 @@ for row_idx in range(3):
             ax.text(
                 0.03, 0.96, case_annotations[ck],
                 transform=ax.transAxes,
-                fontsize=19,
+                fontsize=22,
                 ha="left",
                 va="top",
-                bbox=dict(boxstyle="round,pad=0.25", facecolor="white", alpha=0.82, edgecolor="0.6"),
+                bbox=dict(boxstyle="round,pad=0.28", facecolor="white", alpha=0.82, edgecolor="0.6"),
             )
             first_row_axes.append(ax)
         elif row_idx == 1:
@@ -196,9 +167,8 @@ fig.suptitle(
     "Non-Fracture vs Fracture: Safety Margin, Pressure, and CO$_2$ Plume  (t = 480 days)",
     fontsize=36, fontweight="bold", x=0.5, y=0.96)
 
-for ext in ["png", "pdf"]:
-    fname = os.path.join(OUT_DIR, f"fracture_comparison_3x3.{ext}")
-    fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.01)
-    print(f"Saved: {fname}")
+fname = os.path.join(OUT_DIR, "fracture_comparison_3x3.png")
+fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.01)
+print(f"Saved: {fname}")
 plt.close(fig)
 print("Done!")
