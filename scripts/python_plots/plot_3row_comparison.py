@@ -81,17 +81,16 @@ dp_vmax = min(dp_vmax * 1.05, THRESHOLD * 1.6)
 
 # ── Figure ─────────────────────────────────────────────────────────────────
 plt.rcParams.update({
-    "font.family": "serif",
-    "font.size": 26,
-    "axes.labelsize": 28,
-    "axes.titlesize": 28,
-    "xtick.labelsize": 24,
-    "ytick.labelsize": 24,
+    "font.size": 16,
+    "axes.labelsize": 18,
+    "axes.titlesize": 18,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
 })
 
-fig = plt.figure(figsize=(24, 16))
+fig = plt.figure(figsize=(20, 10))
 outer = gridspec.GridSpec(3, 1, figure=fig,
-                          hspace=0.12, top=0.87, bottom=0.05, left=0.09, right=0.95)
+                          hspace=0.10, top=0.85, bottom=0.08, left=0.08, right=0.95)
 
 row_imgs = [None, None, None]
 row_ylabels = [
@@ -108,6 +107,7 @@ for row_idx in range(3):
     )
     for col in range(3):
         ax = fig.add_subplot(inner[0, col])
+        ax.set_box_aspect(0.5)
         ck = cases[col][0]
         sat  = data[f"{ck}_sat"]
         pres = data[f"{ck}_pres"]
@@ -116,11 +116,11 @@ for row_idx in range(3):
             r = (p_max - pres) / p_max
             im = ax.imshow(r.T, extent=extent, cmap=cmap_margin,
                            vmin=-0.1, vmax=1.0, aspect="auto")
-            ax.set_title(cases[col][1], fontsize=32, fontweight="bold", pad=4)
+            ax.set_title(cases[col][1], fontsize=20, fontweight="bold", pad=2)
             ax.text(
                 0.03, 0.96, case_annotations[ck],
                 transform=ax.transAxes,
-                fontsize=22,
+                fontsize=14,
                 ha="left",
                 va="top",
                 bbox=dict(boxstyle="round,pad=0.28", facecolor="white", alpha=0.82, edgecolor="0.6"),
@@ -137,9 +137,9 @@ for row_idx in range(3):
         if row_idx < 2:
             ax.set_xticklabels([])
         else:
-            ax.set_xlabel("X [m]", fontsize=28)
+            ax.set_xlabel("X [m]", fontsize=19)
         if col == 0:
-            ax.set_ylabel(row_ylabels[row_idx], fontsize=26)
+            ax.set_ylabel(row_ylabels[row_idx], fontsize=19)
         else:
             ax.set_yticklabels([])
 
@@ -153,19 +153,19 @@ for row_idx in range(3):
         cb.set_ticklabels(["0", "0.25", "0.5", "0.75", "1.0"])
         # "<0 (frac)" at the extended tip, "safe" at top
         cb.ax.text(0.5, -0.06, "<0 (frac.)", transform=cb.ax.transAxes,
-                   fontsize=20, ha="center", va="top", fontstyle="italic")
+                   fontsize=13, ha="center", va="top", fontstyle="italic")
         cb.ax.text(0.5, 1.02, "(safe)", transform=cb.ax.transAxes,
-                   fontsize=20, ha="center", va="bottom", fontstyle="italic")
+                   fontsize=13, ha="center", va="bottom", fontstyle="italic")
     elif row_idx == 1:
         cb = fig.colorbar(row_imgs[1], cax=cax)
-        cb.set_label("MPa", fontsize=26, labelpad=8)
+        cb.set_label("MPa", fontsize=19, labelpad=8)
     else:
         cb = fig.colorbar(row_imgs[2], cax=cax)
-    cb.ax.tick_params(labelsize=22)
+    cb.ax.tick_params(labelsize=15)
 
 fig.suptitle(
     "Non-Fracture vs Fracture: Safety Margin, Pressure, and CO$_2$ Plume  (t = 480 days)",
-    fontsize=36, fontweight="bold", x=0.5, y=0.96)
+    fontsize=23, fontweight="bold", x=0.5, y=0.965)
 
 fname = os.path.join(OUT_DIR, "fracture_comparison_3x3.png")
 fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.01)

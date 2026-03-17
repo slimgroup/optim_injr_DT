@@ -366,7 +366,8 @@ def plot_paper_style_summary(samples, out_dir, stat_name):
             if row == 0:
                 ax.set_title(col_titles[col], fontsize=18, fontweight="bold", pad=3)
             if col == 0:
-                ax.set_ylabel(f"{row_labels[row]}\nDepth [m]", fontsize=19)
+                ylabel_fs = 19 if is_mean else 17
+                ax.set_ylabel(f"{row_labels[row]}\nDepth [m]", fontsize=ylabel_fs)
             else:
                 ax.set_yticklabels([])
             if row == 2:
