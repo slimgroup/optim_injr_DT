@@ -101,8 +101,8 @@ pen_cvar = risk.use_cvar ? risk.λ_cvar * (softplus(cvar_smooth     - risk.γ; �
 
 ## 日志文件
 
-提交日志记录了实际的提交情况：
-- `submit_pof_cases.log` - POF cases 提交日志
-- `submit_20_cases_65_128.log` - CVaR cases 提交日志（部分）
-- `submit_20_cases_65_128_continue.log` - CVaR cases 继续提交日志
+提交日志记录了实际的提交情况（位于 `logs/`）：
+- `logs/submit_pof_cases_simple.log`（或历史 `submit_pof_cases.log`）- POF cases 提交日志
+- `logs/submit_20_cases_65_128.log` - CVaR cases 提交日志（部分）
+- `logs/submit_20_cases_65_128_continue.log` - CVaR cases 继续提交日志
 

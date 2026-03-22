@@ -83,7 +83,7 @@ optim_injr_DT/
 └── test/                  # Test suite
 ```
 
-For detailed structure, see [docs/DIRECTORY_STRUCTURE.md](docs/DIRECTORY_STRUCTURE.md)
+For detailed structure (including where logs, large data files, and helper shell scripts live), see [docs/DIRECTORY_STRUCTURE.md](docs/DIRECTORY_STRUCTURE.md)
 
 ---
 

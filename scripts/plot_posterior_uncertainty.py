@@ -12,6 +12,11 @@ When read with h5py, the dataset appears as:
 import os
 import shutil
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+POSTERIOR_JLD2 = os.path.join(
+    PROJECT_ROOT, "data", "three_set_posteriro_samples_t1_pof_cvar.jld2"
+)
+
 import h5py
 import imageio
 import matplotlib
@@ -442,7 +447,7 @@ def print_summary(samples):
 
 
 def main():
-    data_file = "three_set_posteriro_samples_t1_pof_cvar.jld2"
+    data_file = POSTERIOR_JLD2
     out_dir = "plots/posterior_analysis"
 
     ensure_clean_output_dir(out_dir)

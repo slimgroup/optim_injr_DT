@@ -29,9 +29,9 @@ export OMP_NUM_THREADS=1
 # Get project root (same logic as optim_inject_pace.sh)
 if [ -n "${SLURM_SUBMIT_DIR:-}" ]; then
     # If SLURM_SUBMIT_DIR is set and points to scripts/, go up one level
-    if [ -f "${SLURM_SUBMIT_DIR}/test_ds_light.jl" ]; then
+    if [ -f "${SLURM_SUBMIT_DIR}/test/test_ds_minimal.jl" ]; then
         ROOT_DIR="${SLURM_SUBMIT_DIR}"
-    elif [ -f "${SLURM_SUBMIT_DIR}/../test_ds_light.jl" ]; then
+    elif [ -f "${SLURM_SUBMIT_DIR}/../test/test_ds_minimal.jl" ]; then
         ROOT_DIR="$(cd "${SLURM_SUBMIT_DIR}/.." && pwd)"
     else
         # Fallback: assume project root
@@ -58,11 +58,11 @@ echo "Node: $(hostname)"
 echo "Start time: $(date)"
 echo "Current directory: $(pwd)"
 echo "ROOT_DIR: ${ROOT_DIR}"
-echo "Test file exists: $([ -f test_ds_light.jl ] && echo 'YES' || echo 'NO')"
+echo "Test file exists: $([ -f test/test_ds_minimal.jl ] && echo 'YES' || echo 'NO')"
 echo ""
 
 # Run the verification test (use minimal version to avoid PyCall compilation)
-julia --project="${ROOT_DIR}" -t 1 "${ROOT_DIR}/test_ds_minimal.jl"
+julia --project="${ROOT_DIR}" -t 1 "${ROOT_DIR}/test/test_ds_minimal.jl"
 
 echo ""
 echo "=========================================="

@@ -461,7 +461,7 @@ end
 function load_posterior_case_cube(case_key::String)
     post_key = get(CASE_TO_POST_KEY, case_key, nothing)
     post_key === nothing && error("No posterior dataset configured for case_key=$(case_key)")
-    posterior_path = joinpath(projectdir(), "three_set_posteriro_samples_t1_pof_cvar.jld2")
+    posterior_path = datadir("three_set_posteriro_samples_t1_pof_cvar.jld2")
     posterior_data = JLD2.load(posterior_path)
     haskey(posterior_data, post_key) || error("Posterior dataset $(post_key) not found in $(posterior_path)")
     return posterior_data[post_key], post_key

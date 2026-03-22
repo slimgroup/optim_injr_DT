@@ -1,5 +1,9 @@
 #!/bin/bash
-# 检查 ds 验证测试状态和结果
+# 检查 ds 验证测试状态和结果（从任意目录运行：会 cd 到仓库根目录）
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+cd "${ROOT_DIR}" || exit 1
 
 # 自动查找最新的 ds_verification job
 JOB_ID=$(squeue -u $USER -o "%.10i %.20j" 2>/dev/null | grep "ds_verification" | awk '{print $1}' | head -1)

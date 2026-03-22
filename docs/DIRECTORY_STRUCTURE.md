@@ -56,6 +56,14 @@ optim_injr_DT/
 └── _research/                    # Research-related files (if needed)
 ```
 
+### Root directory (keep tidy)
+
+Keep the repository root limited to project metadata and agent-facing docs (for example `Project.toml`, `Manifest.toml`, `README.md`, `CLAUDE.md`, `AGENTS.md`). Put **SLURM / batch logs**, **submit logs**, and similar under **`logs/`**. Store large analysis artifacts such as **`data/three_set_posteriro_samples_t1_pof_cvar.jld2`** under **`data/`**. Small helper shell scripts (including `check_*.sh`) live under **`scripts/shell/`**; run them from the project root or rely on their internal `cd` to the repo root where noted.
+
+### Local tooling (not in git)
+
+Editor- or machine-specific directories such as **`.julia_depot_cursor/`** (project-local Julia depot for IDE runs), **`.mplconfig/`** (Matplotlib cache), and **`.vscode/`** (workspace settings) are listed in `.gitignore` and should not be committed.
+
 ## File Category Descriptions
 
 ### Core Modules (src/)
