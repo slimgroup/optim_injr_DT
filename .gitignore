@@ -450,5 +450,26 @@ $RECYCLE.BIN/
 *.lnk
 
 
+################################################################################
+# Local editor caches and machine-specific tooling (not part of the project)
+################################################################################
+
+# Cursor/IDE: project-local Julia depot (packages, compiled, registries; like a
+# mini ~/.julia under the repo). Large and machine-specific; safe to delete if
+# Julia is re-run and will repopulate.
+.julia_depot_cursor/
+
+# Matplotlib user config and font cache (e.g. fontlist-*.json); regenerated.
+.mplconfig/
+
+# VS Code / Cursor workspace settings (often personal). Track selectively if you
+# later add shared tasks or launch configs the team should share.
+.vscode/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
 ## Acknowledgements
 # Many thanks to `https://gitignore.io/`, written and maintained by Joe Blau, which contributed much material to this gitignore file.
