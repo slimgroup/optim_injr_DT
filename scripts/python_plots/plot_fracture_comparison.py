@@ -84,9 +84,6 @@ fig.suptitle(
 fname = os.path.join(OUT_DIR, "fracture_comparison_3col.png")
 fig.savefig(fname, dpi=200, bbox_inches="tight", pad_inches=0.1)
 print(f"Saved: {fname}")
-fname_pdf = os.path.join(OUT_DIR, "fracture_comparison_3col.pdf")
-fig.savefig(fname_pdf, dpi=200, bbox_inches="tight", pad_inches=0.1)
-print(f"Saved: {fname_pdf}")
 plt.close(fig)
 
 # ── Also create a 2-column version (POF vs CVaR only) ────────────────────
@@ -108,9 +105,6 @@ fig2.suptitle(
 fname2 = os.path.join(OUT_DIR, "fracture_comparison_2col.png")
 fig2.savefig(fname2, dpi=200, bbox_inches="tight", pad_inches=0.1)
 print(f"Saved: {fname2}")
-fname2_pdf = os.path.join(OUT_DIR, "fracture_comparison_2col.pdf")
-fig2.savefig(fname2_pdf, dpi=200, bbox_inches="tight", pad_inches=0.1)
-print(f"Saved: {fname2_pdf}")
 plt.close(fig2)
 
 # ── Time evolution comparison (frames at t=80, 240, 480 days) ─────────────
@@ -153,9 +147,6 @@ fig3.suptitle(
 fname3 = os.path.join(OUT_DIR, "fracture_time_evolution.png")
 fig3.savefig(fname3, dpi=200, bbox_inches="tight", pad_inches=0.1)
 print(f"Saved: {fname3}")
-fname3_pdf = os.path.join(OUT_DIR, "fracture_time_evolution.pdf")
-fig3.savefig(fname3_pdf, dpi=200, bbox_inches="tight", pad_inches=0.1)
-print(f"Saved: {fname3_pdf}")
 plt.close(fig3)
 
 print("\nAll figures saved!")

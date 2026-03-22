@@ -56,10 +56,9 @@ def make_2col_figure():
         fontsize=19, fontweight="bold", y=0.98
     )
 
-    for ext in ["png", "pdf"]:
-        fname = os.path.join(OUT_DIR, f"fracture_comparison_2col_clean.{ext}")
-        fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.02)
-        print(f"Saved: {fname}")
+    fname = os.path.join(OUT_DIR, "fracture_comparison_2col_clean.png")
+    fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.02)
+    print(f"Saved: {fname}")
     plt.close(fig)
 
 
@@ -89,10 +88,9 @@ def make_3col_figure():
         fontsize=19, fontweight="bold", y=0.98
     )
 
-    for ext in ["png", "pdf"]:
-        fname = os.path.join(OUT_DIR, f"fracture_comparison_3col_clean.{ext}")
-        fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.02)
-        print(f"Saved: {fname}")
+    fname = os.path.join(OUT_DIR, "fracture_comparison_3col_clean.png")
+    fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.02)
+    print(f"Saved: {fname}")
     plt.close(fig)
 
 
@@ -136,10 +134,9 @@ def make_time_evolution():
         fontsize=20, fontweight="bold", y=0.98
     )
 
-    for ext in ["png", "pdf"]:
-        fname = os.path.join(OUT_DIR, f"fracture_time_evolution_clean.{ext}")
-        fig.savefig(fname, dpi=200, bbox_inches="tight", pad_inches=0.02)
-        print(f"Saved: {fname}")
+    fname = os.path.join(OUT_DIR, "fracture_time_evolution_clean.png")
+    fig.savefig(fname, dpi=200, bbox_inches="tight", pad_inches=0.02)
+    print(f"Saved: {fname}")
     plt.close(fig)
 
 

@@ -5,137 +5,155 @@ Shows: (a) Ground truth (sample 2000), (b) Ensemble mean, (c) Ensemble std
 Colorbars consistent with optim_inject.jl
 """
 import os, sys
+import gc
 import numpy as np
 import h5py
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 import colorcet as cc
 
-# ── Paths ──────────────────────────────────────────────────────────────────
+# -- Paths -----------------------------------------------------------------
 BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(BASE, "data")
-OUT_DIR  = os.path.join(BASE, "plots", "paper_figures")
+OUT_DIR = os.path.join(BASE, "plots", "paper_figures")
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# ── Domain ─────────────────────────────────────────────────────────────────
+# -- Domain ----------------------------------------------------------------
 nx, nz = 512, 256
 dx, dz = 6.25, 6.25
 h = 0.0
-GROUND_TRUTH_IDX = 1999   # 0-based (sample 2000 in Julia 1-based)
-extent = (0, (nx-1)*dx, h+(nz-1)*dz, h)
+GROUND_TRUTH_IDX = 1999
+extent = (0, (nx - 1) * dx, h + (nz - 1) * dz, h)
 
-# ── Load data ──────────────────────────────────────────────────────────────
+# -- Load data (chunked: never hold full 2000x512x256 in RAM) --------------
 perm_path = os.path.join(DATA_DIR, "geo", "wise_perm_models_2000_new.jld2")
-print(f"Loading {perm_path} ...")
+CHUNK = 64
+print(f"Loading (chunked) {perm_path} ...")
 with h5py.File(perm_path, "r") as f:
-    # HDF5 stores Julia (2000,512,256) as (256,512,2000) due to column-major
-    raw = f["BroadK"][:]
-print(f"  raw HDF5 shape: {raw.shape}")
-BroadK = raw.transpose(2, 1, 0)   # → (2000, 512, 256)
-print(f"  BroadK shape (reordered): {BroadK.shape}")
+    dset = f["BroadK"]
+    print(f"  raw HDF5 shape: {dset.shape}")
+    nz_h, nx_h, n_models = dset.shape
+    assert (nx_h, nz_h) == (nx, nz), "Unexpected BroadK spatial shape"
+    sum_logk = np.zeros((nx, nz), dtype=np.float64)
+    sumsq_logk = np.zeros((nx, nz), dtype=np.float64)
+    for s in range(0, n_models, CHUNK):
+        w = min(CHUNK, n_models - s)
+        block = dset[:, :, s : s + w]
+        BK = np.ascontiguousarray(block.transpose(2, 1, 0), dtype=np.float32)
+        lk = np.log10(np.clip(BK, np.float32(1e-30), None))
+        sum_logk += lk.sum(axis=0)
+        lk64 = lk.astype(np.float64)
+        sumsq_logk += np.square(lk64).sum(axis=0)
+        del block, BK, lk, lk64
+    gt_block = dset[:, :, GROUND_TRUTH_IDX]
+    logK_gt = np.log10(
+        np.clip(
+            np.ascontiguousarray(gt_block.transpose(1, 0), dtype=np.float32),
+            np.float32(1e-30),
+            None,
+        )
+    )
 
-# ── Compute log10 statistics ──────────────────────────────────────────────
-logK = np.log10(np.clip(BroadK, 1e-30, None))   # avoid log(0)
-logK_gt   = logK[GROUND_TRUTH_IDX]               # (512, 256)
-logK_mean = logK.mean(axis=0)                     # (512, 256)
-logK_std  = logK.std(axis=0)                      # (512, 256)
+n_models = int(n_models)
+logK_mean = (sum_logk / n_models).astype(np.float32)
+logK_std = np.sqrt(
+    np.maximum(sumsq_logk / n_models - np.square(logK_mean.astype(np.float64)), 0.0)
+).astype(np.float32)
+del sum_logk, sumsq_logk
+gc.collect()
 
 print(f"  GT   range: [{logK_gt.min():.2f}, {logK_gt.max():.2f}]")
 print(f"  Mean range: [{logK_mean.min():.2f}, {logK_mean.max():.2f}]")
 print(f"  Std  range: [{logK_std.min():.3f}, {logK_std.max():.3f}]")
 
-# ── Colormap (same as optim_inject.jl: "cet_rainbow4") ───────────────────
-cmap_perm = cc.cm["rainbow4"]   # colorcet rainbow4
+cmap_perm = cc.cm["rainbow4"]
 
-# ── 3-panel figure ────────────────────────────────────────────────────────
 plt.rcParams.update({
-    "font.size": 18,
-    "axes.labelsize": 20,
-    "axes.titlesize": 22,
+    "font.size": 17,
+    "axes.labelsize": 17,
+    "axes.titlesize": 19,
     "xtick.labelsize": 15,
     "ytick.labelsize": 15,
 })
 
-fig, axes = plt.subplots(1, 3, figsize=(16, 5.6), sharey=True)
+fig = plt.figure(figsize=(16.0, 5.5))
+gs = GridSpec(
+    2,
+    3,
+    figure=fig,
+    height_ratios=[1.0, 0.07],
+    hspace=0.42,
+    wspace=0.18,
+)
 
-vmin_p, vmax_p = 0, 4
-
-im0 = axes[0].imshow(logK_gt.T, vmin=vmin_p, vmax=vmax_p,
-                     extent=extent, cmap=cmap_perm, aspect="auto")
-axes[0].set_xlabel("X [m]")
-axes[0].set_ylabel("Depth [m]")
-
-im1 = axes[1].imshow(logK_mean.T, vmin=vmin_p, vmax=vmax_p,
-                     extent=extent, cmap=cmap_perm, aspect="auto")
-axes[1].set_xlabel("X [m]")
-
+vmin_p, vmax_p = 0.0, 4.0
 vmax_std = float(np.ceil(logK_std.max() * 10) / 10)
-im2 = axes[2].imshow(logK_std.T, vmin=0, vmax=vmax_std,
-                     extent=extent, cmap="cet_CET_L8", aspect="auto")
-axes[2].set_xlabel("X [m]")
 
-for ax in axes:
-    ax.set_box_aspect(0.5)
+ax0 = fig.add_subplot(gs[0, 0])
+im0 = ax0.imshow(logK_gt.T, vmin=vmin_p, vmax=vmax_p, extent=extent, cmap=cmap_perm)
+ax0.set_title("(a) Ground Truth", fontsize=19, fontweight="bold", pad=10)
+ax0.set_xlabel("X [m]", fontsize=17, labelpad=2)
+ax0.set_ylabel("Depth [m]", fontsize=17)
+ax0.tick_params(labelsize=15, length=3, pad=2)
 
-fig.subplots_adjust(bottom=0.17, top=0.83, left=0.065, right=0.985, wspace=0.12)
+ax1 = fig.add_subplot(gs[0, 1], sharey=ax0)
+im1 = ax1.imshow(logK_mean.T, vmin=vmin_p, vmax=vmax_p, extent=extent, cmap=cmap_perm)
+ax1.set_title(f"(b) Ensemble Mean (N={n_models})", fontsize=19, fontweight="bold", pad=10)
+ax1.set_xlabel("X [m]", fontsize=17, labelpad=2)
+plt.setp(ax1.get_yticklabels(), visible=False)
+ax1.tick_params(labelsize=15, length=3, pad=2)
 
-pos0 = axes[0].get_position()
-pos1 = axes[1].get_position()
-pos2 = axes[2].get_position()
+ax2 = fig.add_subplot(gs[0, 2], sharey=ax0)
+im2 = ax2.imshow(logK_std.T, vmin=0.0, vmax=vmax_std, extent=extent, cmap="cet_CET_L8")
+ax2.set_title("(c) Ensemble Std Dev", fontsize=19, fontweight="bold", pad=10)
+ax2.set_xlabel("X [m]", fontsize=17, labelpad=2)
+plt.setp(ax2.get_yticklabels(), visible=False)
+ax2.tick_params(labelsize=15, length=3, pad=2)
 
-cbar_y = 0.115
-cbar_h = 0.030
+cb_gs_left = gs[1, 0:2].subgridspec(1, 1)
+cax_left = fig.add_subplot(cb_gs_left[0, 0])
+clb_left = fig.colorbar(im0, cax=cax_left, orientation="horizontal")
+clb_left.set_ticks(np.log10([1, 10, 1000]))
+clb_left.set_ticklabels(["1", "1e1", "1e3"])
+clb_left.ax.tick_params(labelsize=14, length=2, pad=1)
 
-cax1 = fig.add_axes([pos0.x0, cbar_y, pos1.x1 - pos0.x0, cbar_h])
-clb1 = fig.colorbar(im1, cax=cax1, orientation="horizontal")
-clb1.set_ticks(np.log10([1, 10, 1000]))
-clb1.set_ticklabels(["1", "1e1", "1e3"])
-clb1.set_label("log$_{10}$(K)  [mD]", fontsize=18, labelpad=2)
-clb1.ax.tick_params(labelsize=14, pad=1)
+cb_gs_right = gs[1, 2].subgridspec(1, 1)
+cax_right = fig.add_subplot(cb_gs_right[0, 0])
+clb_right = fig.colorbar(im2, cax=cax_right, orientation="horizontal")
+clb_right.set_ticks(np.arange(0.0, vmax_std + 0.001, 0.5))
+clb_right.ax.tick_params(labelsize=14, length=2, pad=1)
 
-cax2 = fig.add_axes([pos2.x0, cbar_y, pos2.width, cbar_h])
-clb2 = fig.colorbar(im2, cax=cax2, orientation="horizontal")
-clb2.set_label("Std Dev  [log$_{10}$(mD)]", fontsize=18, labelpad=2)
-clb2.ax.tick_params(labelsize=14, pad=1)
+fig.suptitle(
+    "Permeability Ensemble Statistics",
+    fontsize=30,
+    fontweight="bold",
+    y=0.965,
+)
+fig.subplots_adjust(left=0.075, right=0.965, top=0.855, bottom=0.20)
 
-# Render to get accurate visual extents, then place titles centered over
-# each subplot's full visual area (including ylabel/ticks)
-fig.canvas.draw()
-renderer = fig.canvas.get_renderer()
-inv = fig.transFigure.inverted()
-titles = ["(a) Ground Truth", f"(b) Ensemble Mean (N={BroadK.shape[0]})", "(c) Ensemble Std Dev"]
-for i, ax in enumerate(axes):
-    pos = ax.get_position()
-    tb = ax.get_tightbbox(renderer).transformed(inv)
-    vis_cx = (tb.x0 + tb.x1) / 2
-    ax_cx = pos.x0 + pos.width / 2
-    x_offset = (vis_cx - ax_cx) / pos.width
-    ax.set_title(titles[i], fontsize=22, fontweight="bold", pad=4,
-                 x=0.5 + x_offset)
-
-fig.suptitle("Permeability Ensemble Statistics", fontsize=26, fontweight="bold", y=0.955)
-
-for ext in ["png", "pdf"]:
-    fname = os.path.join(OUT_DIR, f"perm_ensemble_statistics.{ext}")
-    fig.savefig(fname, dpi=300, bbox_inches="tight", pad_inches=0.02)
-    print(f"Saved: {fname}")
+fname = os.path.join(OUT_DIR, "perm_ensemble_statistics.png")
+fig.savefig(fname, dpi=300, bbox_inches="tight")
+print(f"Saved: {fname}")
 plt.close(fig)
 
-# ── Bonus: GT – Mean difference ──────────────────────────────────────────
-fig2, ax2 = plt.subplots(figsize=(10, 4))
+# -- Bonus: GT - Mean difference (tight margins, no tight_layout whitespace) -
+fig2 = plt.figure(figsize=(12, 5.2))
+ax2 = fig2.add_axes([0.055, 0.11, 0.805, 0.78])
 diff = logK_gt - logK_mean
-im_d = ax2.imshow(diff.T, extent=extent, cmap="seismic", aspect="auto",
-                  vmin=-2, vmax=2)
-clb = fig2.colorbar(im_d, fraction=0.046*(nz*dz/(nx*dx)), pad=0.04)
-clb.set_label("Δ log$_{10}$(K [mD])")
-ax2.set_title("Ground Truth – Ensemble Mean")
-ax2.set_xlabel("X [m]"); ax2.set_ylabel("Depth [m]")
-plt.tight_layout()
-for ext in ["png", "pdf"]:
-    fname = os.path.join(OUT_DIR, f"perm_gt_minus_mean.{ext}")
-    fig2.savefig(fname, dpi=300, bbox_inches="tight")
-    print(f"Saved: {fname}")
+im_d = ax2.imshow(diff.T, extent=extent, cmap="seismic", aspect="auto", vmin=-2, vmax=2)
+ax2.set_title("Ground Truth - Ensemble Mean", fontsize=16, fontweight="bold", pad=6)
+ax2.set_xlabel("X [m]", fontsize=14)
+ax2.set_ylabel("Depth [m]", fontsize=14)
+ax2.tick_params(labelsize=12, length=3, pad=2)
+cax = fig2.add_axes([0.875, 0.11, 0.022, 0.78])
+clb = fig2.colorbar(im_d, cax=cax)
+clb.set_label("Delta log$_{10}$(K [mD])", fontsize=13, labelpad=6)
+clb.ax.tick_params(labelsize=11)
+fname = os.path.join(OUT_DIR, "perm_gt_minus_mean.png")
+fig2.savefig(fname, dpi=300, bbox_inches="tight", pad_inches=0.02)
+print(f"Saved: {fname}")
 plt.close(fig2)
 
 print("Done!")

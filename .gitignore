@@ -1,7 +1,11 @@
 ################################################################################
 #                          DrWatson Project Structure                          #
 ################################################################################
-
+#
+# Navigation: machine-local ignores (Julia depot under .julia_depot_cursor,
+# Matplotlib .mplconfig, VS Code/Cursor .vscode, Python __pycache__) are in the
+# section "Local editor caches and machine-specific tooling" near EOF.
+#
 # Folders to ignore - files may be too large, too many, etc. NOTE: EDIT IF NEEDED.
 /data
 /videos

@@ -1,25 +1,27 @@
 #!/usr/bin/env python
 """
-Paper figure: 3-row × 3-column forward simulation comparison.
-Row 1: Relative pressure margin  r = (p_frac − p) / p_frac
-Row 2: Differential pressure  (p − p₀) in MPa
-Row 3: CO₂ Saturation
-Columns: POF ε=0 | CVaR γ=0.1 α=0.01 | No Control
+Paper figure: 3-row x 3-column forward simulation comparison.
+Row 1: Relative pressure margin  r = (p_frac - p) / p_frac
+Row 2: Differential pressure  (p - p0) in MPa
+Row 3: CO2 saturation
+Columns: POF eps=0 | CVaR gamma=0.1 alpha=0.01 | No Control
 Ground truth permeability: sample 2000.
 """
-import os, sys
+import os
+import sys
 import numpy as np
 import h5py
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-import matplotlib.gridspec as gridspec
+from matplotlib.gridspec import GridSpec
 import colorcet as cc
 import cmasher
+
 BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_FILE = os.path.join(BASE, "plots", "paper_figures", "forward_sim_data.jld2")
-OUT_DIR   = os.path.join(BASE, "plots", "paper_figures")
+OUT_DIR = os.path.join(BASE, "plots", "paper_figures")
 
 if not os.path.exists(DATA_FILE):
     sys.exit(f"ERROR: {DATA_FILE} not found. Run run_forward_export.jl first.")
@@ -31,23 +33,23 @@ THRESHOLD = 4.0
 DT_DAYS = 8.0
 SUBSTEPS_PER_PERIOD = 10
 SECONDS_PER_DAY = 24 * 60 * 60
-RHO_CO2 = 700.0  # kg/m^3, from JutulDarcyRules.ρCO2
+RHO_CO2 = 700.0
 
 print("Loading data ...")
 data = {}
 with h5py.File(DATA_FILE, "r") as f:
-    data["p0"]    = f["p0"][:]
+    data["p0"] = f["p0"][:]
     data["p_max"] = f["p_max"][:].T
     for ck in ["POF_eps0", "CVaR_g01_a001", "No_Control"]:
         data[f"{ck}_rates"] = f[f"{ck}_rates"][:]
-        data[f"{ck}_sat"]  = f[f"{ck}_sat_final"][:].T
+        data[f"{ck}_sat"] = f[f"{ck}_sat_final"][:].T
         data[f"{ck}_pres"] = f[f"{ck}_pres_final"][:].T
 p0, p_max = data["p0"], data["p_max"]
 
 cases = [
-    ("POF_eps0",      "(a)  POF  $\\varepsilon = 0$\n(Non-Fracture)"),
-    ("CVaR_g01_a001", "(b)  CVaR  $\\gamma{=}0.1,\\ \\alpha{=}0.01$\n(Fracture)"),
-    ("No_Control",    "(c)  No Control\n(Severe Fracture)"),
+    ("POF_eps0", "(a) POF ε = 0 (Non-Fracture)"),
+    ("CVaR_g01_a001", "(b) CVaR γ = 0.1, α = 0.01 (Fracture)"),
+    ("No_Control", "(c) No Control (Severe Fracture)"),
 ]
 
 
@@ -66,7 +68,6 @@ for ck, _ in cases:
         f"CO$_2$: {format_total_mass_mt(total_volume)}"
     )
 
-# ── Colormaps ──────────────────────────────────────────────────────────────
 cmap_margin = mcolors.ListedColormap(np.vstack([
     plt.cm.Reds_r(np.linspace(0.0, 0.85, 26)),
     plt.cm.Blues(np.linspace(0.0, 1.0, 230)),
@@ -74,101 +75,101 @@ cmap_margin = mcolors.ListedColormap(np.vstack([
 cmap_pres = cc.cm["CET_L3_r"]
 cmap_sat = cmasher.rainforest_r
 
-dp_vmax = 0
+dp_vmax = 0.0
 for ck, _ in cases:
-    dp_vmax = max(dp_vmax, np.max((data[f"{ck}_pres"] - p0) / 1e6))
+    dp_vmax = max(dp_vmax, float(np.max((data[f"{ck}_pres"] - p0) / 1e6)))
 dp_vmax = min(dp_vmax * 1.05, THRESHOLD * 1.6)
 
-# ── Figure ─────────────────────────────────────────────────────────────────
 plt.rcParams.update({
-    "font.size": 16,
-    "axes.labelsize": 18,
-    "axes.titlesize": 18,
-    "xtick.labelsize": 14,
-    "ytick.labelsize": 14,
+    "font.size": 17,
+    "axes.labelsize": 17,
+    "axes.titlesize": 19,
+    "xtick.labelsize": 15,
+    "ytick.labelsize": 15,
 })
 
-fig = plt.figure(figsize=(20, 10))
-outer = gridspec.GridSpec(3, 1, figure=fig,
-                          hspace=0.10, top=0.85, bottom=0.08, left=0.08, right=0.95)
+fig = plt.figure(figsize=(16.0, 8.9))
+gs = GridSpec(
+    3,
+    4,
+    figure=fig,
+    width_ratios=[1.0, 1.0, 1.0, 0.035],
+    hspace=0.10,
+    wspace=0.10,
+)
 
 row_imgs = [None, None, None]
 row_ylabels = [
     "Safety Margin $r$\nDepth [m]",
-    "Diff. Pressure $(p{-}p_0)$\nDepth [m]",
+    "Diff. Pressure $(p-p_0)$\nDepth [m]",
     "CO$_2$ Saturation\nDepth [m]",
 ]
-first_row_axes = []
 
 for row_idx in range(3):
-    inner = gridspec.GridSpecFromSubplotSpec(
-        1, 4, subplot_spec=outer[row_idx],
-        width_ratios=[1, 1, 1, 0.04], wspace=0.12
-    )
-    for col in range(3):
-        ax = fig.add_subplot(inner[0, col])
-        ax.set_box_aspect(0.5)
-        ck = cases[col][0]
-        sat  = data[f"{ck}_sat"]
+    for col_idx, (ck, title) in enumerate(cases):
+        ax = fig.add_subplot(gs[row_idx, col_idx])
+        sat = data[f"{ck}_sat"]
         pres = data[f"{ck}_pres"]
 
         if row_idx == 0:
-            r = (p_max - pres) / p_max
-            im = ax.imshow(r.T, extent=extent, cmap=cmap_margin,
-                           vmin=-0.1, vmax=1.0, aspect="auto")
-            ax.set_title(cases[col][1], fontsize=20, fontweight="bold", pad=2)
+            img = (p_max - pres) / p_max
+            im = ax.imshow(img.T, extent=extent, cmap=cmap_margin, vmin=-0.1, vmax=1.0)
+            ax.set_title(title, fontsize=17, fontweight="bold", pad=4)
             ax.text(
-                0.03, 0.96, case_annotations[ck],
+                0.03,
+                0.94,
+                case_annotations[ck],
                 transform=ax.transAxes,
-                fontsize=14,
+                fontsize=12.5,
                 ha="left",
                 va="top",
-                bbox=dict(boxstyle="round,pad=0.28", facecolor="white", alpha=0.82, edgecolor="0.6"),
+                bbox=dict(boxstyle="round,pad=0.25", facecolor="white", alpha=0.82, edgecolor="0.6"),
             )
-            first_row_axes.append(ax)
         elif row_idx == 1:
-            dp = (pres - p0) / 1e6
-            im = ax.imshow(dp.T, extent=extent, cmap=cmap_pres,
-                           vmin=0, vmax=dp_vmax, aspect="auto")
+            img = (pres - p0) / 1e6
+            im = ax.imshow(img.T, extent=extent, cmap=cmap_pres, vmin=0.0, vmax=dp_vmax)
         else:
-            im = ax.imshow(sat.T, extent=extent, cmap=cmap_sat,
-                           vmin=0, vmax=1, aspect="auto")
+            img = sat
+            im = ax.imshow(img.T, extent=extent, cmap=cmap_sat, vmin=0.0, vmax=1.0)
 
         if row_idx < 2:
             ax.set_xticklabels([])
         else:
-            ax.set_xlabel("X [m]", fontsize=19)
-        if col == 0:
-            ax.set_ylabel(row_ylabels[row_idx], fontsize=19)
+            ax.set_xlabel("X [m]", fontsize=17, labelpad=2)
+        if col_idx == 0:
+            ax.set_ylabel(row_ylabels[row_idx], fontsize=17)
         else:
             ax.set_yticklabels([])
-
+        ax.tick_params(labelsize=15, length=3, pad=2)
         row_imgs[row_idx] = im
 
-    # Colorbar
-    cax = fig.add_subplot(inner[0, 3])
-    if row_idx == 0:
-        cb = fig.colorbar(row_imgs[0], cax=cax, extend="min")
-        cb.set_ticks([0, 0.25, 0.5, 0.75, 1.0])
-        cb.set_ticklabels(["0", "0.25", "0.5", "0.75", "1.0"])
-        # "<0 (frac)" at the extended tip, "safe" at top
-        cb.ax.text(0.5, -0.06, "<0 (frac.)", transform=cb.ax.transAxes,
-                   fontsize=13, ha="center", va="top", fontstyle="italic")
-        cb.ax.text(0.5, 1.02, "(safe)", transform=cb.ax.transAxes,
-                   fontsize=13, ha="center", va="bottom", fontstyle="italic")
-    elif row_idx == 1:
-        cb = fig.colorbar(row_imgs[1], cax=cax)
-        cb.set_label("MPa", fontsize=19, labelpad=8)
-    else:
-        cb = fig.colorbar(row_imgs[2], cax=cax)
-    cb.ax.tick_params(labelsize=15)
+cax0 = fig.add_subplot(gs[0, 3])
+cb0 = fig.colorbar(row_imgs[0], cax=cax0, extend="min")
+cb0.set_ticks([0.0, 0.25, 0.5, 0.75, 1.0])
+cb0.set_ticklabels(["0", "0.25", "0.5", "0.75", "1.0"])
+cb0.ax.tick_params(labelsize=13, pad=1, length=2)
+cb0.ax.text(0.5, 1.02, "(safe)", transform=cb0.ax.transAxes, fontsize=10.5, ha="center", va="bottom", fontstyle="italic")
+cb0.ax.text(0.5, -0.06, "<0 (frac.)", transform=cb0.ax.transAxes, fontsize=10.5, ha="center", va="top", fontstyle="italic")
+
+cax1 = fig.add_subplot(gs[1, 3])
+cb1 = fig.colorbar(row_imgs[1], cax=cax1)
+cb1.set_label("MPa", fontsize=17)
+cb1.ax.tick_params(labelsize=15)
+
+cax2 = fig.add_subplot(gs[2, 3])
+cb2 = fig.colorbar(row_imgs[2], cax=cax2)
+cb2.ax.tick_params(labelsize=15)
 
 fig.suptitle(
     "Non-Fracture vs Fracture: Safety Margin, Pressure, and CO$_2$ Plume  (t = 480 days)",
-    fontsize=23, fontweight="bold", x=0.5, y=0.965)
+    fontsize=24,
+    fontweight="bold",
+    y=0.962,
+)
+fig.subplots_adjust(left=0.075, right=0.965, top=0.89, bottom=0.10)
 
 fname = os.path.join(OUT_DIR, "fracture_comparison_3x3.png")
-fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.01)
+fig.savefig(fname, dpi=300, bbox_inches="tight")
 print(f"Saved: {fname}")
 plt.close(fig)
 print("Done!")
