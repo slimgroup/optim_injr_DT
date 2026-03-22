@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 """
 Paper figure: Fracture vs Non-Fracture Forward Simulation Comparison
-Composes existing simulation video frames into a clean 3-column paper figure.
+Composes existing simulation video frames into a 3-column paper figure.
 Columns: POF (non-fracture) | CVaR (moderate fracture) | No Control (severe fracture)
 Rows: Relative Pressure Margin | CO2 Saturation
+
+Outputs use the *_split.png suffix so they do not overwrite the tighter-cropped
+figures from plot_fracture_comparison_paper.py (canonical 2col/3col/time-evolution names).
 """
 import os
 import numpy as np
@@ -81,7 +84,7 @@ fig.suptitle(
     fontsize=17, fontweight="bold", y=0.97
 )
 
-fname = os.path.join(OUT_DIR, "fracture_comparison_3col.png")
+fname = os.path.join(OUT_DIR, "fracture_comparison_3col_split.png")
 fig.savefig(fname, dpi=200, bbox_inches="tight", pad_inches=0.1)
 print(f"Saved: {fname}")
 plt.close(fig)
@@ -102,7 +105,7 @@ fig2.suptitle(
     fontsize=17, fontweight="bold", y=0.97
 )
 
-fname2 = os.path.join(OUT_DIR, "fracture_comparison_2col.png")
+fname2 = os.path.join(OUT_DIR, "fracture_comparison_2col_split.png")
 fig2.savefig(fname2, dpi=200, bbox_inches="tight", pad_inches=0.1)
 print(f"Saved: {fname2}")
 plt.close(fig2)
@@ -144,7 +147,7 @@ fig3.suptitle(
     fontsize=17, fontweight="bold", y=0.97
 )
 
-fname3 = os.path.join(OUT_DIR, "fracture_time_evolution.png")
+fname3 = os.path.join(OUT_DIR, "fracture_time_evolution_split.png")
 fig3.savefig(fname3, dpi=200, bbox_inches="tight", pad_inches=0.1)
 print(f"Saved: {fname3}")
 plt.close(fig3)

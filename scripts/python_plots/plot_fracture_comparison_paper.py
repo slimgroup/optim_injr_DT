@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-Paper figure: Clean fracture vs non-fracture comparison.
-Crops frame titles, minimizes whitespace, larger fonts.
+Paper figure: Fracture vs non-fracture comparison (tight crop, minimal whitespace).
+Crops frame titles; larger fonts than the split-panel script in plot_fracture_comparison.py.
 """
 import os
 import numpy as np
@@ -56,7 +56,7 @@ def make_2col_figure():
         fontsize=19, fontweight="bold", y=0.98
     )
 
-    fname = os.path.join(OUT_DIR, "fracture_comparison_2col_clean.png")
+    fname = os.path.join(OUT_DIR, "fracture_comparison_2col.png")
     fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.02)
     print(f"Saved: {fname}")
     plt.close(fig)
@@ -88,7 +88,7 @@ def make_3col_figure():
         fontsize=19, fontweight="bold", y=0.98
     )
 
-    fname = os.path.join(OUT_DIR, "fracture_comparison_3col_clean.png")
+    fname = os.path.join(OUT_DIR, "fracture_comparison_3col.png")
     fig.savefig(fname, dpi=250, bbox_inches="tight", pad_inches=0.02)
     print(f"Saved: {fname}")
     plt.close(fig)
@@ -134,7 +134,7 @@ def make_time_evolution():
         fontsize=20, fontweight="bold", y=0.98
     )
 
-    fname = os.path.join(OUT_DIR, "fracture_time_evolution_clean.png")
+    fname = os.path.join(OUT_DIR, "fracture_time_evolution.png")
     fig.savefig(fname, dpi=200, bbox_inches="tight", pad_inches=0.02)
     print(f"Saved: {fname}")
     plt.close(fig)
