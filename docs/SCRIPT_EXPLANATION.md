@@ -1,5 +1,8 @@
 # SLURM 脚本代码解释
 
+这个文档解释的是某一类 SLURM 脚本写法细节，不是当前仓库所有脚本的总导航。
+如果你想先判断“应该从哪个脚本入口开始”，请先看 `docs/SCRIPTS_INDEX.md`。
+
 ## 第 19-39 行代码详解
 
 ### 第 19 行：`set -euo pipefail`
@@ -175,4 +178,3 @@ echo "Running threshold sensitivity analysis (fast mode)"
 ```bash
 export JULIA_DEPOT_PATH="$SLURM_SUBMIT_DIR/.julia-depot"; mkdir -p "$JULIA_DEPOT_PATH"
 ```
-

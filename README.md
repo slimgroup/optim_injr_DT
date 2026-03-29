@@ -83,7 +83,7 @@ optim_injr_DT/
 └── test/                  # Test suite
 ```
 
-For detailed structure (including where logs, large data files, and helper shell scripts live), see [docs/DIRECTORY_STRUCTURE.md](docs/DIRECTORY_STRUCTURE.md)
+For detailed structure and script entry points, see [docs/DIRECTORY_STRUCTURE.md](docs/DIRECTORY_STRUCTURE.md) and [docs/SCRIPTS_INDEX.md](docs/SCRIPTS_INDEX.md).
 
 ---
 
@@ -122,12 +122,13 @@ See [test/README.md](test/README.md) for more details.
 ## 📚 Documentation
 
 - **[Directory Structure](docs/DIRECTORY_STRUCTURE.md)** - Detailed project organization
-- **[Hard vs Soft Constraints](docs/HARD_VS_SOFT_CONSTRAINTS.md)** - Constraint handling guide
-- **[Threshold Sensitivity Guide](docs/THRESHOLD_SENSITIVITY_GUIDE.md)** - Sensitivity analysis
+- **[Scripts Index](docs/SCRIPTS_INDEX.md)** - Script entry points by purpose
 - **[Optimization Choice Guide](docs/OPTIMIZATION_CHOICE_GUIDE.md)** - Algorithm selection
 - **[Submit Guide](docs/SUBMIT_GUIDE.md)** - Job submission guide
-- **[Script Explanation](docs/SCRIPT_EXPLANATION.md)** - Script documentation
+- **[Script Explanation](docs/SCRIPT_EXPLANATION.md)** - Detailed explanation of a specific SLURM script pattern
 - **[Quick Run Guide](docs/QUICK_RUN_WITH_RISK.md)** - Quick start with risk parameters
+- **[Bootstrap CDF Methodology](docs/BOOTSTRAP_CDF_METHODOLOGY.md)** - Bootstrap/CDF plotting notes
+- **[Injection Rate Arrays](docs/injection_rate_arrays.md)** - Injection ramp definitions used in plotting/export docs
 
 ---
 
@@ -171,7 +172,8 @@ For cluster environments (e.g., PACE), use the scripts in `scripts/shell/`:
 # Submit batch jobs
 ./scripts/shell/submit_all.sh
 
-# Submit specific cases and samples (see rerun_two_cases.sh for example)
+# Run the bootstrap CDF workflow
+bash scripts/shell/run_bootstrap_cdf.sh
 ```
 
 ---

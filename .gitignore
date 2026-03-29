@@ -2,8 +2,8 @@
 #                          DrWatson Project Structure                          #
 ################################################################################
 #
-# Navigation: machine-local ignores (Julia depot under .julia_depot_cursor,
-# Matplotlib .mplconfig, VS Code/Cursor .vscode, Python __pycache__) are in the
+# Navigation: machine-local ignores (Julia depots under .julia_depot*,
+# Matplotlib .mplconfig, VS Code/Cursor .vscode, Python __pycache__/pyc) are in the
 # section "Local editor caches and machine-specific tooling" near EOF.
 #
 # Folders to ignore - files may be too large, too many, etc. NOTE: EDIT IF NEEDED.
@@ -461,8 +461,7 @@ $RECYCLE.BIN/
 # Cursor/IDE: project-local Julia depot (packages, compiled, registries; like a
 # mini ~/.julia under the repo). Large and machine-specific; safe to delete if
 # Julia is re-run and will repopulate.
-.julia_depot_cursor/
-.julia_depot_cdf/
+.julia_depot*/
 .codex/
 .codex
 

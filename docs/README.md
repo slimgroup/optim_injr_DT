@@ -1,69 +1,64 @@
 # Documentation
 
-This directory contains all project documentation.
+This directory contains project notes, workflow guides, and methodology writeups.
+The list below is trimmed to files that actually exist in the current repo.
 
-## 📚 Documentation Index
+## Documentation Index
 
-### 🚀 Getting Started
-- **[Quick Start](QUICK_START.md)** - Complete quick start guide
-- **[Quick Run with Risk](QUICK_RUN_WITH_RISK.md)** - Quick start with risk parameters
-- **[PACE Run Guide](PACE_RUN_GUIDE.md)** - Running on PACE HPC cluster
-- **[Submit Guide](SUBMIT_GUIDE.md)** - Job submission guide
-- **[Run All Indices](RUN_ALL_INDICES.md)** - Batch processing guide
+### Getting started and running workflows
+- [QUICK_START.md](QUICK_START.md): quick-start workflow notes
+- [QUICK_RUN_WITH_RISK.md](QUICK_RUN_WITH_RISK.md): short run examples with risk parameters
+- [PACE_RUN_GUIDE.md](PACE_RUN_GUIDE.md): running on the PACE cluster
+- [SUBMIT_GUIDE.md](SUBMIT_GUIDE.md): submission patterns and batch guidance
+- [RUN_ALL_INDICES.md](RUN_ALL_INDICES.md): batch-processing walkthrough
+- [MULTI_MACHINE_WORKFLOW.md](MULTI_MACHINE_WORKFLOW.md): multi-machine workflow notes
 
-### 🎯 Optimization & Parameters
-- **[Optimization Choice Guide](OPTIMIZATION_CHOICE_GUIDE.md)** - Algorithm selection
-- **[Kappa Parameter Explanation](KAPPA_PARAMETER_EXPLANATION.md)** - κ parameter详解
-- **[Lambda Selection Guide](LAMBDA_SELECTION_GUIDE.md)** - λ权重参数选择
-- **[Step Size Explanation](STEP_SIZE_EXPLANATION.md)** - 步长参数说明
-- **[Stopping Criteria Update](STOPPING_CRITERIA_UPDATE.md)** - 停止准则
+### Repository navigation
+- [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md): current directory layout and storage conventions
+- [SCRIPTS_INDEX.md](SCRIPTS_INDEX.md): entry-point map for `scripts/`
+- [SCRIPT_EXPLANATION.md](SCRIPT_EXPLANATION.md): detailed explanation of a specific SLURM script pattern
 
-### 🔬 Risk Analysis & Methods
-- **[POF vs CVaR Comparison](POF_CVAR_COMPARISON_METHODS.md)** - 风险指标对比
-- **[Missing Samples Analysis](MISSING_SAMPLES_ANALYSIS.md)** - 7个missing samples分析
-- **[KDE CI Methodology](KDE_CI_METHODOLOGY.md)** - KDE和置信区间方法
-- **[Control Theory Analysis](CONTROL_THEORY_ANALYSIS.md)** - 控制理论分析
+### Methods, optimization, and parameters
+- [OPTIMIZATION_CHOICE_GUIDE.md](OPTIMIZATION_CHOICE_GUIDE.md): optimizer selection notes
+- [KAPPA_PARAMETER_EXPLANATION.md](KAPPA_PARAMETER_EXPLANATION.md): kappa parameter explanation
+- [LAMBDA_SELECTION_GUIDE.md](LAMBDA_SELECTION_GUIDE.md): lambda-weight guidance
+- [STEP_SIZE_EXPLANATION.md](STEP_SIZE_EXPLANATION.md): step-size notes
+- [STOPPING_CRITERIA_UPDATE.md](STOPPING_CRITERIA_UPDATE.md): stopping-criterion updates
+- [POF_CVAR_COMPARISON_METHODS.md](POF_CVAR_COMPARISON_METHODS.md): POF/CVaR comparison methods
+- [CONTROL_THEORY_ANALYSIS.md](CONTROL_THEORY_ANALYSIS.md): control-theory interpretation
 
-### 📊 Performance & Analysis
-- **[Performance Analysis](PERFORMANCE_ANALYSIS.md)** - 性能分析
-- **[Computational Cost Breakdown](COMPUTATIONAL_COST_BREAKDOWN.md)** - 计算成本分析
-- **[Solver Analysis](SOLVER_ANALYSIS.md)** - 求解器分析
-- **[Time Stepping Analysis](TIME_STEPPING_ANALYSIS.md)** - 时间步进分析
+### Statistics, bootstrap, and plotting
+- [BOOTSTRAP_CDF_METHODOLOGY.md](BOOTSTRAP_CDF_METHODOLOGY.md): bootstrap CDF methodology
+- [KDE_CI_METHODOLOGY.md](KDE_CI_METHODOLOGY.md): KDE and confidence-interval notes
+- [injection_rate_arrays.md](injection_rate_arrays.md): documented injection-rate ramps and indexing
+- [PLOT_LAYOUT_DISCUSSION.md](PLOT_LAYOUT_DISCUSSION.md): figure-layout notes
 
-### 🏗️ Project Structure & Workflow
-- **[Directory Structure](DIRECTORY_STRUCTURE.md)** - 项目目录结构
-- **[Script Explanation](SCRIPT_EXPLANATION.md)** - 脚本说明
-- **[Multi-Machine Workflow](MULTI_MACHINE_WORKFLOW.md)** - 多机工作流程
-- **[Plot Layout Discussion](PLOT_LAYOUT_DISCUSSION.md)** - 图表布局讨论
+### Performance and troubleshooting
+- [PERFORMANCE_ANALYSIS.md](PERFORMANCE_ANALYSIS.md): performance notes
+- [COMPUTATIONAL_COST_BREAKDOWN.md](COMPUTATIONAL_COST_BREAKDOWN.md): cost breakdown
+- [SOLVER_ANALYSIS.md](SOLVER_ANALYSIS.md): solver analysis
+- [TIME_STEPPING_ANALYSIS.md](TIME_STEPPING_ANALYSIS.md): time-stepping notes
+- [MISSING_SAMPLES_ANALYSIS.md](MISSING_SAMPLES_ANALYSIS.md): missing-sample investigation
+- [STEP2_LOGS_AND_PROGRESS.md](STEP2_LOGS_AND_PROGRESS.md): step-2 progress and log notes
 
----
+## Quick Links
 
-## 📖 Quick Links
+- [../README.md](../README.md): project overview
+- [../test/README.md](../test/README.md): test guide
 
-- Main [README](../README.md) - Project overview
-- [Test Documentation](../test/README.md) - Testing guide
+## Suggested Reading Paths
 
----
+### New to the repo
+- Start with [QUICK_START.md](QUICK_START.md)
+- Then read [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md)
+- Use [SCRIPTS_INDEX.md](SCRIPTS_INDEX.md) to find the right entry point
 
-## 🔍 Finding Documentation
+### Running jobs on PACE
+- [PACE_RUN_GUIDE.md](PACE_RUN_GUIDE.md)
+- [SUBMIT_GUIDE.md](SUBMIT_GUIDE.md)
+- [SCRIPTS_INDEX.md](SCRIPTS_INDEX.md)
 
-### New Users
-- **First time?** → [Quick Start](QUICK_START.md)
-- **Using PACE?** → [PACE Run Guide](PACE_RUN_GUIDE.md)
-- **Need parameters?** → [Optimization Choice Guide](OPTIMIZATION_CHOICE_GUIDE.md)
-
-### Parameter Tuning
-- **What is κ (kappa)?** → [Kappa Parameter](KAPPA_PARAMETER_EXPLANATION.md)
-- **How to choose λ (lambda)?** → [Lambda Selection](LAMBDA_SELECTION_GUIDE.md)
-- **Step size issues?** → [Step Size Explanation](STEP_SIZE_EXPLANATION.md)
-
-### Analysis & Results
-- **POF vs CVaR?** → [POF/CVaR Comparison](POF_CVAR_COMPARISON_METHODS.md)
-- **Missing results?** → [Missing Samples Analysis](MISSING_SAMPLES_ANALYSIS.md)
-- **Performance bottleneck?** → [Computational Cost](COMPUTATIONAL_COST_BREAKDOWN.md)
-
-### Advanced Topics
-- **Control theory perspective?** → [Control Theory Analysis](CONTROL_THEORY_ANALYSIS.md)
-- **Statistical methods?** → [KDE CI Methodology](KDE_CI_METHODOLOGY.md)
-- **Multi-machine setup?** → [Multi-Machine Workflow](MULTI_MACHINE_WORKFLOW.md)
-
+### Working on paper figures
+- [injection_rate_arrays.md](injection_rate_arrays.md)
+- [BOOTSTRAP_CDF_METHODOLOGY.md](BOOTSTRAP_CDF_METHODOLOGY.md)
+- [PLOT_LAYOUT_DISCUSSION.md](PLOT_LAYOUT_DISCUSSION.md)
