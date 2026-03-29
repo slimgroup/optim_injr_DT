@@ -65,13 +65,38 @@ function last_nonzero_inj_rate(data; init_rate::Float64=1e-4,
     return length(ramp) >= 6 ? ramp[6] : endpoint
 end
 
-function collect_data(root, pat)
+"""
+`inj_rate_arr[end, 6]` (last row, column 6). **Not** the same scalar as the bootstrap CDFs in this script.
+
+The empirical CDF / histogram pipeline (`collect_data` default) uses `last_nonzero_inj_rate`, which takes
+the last nonzero value along **column 1**, builds `range(inj_start, endpoint, forward_step*6)`, and returns
+`ramp[6]`. That matches the ramp discretization used with `forward_step` in `optim_inject.jl`. For many runs,
+column 6 of the final row stays near `inj_start`, so `raw[end,6]` is ~constant → degenerate empty-looking CDF.
+"""
+function inj_rate_arr_index6(data; init_rate::Float64=1e-4)
+    raw = get(data, "inj_rate_arr", nothing)
+    raw === nothing && return init_rate
+    if ndims(raw) == 2
+        _, nc = size(raw)
+        nc < 6 && return init_rate
+        v = raw[end, 6]
+        (ismissing(v) || !isfinite(v)) && return init_rate
+        return Float64(v)
+    end
+    col = ndims(raw) == 1 ? collect(raw) : vec(raw)
+    length(col) < 6 && return init_rate
+    v = col[6]
+    (ismissing(v) || !isfinite(v)) && return init_rate
+    return Float64(v)
+end
+
+function collect_data(root, pat; extractor=last_nonzero_inj_rate)
     dirs = filter(d -> isdir(joinpath(root, d)) && occursin(pat, d), readdir(root))
     rates = Float64[]
     for dn in dirs, s in 1:128
         fp = joinpath(root, dn, "sample=$(s)", "final.jld2")
         isfile(fp) || continue
-        try push!(rates, last_nonzero_inj_rate(load(fp))) catch; end
+        try push!(rates, extractor(load(fp))) catch; end
     end
     rates
 end
@@ -218,9 +243,12 @@ function plot_single_cdf(cr::CaseResult, fname)
     ins.set_title("Left tail zoom (0-$(Int(zymax))%)", fontsize=10)
     ins.set_xlabel("Injection Rate (m³/s)", fontsize=9); ins.set_ylabel("Frac. Prob. (%)", fontsize=9)
     ins.tick_params(labelsize=9); ins.grid(true, ls="--", lw=0.3, alpha=0.4)
-    ax.indicate_inset_zoom(ins, edgecolor="gray", alpha=0.5)
+    # Main axis limits from data (avoids pathological bbox_inches with indicate_inset_zoom on some backends)
+    xdmin, xdmax = extrema(cr.data)
+    xspan = max(xdmax - xdmin, 1e-12)
+    ax.set_xlim(xdmin - 0.05 * xspan, xdmax + 0.05 * xspan)
     PyPlot.tight_layout()
-    PyPlot.savefig(fname, dpi=200, bbox_inches="tight"); PyPlot.close(fig)
+    PyPlot.savefig(fname, dpi=200, bbox_inches="tight", pad_inches=0.15); PyPlot.close(fig)
     println("  Saved: $fname")
 end
 
@@ -518,53 +546,92 @@ function plot_grid_cdf_zoom(results::Vector{CaseResult}, fname)
 end
 
 # ===================== Main =====================
-mkpath(OUTDIR)
-
-# --- Part 1: Split single panels for POF eps=0.01 and CVaR g=0.05 a=0.05 ---
-println("\n=== Part 1: Split single-panel plots ===")
-
-for (pat, tag, label) in [
-    ("POF__HARD__eps=0.01__",              "POF_eps0.01",       "POF (eps=0.01)"),
-    ("CVaR__HARD__alpha=0.05__gamma=0.05__","CVaR_g0.05_a0.05", "CVaR (g=0.05 a=0.05)"),
-]
-    println("Processing $label...")
-    data = collect_data(ROOT, pat)
-    println("  Loaded $(length(data)) samples")
-    length(data) < 2 && continue
-    cr = compute_case(data, label; B=B_SINGLE)
-    plot_single_hist(cr, joinpath(OUTDIR, "hist_$(tag).png"))
-    plot_single_cdf(cr, joinpath(OUTDIR, "cdf_$(tag).png"))
-end
-
-# --- Part 2 & 3: 4×3 grids ---
-println("\n=== Part 2 & 3: Computing 12 cases for 4×3 grids (B=$B_GRID) ===")
-
-grid_results = CaseResult[]
-for (i, (pat, title)) in enumerate(GRID)
-    println("  [$i/12] $title ...")
-    data = collect_data(ROOT, pat)
-    println("         $(length(data)) samples loaded")
-    if length(data) < 2
-        @warn "Skipping $title: only $(length(data)) samples"
-        continue
+"""
+CDF + hist for POF ε=0 and CVaR γ=0.1 α=0.01 — **same scalar definition as** `run_part1_only!` / `cdf_POF_eps0.01.png`:
+`last_nonzero_inj_rate` (ramp 6th step from col-1 endpoint), not `inj_rate_arr[end, 6]`.
+"""
+function run_part1b_inj6!(; root=ROOT, outdir=OUTDIR)
+    mkpath(outdir)
+    println("\n=== Part 1b: CDF for POF ε=0 & CVaR γ=0.1 α=0.01 (same extractor as Part 1) ===")
+    for (pat, tag, label) in [
+        ("POF__HARD__eps=0.0__",               "POF_eps0",        "POF (ε=0)"),
+        ("CVaR__HARD__alpha=0.01__gamma=0.1__", "CVaR_g0.1_a0.01", "CVaR (γ=0.1, α=0.01)"),
+    ]
+        println("Processing $label ...")
+        data = collect_data(root, pat; extractor=last_nonzero_inj_rate)
+        println("  Loaded $(length(data)) samples")
+        if length(data) < 2
+            @warn "Skipping $tag: need ≥2 samples"
+            continue
+        end
+        cr = compute_case(data, label; B=B_SINGLE)
+        plot_single_hist(cr, joinpath(outdir, "hist_$(tag).png"))
+        plot_single_cdf(cr, joinpath(outdir, "cdf_$(tag).png"))
     end
-    push!(grid_results, compute_case(data, title; B=B_GRID))
 end
 
-if length(grid_results) == 12
-    println("\nPlotting 4×3 histogram grid...")
-    plot_grid_histogram(grid_results, joinpath(OUTDIR, "grid_histogram_4x3.png"))
-    println("Plotting 4×3 CDF grid...")
-    plot_grid_cdf(grid_results, joinpath(OUTDIR, "grid_cdf_4x3.png"))
-    println("Plotting 4×3 CDF zoom grid...")
-    plot_grid_cdf_zoom(grid_results, joinpath(OUTDIR, "grid_cdf_zoom_4x3.png"))
-    selected_results = select_cases(grid_results, SELECTED_GRID)
-    println("Plotting selected 1×3 histogram grid...")
-    plot_selected_histogram(selected_results, joinpath(OUTDIR, "grid_histogram_selected_1x3.png"))
-    println("Plotting selected 1×3 CDF grid...")
-    plot_selected_cdf(selected_results, joinpath(OUTDIR, "grid_cdf_selected_1x3.png"))
+"""Part 1 only: `cdf_POF_eps0.01.png`, `cdf_CVaR_g0.05_a0.05.png`, and matching hists (same style as before)."""
+function run_part1_only!(; root=ROOT, outdir=OUTDIR)
+    mkpath(outdir)
+    println("\n=== Part 1: Split single-panel plots ===")
+    for (pat, tag, label) in [
+        ("POF__HARD__eps=0.01__",              "POF_eps0.01",       "POF (eps=0.01)"),
+        ("CVaR__HARD__alpha=0.05__gamma=0.05__","CVaR_g0.05_a0.05", "CVaR (g=0.05 a=0.05)"),
+    ]
+        println("Processing $label...")
+        data = collect_data(root, pat)
+        println("  Loaded $(length(data)) samples")
+        length(data) < 2 && continue
+        cr = compute_case(data, label; B=B_SINGLE)
+        plot_single_hist(cr, joinpath(outdir, "hist_$(tag).png"))
+        plot_single_cdf(cr, joinpath(outdir, "cdf_$(tag).png"))
+    end
+end
+
+function main()
+    mkpath(OUTDIR)
+    run_part1_only!(root=ROOT, outdir=OUTDIR)
+    run_part1b_inj6!(root=ROOT, outdir=OUTDIR)
+
+    # --- Part 2 & 3: 4×3 grids ---
+    println("\n=== Part 2 & 3: Computing 12 cases for 4×3 grids (B=$B_GRID) ===")
+
+    grid_results = CaseResult[]
+    for (i, (pat, title)) in enumerate(GRID)
+        println("  [$i/12] $title ...")
+        data = collect_data(ROOT, pat)
+        println("         $(length(data)) samples loaded")
+        if length(data) < 2
+            @warn "Skipping $title: only $(length(data)) samples"
+            continue
+        end
+        push!(grid_results, compute_case(data, title; B=B_GRID))
+    end
+
+    if length(grid_results) == 12
+        println("\nPlotting 4×3 histogram grid...")
+        plot_grid_histogram(grid_results, joinpath(OUTDIR, "grid_histogram_4x3.png"))
+        println("Plotting 4×3 CDF grid...")
+        plot_grid_cdf(grid_results, joinpath(OUTDIR, "grid_cdf_4x3.png"))
+        println("Plotting 4×3 CDF zoom grid...")
+        plot_grid_cdf_zoom(grid_results, joinpath(OUTDIR, "grid_cdf_zoom_4x3.png"))
+        selected_results = select_cases(grid_results, SELECTED_GRID)
+        println("Plotting selected 1×3 histogram grid...")
+        plot_selected_histogram(selected_results, joinpath(OUTDIR, "grid_histogram_selected_1x3.png"))
+        println("Plotting selected 1×3 CDF grid...")
+        plot_selected_cdf(selected_results, joinpath(OUTDIR, "grid_cdf_selected_1x3.png"))
+    else
+        @warn "Only $(length(grid_results))/12 cases computed, skipping grids"
+    end
+
+    println("\n=== All done! ===")
+end
+
+if get(ENV, "BOOTSTRAP_ONLY_INJ6", "") == "1"
+    run_part1b_inj6!()
+elseif get(ENV, "BOOTSTRAP_ONLY_PART1", "") == "1"
+    run_part1_only!()
+    println("\n=== Part 1 only: done ===")
 else
-    @warn "Only $(length(grid_results))/12 cases computed, skipping grids"
+    main()
 end
-
-println("\n=== All done! ===")

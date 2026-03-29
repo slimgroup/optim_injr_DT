@@ -462,6 +462,9 @@ $RECYCLE.BIN/
 # mini ~/.julia under the repo). Large and machine-specific; safe to delete if
 # Julia is re-run and will repopulate.
 .julia_depot_cursor/
+.julia_depot_cdf/
+.codex/
+.codex
 
 # Matplotlib user config and font cache (e.g. fontlist-*.json); regenerated.
 .mplconfig/

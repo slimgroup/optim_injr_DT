@@ -1,7 +1,7 @@
 #!/usr/bin/env julia
 # Forward simulation on ground truth K → export as JLD2 for Python plotting
-# 3 cases: POF eps=0 | CVaR g=0.1 a=0.01 | No Control
-# Uses 3x rate multiplier (consistent with video scripts)
+# 3 cases: POF ε=0 | CVaR γ=0.1 α=0.01 | No Control
+# MULT=3: stronger plume / contrast for paper figures (same convention as video scripts).
 
 using Pkg
 Pkg.activate(".")
@@ -25,10 +25,12 @@ const DT      = 8.0
 const THRESHOLD = 4.0
 const GT_IDX  = 2000
 const MULT    = 3.0
+# Ramps from docs/injection_rate_arrays.md (inj_start → q_k*), then .* MULT for forward sim.
+const INJ_START = 0.0001
 
 cases = Dict(
-    "POF_eps0"      => [0.000100, 0.003468, 0.006836, 0.010204, 0.013572, 0.016940],
-    "CVaR_g01_a001" => [0.000100, 0.007584, 0.015068, 0.022552, 0.030036, 0.037520],
+    "POF_eps0"      => collect(range(INJ_START, 0.02630, length=6)),
+    "CVaR_g01_a001" => collect(range(INJ_START, 0.07470, length=6)),
     "No_Control"    => collect(range(0.0, 0.1, length=6)),
 )
 case_order = ["POF_eps0", "CVaR_g01_a001", "No_Control"]
@@ -102,7 +104,7 @@ function main()
 
     for ckey in case_order
         rates = cases[ckey] .* MULT
-        println("\nCase: $ckey  rates(x$MULT): ", round.(rates; digits=5))
+        println("\nCase: $ckey  rates (×$MULT, m³/s): ", round.(rates; digits=5))
 
         sat_all, pres_all = run_forward(sim, K, rates)
         nt = size(sat_all, 3)

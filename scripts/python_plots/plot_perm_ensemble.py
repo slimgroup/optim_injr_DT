@@ -71,21 +71,21 @@ print(f"  Std  range: [{logK_std.min():.3f}, {logK_std.max():.3f}]")
 cmap_perm = cc.cm["rainbow4"]
 
 plt.rcParams.update({
-    "font.size": 17,
-    "axes.labelsize": 17,
-    "axes.titlesize": 19,
-    "xtick.labelsize": 15,
-    "ytick.labelsize": 15,
+    "font.size": 16,
+    "axes.labelsize": 16,
+    "axes.titlesize": 18,
+    "xtick.labelsize": 14,
+    "ytick.labelsize": 14,
 })
 
-fig = plt.figure(figsize=(16.0, 5.5))
+fig = plt.figure(figsize=(16.0, 5.05))
 gs = GridSpec(
     2,
     3,
     figure=fig,
-    height_ratios=[1.0, 0.07],
-    hspace=0.42,
-    wspace=0.18,
+    height_ratios=[1.0, 0.04],
+    hspace=0.05,
+    wspace=0.10,
 )
 
 vmin_p, vmax_p = 0.0, 4.0
@@ -93,24 +93,24 @@ vmax_std = float(np.ceil(logK_std.max() * 10) / 10)
 
 ax0 = fig.add_subplot(gs[0, 0])
 im0 = ax0.imshow(logK_gt.T, vmin=vmin_p, vmax=vmax_p, extent=extent, cmap=cmap_perm)
-ax0.set_title("(a) Ground Truth", fontsize=19, fontweight="bold", pad=10)
-ax0.set_xlabel("X [m]", fontsize=17, labelpad=2)
-ax0.set_ylabel("Depth [m]", fontsize=17)
-ax0.tick_params(labelsize=15, length=3, pad=2)
+ax0.set_title("(a) Ground Truth", fontsize=18, fontweight="bold", pad=3)
+ax0.set_xlabel("X [m]", fontsize=19, labelpad=2)
+ax0.set_ylabel("Depth [m]", fontsize=19)
+ax0.tick_params(labelsize=14, length=3, pad=2)
 
 ax1 = fig.add_subplot(gs[0, 1], sharey=ax0)
 im1 = ax1.imshow(logK_mean.T, vmin=vmin_p, vmax=vmax_p, extent=extent, cmap=cmap_perm)
-ax1.set_title(f"(b) Ensemble Mean (N={n_models})", fontsize=19, fontweight="bold", pad=10)
-ax1.set_xlabel("X [m]", fontsize=17, labelpad=2)
+ax1.set_title(f"(b) Ensemble Mean (N={n_models})", fontsize=18, fontweight="bold", pad=3)
+ax1.set_xlabel("X [m]", fontsize=19, labelpad=2)
 plt.setp(ax1.get_yticklabels(), visible=False)
-ax1.tick_params(labelsize=15, length=3, pad=2)
+ax1.tick_params(labelsize=14, length=3, pad=2)
 
 ax2 = fig.add_subplot(gs[0, 2], sharey=ax0)
 im2 = ax2.imshow(logK_std.T, vmin=0.0, vmax=vmax_std, extent=extent, cmap="cet_CET_L8")
-ax2.set_title("(c) Ensemble Std Dev", fontsize=19, fontweight="bold", pad=10)
-ax2.set_xlabel("X [m]", fontsize=17, labelpad=2)
+ax2.set_title("(c) Ensemble Std Dev", fontsize=18, fontweight="bold", pad=3)
+ax2.set_xlabel("X [m]", fontsize=19, labelpad=2)
 plt.setp(ax2.get_yticklabels(), visible=False)
-ax2.tick_params(labelsize=15, length=3, pad=2)
+ax2.tick_params(labelsize=14, length=3, pad=2)
 
 cb_gs_left = gs[1, 0:2].subgridspec(1, 1)
 cax_left = fig.add_subplot(cb_gs_left[0, 0])
@@ -127,11 +127,11 @@ clb_right.ax.tick_params(labelsize=14, length=2, pad=1)
 
 fig.suptitle(
     "Permeability Ensemble Statistics",
-    fontsize=30,
+    fontsize=27,
     fontweight="bold",
-    y=0.965,
+    y=0.962,
 )
-fig.subplots_adjust(left=0.075, right=0.965, top=0.855, bottom=0.20)
+fig.subplots_adjust(left=0.075, right=0.965, top=0.875, bottom=0.085)
 
 fname = os.path.join(OUT_DIR, "perm_ensemble_statistics.png")
 fig.savefig(fname, dpi=300, bbox_inches="tight")

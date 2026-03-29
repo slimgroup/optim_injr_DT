@@ -9,8 +9,12 @@ The ending rate for each case is **q_k\*** — the conservative bootstrap estima
 Each array has **length 6**, linearly spaced from `inj_start = 0.0001` to `q_k*`:
 
 ```
-array = range(inj_start, q_k_star, 6)
+array = range(inj_start, q_k_star, length=6)   # Julia: 6 points inclusive
 ```
+
+**Indexing (same dimension as optimization / bootstrap summaries):** the six entries are the six injection **periods**; the **last period** is **Julia index 6** (`rates[6]` / `rates[end]`) and **Python** `rates[-1]` or `rates[5]` in 0-based indexing. That last value equals **q_k\*** in the table below (before any visualization multiplier).
+
+**`forward_sim_data.jld2` and `run_forward_export.jl`:** the forward simulator uses the **same ramps as this table** (no global multiplier). The last column of `fracture_comparison_3x3.png` is **`q_k\*` in m³/s**, directly comparable to the horizontal axis of the bootstrap CDF plots (`cdf_POF_eps0.png` / `cdf_POF_eps0.01.png` / CVaR case) for the matching risk setting.
 
 ## Injection Rate Arrays
 
@@ -25,6 +29,8 @@ array = range(inj_start, q_k_star, 6)
 ```
 [0.00010, 0.00914, 0.01818, 0.02722, 0.03626, 0.04530]
 ```
+
+(Used for bootstrap `cdf_POF_eps0.01.png` and for the **middle column** of `fracture_comparison_3x3.png` — key `POF_eps0p01` in `forward_sim_data.jld2`.)
 
 ### Case 3: CVaR γ=0.1 α=0.01 (q_k\* = 0.0747)
 

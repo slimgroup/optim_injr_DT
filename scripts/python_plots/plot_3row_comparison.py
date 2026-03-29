@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 """
-Paper figure: 3-row x 3-column forward simulation comparison.
-Row 1: Relative pressure margin  r = (p_frac - p) / p_frac
+Paper figure: 3-row × 3-column forward simulation comparison.
+Row 1: Relative pressure margin  r = (p_frac - p) / p_max
 Row 2: Differential pressure  (p - p0) in MPa
 Row 3: CO2 saturation
-Columns: POF eps=0 | CVaR gamma=0.1 alpha=0.01 | No Control
+Columns: POF ε=0 | CVaR γ=0.1 α=0.01 | No Control
 Ground truth permeability: sample 2000.
+
+First-row text boxes (two lines): (1) $q_k^*$ — tabulated for POF/CVaR, last-period sim
+rate for No Control (same label for a uniform figure); (2) injected CO₂ (same formula all columns).
 """
 import os
 import sys
@@ -20,11 +23,32 @@ import colorcet as cc
 import cmasher
 
 BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_FILE = os.path.join(BASE, "plots", "paper_figures", "forward_sim_data.jld2")
+DATA_FILE = os.path.join(BASE, "plots/paper_figures", "forward_sim_data.jld2")
 OUT_DIR = os.path.join(BASE, "plots", "paper_figures")
+
+# q_k* (m³/s, CDF / injection_rate_arrays.md scale) — only for POF and CVaR columns.
+QK_STAR = {
+    "POF_eps0": 0.02630,
+    "CVaR_g01_a001": 0.07470,
+}
+
+_CASE_KEYS = ["POF_eps0", "CVaR_g01_a001", "No_Control"]
 
 if not os.path.exists(DATA_FILE):
     sys.exit(f"ERROR: {DATA_FILE} not found. Run run_forward_export.jl first.")
+
+
+def _check_jld2_keys(path):
+    with h5py.File(path, "r") as f:
+        for ck in _CASE_KEYS:
+            if f"{ck}_rates" not in f:
+                sys.exit(
+                    f"ERROR: {path} has no dataset '{ck}_rates'. "
+                    "Regenerate with: julia --project=. scripts/python_plots/run_forward_export.jl"
+                )
+
+
+_check_jld2_keys(DATA_FILE)
 
 nx, nz = 512, 256
 dx, dz = 6.25, 6.25
@@ -40,7 +64,7 @@ data = {}
 with h5py.File(DATA_FILE, "r") as f:
     data["p0"] = f["p0"][:]
     data["p_max"] = f["p_max"][:].T
-    for ck in ["POF_eps0", "CVaR_g01_a001", "No_Control"]:
+    for ck in _CASE_KEYS:
         data[f"{ck}_rates"] = f[f"{ck}_rates"][:]
         data[f"{ck}_sat"] = f[f"{ck}_sat_final"][:].T
         data[f"{ck}_pres"] = f[f"{ck}_pres_final"][:].T
@@ -58,15 +82,28 @@ def format_total_mass_mt(total_volume_m3):
     return f"{total_mass_mt:.2f} Mt"
 
 
+# Injected CO₂ (all columns, same formula): total volumetric injection × ρ_CO₂.
+#   Not "q_k* × total days": rates[] is length-6 increasing schedule (from forward export, incl. ×3).
+#   total_volume_m³ = Σ_{k=1}^6 (rates[k] × period_seconds) = period_seconds × sum(rates)
+#   when each of the 6 control periods has the same duration period_seconds.
+#   period_seconds = DT_DAYS × SUBSTEPS_PER_PERIOD × SECONDS_PER_DAY (matches forward/video).
+#   mass [Mt] = total_volume_m³ × RHO_CO2 [kg/m³] / 1e9.
 case_annotations = {}
 period_seconds = DT_DAYS * SUBSTEPS_PER_PERIOD * SECONDS_PER_DAY
 for ck, _ in cases:
     rates = np.asarray(data[f"{ck}_rates"], dtype=float).ravel()
     total_volume = float(np.sum(rates) * period_seconds)
-    case_annotations[ck] = (
-        f"Rate: {rates[-1]:.4f} m$^3$/s\n"
-        f"CO$_2$: {format_total_mass_mt(total_volume)}"
-    )
+    co2_line = f"Injected CO$_2$: {format_total_mass_mt(total_volume)}"
+    last_sim = float(rates[-1])
+    if ck in QK_STAR:
+        case_annotations[ck] = (
+            f"$q_k^*$ = {QK_STAR[ck]:.4f} m$^3$/s\n" + co2_line
+        )
+    else:
+        # No risk cap in optimization: value is terminal rate from forward schedule (sim).
+        case_annotations[ck] = (
+            f"$q_k^*$ = {last_sim:.4f} m$^3$/s\n" + co2_line
+        )
 
 cmap_margin = mcolors.ListedColormap(np.vstack([
     plt.cm.Reds_r(np.linspace(0.0, 0.85, 26)),
