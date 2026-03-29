@@ -10,6 +10,7 @@ These instructions apply to all Codex work in this repository.
 - Preserve CLI and batch-job interfaces for `src/optim_inject.jl` and `scripts/shell/*.sh`; do not silently rename flags, change argument meanings, or break SLURM environment assumptions.
 - Keep directory conventions stable: optimization outputs under `data/`, figures under `plots/`, logs under `logs/`, and reusable scripts under `scripts/`.
 - When statistics are mathematically redundant, point that out instead of presenting them as different insights.
+- Light plotting or lightweight analysis can be run on the login node when it is genuinely inexpensive, but heavy computation must go through `sbatch` or `salloc`; do not run computation-heavy jobs directly on the login node.
 - Do not rewrite git history, force push, or create commits unless the user explicitly requests it.
 - At the end of a task that changes files, ask whether the user wants a git commit; if yes, use a detailed commit message that explains why and the main scope.
 

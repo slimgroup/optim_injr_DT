@@ -1,0 +1,346 @@
+#!/usr/bin/env python3
+
+from __future__ import annotations
+
+import csv
+from dataclasses import dataclass
+from pathlib import Path
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
+
+REPO_ROOT = Path("/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT")
+ROOT = REPO_ROOT / "data" / "DT_control" / "exp_name=step2"
+OUTDIR = REPO_ROOT / "plots" / "step2_paired_posterior_stats"
+
+B = 5000
+CONF = 0.95
+THRESH = 0.01
+NBINS = 16
+ECDF_PTS = 1500
+SEED = 42
+SAMPLES = range(1, 129)
+
+plt.rcParams.update(
+    {
+        "font.family": "serif",
+        "axes.titlesize": 14,
+        "axes.labelsize": 12,
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
+        "legend.fontsize": 9,
+    }
+)
+
+
+@dataclass(frozen=True)
+class CaseSpec:
+    key: str
+    slug: str
+    title: str
+    dirname: str
+    inj_start: float
+
+
+@dataclass
+class Record:
+    sample: int
+    endpoint: float
+    rate6: float
+
+
+SPECS = (
+    CaseSpec(
+        "pof_eps0.0",
+        "pof_eps0.0",
+        "POF eps=0.0",
+        "case=pof_eps0.0__prior=paired_posterior_sample__POF__HARD__eps=0.0__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0",
+        0.02630,
+    ),
+    CaseSpec(
+        "pof_eps0.01",
+        "pof_eps0.01",
+        "POF eps=0.01",
+        "case=pof_eps0.01__prior=paired_posterior_sample__POF__HARD__eps=0.01__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0",
+        0.04530,
+    ),
+    CaseSpec(
+        "cvar_g0.1_a0.01",
+        "cvar_g0.1_a0.01",
+        "CVaR gamma=0.1, alpha=0.01",
+        "case=cvar_g0.1_a0.01__prior=paired_posterior_sample__CVaR__HARD__alpha=0.01__gamma=0.1__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0",
+        0.07470,
+    ),
+)
+
+
+def last_nonzero_endpoint(fp: Path) -> float:
+    with h5py.File(fp, "r") as f:
+        arr = np.array(f["inj_rate_arr"]).reshape(-1)
+    nz = np.flatnonzero(np.isfinite(arr) & (arr != 0))
+    return float(arr[nz[-1]]) if nz.size else 1.0e-4
+
+
+def rate6(endpoint: float, inj_start: float) -> float:
+    return float(np.linspace(inj_start, endpoint, 12)[5])
+
+
+def load_records(spec: CaseSpec) -> list[Record]:
+    out = []
+    root = ROOT / spec.dirname
+    for s in SAMPLES:
+        fp = root / f"sample={s}" / "final.jld2"
+        if not fp.is_file():
+            continue
+        ep = last_nonzero_endpoint(fp)
+        out.append(Record(s, ep, rate6(ep, spec.inj_start)))
+    return out
+
+
+def boot_quantile(x: np.ndarray, q: float, b: int, seed: int) -> np.ndarray:
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, len(x), size=(b, len(x)))
+    return np.quantile(x[idx], q, axis=1)
+
+
+def boot_ecdf_ci(x: np.ndarray, b: int, conf: float, npts: int, seed: int):
+    rng = np.random.default_rng(seed)
+    xmin, xmax = float(np.min(x)), float(np.max(x))
+    span = xmax - xmin
+    margin = 0.05 * span if span > 0 else max(abs(xmin) * 0.05, 1e-6)
+    grid = np.linspace(xmin - margin, xmax + margin, npts)
+    sorted_x = np.sort(x)
+    ecdf = np.searchsorted(sorted_x, grid, side="right") / len(x)
+    boot = np.empty((b, npts), dtype=float)
+    for i in range(b):
+        s = np.sort(x[rng.integers(0, len(x), size=len(x))])
+        boot[i, :] = np.searchsorted(s, grid, side="right") / len(x)
+    alpha = 1 - conf
+    return grid, ecdf, np.quantile(boot, alpha / 2, axis=0), np.quantile(boot, 1 - alpha / 2, axis=0)
+
+
+def crossing(grid: np.ndarray, vals: np.ndarray, thr: float):
+    idx = np.flatnonzero(vals >= thr)
+    return float(grid[idx[0]]) if idx.size else None
+
+
+def stats_text(x: np.ndarray, q01: float) -> str:
+    return (
+        f"n={len(x)}\n"
+        f"mean={np.mean(x):.5f}\n"
+        f"median={np.median(x):.5f}\n"
+        f"std={np.std(x, ddof=1):.5f}\n"
+        f"1% q={q01:.5f}"
+    )
+
+
+def plot_hist(x: np.ndarray, q01: float, qlo: float, qhi: float, title: str, out: Path) -> None:
+    fig, ax = plt.subplots(figsize=(8.6, 5.8))
+    edges = np.linspace(np.min(x), np.max(x), NBINS + 1)
+    if np.allclose(edges[0], edges[-1]):
+        edges = np.linspace(edges[0] - 1e-6, edges[0] + 1e-6, NBINS + 1)
+    ax.hist(x, bins=edges, color="#7FB3D5", edgecolor="#1F618D", alpha=0.8, linewidth=0.8, label=f"Histogram (n={len(x)})")
+    ax.axvline(q01, color="#1E8449", linewidth=2.2, label=f"1% quantile = {q01:.5f}")
+    ax.axvline(qlo, color="#CB4335", linewidth=1.6, linestyle="--", label=f"95% CI lower = {qlo:.5f}")
+    ax.axvline(qhi, color="#7D3C98", linewidth=1.6, linestyle="--", label=f"95% CI upper = {qhi:.5f}")
+    ax.axvspan(qlo, qhi, color="#D7BDE2", alpha=0.25)
+    ax.text(0.98, 0.96, stats_text(x, q01), transform=ax.transAxes, va="top", ha="right", fontsize=10, bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor="#9E9E9E", alpha=0.95))
+    ax.set_title(f"{title}\nHistogram of optimized injection schedule element 6/12", fontweight="bold")
+    ax.set_xlabel("Injection rate (m^3/s)")
+    ax.set_ylabel("Count")
+    ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)
+    ax.legend(loc="upper left", framealpha=0.95)
+    fig.tight_layout()
+    fig.savefig(out, dpi=240, bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_cdf(x: np.ndarray, grid: np.ndarray, ecdf: np.ndarray, clo: np.ndarray, chi: np.ndarray, q01: float, title: str, out: Path) -> None:
+    xcons = crossing(grid, chi, THRESH)
+    xecdf = crossing(grid, ecdf, THRESH)
+    xopt = crossing(grid, clo, THRESH)
+    fig, ax = plt.subplots(figsize=(8.6, 5.8))
+    ax.fill_between(grid, clo * 100, chi * 100, color="#AED6F1", alpha=0.55, label="95% bootstrap CI")
+    ax.plot(grid, ecdf * 100, color="#1F618D", linewidth=2.2, label="Empirical CDF")
+    ax.axhline(THRESH * 100, color="#C0392B", linewidth=1.5, linestyle="--", label="1% threshold")
+    for val, color, label in [(xcons, "#D35400", "CI upper crossing"), (xecdf, "#117A65", "ECDF crossing"), (xopt, "#5B2C6F", "CI lower crossing")]:
+        if val is not None:
+            ax.plot(val, THRESH * 100, marker="*", color=color, markersize=11, label=label)
+    ax.text(0.98, 0.96, stats_text(x, q01), transform=ax.transAxes, va="top", ha="right", fontsize=10, bbox=dict(boxstyle="round,pad=0.35", facecolor="white", edgecolor="#9E9E9E", alpha=0.95))
+    ax.set_title(f"{title}\nCDF of optimized injection schedule element 6/12 with 95% bootstrap CI", fontweight="bold")
+    ax.set_xlabel("Injection rate (m^3/s)")
+    ax.set_ylabel("Probability (%)")
+    ax.set_ylim(0, 100)
+    ax.grid(True, linestyle="--", linewidth=0.4, alpha=0.4)
+    ax.legend(loc="upper left", fontsize=9.5, framealpha=0.95)
+    inset = ax.inset_axes([0.43, 0.10, 0.52, 0.45])
+    inset.fill_between(grid, clo * 100, chi * 100, color="#AED6F1", alpha=0.55)
+    inset.plot(grid, ecdf * 100, color="#1F618D", linewidth=1.5)
+    inset.axhline(THRESH * 100, color="#C0392B", linewidth=1.0, linestyle="--")
+    zoom = [v for v in (xcons, xecdf, xopt) if v is not None]
+    zmin, zmax = ((min(zoom) * 0.90, max(zoom) * 1.10) if zoom else (float(np.min(x)), float(np.max(x))))
+    if np.isclose(zmin, zmax):
+        zmin -= 1e-6
+        zmax += 1e-6
+    inset.set_xlim(zmin, zmax)
+    inset.set_ylim(0, 8)
+    inset.set_title("Left-tail zoom", fontsize=9)
+    inset.tick_params(labelsize=8)
+    inset.grid(True, linestyle="--", linewidth=0.3, alpha=0.35)
+    afs = 8.5
+    if xcons is not None:
+        inset.plot(xcons, THRESH * 100, marker="*", color="#D35400", markersize=12, zorder=5)
+        inset.annotate(
+            f"q_k*\n{xcons:.4f}",
+            xy=(xcons, THRESH * 100),
+            xytext=(-28, 18),
+            textcoords="offset points",
+            fontsize=afs,
+            color="#D35400",
+            fontweight="bold",
+            ha="center",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="#FEF5E7", alpha=0.92, edgecolor="#D35400"),
+            arrowprops=dict(arrowstyle="->", color="#D35400"),
+        )
+    if xecdf is not None:
+        inset.plot(xecdf, THRESH * 100, marker="*", color="#117A65", markersize=12, zorder=5)
+        inset.annotate(
+            f"ECDF\n{xecdf:.4f}",
+            xy=(xecdf, THRESH * 100),
+            xytext=(0, 40),
+            textcoords="offset points",
+            fontsize=afs,
+            color="#117A65",
+            fontweight="bold",
+            ha="center",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="#E8F5E9", alpha=0.92, edgecolor="#117A65"),
+            arrowprops=dict(arrowstyle="->", color="#117A65"),
+        )
+    if xopt is not None:
+        inset.plot(xopt, THRESH * 100, marker="*", color="#5B2C6F", markersize=12, zorder=5)
+        inset.annotate(
+            f"Opt.\n{xopt:.4f}",
+            xy=(xopt, THRESH * 100),
+            xytext=(28, 18),
+            textcoords="offset points",
+            fontsize=afs,
+            color="#5B2C6F",
+            fontweight="bold",
+            ha="center",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="#F4ECF7", alpha=0.92, edgecolor="#5B2C6F"),
+            arrowprops=dict(arrowstyle="->", color="#5B2C6F"),
+        )
+    fig.tight_layout()
+    fig.savefig(out, dpi=240, bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_grid(results, out: Path) -> None:
+    fig, axes = plt.subplots(2, 3, figsize=(18, 9.8))
+    fig.suptitle("Step-2 paired posterior comparison on shared 127 samples\nHistogram and empirical CDF of injection schedule element 6/12", fontsize=18, fontweight="bold", y=0.98)
+    for j, (spec, x, q01, qlo, qhi, grid, ecdf, clo, chi) in enumerate(results):
+        ax = axes[0, j]
+        edges = np.linspace(np.min(x), np.max(x), NBINS + 1)
+        if np.allclose(edges[0], edges[-1]):
+            edges = np.linspace(edges[0] - 1e-6, edges[0] + 1e-6, NBINS + 1)
+        ax.hist(x, bins=edges, color="#7FB3D5", edgecolor="#1F618D", alpha=0.8, linewidth=0.8)
+        ax.axvline(q01, color="#1E8449", linewidth=2.0)
+        ax.axvspan(qlo, qhi, color="#D7BDE2", alpha=0.25)
+        ax.set_title(spec.title, fontweight="bold")
+        ax.set_ylabel("Count")
+        ax.grid(True, linestyle="--", linewidth=0.35, alpha=0.35)
+        ax.text(0.98, 0.96, f"mean={np.mean(x):.4f}\nmedian={np.median(x):.4f}\n1% q={q01:.4f}", transform=ax.transAxes, va="top", ha="right", fontsize=9, bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor="#9E9E9E", alpha=0.92))
+        ax = axes[1, j]
+        ax.fill_between(grid, clo * 100, chi * 100, color="#AED6F1", alpha=0.55)
+        ax.plot(grid, ecdf * 100, color="#1F618D", linewidth=2.0)
+        ax.axhline(THRESH * 100, color="#C0392B", linewidth=1.2, linestyle="--")
+        xecdf = crossing(grid, ecdf, THRESH)
+        if xecdf is not None:
+            ax.plot(xecdf, THRESH * 100, marker="*", color="#117A65", markersize=10)
+        ax.set_xlabel("Injection rate (m^3/s)")
+        ax.set_ylabel("Probability (%)")
+        ax.set_ylim(0, 100)
+        ax.grid(True, linestyle="--", linewidth=0.35, alpha=0.35)
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.savefig(out, dpi=240, bbox_inches="tight")
+    plt.close(fig)
+
+
+def write_csv(shared_samples, lookups, out: Path) -> None:
+    fields = ["sample"]
+    for spec in SPECS:
+        fields += [f"{spec.slug}_endpoint", f"{spec.slug}_rate6"]
+    with out.open("w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields)
+        w.writeheader()
+        for s in shared_samples:
+            row = {"sample": s}
+            for spec in SPECS:
+                rec = lookups[spec.key][s]
+                row[f"{spec.slug}_endpoint"] = rec.endpoint
+                row[f"{spec.slug}_rate6"] = rec.rate6
+            w.writerow(row)
+
+
+def main() -> None:
+    OUTDIR.mkdir(parents=True, exist_ok=True)
+    all_records = {spec.key: load_records(spec) for spec in SPECS}
+    shared = sorted(set.intersection(*(set(r.sample for r in recs) for recs in all_records.values())))
+    lookups = {k: {r.sample: r for r in recs} for k, recs in all_records.items()}
+
+    results = []
+    lines = [
+        "# Step-2 paired posterior summary",
+        "",
+        "Main plotted statistic: the 6th element of the reconstructed 12-step optimized injection schedule derived from `inj_rate_arr`.",
+        "",
+        "The final endpoint is mathematically redundant with this plotted statistic within each case because the 6th schedule element is a fixed affine transform of that endpoint.",
+        "",
+        f"Shared comparison uses `{len(shared)}` samples: `1..128` excluding `113`.",
+        "",
+        "| Case | full completed | shared used | mean | median | std | 1% q | 95% CI for 1% q |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    missing_lines = []
+
+    for spec in SPECS:
+        x = np.array([lookups[spec.key][s].rate6 for s in shared], dtype=float)
+        boot = boot_quantile(x, THRESH, B, SEED)
+        q01 = float(np.quantile(x, THRESH))
+        qlo = float(np.quantile(boot, (1 - CONF) / 2))
+        qhi = float(np.quantile(boot, 1 - (1 - CONF) / 2))
+        grid, ecdf, clo, chi = boot_ecdf_ci(x, B, CONF, ECDF_PTS, SEED)
+        plot_hist(x, q01, qlo, qhi, spec.title, OUTDIR / f"hist_{spec.slug}_shared127.png")
+        plot_cdf(x, grid, ecdf, clo, chi, q01, spec.title, OUTDIR / f"cdf_{spec.slug}_shared127.png")
+        results.append((spec, x, q01, qlo, qhi, grid, ecdf, clo, chi))
+        missing = sorted(set(SAMPLES) - set(r.sample for r in all_records[spec.key]))
+        lines.append(f"| {spec.title} | {len(all_records[spec.key])} | {len(shared)} | {np.mean(x):.5f} | {np.median(x):.5f} | {np.std(x, ddof=1):.5f} | {q01:.5f} | [{qlo:.5f}, {qhi:.5f}] |")
+        if missing:
+            missing_lines.append(f"- {spec.title} missing samples: `{', '.join(map(str, missing))}`")
+
+    p0 = results[0][1]
+    p1 = results[1][1]
+    cv = results[2][1]
+    d01 = p1 - p0
+    d12 = cv - p1
+    lines += [
+        "",
+        "Missing samples by case:",
+        *missing_lines,
+        "",
+        f"- POF eps=0.01 minus POF eps=0.0: mean delta `{np.mean(d01):.5f}`, median delta `{np.median(d01):.5f}`, positive in `{100*np.mean(d01 > 0):.1f}%` of shared samples.",
+        f"- CVaR gamma=0.1 alpha=0.01 minus POF eps=0.01: mean delta `{np.mean(d12):.5f}`, median delta `{np.median(d12):.5f}`, positive in `{100*np.mean(d12 > 0):.1f}%` of shared samples.",
+        "",
+        f"- Lower-tail injectivity shifts right from `{results[0][2]:.5f}` to `{results[1][2]:.5f}` to `{results[2][2]:.5f}` at the 1% quantile.",
+        "- Because `pof_eps0.0` still lacks sample 113, the three-way apples-to-apples comparison is done on the shared 127 completed samples.",
+    ]
+
+    plot_grid(results, OUTDIR / "summary_grid_hist_cdf_shared127.png")
+    write_csv(shared, lookups, OUTDIR / "shared127_values.csv")
+    (OUTDIR / "summary_shared127.md").write_text("\n".join(lines) + "\n")
+    print(f"Saved outputs to: {OUTDIR}")
+
+
+if __name__ == "__main__":
+    main()
