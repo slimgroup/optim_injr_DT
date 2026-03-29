@@ -16,7 +16,7 @@ scripts/
 │   ├── utilities/         # Diagnostics, scaling, tuning, misc helpers
 │   └── archive/           # Historical scripts kept for reference
 ├── python_plots/          # Python-based paper figure assembly
-├── gamma_tables/          # Versioned small lookup tables
+├── gamma_tables/          # Historical gamma tables from a deprecated comparison path
 └── __pycache__/           # Local cache only; ignored by git
 ```
 
@@ -31,6 +31,8 @@ scripts/
 
 ### Shell entry points in `scripts/shell/`
 
+#### Common current entry points
+
 - `optim_inject_pace.sh`
   Main SLURM job entry point for array optimization runs on PACE.
 - `submit_all.sh`
@@ -39,10 +41,58 @@ scripts/
   Run the bootstrap CDF plotting pipeline on a compute node or interactive allocation.
 - `submit_bootstrap_cdf.sh`
   SLURM wrapper for the bootstrap CDF plotting pipeline.
+- `run_plot_threshold_sensitivity.sh`
+  Direct run helper for threshold-sensitivity plotting.
+- `submit_threshold_sensitivity.sh`
+  Threshold-sensitivity submission wrapper that still exists in this tree.
 - `submit_video_generation.sh`
   Batch entry point for video-generation workflows.
-- `submit_threshold_sensitivity.sh` style scripts do not currently exist in this tree.
-  Use the scripts that are actually present under `scripts/shell/` instead of older doc names.
+
+#### Diagnostics and status checks
+
+- `check_*`
+  Queue status, sample completeness, verification, and progress helpers.
+- `verify_logs_path.sh`, `verify_skip_from_log.sh`
+  Log-path and skip-behavior checks.
+- `test_ds_verification.sh`
+  Verification-oriented test helper.
+
+#### Recovery and special-case reruns
+
+- `retry_failed_job.sh`, `retry_step2_sample113.sh`
+  Retry helpers for specific failed runs.
+- `rerun_7_missing_cvar_samples_fix.sh`
+  Targeted rerun helper for missing CVaR samples.
+- `cancel_duplicate_pof_jobs.sh`
+  Queue cleanup helper for duplicate POF jobs.
+- `move_iteration_files_to_scratch.sh`
+  File-placement helper for iteration artifacts.
+
+#### Historical or narrow-use submission scripts
+
+- `submit_11_cases_samples_1_128.sh`
+- `submit_11_cases_samples_2_64_smart.sh`
+- `submit_20_cases_samples_65_128_smart.sh`
+- `submit_128perm_only.sh`
+- `submit_cvar_2cases_alpha_0.02.sh`
+- `submit_cvar_4cases_alpha_0_0.01.sh`
+- `submit_cvar_g=0.2_a=0.01.sh`
+- `submit_cvar_gamma_0.1_0.2.sh`
+- `submit_cvar_gamma_0.4.sh`
+- `submit_missing_pof_samples.sh`
+- `submit_missing_pof_samples_fix.sh`
+- `submit_pof_cases_simple.sh`
+- `submit_pof_cases_smart.sh`
+- `submit_pof_sensitivity.sh`
+- `submit_step2_dual_prior_smoketest.sh`
+- `optim_inject_cruyff.sh`, `optim_inject_cruyff_cpu.sh`, `optim_inject_pace_7cases_fix.sh`
+  Case-specific or historical workflows kept for reference or reruns.
+
+#### Deprecated gamma-table path
+
+- `submit_gamma_table_generation.sh`
+  Historical helper for a deprecated gamma-table-based POF/CVaR comparison path.
+  Keep for reproducibility only; do not treat as the recommended workflow.
 
 ### Julia plotting entry points
 
@@ -78,16 +128,16 @@ scripts/
 
 ### `scripts/shell/`
 
-- `submit_*`
-  Job submission wrappers.
-- `run_*`
-  Direct execution wrappers for compute nodes or interactive sessions.
-- `check_*`
-  Progress, status, and verification helpers.
-- `retry_*`, `rerun_*`, `cancel_*`
-  Recovery and queue-management helpers.
-- `move_*`
-  File-placement helper scripts.
+- Common current entry points:
+  `optim_inject_pace.sh`, `submit_all.sh`, `run_bootstrap_cdf.sh`, `submit_bootstrap_cdf.sh`, `run_plot_threshold_sensitivity.sh`, `submit_threshold_sensitivity.sh`
+- Diagnostics:
+  `check_*`, `verify_*`, `test_ds_verification.sh`
+- Recovery and queue management:
+  `retry_*`, `rerun_*`, `cancel_*`, `move_*`
+- Historical or narrow-use submit wrappers:
+  case-specific `submit_*` scripts retained for reproducibility
+- Deprecated:
+  `submit_gamma_table_generation.sh` for the old gamma-table comparison route
 
 ### `scripts/julia_scripts/data_collection/`
 
@@ -111,7 +161,8 @@ scripts/
 
 - If a workflow writes large outputs, they should land under `data/`, `plots/`, or `logs/`, not in `scripts/`.
 - `archive/` directories are historical reference material. Do not treat them as primary entry points.
-- `scripts/gamma_tables/*.jld2` is intentionally version-controlled; most other `.jld2` outputs are not.
+- `scripts/gamma_tables/*.jld2` is a historical artifact from a deprecated POF/CVaR comparison route.
+  Keep it only for reproducibility until the user explicitly authorizes cleanup.
 - Python bytecode caches under `scripts/**/__pycache__/` are local artifacts and should remain ignored.
 
 ## Related Docs

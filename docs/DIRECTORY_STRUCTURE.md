@@ -29,7 +29,7 @@ scripts/
 │   ├── utilities/              # Diagnostics, scaling, misc helpers
 │   └── archive/                # Historical scripts kept for reference
 ├── python_plots/               # Python paper-figure assembly scripts
-├── gamma_tables/               # Small version-controlled lookup tables
+├── gamma_tables/               # Historical gamma tables from a deprecated workflow
 └── __pycache__/                # Local cache only; ignored
 ```
 
@@ -53,7 +53,7 @@ Editor- or machine-specific directories such as **`.julia_depot*/`** (project-lo
 - **`shell/`**: SLURM submission, run, progress-check, and rerun helpers
 - **`julia_scripts/`**: Julia plotting, collection, analysis, and utility scripts
 - **`python_plots/`**: Python figure-assembly scripts for paper-quality plots
-- **`gamma_tables/`**: small lookup tables intentionally kept in git
+- **`gamma_tables/`**: historical gamma tables kept only for reproducibility of an older comparison workflow
 
 ### Data Files (`data/`)
 - Experiment data, intermediate results, configuration files, etc.
@@ -88,3 +88,5 @@ Editor- or machine-specific directories such as **`.julia_depot*/`** (project-lo
 - The repository currently contains large local working directories: `data/`, `plots/`, and `logs/`.
 - Local depots such as `.julia_depot_cursor/` and `.julia_depot_cdf/` are intentionally ignored rather than deleted.
 - Some older docs and scripts still describe historical workflows; prefer the actual files present in `scripts/` when there is a mismatch.
+- `scripts/gamma_tables/` and related helper scripts belong to a deprecated POF/CVaR comparison route and should not be treated as the recommended workflow.
+- Do not delete historical gamma tables or their helper scripts without explicit user authorization.

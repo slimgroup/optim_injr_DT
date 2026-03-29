@@ -33,6 +33,10 @@ The list below is trimmed to files that actually exist in the current repo.
 - [injection_rate_arrays.md](injection_rate_arrays.md): documented injection-rate ramps and indexing
 - [PLOT_LAYOUT_DISCUSSION.md](PLOT_LAYOUT_DISCUSSION.md): figure-layout notes
 
+### Historical workflows
+- Gamma-table-based POF/CVaR comparison material is retained only for reproducibility.
+- Treat `scripts/gamma_tables/` and `scripts/shell/submit_gamma_table_generation.sh` as deprecated unless a task explicitly targets that older workflow.
+
 ### Performance and troubleshooting
 - [PERFORMANCE_ANALYSIS.md](PERFORMANCE_ANALYSIS.md): performance notes
 - [COMPUTATIONAL_COST_BREAKDOWN.md](COMPUTATIONAL_COST_BREAKDOWN.md): cost breakdown

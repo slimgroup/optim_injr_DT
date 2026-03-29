@@ -2,6 +2,10 @@
 
 本指南说明如何在 PACE 上运行 POF-only 和 CVaR-only 的阈值敏感度分析，并生成对比图。
 
+> **状态说明**
+> 本文档里涉及的 gamma-table 生成与复用步骤属于较早期的 POF/CVaR 对比路线。
+> 这些内容目前保留用于复现实验历史结果，不应默认视为当前推荐 workflow。
+
 ## ✅ EPS 和 Gamma 对应关系（已改进）
 
 **确保 POF-only 和 CVaR-only 使用相同的 `eps_pof` 值！**
@@ -268,4 +272,3 @@ export JULIA_PKG_PRECOMPILE_AUTO=0
 export MPLBACKEND=Agg
 julia --project=. scripts/julia_scripts/plotting/plot_pof_vs_cvar.jl --idx_num 128
 ```
-

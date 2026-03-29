@@ -1,5 +1,9 @@
 # 快速开始：POF vs CVaR 对比实验
 
+> **状态说明**
+> 本文档中的 gamma-table 流程属于较早期的 POF/CVaR 对比方法，现阶段不应再默认作为推荐比较路径。
+> 相关脚本和 `.jld2` 文件目前仅为复现实验历史结果而保留；除非任务明确要求，否则不要继续扩展这条 workflow。
+
 ## 完整运行流程（按顺序）
 
 ### 步骤 1: 生成 Gamma Table（必须，约 3-5 分钟，并行处理）
@@ -214,4 +218,3 @@ JOB1=$(sbatch scripts/shell/submit_gamma_table_generation.sh | awk '{print $4}')
 ```
 
 **建议**: 按顺序运行，确保每一步都成功完成。
-
