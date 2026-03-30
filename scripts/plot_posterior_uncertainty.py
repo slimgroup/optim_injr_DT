@@ -214,7 +214,7 @@ def plot_uncertainty_grid(samples, var_name, out_dir):
 
     fig.suptitle(f"Posterior {cfg['title']} Uncertainty (Monitoring Step t=1)", fontsize=14, fontweight="bold")
     plt.tight_layout()
-    save_figure(fig, os.path.join(out_dir, f"posterior_{cfg['slug']}_uncertainty.png"))
+    save_figure(fig, os.path.join(out_dir, f"{cfg['slug']}_uncertainty_all_cases.png"))
 
 
 def plot_uncertainty_individual(samples, var_name, out_dir):
@@ -258,7 +258,7 @@ def plot_uncertainty_individual(samples, var_name, out_dir):
         plt.tight_layout()
         save_figure(
             fig,
-            os.path.join(out_dir, f"posterior_{cfg['slug']}_uncertainty_{CASE_SHORT[key]}.png"),
+            os.path.join(out_dir, f"{cfg['slug']}_uncertainty_{CASE_SHORT[key]}.png"),
         )
 
 
@@ -315,7 +315,7 @@ def plot_median_grid(samples, out_dir):
     axes[2, 0].set_ylabel("Depth [m]\n\nMedian Pressure Difference", fontsize=11)
     fig.suptitle("Pointwise Median over 128 Posterior Samples", fontsize=14, fontweight="bold")
     plt.tight_layout()
-    save_figure(fig, os.path.join(out_dir, "posterior_state_pointwise_median.png"))
+    save_figure(fig, os.path.join(out_dir, "state_median_all_cases.png"))
 
 
 def plot_paper_style_summary(samples, out_dir, stat_name):
@@ -390,7 +390,7 @@ def plot_paper_style_summary(samples, out_dir, stat_name):
     title = "Pointwise Posterior Mean over 128 Samples" if is_mean else "Pointwise Posterior Std Dev over 128 Samples"
     fig.suptitle(title, fontsize=27, fontweight="bold", y=0.962)
     fig.subplots_adjust(left=0.075, right=0.965, top=0.885, bottom=0.10)
-    out_name = "posterior_state_pointwise_mean.png" if is_mean else "posterior_state_pointwise_std.png"
+    out_name = "state_mean_all_cases.png" if is_mean else "state_std_all_cases.png"
     save_figure(fig, os.path.join(out_dir, out_name))
 
 
@@ -414,7 +414,7 @@ def render_frame(field, case_label, sample_idx, n_samp, var_name):
 
 def generate_sample_video(fields, case_label, case_short, var_name, out_dir, fps=5):
     cfg = VAR_CONFIG[var_name]
-    video_path = os.path.join(out_dir, f"posterior_{cfg['slug']}_{case_short}.mp4")
+    video_path = os.path.join(out_dir, f"{cfg['slug']}_animation_{case_short}.mp4")
     writer = imageio.get_writer(
         video_path,
         fps=fps,
@@ -448,7 +448,7 @@ def print_summary(samples):
 
 def main():
     data_file = POSTERIOR_JLD2
-    out_dir = "plots/posterior_analysis"
+    out_dir = "plots/posterior_field_uncertainty"
 
     ensure_clean_output_dir(out_dir)
     print("Loading posterior samples...")

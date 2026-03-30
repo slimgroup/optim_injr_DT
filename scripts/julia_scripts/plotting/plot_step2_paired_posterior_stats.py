@@ -396,7 +396,7 @@ def main() -> None:
     ]
 
     plot_grid(results, OUTDIR / "summary_grid_hist_cdf.png")
-    write_csv(all_sample_ids, lookups, OUTDIR / "samplewise_values.csv")
+    write_csv(all_sample_ids, lookups, OUTDIR / "samplewise_plot_data.csv")
     (OUTDIR / "summary.md").write_text("\n".join(lines) + "\n")
     print(f"Saved outputs to: {OUTDIR}")
 

@@ -13,7 +13,7 @@ using Random
 using Printf
 
 const ROOT = datadir("DT_control", "exp_name=step2")
-const OUTDIR = plotsdir("step2_dual_prior_stats")
+const OUTDIR = plotsdir("step2_prior_comparison_32samples")
 const SAMPLES = 1:32
 const B_BOOT = 5000
 const CONF_LEVEL = 0.95
