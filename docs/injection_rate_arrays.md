@@ -62,7 +62,7 @@ array = range(inj_start, q_k_star, length=6)   # Julia: 6 points inclusive
 ## Source
 
 Values derived from the step-2 paired posterior bootstrap comparison
-(`plots/step2_paired_posterior_stats/summary_grid_hist_cdf_shared127.png` and the corresponding single-case CDF figures).
+(`plots/step2_paired_posterior_stats_casewise_counts/summary_grid_hist_cdf_casewise.png` and the corresponding single-case CDF figures).
 
 For step 2, the ending rate for each case is again **q_k\***, the conservative bootstrap estimate
 (upper 95% CI band crossing at the 1% fracture probability threshold, B=5000).
@@ -75,14 +75,14 @@ array = range(step1_q_k_star, step2_q_k_star, length=6)   # Julia: 6 points incl
 
 This means the step-2 DT-training arrays start from the already-selected first monitoring step endpoint for the same risk case.
 
-**Shared-sample note:** `POF eps=0.0` is still missing sample `113`, so the step-2 values below are computed from the shared `127` completed samples for apples-to-apples comparison across all three cases.
+**Case-count note:** `POF eps=0.0` still uses `127` completed samples because sample `113` fractures even at zero injection rate and is intentionally excluded. `POF eps=0.01` and `CVaR gamma=0.1 alpha=0.01` use their full `128` completed samples.
 
 ## Injection Rate Arrays
 
 ### Step-2 Case 1: POF ε=0.0
 
 - step-1 `q_k*`: `0.0263`
-- step-2 `q_k*`: `0.0449`
+- step-2 `q_k*`: `0.0449` from `127` samples
 
 ```
 [0.02630, 0.03002, 0.03373, 0.03745, 0.04117, 0.04489]
@@ -91,7 +91,7 @@ This means the step-2 DT-training arrays start from the already-selected first m
 ### Step-2 Case 2: POF ε=0.01
 
 - step-1 `q_k*`: `0.0453`
-- step-2 `q_k*`: `0.0732`
+- step-2 `q_k*`: `0.0732` from `128` samples
 
 ```
 [0.04530, 0.05087, 0.05645, 0.06203, 0.06760, 0.07317]
@@ -100,10 +100,10 @@ This means the step-2 DT-training arrays start from the already-selected first m
 ### Step-2 Case 3: CVaR γ=0.1 α=0.01
 
 - step-1 `q_k*`: `0.0747`
-- step-2 `q_k*`: `0.1199`
+- step-2 `q_k*`: `0.1153` from `128` samples
 
 ```
-[0.07470, 0.08374, 0.09278, 0.10182, 0.11086, 0.11991]
+[0.07470, 0.08282, 0.09094, 0.09906, 0.10717, 0.11529]
 ```
 
 ## Reference Values (all three crossing points from step-2 CDF plot)
@@ -112,7 +112,7 @@ This means the step-2 DT-training arrays start from the already-selected first m
 |------|---------------------|---------------|-----------------|
 | POF ε=0.0 | 0.0449 | 0.0481 | 0.0502 |
 | POF ε=0.01 | 0.0732 | 0.0763 | 0.0788 |
-| CVaR γ=0.1 α=0.01 | 0.1199 | 0.1250 | 0.1277 |
+| CVaR γ=0.1 α=0.01 | 0.1153 | 0.1199 | 0.1278 |
 
 ## Parameters
 
@@ -122,4 +122,4 @@ This means the step-2 DT-training arrays start from the already-selected first m
 - Unit: m³/s
 - Bootstrap: B=5000, 95% CI, seed=42
 - Fracture probability threshold: 1%
-- Number of geological samples used in the three-way comparison: 127 shared samples
+- Number of geological samples used per case: 127 for `POF eps=0.0`, 128 for the other two cases

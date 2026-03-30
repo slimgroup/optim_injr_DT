@@ -12,7 +12,7 @@ import numpy as np
 
 REPO_ROOT = Path("/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT")
 ROOT = REPO_ROOT / "data" / "DT_control" / "exp_name=step2"
-OUTDIR = REPO_ROOT / "plots" / "step2_paired_posterior_stats"
+OUTDIR = REPO_ROOT / "plots" / "step2_paired_posterior_stats_casewise_counts"
 
 B = 5000
 CONF = 0.95
@@ -238,7 +238,7 @@ def plot_cdf(x: np.ndarray, grid: np.ndarray, ecdf: np.ndarray, clo: np.ndarray,
 
 def plot_grid(results, out: Path) -> None:
     fig, axes = plt.subplots(2, 3, figsize=(18, 9.8))
-    fig.suptitle("Step-2 paired posterior comparison on shared 127 samples\nHistogram and empirical CDF of injection schedule element 6/12", fontsize=18, fontweight="bold", y=0.98)
+    fig.suptitle("Step-2 paired posterior comparison on case-specific completed samples\nHistogram and empirical CDF of optimized injection schedule element 6/12", fontsize=18, fontweight="bold", y=0.98)
     for j, (spec, x, q01, qlo, qhi, grid, ecdf, clo, chi) in enumerate(results):
         ax = axes[0, j]
         edges = np.linspace(np.min(x), np.max(x), NBINS + 1)
@@ -330,78 +330,74 @@ def plot_grid(results, out: Path) -> None:
     plt.close(fig)
 
 
-def write_csv(shared_samples, lookups, out: Path) -> None:
+def write_csv(sample_ids, lookups, out: Path) -> None:
     fields = ["sample"]
     for spec in SPECS:
         fields += [f"{spec.slug}_endpoint", f"{spec.slug}_rate6"]
     with out.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
-        for s in shared_samples:
+        for s in sample_ids:
             row = {"sample": s}
             for spec in SPECS:
-                rec = lookups[spec.key][s]
-                row[f"{spec.slug}_endpoint"] = rec.endpoint
-                row[f"{spec.slug}_rate6"] = rec.rate6
+                rec = lookups[spec.key].get(s)
+                row[f"{spec.slug}_endpoint"] = "" if rec is None else rec.endpoint
+                row[f"{spec.slug}_rate6"] = "" if rec is None else rec.rate6
             w.writerow(row)
 
 
 def main() -> None:
     OUTDIR.mkdir(parents=True, exist_ok=True)
     all_records = {spec.key: load_records(spec) for spec in SPECS}
-    shared = sorted(set.intersection(*(set(r.sample for r in recs) for recs in all_records.values())))
     lookups = {k: {r.sample: r for r in recs} for k, recs in all_records.items()}
+    all_sample_ids = sorted(set.union(*(set(r.sample for r in recs) for recs in all_records.values())))
 
     results = []
     lines = [
         "# Step-2 paired posterior summary",
         "",
-        "Main plotted statistic: the 6th element of the reconstructed 12-step optimized injection schedule derived from `inj_rate_arr`.",
+        "Main plotted statistic: the 6th element of the optimized injection schedule of total length 12, reconstructed from `inj_rate_arr`.",
         "",
         "The final endpoint is mathematically redundant with this plotted statistic within each case because the 6th schedule element is a fixed affine transform of that endpoint.",
         "",
-        f"Shared comparison uses `{len(shared)}` samples: `1..128` excluding `113`.",
+        "Sample counts follow the confirmed case-specific rule:",
+        "- `POF eps=0.0`: 127 completed samples",
+        "- `POF eps=0.01`: all 128 completed samples",
+        "- `CVaR gamma=0.1, alpha=0.01`: all 128 completed samples",
         "",
-        "| Case | full completed | shared used | mean | median | std | 1% q | 95% CI for 1% q |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| Case | samples used | mean | median | std | 1% q | 95% CI for 1% q |",
+        "|---|---:|---:|---:|---:|---:|---:|",
     ]
     missing_lines = []
 
     for spec in SPECS:
-        x = np.array([lookups[spec.key][s].rate6 for s in shared], dtype=float)
+        records = all_records[spec.key]
+        x = np.array([r.rate6 for r in records], dtype=float)
         boot = boot_quantile(x, THRESH, B, SEED)
         q01 = float(np.quantile(x, THRESH))
         qlo = float(np.quantile(boot, (1 - CONF) / 2))
         qhi = float(np.quantile(boot, 1 - (1 - CONF) / 2))
         grid, ecdf, clo, chi = boot_ecdf_ci(x, B, CONF, ECDF_PTS, SEED)
-        plot_hist(x, q01, qlo, qhi, spec.title, OUTDIR / f"hist_{spec.slug}_shared127.png")
-        plot_cdf(x, grid, ecdf, clo, chi, q01, spec.title, OUTDIR / f"cdf_{spec.slug}_shared127.png")
+        plot_hist(x, q01, qlo, qhi, spec.title, OUTDIR / f"hist_{spec.slug}_casewise.png")
+        plot_cdf(x, grid, ecdf, clo, chi, q01, spec.title, OUTDIR / f"cdf_{spec.slug}_casewise.png")
         results.append((spec, x, q01, qlo, qhi, grid, ecdf, clo, chi))
         missing = sorted(set(SAMPLES) - set(r.sample for r in all_records[spec.key]))
-        lines.append(f"| {spec.title} | {len(all_records[spec.key])} | {len(shared)} | {np.mean(x):.5f} | {np.median(x):.5f} | {np.std(x, ddof=1):.5f} | {q01:.5f} | [{qlo:.5f}, {qhi:.5f}] |")
+        lines.append(f"| {spec.title} | {len(records)} | {np.mean(x):.5f} | {np.median(x):.5f} | {np.std(x, ddof=1):.5f} | {q01:.5f} | [{qlo:.5f}, {qhi:.5f}] |")
         if missing:
             missing_lines.append(f"- {spec.title} missing samples: `{', '.join(map(str, missing))}`")
 
-    p0 = results[0][1]
-    p1 = results[1][1]
-    cv = results[2][1]
-    d01 = p1 - p0
-    d12 = cv - p1
     lines += [
         "",
         "Missing samples by case:",
         *missing_lines,
         "",
-        f"- POF eps=0.01 minus POF eps=0.0: mean delta `{np.mean(d01):.5f}`, median delta `{np.median(d01):.5f}`, positive in `{100*np.mean(d01 > 0):.1f}%` of shared samples.",
-        f"- CVaR gamma=0.1 alpha=0.01 minus POF eps=0.01: mean delta `{np.mean(d12):.5f}`, median delta `{np.median(d12):.5f}`, positive in `{100*np.mean(d12 > 0):.1f}%` of shared samples.",
-        "",
         f"- Lower-tail injectivity shifts right from `{results[0][2]:.5f}` to `{results[1][2]:.5f}` to `{results[2][2]:.5f}` at the 1% quantile.",
-        "- Because `pof_eps0.0` still lacks sample 113, the three-way apples-to-apples comparison is done on the shared 127 completed samples.",
+        "- `POF eps=0.0` keeps 127 samples because sample 113 fractures even at zero injection rate, while the other two cases use their full 128 completed samples.",
     ]
 
-    plot_grid(results, OUTDIR / "summary_grid_hist_cdf_shared127.png")
-    write_csv(shared, lookups, OUTDIR / "shared127_values.csv")
-    (OUTDIR / "summary_shared127.md").write_text("\n".join(lines) + "\n")
+    plot_grid(results, OUTDIR / "summary_grid_hist_cdf_casewise.png")
+    write_csv(all_sample_ids, lookups, OUTDIR / "casewise_values.csv")
+    (OUTDIR / "summary_casewise.md").write_text("\n".join(lines) + "\n")
     print(f"Saved outputs to: {OUTDIR}")
 
 
