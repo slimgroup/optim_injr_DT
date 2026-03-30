@@ -255,9 +255,72 @@ def plot_grid(results, out: Path) -> None:
         ax.fill_between(grid, clo * 100, chi * 100, color="#AED6F1", alpha=0.55)
         ax.plot(grid, ecdf * 100, color="#1F618D", linewidth=2.0)
         ax.axhline(THRESH * 100, color="#C0392B", linewidth=1.2, linestyle="--")
+        xcons = crossing(grid, chi, THRESH)
         xecdf = crossing(grid, ecdf, THRESH)
+        xopt = crossing(grid, clo, THRESH)
+        for val, color in [(xcons, "#D35400"), (xecdf, "#117A65"), (xopt, "#5B2C6F")]:
+            if val is not None:
+                ax.plot(val, THRESH * 100, marker="*", color=color, markersize=9)
+        inset = ax.inset_axes([0.43, 0.10, 0.50, 0.42])
+        inset.fill_between(grid, clo * 100, chi * 100, color="#AED6F1", alpha=0.55)
+        inset.plot(grid, ecdf * 100, color="#1F618D", linewidth=1.25)
+        inset.axhline(THRESH * 100, color="#C0392B", linewidth=0.9, linestyle="--")
+        zoom = [v for v in (xcons, xecdf, xopt) if v is not None]
+        if zoom:
+            zmin, zmax = min(zoom) * 0.85, max(zoom) * 1.15
+        else:
+            zmin, zmax = float(np.min(x)), float(np.max(x))
+        if np.isclose(zmin, zmax):
+            zmin -= 1e-6
+            zmax += 1e-6
+        inset.set_xlim(zmin, zmax)
+        inset.set_ylim(0, 8)
+        inset.set_title("Left-tail zoom", fontsize=8.5)
+        inset.tick_params(labelsize=7.5)
+        inset.grid(True, linestyle="--", linewidth=0.25, alpha=0.35)
+        afs = 7.5
+        if xcons is not None:
+            inset.plot(xcons, THRESH * 100, marker="*", color="#D35400", markersize=10, zorder=5)
+            inset.annotate(
+                f"q_k*\n{xcons:.4f}",
+                xy=(xcons, THRESH * 100),
+                xytext=(-24, 14),
+                textcoords="offset points",
+                fontsize=afs,
+                color="#D35400",
+                fontweight="bold",
+                ha="center",
+                bbox=dict(boxstyle="round,pad=0.15", facecolor="#FEF5E7", alpha=0.92, edgecolor="#D35400"),
+                arrowprops=dict(arrowstyle="->", color="#D35400"),
+            )
         if xecdf is not None:
-            ax.plot(xecdf, THRESH * 100, marker="*", color="#117A65", markersize=10)
+            inset.plot(xecdf, THRESH * 100, marker="*", color="#117A65", markersize=10, zorder=5)
+            inset.annotate(
+                f"ECDF\n{xecdf:.4f}",
+                xy=(xecdf, THRESH * 100),
+                xytext=(0, 30),
+                textcoords="offset points",
+                fontsize=afs,
+                color="#117A65",
+                fontweight="bold",
+                ha="center",
+                bbox=dict(boxstyle="round,pad=0.15", facecolor="#E8F5E9", alpha=0.92, edgecolor="#117A65"),
+                arrowprops=dict(arrowstyle="->", color="#117A65"),
+            )
+        if xopt is not None:
+            inset.plot(xopt, THRESH * 100, marker="*", color="#5B2C6F", markersize=10, zorder=5)
+            inset.annotate(
+                f"Opt.\n{xopt:.4f}",
+                xy=(xopt, THRESH * 100),
+                xytext=(24, 14),
+                textcoords="offset points",
+                fontsize=afs,
+                color="#5B2C6F",
+                fontweight="bold",
+                ha="center",
+                bbox=dict(boxstyle="round,pad=0.15", facecolor="#F4ECF7", alpha=0.92, edgecolor="#5B2C6F"),
+                arrowprops=dict(arrowstyle="->", color="#5B2C6F"),
+            )
         ax.set_xlabel("Injection rate (m^3/s)")
         ax.set_ylabel("Probability (%)")
         ax.set_ylim(0, 100)

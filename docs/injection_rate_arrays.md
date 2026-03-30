@@ -54,3 +54,72 @@ array = range(inj_start, q_k_star, length=6)   # Julia: 6 points inclusive
 - Bootstrap: B=10000, 95% CI, seed=42
 - Fracture probability threshold: 1%
 - Number of geological samples: 128
+
+---
+
+# Step-2 Injection Rate Arrays for DT Training
+
+## Source
+
+Values derived from the step-2 paired posterior bootstrap comparison
+(`plots/step2_paired_posterior_stats/summary_grid_hist_cdf_shared127.png` and the corresponding single-case CDF figures).
+
+For step 2, the ending rate for each case is again **q_k\***, the conservative bootstrap estimate
+(upper 95% CI band crossing at the 1% fracture probability threshold, B=5000).
+
+Each array has **length 6**, linearly spaced from the matching **step-1 q_k\*** to the new **step-2 q_k\***:
+
+```
+array = range(step1_q_k_star, step2_q_k_star, length=6)   # Julia: 6 points inclusive
+```
+
+This means the step-2 DT-training arrays start from the already-selected first monitoring step endpoint for the same risk case.
+
+**Shared-sample note:** `POF eps=0.0` is still missing sample `113`, so the step-2 values below are computed from the shared `127` completed samples for apples-to-apples comparison across all three cases.
+
+## Injection Rate Arrays
+
+### Step-2 Case 1: POF ε=0.0
+
+- step-1 `q_k*`: `0.0263`
+- step-2 `q_k*`: `0.0449`
+
+```
+[0.02630, 0.03002, 0.03373, 0.03745, 0.04117, 0.04489]
+```
+
+### Step-2 Case 2: POF ε=0.01
+
+- step-1 `q_k*`: `0.0453`
+- step-2 `q_k*`: `0.0732`
+
+```
+[0.04530, 0.05087, 0.05645, 0.06203, 0.06760, 0.07317]
+```
+
+### Step-2 Case 3: CVaR γ=0.1 α=0.01
+
+- step-1 `q_k*`: `0.0747`
+- step-2 `q_k*`: `0.1199`
+
+```
+[0.07470, 0.08374, 0.09278, 0.10182, 0.11086, 0.11991]
+```
+
+## Reference Values (all three crossing points from step-2 CDF plot)
+
+| Case | q_k\* (conservative) | ECDF (median) | Opt (optimistic) |
+|------|---------------------|---------------|-----------------|
+| POF ε=0.0 | 0.0449 | 0.0481 | 0.0502 |
+| POF ε=0.01 | 0.0732 | 0.0763 | 0.0788 |
+| CVaR γ=0.1 α=0.01 | 0.1199 | 0.1250 | 0.1277 |
+
+## Parameters
+
+- step-2 array start: matching step-1 `q_k*` for the same risk case
+- step-2 array end: step-2 conservative `q_k*`
+- Array length: 6
+- Unit: m³/s
+- Bootstrap: B=5000, 95% CI, seed=42
+- Fracture probability threshold: 1%
+- Number of geological samples used in the three-way comparison: 127 shared samples
