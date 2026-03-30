@@ -62,7 +62,7 @@ array = range(inj_start, q_k_star, length=6)   # Julia: 6 points inclusive
 ## Source
 
 Values derived from the step-2 paired posterior bootstrap comparison
-(`plots/step2_paired_posterior_stats_casewise_counts/summary_grid_hist_cdf_casewise.png` and the corresponding single-case CDF figures).
+(`plots/step2_paired_posterior_stats/summary_grid_hist_cdf.png` and the corresponding single-case CDF figures).
 
 For step 2, the ending rate for each case is again **q_k\***, the conservative bootstrap estimate
 (upper 95% CI band crossing at the 1% fracture probability threshold, B=5000).

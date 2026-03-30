@@ -12,7 +12,7 @@ import numpy as np
 
 REPO_ROOT = Path("/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT")
 ROOT = REPO_ROOT / "data" / "DT_control" / "exp_name=step2"
-OUTDIR = REPO_ROOT / "plots" / "step2_paired_posterior_stats_casewise_counts"
+OUTDIR = REPO_ROOT / "plots" / "step2_paired_posterior_stats"
 
 B = 5000
 CONF = 0.95
@@ -378,8 +378,8 @@ def main() -> None:
         qlo = float(np.quantile(boot, (1 - CONF) / 2))
         qhi = float(np.quantile(boot, 1 - (1 - CONF) / 2))
         grid, ecdf, clo, chi = boot_ecdf_ci(x, B, CONF, ECDF_PTS, SEED)
-        plot_hist(x, q01, qlo, qhi, spec.title, OUTDIR / f"hist_{spec.slug}_casewise.png")
-        plot_cdf(x, grid, ecdf, clo, chi, q01, spec.title, OUTDIR / f"cdf_{spec.slug}_casewise.png")
+        plot_hist(x, q01, qlo, qhi, spec.title, OUTDIR / f"hist_{spec.slug}.png")
+        plot_cdf(x, grid, ecdf, clo, chi, q01, spec.title, OUTDIR / f"cdf_{spec.slug}.png")
         results.append((spec, x, q01, qlo, qhi, grid, ecdf, clo, chi))
         missing = sorted(set(SAMPLES) - set(r.sample for r in all_records[spec.key]))
         lines.append(f"| {spec.title} | {len(records)} | {np.mean(x):.5f} | {np.median(x):.5f} | {np.std(x, ddof=1):.5f} | {q01:.5f} | [{qlo:.5f}, {qhi:.5f}] |")
@@ -395,9 +395,9 @@ def main() -> None:
         "- `POF eps=0.0` keeps 127 samples because sample 113 fractures even at zero injection rate, while the other two cases use their full 128 completed samples.",
     ]
 
-    plot_grid(results, OUTDIR / "summary_grid_hist_cdf_casewise.png")
-    write_csv(all_sample_ids, lookups, OUTDIR / "casewise_values.csv")
-    (OUTDIR / "summary_casewise.md").write_text("\n".join(lines) + "\n")
+    plot_grid(results, OUTDIR / "summary_grid_hist_cdf.png")
+    write_csv(all_sample_ids, lookups, OUTDIR / "samplewise_values.csv")
+    (OUTDIR / "summary.md").write_text("\n".join(lines) + "\n")
     print(f"Saved outputs to: {OUTDIR}")
 
 
