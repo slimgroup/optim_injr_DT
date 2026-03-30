@@ -970,6 +970,8 @@ function main()
 
     # First forward pass (if hard constraints not met, backtrack and shrink)
     function first_forward!(inj_rate)
+        min_inj_rate = 0.0001
+        nshrinks = 0
         obj, obj_base, pen_total, pen_pof, pen_cvar,
         sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr,
         obj_first, obj_arr, pof_smooth0, cvar0, pof_hard0, r_vals0, w_vals0 =
@@ -980,8 +982,14 @@ function main()
                       inj_start=inj_start)
 
         while obj == Inf
+            if inj_rate[1] <= min_inj_rate + 1e-12
+                error("first_forward failed even at minimum injection rate $(min_inj_rate) for sample $(s), case $(case_key), step $(monitoring_step)")
+            end
+            prev_inj = inj_rate[1]
             inj_rate .*= 0.8
-            inj_rate[1] = max(inj_rate[1], 0.0001)
+            inj_rate[1] = max(inj_rate[1], min_inj_rate)
+            nshrinks += 1
+            println("first_forward shrink #$(nshrinks): inj_rate $(prev_inj) -> $(inj_rate[1]) because objective returned Inf")
             obj, obj_base, pen_total, pen_pof, pen_cvar,
             sat_arr, pres_arr, BHP_arr, pres_bound_diff_arr, BHP_bound_diff_arr,
             obj_first, obj_arr, pof_smooth0, cvar0, pof_hard0, r_vals0, w_vals0 =
