@@ -34,7 +34,7 @@ Apply these additional rules whenever editing plotting code, especially under `s
 
 ## Monitoring-Step Rules
 
-- For the first monitoring step, the previous-state initialization is special-case logic and does not come from a previous monitoring step export.
+- For the first monitoring step, the previous-state initialization is special-case logic and does not come from a previous monitoring step export; it is the randomized seeded state used to start the monitoring campaign.
 - For every monitoring step after the first, recover previous-state variables from the immediately preceding monitoring step; do not silently skip backward more than one step.
 - When using posterior-based priors after the first monitoring step, pair permeability sample `s` with posterior sample `s` in array order unless the user explicitly asks for a different matching rule.
 - For posterior-based priors after the first monitoring step, use the previous monitoring step's posterior export as the prior-state source; do not silently reuse an older monitoring step file.
