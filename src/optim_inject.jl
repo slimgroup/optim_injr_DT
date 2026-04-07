@@ -549,6 +549,13 @@ function load_step_context(monitoring_step::Int, s::Int, BroadK)
     return state_data, indices, idx, K
 end
 
+"""
+Return the posterior cube for one risk case.
+
+At the moment this loader is wired to the posterior file used to initialize
+step-2 runs, so step-3 work must generalize this to load the previous
+monitoring step's posterior export instead of hardcoding `t1`.
+"""
 function load_posterior_case_cube(case_key::String)
     post_key = get(CASE_TO_POST_KEY, case_key, nothing)
     post_key === nothing && error("No posterior dataset configured for case_key=$(case_key)")
@@ -558,6 +565,12 @@ function load_posterior_case_cube(case_key::String)
     return posterior_data[post_key], post_key
 end
 
+"""
+Legacy prior selection for step >= 2.
+
+This path ignores case-specific posterior samples and instead chooses the
+previous-step state sample with the smallest pressure gap to fracture pressure.
+"""
 function load_previous_step_prior(monitoring_step::Int, p_max::Array{Float64,2})
     prior_path = datadir("state/Wise_128SatPres_for_Optim_Inj_vec_ir_k" * string(monitoring_step - 1) * ".jld2")
     prior_data = JLD2.load(prior_path)
@@ -571,6 +584,13 @@ function load_previous_step_prior(monitoring_step::Int, p_max::Array{Float64,2})
     return sat_init, pres_init, Dict("source" => "legacy_previous_step", "posterior_key" => "legacy", "sample_idx" => global_min_idx)
 end
 
+"""
+Posterior-driven prior-state initialization.
+
+For `paired_posterior_sample`, permeability sample `s` is paired with posterior
+sample `s` from the selected case cube. For `pointwise_median`, we collapse the
+sample axis before assigning the previous saturation/pressure state.
+"""
 function load_posterior_prior(prior_mode::String, monitoring_step::Int, case_key::String, s::Int, p_max::Array{Float64,2})
     monitoring_step == 2 || error("Posterior-based prior_mode=$(prior_mode) is currently supported only for monitoring_step=2.")
     posterior_cube, post_key = load_posterior_case_cube(case_key)
@@ -590,6 +610,13 @@ function load_posterior_prior(prior_mode::String, monitoring_step::Int, case_key
     return sat_init, pres_init, Dict("source" => prior_mode, "posterior_key" => post_key, "sample_idx" => sample_idx)
 end
 
+"""
+Build the previous-state initialization used by the forward simulation.
+
+- step 1: seeded synthetic saturation blob near the injector, no prior pressure
+- legacy_previous_step: use the old heuristic previous-step state selection
+- posterior modes: use case-specific posterior samples/summary states
+"""
 function load_prior_state(prior_mode::String, monitoring_step::Int, case_key::String, s::Int,
                           p_max::Array{Float64,2}, K, n)
     if monitoring_step == 1
@@ -613,6 +640,94 @@ function load_prior_state(prior_mode::String, monitoring_step::Int, case_key::St
         return load_previous_step_prior(monitoring_step, p_max)
     end
     return load_posterior_prior(prior_mode, monitoring_step, case_key, s, p_max)
+end
+
+"""
+Load the full permeability ensemble shared by all monitoring steps.
+"""
+function load_perm_ensemble()
+    perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
+    perm_data = JLD2.load(perm_path)
+    return perm_data["BroadK"]
+end
+
+"""
+Normalize CLI risk arguments into one immutable tuple used everywhere else.
+"""
+function build_risk_options(args, α_tail::Float64)
+    risk_mode = args["risk_mode"] == "window" ? :window : :relative
+    return (
+        use_pof = Base.get(args, "use_pof", false),
+        λ_pof   = args["lambda_pof"],
+        ε       = args["eps_pof"],
+        τ       = args["tau_pof"],
+
+        use_cvar = Base.get(args, "use_cvar", false),
+        λ_cvar   = args["lambda_cvar"],
+        γ        = args["gamma_cvar"],
+        α        = α_tail,
+
+        mode     = risk_mode,
+        weight_mode = (args["weight_mode"] == "uniform" ? :uniform : :voltime),
+        cvar_soft = Base.get(args, "cvar_soft", false),
+
+        kappa_pof  = args["kappa_pof"],
+        kappa_cvar = args["kappa_cvar"],
+
+        pof_as_constraint  = Base.get(args, "pof_as_constraint", false),
+        cvar_as_constraint = Base.get(args, "cvar_as_constraint", false)
+    )
+end
+
+"""
+Human-readable tag for one optimization run.
+"""
+function scenariotag(risk; step::Int, idx::Int, case_key::String, prior_mode::String)
+    parts = String[
+        "step$(step)", "idx$(idx)", "case=$(case_key)", "prior=$(prior_mode)",
+        risk.use_pof ? "POF" : "", risk.use_cvar ? "CVaR" : "",
+        ((risk.pof_as_constraint || risk.cvar_as_constraint) ? "HARD" : "SOFT"),
+        risk.use_pof  ? "eps=$(risk.ε)" : "",
+        risk.use_pof  ? "tau=$(risk.τ)" : "",
+        risk.use_cvar ? "alpha=$(risk.α)" : "",
+        risk.use_cvar ? "gamma=$(risk.γ)" : "",
+        "w=$(String(risk.weight_mode))",
+        "mode=$(String(risk.mode))",
+        risk.cvar_soft ? "cvarsoft" : "cvarhinge",
+        "kp=$(risk.kappa_pof)", "kc=$(risk.kappa_cvar)"
+    ]
+    return join(filter(!isempty, parts), "__")
+end
+
+"""
+Create and return the data / scratch / plotting paths for one run.
+"""
+function build_output_paths(sim_name::String, monitoring_step::Int, case_tag::String, sample_idx::Int)
+    exp_layer = "exp_name=step$(monitoring_step)"
+    sample_tag = savename(@strdict(sample=sample_idx); digits=6)
+
+    data_root  = datadir(sim_name, exp_layer, case_tag)
+    out_root   = joinpath(data_root, sample_tag)
+    mkpath(out_root)
+
+    scratch_root = get(ENV, "SCRATCH") do
+        joinpath(homedir(), "scratch")
+    end
+    mkpath(scratch_root)
+    scratch_out_root = joinpath(scratch_root, "optim_injr_DT", sim_name, exp_layer, case_tag, sample_tag)
+    mkpath(scratch_out_root)
+
+    plot_path = plotsdir(sim_name, exp_layer, "states", case_tag)
+    mkpath(plot_path)
+
+    return (
+        exp_layer = exp_layer,
+        sample_tag = sample_tag,
+        data_root = data_root,
+        out_root = out_root,
+        scratch_out_root = scratch_out_root,
+        plot_path = plot_path,
+    )
 end
 
 """
@@ -882,7 +997,7 @@ function main()
     s = args["idx_num"]; println("idx_num: ", s)
     α_tail  = args["alpha"]
 
-    # domain/data
+    # Domain constants and monitoring-step selection.
     n = (512, 1, 256)
     d = (6.25, 100.0, 6.25)
     h = 0.0
@@ -892,40 +1007,19 @@ function main()
     monitoring_step = args["monitoring_step"]
     prior_mode = canonical_prior_mode(args["prior_mode"])
 
-    perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
-    perm_data = JLD2.load(perm_path)
-    BroadK = perm_data["BroadK"]
-
-    risk_mode = args["risk_mode"] == "window" ? :window : :relative
+    BroadK = load_perm_ensemble()
 
     p0 = (repeat(collect(1:256), 1, 512) * d[3] .+ h) * JutulDarcyRules.ρH2O * 10
     threshold = 4.0
     p_max = p0' .+ threshold * 10^6
 
-    # risk opts
-    risk_opts = (
-        use_pof = Base.get(args, "use_pof", false),
-        λ_pof   = args["lambda_pof"],
-        ε       = args["eps_pof"],
-        τ       = args["tau_pof"],
-
-        use_cvar = Base.get(args, "use_cvar", false),
-        λ_cvar   = args["lambda_cvar"],
-        γ        = args["gamma_cvar"],
-        α        = α_tail,
-
-        mode     = risk_mode,
-        weight_mode = (args["weight_mode"] == "uniform" ? :uniform : :voltime),
-        cvar_soft = Base.get(args, "cvar_soft", false),
-
-        kappa_pof  = args["kappa_pof"],
-        kappa_cvar = args["kappa_cvar"],
-
-        pof_as_constraint  = Base.get(args, "pof_as_constraint", false),
-        cvar_as_constraint = Base.get(args, "cvar_as_constraint", false)
-    )
+    # Risk configuration is shared by tags, priors, and the objective.
+    risk_opts = build_risk_options(args, α_tail)
     println("Risk options: ", risk_opts)
 
+    # Load the permeability sample and the previous-state initialization separately.
+    # This split matters for step >= 2 because permeability indices now come from
+    # `data/state/new`, while the previous state may come from a posterior sample.
     case_key = infer_case_key(risk_opts; requested=args["case_key"])
     state_data, indices, idx, K = load_step_context(monitoring_step, s, BroadK)
     sat_init, pres_init, prior_meta = load_prior_state(prior_mode, monitoring_step, case_key, s, p_max, K, n)
@@ -937,46 +1031,13 @@ function main()
     println("Matched permeability sample idx_t$(monitoring_step)[$(s)] = ", idx)
     println("Prior source: ", prior_meta)
 
-    # tags/paths
-    function scenariotag(risk; step::Int, idx::Int, case_key::String, prior_mode::String)
-        parts = String[
-            "step$(step)", "idx$(idx)", "case=$(case_key)", "prior=$(prior_mode)",
-            risk.use_pof ? "POF" : "", risk.use_cvar ? "CVaR" : "",
-            ((risk.pof_as_constraint || risk.cvar_as_constraint) ? "HARD" : "SOFT"),
-            risk.use_pof  ? "eps=$(risk.ε)" : "",
-            risk.use_pof  ? "tau=$(risk.τ)" : "",
-            risk.use_cvar ? "alpha=$(risk.α)" : "",
-            risk.use_cvar ? "gamma=$(risk.γ)" : "",
-            "w=$(String(risk.weight_mode))",
-            "mode=$(String(risk.mode))",
-            risk.cvar_soft ? "cvarsoft" : "cvarhinge",
-            "kp=$(risk.kappa_pof)", "kc=$(risk.kappa_cvar)"
-        ]
-        join(filter(!isempty, parts), "__")
-    end
-    casetag(risk; case_key::String, prior_mode::String) =
-        case_dirname(risk; case_key=case_key, prior_mode=prior_mode)
-
     sim_name = "DT_control"
     run_tag = scenariotag(risk_opts; step=monitoring_step, idx=s, case_key=case_key, prior_mode=prior_mode)
-    case_tag = casetag(risk_opts; case_key=case_key, prior_mode=prior_mode)
-    exp_layer = "exp_name=step$(monitoring_step)"
-
-    data_root  = datadir(sim_name, exp_layer, case_tag)
-    sample_tag = savename(@strdict(sample=s); digits=6)
-    out_root   = joinpath(data_root, sample_tag)
-    mkpath(out_root)
-    
-    # Scratch directory for iteration files
-    scratch_root = get(ENV, "SCRATCH") do
-        joinpath(homedir(), "scratch")
-    end
-    mkpath(scratch_root)
-    scratch_out_root = joinpath(scratch_root, "optim_injr_DT", sim_name, exp_layer, case_tag, sample_tag)
-    mkpath(scratch_out_root)
-
-    plot_path = plotsdir(sim_name, exp_layer, "states", case_tag)
-    mkpath(plot_path)
+    case_tag = case_dirname(risk_opts; case_key=case_key, prior_mode=prior_mode)
+    path_ctx = build_output_paths(sim_name, monitoring_step, case_tag, s)
+    out_root = path_ctx.out_root
+    scratch_out_root = path_ctx.scratch_out_root
+    plot_path = path_ctx.plot_path
 
     # Optional softplus demo
     if Base.get(args, "plot_softplus_demo", false)

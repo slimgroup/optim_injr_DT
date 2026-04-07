@@ -31,3 +31,10 @@ Apply these additional rules whenever editing plotting code, especially under `s
 - Favor the smallest safe change that solves the task without disrupting the research workflow.
 - Do not clean up generated outputs, rename interfaces, or reorganize repository structure unless the user asks.
 - If a requested change risks damaging analysis artifacts, reproducibility, or batch-job workflows, stop and confirm before proceeding.
+
+## Step-3 Prep Rules
+
+- When preparing monitoring step 3 or later with posterior-based priors, pair permeability sample `s` with posterior sample `s` in array order unless the user explicitly asks for a different matching rule.
+- For posterior-based priors, use the previous monitoring step's posterior export as the prior-state source; do not silently reuse an older monitoring step file.
+- For each risk case, recover `inj_start` from that same case's previous monitoring step optimization result, using the last nonzero injection-rate time step for the matching sample when available.
+- When assigning posterior-based previous states into reservoir simulation inputs, keep saturation and pressure aligned to the same posterior sample and verify grid orientation before use.
