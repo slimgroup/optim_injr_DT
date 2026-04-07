@@ -81,7 +81,7 @@ function previous_step_posterior_path(monitoring_step::Int)
     for path in candidates
         isfile(path) && return path
     end
-    error("Posterior export not found for previous monitoring step $(previous_step). Tried: $(join(candidates, \", \"))")
+    error("Posterior export not found for previous monitoring step $(previous_step). Tried: $(join(candidates, ", "))")
 end
 
 """
