@@ -11,10 +11,12 @@ When read with h5py, the dataset appears as:
 
 import os
 import shutil
+import argparse
+from pathlib import Path
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-POSTERIOR_JLD2 = os.path.join(
-    PROJECT_ROOT, "data", "three_set_posteriro_samples_t1_pof_cvar.jld2"
+DEFAULT_POSTERIOR_JLD2 = os.path.join(
+    PROJECT_ROOT, "data", "posterior", "three_set_posteriro_samples_t1_pof_cvar.jld2"
 )
 
 import h5py
@@ -129,7 +131,8 @@ def load_samples(filepath):
 
 
 def ensure_clean_output_dir(out_dir):
-    os.makedirs(out_dir, exist_ok=True)
+    if not os.path.isdir(out_dir):
+        return
     for name in os.listdir(out_dir):
         if name.endswith((".png", ".mp4")) or name.startswith("frames_"):
             path = os.path.join(out_dir, name)
@@ -170,12 +173,13 @@ def draw_field(ax, field, cmap, vmin, vmax, title, add_xlabel=True, add_ylabel=F
 
 
 def save_figure(fig, path):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved: {path}")
 
 
-def plot_uncertainty_grid(samples, var_name, out_dir):
+def plot_uncertainty_grid(samples, var_name, out_dir, monitoring_step_label):
     cfg = VAR_CONFIG[var_name]
     fig, axes = plt.subplots(2, 3, figsize=(16, 7))
     keys = list(CASES.keys())
@@ -212,7 +216,11 @@ def plot_uncertainty_grid(samples, var_name, out_dir):
         )
         fig.colorbar(im, ax=axes[1, col], fraction=0.046, pad=0.04)
 
-    fig.suptitle(f"Posterior {cfg['title']} Uncertainty (Monitoring Step t=1)", fontsize=14, fontweight="bold")
+    fig.suptitle(
+        f"Posterior {cfg['title']} Uncertainty (Monitoring Step {monitoring_step_label})",
+        fontsize=14,
+        fontweight="bold",
+    )
     plt.tight_layout()
     save_figure(fig, os.path.join(out_dir, f"{cfg['slug']}_uncertainty_all_cases.png"))
 
@@ -262,7 +270,7 @@ def plot_uncertainty_individual(samples, var_name, out_dir):
         )
 
 
-def plot_median_grid(samples, out_dir):
+def plot_median_grid(samples, out_dir, monitoring_step_label):
     fig, axes = plt.subplots(3, 3, figsize=(16, 10))
     keys = list(CASES.keys())
     sat_vmin, sat_vmax = get_display_limits(samples, "sat")
@@ -313,12 +321,16 @@ def plot_median_grid(samples, out_dir):
     axes[0, 0].set_ylabel("Depth [m]\n\nMedian CO$_2$ Saturation", fontsize=11)
     axes[1, 0].set_ylabel("Depth [m]\n\nMedian Pressure", fontsize=11)
     axes[2, 0].set_ylabel("Depth [m]\n\nMedian Pressure Difference", fontsize=11)
-    fig.suptitle("Pointwise Median over 128 Posterior Samples", fontsize=14, fontweight="bold")
+    fig.suptitle(
+        f"Pointwise Median over 128 Posterior Samples ({monitoring_step_label})",
+        fontsize=14,
+        fontweight="bold",
+    )
     plt.tight_layout()
     save_figure(fig, os.path.join(out_dir, "state_median_all_cases.png"))
 
 
-def plot_paper_style_summary(samples, out_dir, stat_name):
+def plot_paper_style_summary(samples, out_dir, stat_name, monitoring_step_label):
     is_mean = stat_name == "mean"
     fig = plt.figure(figsize=(16.0, 8.9))
     gs = GridSpec(
@@ -387,7 +399,11 @@ def plot_paper_style_summary(samples, out_dir, stat_name):
         if var_name != "sat":
             cbar.set_label("MPa", fontsize=16)
 
-    title = "Pointwise Posterior Mean over 128 Samples" if is_mean else "Pointwise Posterior Std Dev over 128 Samples"
+    title = (
+        f"Pointwise Posterior Mean over 128 Samples ({monitoring_step_label})"
+        if is_mean
+        else f"Pointwise Posterior Std Dev over 128 Samples ({monitoring_step_label})"
+    )
     fig.suptitle(title, fontsize=27, fontweight="bold", y=0.962)
     fig.subplots_adjust(left=0.075, right=0.965, top=0.885, bottom=0.10)
     out_name = "state_mean_all_cases.png" if is_mean else "state_std_all_cases.png"
@@ -415,6 +431,7 @@ def render_frame(field, case_label, sample_idx, n_samp, var_name):
 def generate_sample_video(fields, case_label, case_short, var_name, out_dir, fps=5):
     cfg = VAR_CONFIG[var_name]
     video_path = os.path.join(out_dir, f"{cfg['slug']}_animation_{case_short}.mp4")
+    os.makedirs(os.path.dirname(video_path), exist_ok=True)
     writer = imageio.get_writer(
         video_path,
         fps=fps,
@@ -446,9 +463,54 @@ def print_summary(samples):
             )
 
 
+def infer_monitoring_step(path: str) -> str:
+    stem = Path(path).stem
+    for token in stem.split("_"):
+        if token.startswith("t") and token[1:].isdigit():
+            return token
+    return "unknown"
+
+
+def default_outdir_for(path: str) -> str:
+    stem = Path(path).stem
+    return os.path.join("plots", f"posterior_field_uncertainty_{stem}")
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Posterior field uncertainty analysis")
+    parser.add_argument(
+        "--input",
+        default=DEFAULT_POSTERIOR_JLD2,
+        help="Path to posterior JLD2 file",
+    )
+    parser.add_argument(
+        "--outdir",
+        default=None,
+        help="Output directory for generated plots and videos",
+    )
+    parser.add_argument(
+        "--monitoring-step",
+        default=None,
+        help="Monitoring step label used in figure titles, e.g. t=1 or t=2",
+    )
+    parser.add_argument(
+        "--skip-videos",
+        action="store_true",
+        help="Generate plots only and skip MP4 animations",
+    )
+    return parser.parse_args()
+
+
 def main():
-    data_file = POSTERIOR_JLD2
-    out_dir = "plots/posterior_field_uncertainty"
+    args = parse_args()
+    data_file = args.input
+    out_dir = args.outdir or default_outdir_for(data_file)
+    monitoring_step = args.monitoring_step or infer_monitoring_step(data_file)
+    monitoring_step_label = monitoring_step if monitoring_step.startswith("t=") else monitoring_step
+    if monitoring_step_label.startswith("t") and "=" not in monitoring_step_label:
+        monitoring_step_label = monitoring_step_label.replace("t", "t=", 1)
+    if not monitoring_step_label.startswith("t"):
+        monitoring_step_label = f"t={monitoring_step_label}"
 
     ensure_clean_output_dir(out_dir)
     print("Loading posterior samples...")
@@ -461,31 +523,34 @@ def main():
 
     print("\nGenerating uncertainty plots...")
     for var_name in ["sat", "pressure", "pressure_diff"]:
-        plot_uncertainty_grid(samples, var_name, out_dir)
+        plot_uncertainty_grid(samples, var_name, out_dir, monitoring_step_label)
         plot_uncertainty_individual(samples, var_name, out_dir)
 
     print("\nGenerating pointwise median figure...")
-    plot_median_grid(samples, out_dir)
+    plot_median_grid(samples, out_dir, monitoring_step_label)
     print("Generating paper-style mean/std summary figures...")
-    plot_paper_style_summary(samples, out_dir, "mean")
-    plot_paper_style_summary(samples, out_dir, "std")
+    plot_paper_style_summary(samples, out_dir, "mean", monitoring_step_label)
+    plot_paper_style_summary(samples, out_dir, "std", monitoring_step_label)
 
-    print("\nGenerating all sample videos...")
-    for var_name in ["sat", "pressure"]:
-        vmin, vmax = get_display_limits(samples, var_name)
-        VAR_CONFIG[var_name]["vmin"] = vmin
-        VAR_CONFIG[var_name]["vmax"] = vmax
-    for key in CASES:
-        print(f"  Processing {CASES[key]}...")
+    if args.skip_videos:
+        print("\nSkipping sample videos (--skip-videos).")
+    else:
+        print("\nGenerating all sample videos...")
         for var_name in ["sat", "pressure"]:
-            generate_sample_video(
-                to_display_units(samples[key][var_name], var_name),
-                CASES[key],
-                CASE_SHORT[key],
-                var_name,
-                out_dir,
-                fps=5,
-            )
+            vmin, vmax = get_display_limits(samples, var_name)
+            VAR_CONFIG[var_name]["vmin"] = vmin
+            VAR_CONFIG[var_name]["vmax"] = vmax
+        for key in CASES:
+            print(f"  Processing {CASES[key]}...")
+            for var_name in ["sat", "pressure"]:
+                generate_sample_video(
+                    to_display_units(samples[key][var_name], var_name),
+                    CASES[key],
+                    CASE_SHORT[key],
+                    var_name,
+                    out_dir,
+                    fps=5,
+                )
 
     print("\nDone. Outputs written to:", out_dir)
 

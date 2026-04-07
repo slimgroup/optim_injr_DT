@@ -511,6 +511,12 @@ function pointwise_median_3d(samples::AbstractArray{<:Real,3}, target_size::Tupl
     return align_state_grid(dropdims(mapslices(median, samples; dims=(3,)); dims=3), target_size)
 end
 
+"""
+Choose the injection-rate starting point for the current optimization run.
+
+For monitoring step >= 2, the preferred source is the same case and same sample
+from the previous monitoring step, using the last nonzero injection-rate entry.
+"""
 function default_inj_start(case_key::String, prior_mode::String, monitoring_step::Int, sample_idx::Int, risk_opts, cli_inj_start::Float64)
     if monitoring_step > 1 && isapprox(cli_inj_start, DEFAULT_INJ_START; atol=1e-12)
         for case_dir in previous_step_case_dir_candidates(monitoring_step, case_key, prior_mode, risk_opts)
@@ -533,6 +539,21 @@ function default_inj_start(case_key::String, prior_mode::String, monitoring_step
     return cli_inj_start
 end
 
+function previous_step_posterior_path(monitoring_step::Int)
+    previous_step = monitoring_step - 1
+    previous_step >= 1 || error("Posterior prior requires monitoring_step >= 2, got $(monitoring_step)")
+
+    filename = "three_set_posteriro_samples_t$(previous_step)_pof_cvar.jld2"
+    candidates = [
+        datadir("posterior", filename),
+        datadir(filename),
+    ]
+    for path in candidates
+        isfile(path) && return path
+    end
+    error("Posterior export not found for previous monitoring step $(previous_step). Tried: $(join(candidates, \", \"))")
+end
+
 function state_indices_path(monitoring_step::Int)
     monitoring_step >= 1 || error("monitoring_step must be >= 1, got $(monitoring_step)")
     path = datadir("state/new/Wise128_state_t$(monitoring_step)_rtm$(monitoring_step)_broad_NL_SNR28.jld2")
@@ -550,16 +571,12 @@ function load_step_context(monitoring_step::Int, s::Int, BroadK)
 end
 
 """
-Return the posterior cube for one risk case.
-
-At the moment this loader is wired to the posterior file used to initialize
-step-2 runs, so step-3 work must generalize this to load the previous
-monitoring step's posterior export instead of hardcoding `t1`.
+Return the posterior cube for one risk case from the previous monitoring step.
 """
-function load_posterior_case_cube(case_key::String)
+function load_posterior_case_cube(case_key::String, monitoring_step::Int)
     post_key = get(CASE_TO_POST_KEY, case_key, nothing)
     post_key === nothing && error("No posterior dataset configured for case_key=$(case_key)")
-    posterior_path = datadir("three_set_posteriro_samples_t1_pof_cvar.jld2")
+    posterior_path = previous_step_posterior_path(monitoring_step)
     posterior_data = JLD2.load(posterior_path)
     haskey(posterior_data, post_key) || error("Posterior dataset $(post_key) not found in $(posterior_path)")
     return posterior_data[post_key], post_key
@@ -592,8 +609,8 @@ sample `s` from the selected case cube. For `pointwise_median`, we collapse the
 sample axis before assigning the previous saturation/pressure state.
 """
 function load_posterior_prior(prior_mode::String, monitoring_step::Int, case_key::String, s::Int, p_max::Array{Float64,2})
-    monitoring_step == 2 || error("Posterior-based prior_mode=$(prior_mode) is currently supported only for monitoring_step=2.")
-    posterior_cube, post_key = load_posterior_case_cube(case_key)
+    monitoring_step >= 2 || error("Posterior-based prior_mode=$(prior_mode) requires monitoring_step >= 2, got $(monitoring_step)")
+    posterior_cube, post_key = load_posterior_case_cube(case_key, monitoring_step)
     size(posterior_cube, 4) >= s || error("Posterior cube $(post_key) has only $(size(posterior_cube, 4)) samples; requested sample $(s).")
 
     sat_init = if prior_mode == "pointwise_median"
