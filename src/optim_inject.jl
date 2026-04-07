@@ -363,6 +363,13 @@ const CASE_TO_INJ_START = Dict(
     "cvar_g0.1_a0.01" => 0.07470,
 )
 
+function last_nonzero_endpoint(inj_rate_arr)
+    vals = vec(Float64.(inj_rate_arr))
+    clean = filter(x -> isfinite(x) && !iszero(x), vals)
+    isempty(clean) && return nothing
+    return clean[end]
+end
+
 function canonical_case_key(case_key::AbstractString)
     key = lowercase(strip(case_key))
     key = replace(key, " " => "", "ε" => "eps", "γ" => "g", "," => "", ";" => "")
@@ -411,6 +418,69 @@ function infer_case_key(risk_opts; requested::AbstractString="auto")
     error("Could not infer case_key from risk settings. Please pass --case_key explicitly.")
 end
 
+function case_dirname(risk; case_key::String, prior_mode::String)
+    parts = String[
+        "case=$(case_key)", "prior=$(prior_mode)",
+        risk.use_pof ? "POF" : "",
+        risk.use_cvar ? "CVaR" : "",
+        ((risk.pof_as_constraint || risk.cvar_as_constraint) ? "HARD" : "SOFT"),
+        risk.use_pof  ? "eps=$(risk.ε)" : "",
+        risk.use_pof  ? "tau=$(risk.τ)" : "",
+        risk.use_cvar ? "alpha=$(risk.α)" : "",
+        risk.use_cvar ? "gamma=$(risk.γ)" : "",
+        "w=$(String(risk.weight_mode))",
+        "mode=$(String(risk.mode))",
+        risk.cvar_soft ? "cvarsoft" : "cvarhinge",
+        "kp=$(risk.kappa_pof)", "kc=$(risk.kappa_cvar)"
+    ]
+    return join(filter(!isempty, parts), "__")
+end
+
+function legacy_case_dirname(risk)
+    parts = String[
+        risk.use_pof ? "POF" : "",
+        risk.use_cvar ? "CVaR" : "",
+        ((risk.pof_as_constraint || risk.cvar_as_constraint) ? "HARD" : "SOFT"),
+        risk.use_pof  ? "eps=$(risk.ε)" : "",
+        risk.use_pof  ? "tau=$(risk.τ)" : "",
+        risk.use_cvar ? "alpha=$(risk.α)" : "",
+        risk.use_cvar ? "gamma=$(risk.γ)" : "",
+        "w=$(String(risk.weight_mode))",
+        "mode=$(String(risk.mode))",
+        risk.cvar_soft ? "cvarsoft" : "cvarhinge",
+        "kp=$(risk.kappa_pof)", "kc=$(risk.kappa_cvar)"
+    ]
+    return join(filter(!isempty, parts), "__")
+end
+
+function previous_step_case_dir_candidates(monitoring_step::Int, case_key::String, prior_mode::String, risk)
+    previous_step = monitoring_step - 1
+    previous_step >= 1 || return String[]
+
+    exp_root = datadir("DT_control", "exp_name=step$(previous_step)")
+    isdir(exp_root) || return String[]
+
+    candidates = String[]
+
+    # New-style case-aware directory naming used for step >= 2 work.
+    push!(candidates, joinpath(exp_root, case_dirname(risk; case_key=case_key, prior_mode=prior_mode)))
+
+    # Step-1 experiments used legacy folder names without case/prior tags.
+    push!(candidates, joinpath(exp_root, legacy_case_dirname(risk)))
+
+    # As a fallback, accept any case-matching directory for the previous step.
+    if previous_step >= 2
+        for name in sort(readdir(exp_root))
+            startswith(name, "case=$(case_key)__") || continue
+            path = joinpath(exp_root, name)
+            isdir(path) || continue
+            path in candidates || push!(candidates, path)
+        end
+    end
+
+    return unique(candidates)
+end
+
 function align_state_grid(field::AbstractMatrix, target_size::Tuple{Int,Int})
     if size(field) == target_size
         return Float64.(field)
@@ -441,16 +511,37 @@ function pointwise_median_3d(samples::AbstractArray{<:Real,3}, target_size::Tupl
     return align_state_grid(dropdims(mapslices(median, samples; dims=(3,)); dims=3), target_size)
 end
 
-function default_inj_start(case_key::String, monitoring_step::Int, cli_inj_start::Float64)
+function default_inj_start(case_key::String, prior_mode::String, monitoring_step::Int, sample_idx::Int, risk_opts, cli_inj_start::Float64)
     if monitoring_step > 1 && isapprox(cli_inj_start, DEFAULT_INJ_START; atol=1e-12)
-        haskey(CASE_TO_INJ_START, case_key) || error("No default inj_start configured for case_key=$(case_key)")
-        return CASE_TO_INJ_START[case_key]
+        for case_dir in previous_step_case_dir_candidates(monitoring_step, case_key, prior_mode, risk_opts)
+            final_path = joinpath(case_dir, savename(@strdict(sample=sample_idx); digits=6), "final.jld2")
+            isfile(final_path) || continue
+            data = JLD2.load(final_path)
+            haskey(data, "inj_rate_arr") || continue
+            endpoint = last_nonzero_endpoint(data["inj_rate_arr"])
+            endpoint === nothing && continue
+            println("Using inj_start from previous-step file: ", final_path)
+            println("Recovered previous-step endpoint = ", endpoint)
+            return endpoint
+        end
+
+        if haskey(CASE_TO_INJ_START, case_key)
+            println("Falling back to hardcoded inj_start for case_key=$(case_key)")
+            return CASE_TO_INJ_START[case_key]
+        end
     end
     return cli_inj_start
 end
 
+function state_indices_path(monitoring_step::Int)
+    monitoring_step >= 1 || error("monitoring_step must be >= 1, got $(monitoring_step)")
+    path = datadir("state/new/Wise128_state_t$(monitoring_step)_rtm$(monitoring_step)_broad_NL_SNR28.jld2")
+    isfile(path) || error("State indices file not found for monitoring_step=$(monitoring_step): $(path)")
+    return path
+end
+
 function load_step_context(monitoring_step::Int, s::Int, BroadK)
-    state_path = datadir("state/Wise128_state_t" * string(monitoring_step) * "_rtm1_broad_NL_SNR28.jld2")
+    state_path = state_indices_path(monitoring_step)
     state_data = JLD2.load(state_path)
     indices = state_data["idx_t" * string(monitoring_step)]
     idx = indices[s]
@@ -863,23 +954,8 @@ function main()
         ]
         join(filter(!isempty, parts), "__")
     end
-    function casetag(risk; case_key::String, prior_mode::String)
-        parts = String[
-            "case=$(case_key)", "prior=$(prior_mode)",
-            risk.use_pof ? "POF" : "",
-            risk.use_cvar ? "CVaR" : "",
-            ((risk.pof_as_constraint || risk.cvar_as_constraint) ? "HARD" : "SOFT"),
-            risk.use_pof  ? "eps=$(risk.ε)" : "",
-            risk.use_pof  ? "tau=$(risk.τ)" : "",
-            risk.use_cvar ? "alpha=$(risk.α)" : "",
-            risk.use_cvar ? "gamma=$(risk.γ)" : "",
-            "w=$(String(risk.weight_mode))",
-            "mode=$(String(risk.mode))",
-            risk.cvar_soft ? "cvarsoft" : "cvarhinge",
-            "kp=$(risk.kappa_pof)", "kc=$(risk.kappa_cvar)"
-        ]
-        return join(filter(!isempty, parts), "__")
-    end
+    casetag(risk; case_key::String, prior_mode::String) =
+        case_dirname(risk; case_key=case_key, prior_mode=prior_mode)
 
     sim_name = "DT_control"
     run_tag = scenariotag(risk_opts; step=monitoring_step, idx=s, case_key=case_key, prior_mode=prior_mode)
@@ -917,7 +993,7 @@ function main()
     end
     inj_rate  = [inj_guess_adj]
     δinj      = 1e-8 * ones(size(inj_rate, 1))
-    inj_start = default_inj_start(case_key, monitoring_step, args["inj_start"])
+    inj_start = default_inj_start(case_key, prior_mode, monitoring_step, s, risk_opts, args["inj_start"])
     println("Using inj_start = ", inj_start)
 
     # Well location
