@@ -41,27 +41,17 @@ end
 """
 Choose the injection-rate starting point for the current optimization run.
 
-For monitoring step >= 2, the preferred source is the same case and same sample
-from the previous monitoring step, using the last nonzero injection-rate entry.
+For monitoring step >= 2, `inj_start` is case-level and shared across all
+samples within the same risk case. The value comes from the previous
+monitoring step's selected optimal injection-rate array endpoint, as documented
+in `docs/injection_rate_arrays.md`.
 """
 function default_inj_start(case_key::String, prior_mode::String, monitoring_step::Int, sample_idx::Int, risk_opts, cli_inj_start::Float64)
     if monitoring_step > 1 && isapprox(cli_inj_start, DEFAULT_INJ_START; atol=1e-12)
-        for case_dir in previous_step_case_dir_candidates(monitoring_step, case_key, prior_mode, risk_opts)
-            final_path = joinpath(case_dir, savename(@strdict(sample=sample_idx); digits=6), "final.jld2")
-            isfile(final_path) || continue
-            data = JLD2.load(final_path)
-            haskey(data, "inj_rate_arr") || continue
-            endpoint = last_nonzero_endpoint(data["inj_rate_arr"])
-            endpoint === nothing && continue
-            println("Using inj_start from previous-step file: ", final_path)
-            println("Recovered previous-step endpoint = ", endpoint)
-            return endpoint
-        end
-
-        if haskey(CASE_TO_INJ_START, case_key)
-            println("Falling back to hardcoded inj_start for case_key=$(case_key)")
-            return CASE_TO_INJ_START[case_key]
-        end
+        endpoint = documented_case_inj_start(case_key, monitoring_step)
+        println("Using case-level inj_start from documented previous-step endpoint for case_key=$(case_key)")
+        println("Recovered previous-step endpoint = ", endpoint)
+        return endpoint
     end
     return cli_inj_start
 end

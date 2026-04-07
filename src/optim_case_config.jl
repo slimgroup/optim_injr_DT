@@ -13,12 +13,43 @@ const CASE_TO_INJ_START = Dict(
     "pof_eps0.01" => 0.04530,
     "cvar_g0.1_a0.01" => 0.07470,
 )
+const STEP_TO_CASE_QSTAR = Dict(
+    1 => Dict(
+        "pof_eps0.0" => 0.02630,
+        "pof_eps0.01" => 0.04530,
+        "cvar_g0.1_a0.01" => 0.07470,
+    ),
+    2 => Dict(
+        "pof_eps0.0" => 0.04489,
+        "pof_eps0.01" => 0.07317,
+        "cvar_g0.1_a0.01" => 0.11529,
+    ),
+)
 
 function last_nonzero_endpoint(inj_rate_arr)
     vals = vec(Float64.(inj_rate_arr))
     clean = filter(x -> isfinite(x) && !iszero(x), vals)
     isempty(clean) && return nothing
     return clean[end]
+end
+
+"""
+Return the case-level starting rate for monitoring step `monitoring_step`.
+
+For step `k > 1`, this is the selected endpoint from monitoring step `k - 1`
+for the same case, following `docs/injection_rate_arrays.md`.
+"""
+function documented_case_inj_start(case_key::String, monitoring_step::Int)
+    monitoring_step > 1 || return get(CASE_TO_INJ_START, case_key) do
+        error("No default inj_start configured for case_key=$(case_key)")
+    end
+
+    previous_step = monitoring_step - 1
+    table = get(STEP_TO_CASE_QSTAR, previous_step, nothing)
+    table === nothing && error("No documented injection-rate array endpoint for previous monitoring step $(previous_step).")
+    return get(table, case_key) do
+        error("No documented previous-step endpoint for case_key=$(case_key), monitoring_step=$(monitoring_step)")
+    end
 end
 
 """
