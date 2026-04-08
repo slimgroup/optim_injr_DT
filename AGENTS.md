@@ -33,6 +33,7 @@ Apply these additional rules whenever creating or updating histogram / CDF stati
 
 - Reuse the established step-2 paired-posterior statistical plotting style unless the user explicitly asks for a different presentation.
 - The default plotted scalar is the optimized injection schedule element `6/12`, reconstructed from the final nonzero endpoint in `inj_rate_arr` using the case-specific `inj_start`; do not silently switch to plotting the raw endpoint.
+- For statistical analysis of optimized injection rates, explicitly treat the target scalar as the **6th element of the length-12 optimized injection rate array**. Do not silently switch to the 12th element / final element of that length-12 array.
 - State clearly when the endpoint is mathematically redundant with the plotted `6/12` schedule element instead of presenting both as separate insights.
 - Include only completed samples with `final.jld2` in histogram / CDF summaries unless the user explicitly asks to include incomplete runs.
 - Exclude currently running samples from the plotted distribution and report them separately.
