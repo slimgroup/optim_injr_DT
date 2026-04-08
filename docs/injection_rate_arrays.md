@@ -123,3 +123,78 @@ This means the step-2 DT-training arrays start from the already-selected first m
 - Bootstrap: B=5000, 95% CI, seed=42
 - Fracture probability threshold: 1%
 - Number of geological samples used per case: 127 for `POF eps=0.0`, 128 for the other two cases
+
+---
+
+# Step-3 Injection Rate Arrays for DT Training
+
+## Source
+
+Values derived from the final step-3 paired posterior statistical analysis
+([summary_grid_hist_cdf.png](/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/plots/step3_paired_posterior_stats/summary_grid_hist_cdf.png)
+and the corresponding single-case histogram / CDF figures under
+`plots/step3_paired_posterior_stats/`).
+
+For step 3, the ending rate for each case is again **q_k\***, the conservative bootstrap estimate
+(upper 95% CI band crossing at the 1% fracture probability threshold, B=5000).
+
+Each array has **length 6**, linearly spaced from the matching **step-2 q_k\*** to the new **step-3 q_k\***:
+
+```
+array = range(step2_q_k_star, step3_q_k_star, length=6)   # Julia: 6 points inclusive
+```
+
+This means the step-3 DT-training arrays start from the already-selected second monitoring step endpoint for the same risk case.
+
+**Case-count note:** step 3 does **not** use all 128 realizations for `POF eps=0.0`. Samples `11`, `43`, `54`, and `117`
+hit `first_forward failed even at minimum injection rate 0.0001`, so they are treated as strong infeasible / fracture candidates
+and excluded from the histogram / CDF fit. The other two cases use their full `128` completed samples.
+
+## Injection Rate Arrays
+
+### Step-3 Case 1: POF ε=0.0
+
+- step-2 `q_k*`: `0.04489`
+- step-3 `q_k*`: `0.06201` from `124` completed samples
+- excluded infeasible / fracture candidates: `11, 43, 54, 117`
+
+```
+[0.04489, 0.04831, 0.05174, 0.05516, 0.05859, 0.06201]
+```
+
+### Step-3 Case 2: POF ε=0.01
+
+- step-2 `q_k*`: `0.07317`
+- step-3 `q_k*`: `0.08023` from `128` completed samples
+
+```
+[0.07317, 0.07458, 0.07599, 0.07741, 0.07882, 0.08023]
+```
+
+### Step-3 Case 3: CVaR γ=0.1 α=0.01
+
+- step-2 `q_k*`: `0.11529`
+- step-3 `q_k*`: `0.11866` from `128` completed samples
+
+```
+[0.11529, 0.11596, 0.11664, 0.11731, 0.11798, 0.11866]
+```
+
+## Reference Values (all three crossing points from step-3 CDF plot)
+
+| Case | q_k\* (conservative) | ECDF (median) | Opt (optimistic) |
+|------|---------------------|---------------|-----------------|
+| POF ε=0.0 | 0.06201 | 0.06254 | 0.07187 |
+| POF ε=0.01 | 0.08023 | 0.08088 | 0.10160 |
+| CVaR γ=0.1 α=0.01 | 0.11866 | 0.11927 | 0.16562 |
+
+## Parameters
+
+- step-3 array start: matching step-2 `q_k*` for the same risk case
+- step-3 array end: step-3 conservative `q_k*`
+- Array length: 6
+- Unit: m³/s
+- Bootstrap: B=5000, 95% CI, seed=42
+- Fracture probability threshold: 1%
+- Number of geological samples used per case: `124` for `POF eps=0.0`, `128` for the other two cases
+- Step-3 infeasible / fracture candidates under `POF eps=0.0`: `11, 43, 54, 117`
