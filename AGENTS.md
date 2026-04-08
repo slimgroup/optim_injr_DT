@@ -27,6 +27,19 @@ Apply these additional rules whenever editing plotting code, especially under `s
 - Match fonts, spacing, and colorbar styling to nearby paper figures when the user asks for consistency.
 - If a statistic is mathematically redundant in a figure, flag it instead of presenting it as a distinct visual insight.
 
+## Statistical Analysis Plot Rules
+
+Apply these additional rules whenever creating or updating histogram / CDF statistical analysis plots for optimized injection rates.
+
+- Reuse the established step-2 paired-posterior statistical plotting style unless the user explicitly asks for a different presentation.
+- The default plotted scalar is the optimized injection schedule element `6/12`, reconstructed from the final nonzero endpoint in `inj_rate_arr` using the case-specific `inj_start`; do not silently switch to plotting the raw endpoint.
+- State clearly when the endpoint is mathematically redundant with the plotted `6/12` schedule element instead of presenting both as separate insights.
+- Include only completed samples with `final.jld2` in histogram / CDF summaries unless the user explicitly asks to include incomplete runs.
+- Exclude currently running samples from the plotted distribution and report them separately.
+- Report samples with no `final.jld2` and no active job separately as fracture / no-final candidates instead of folding them into the histogram as zeros or missing-at-random.
+- Use empirical CDF with bootstrap uncertainty bands and a left-tail zoom inset when matching the established step-2 analysis.
+- Keep titles explicit about monitoring step, prior mode, sample count used, and the plotted schedule element so the figure can stand alone.
+
 ## How Codex Should Behave Here
 
 - Favor the smallest safe change that solves the task without disrupting the research workflow.
