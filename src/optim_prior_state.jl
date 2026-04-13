@@ -49,8 +49,8 @@ in `docs/injection_rate_arrays.md`.
 function default_inj_start(case_key::String, prior_mode::String, monitoring_step::Int, sample_idx::Int, risk_opts, cli_inj_start::Float64)
     if monitoring_step > 1 && isapprox(cli_inj_start, DEFAULT_INJ_START; atol=1e-12)
         endpoint = documented_case_inj_start(case_key, monitoring_step)
-        println("Using case-level inj_start from documented previous-step endpoint for case_key=$(case_key)")
-        println("Recovered previous-step endpoint = ", endpoint)
+        println("Using documented case-level inj_start for case_key=$(case_key)")
+        println("Recovered previous-step q_k* endpoint = ", endpoint)
         return endpoint
     end
     return cli_inj_start
@@ -77,13 +77,21 @@ end
 """
 Locate the permeability-index file for the requested monitoring step.
 
-Indices are sourced from `data/state/new` and follow the `tN_rtmN` naming convention.
+Prefer the newer `data/state/new/tN_rtmN` convention, but keep compatibility
+with older exports so existing step-1/step-2 workflows remain usable.
 """
 function state_indices_path(monitoring_step::Int)
     monitoring_step >= 1 || error("monitoring_step must be >= 1, got $(monitoring_step)")
-    path = datadir("state/new/Wise128_state_t$(monitoring_step)_rtm$(monitoring_step)_broad_NL_SNR28.jld2")
-    isfile(path) || error("State indices file not found for monitoring_step=$(monitoring_step): $(path)")
-    return path
+    candidates = [
+        datadir("state/new/Wise128_state_t$(monitoring_step)_rtm$(monitoring_step)_broad_NL_SNR28.jld2"),
+        datadir("state/Wise128_state_t$(monitoring_step)_rtm$(monitoring_step)_broad_NL_SNR28.jld2"),
+        datadir("state/old/Wise128_state_t$(monitoring_step)_rtm1_broad_NL_SNR28.jld2"),
+        datadir("state/Wise128_state_t$(monitoring_step)_rtm1_broad_NL_SNR28.jld2"),
+    ]
+    for path in candidates
+        isfile(path) && return path
+    end
+    error("State indices file not found for monitoring_step=$(monitoring_step). Tried: $(join(candidates, \", \"))")
 end
 
 """

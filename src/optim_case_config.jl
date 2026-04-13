@@ -24,6 +24,11 @@ const STEP_TO_CASE_QSTAR = Dict(
         "pof_eps0.01" => 0.07317,
         "cvar_g0.1_a0.01" => 0.11529,
     ),
+    3 => Dict(
+        "pof_eps0.0" => 0.06201,
+        "pof_eps0.01" => 0.08023,
+        "cvar_g0.1_a0.01" => 0.11866,
+    ),
 )
 
 function last_nonzero_endpoint(inj_rate_arr)
