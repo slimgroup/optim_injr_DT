@@ -91,7 +91,7 @@ function state_indices_path(monitoring_step::Int)
     for path in candidates
         isfile(path) && return path
     end
-    error("State indices file not found for monitoring_step=$(monitoring_step). Tried: $(join(candidates, \", \"))")
+    error("State indices file not found for monitoring_step=$(monitoring_step). Tried: $(join(candidates, ", "))")
 end
 
 """
