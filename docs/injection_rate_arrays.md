@@ -210,23 +210,14 @@ Values derived from the final step-4 paired posterior statistical analysis
 and the corresponding single-case histogram / CDF figures under
 `plots/step4_paired_posterior_stats/`).
 
-For step 4, the plotted scalar in the statistical analysis is the **6th element of the
+For step 4, the plotted scalar in the statistical analysis is again the **6th element of the
 length-12 optimized injection-rate array**, reconstructed from the saved `inj_rate_arr`
 endpoint and the matching step-3 `inj_start`.
 
-To build the DT-training arrays, we invert that affine mapping and recover the corresponding
-**step-4 endpoint `q_k*`** for each case. These recovered endpoints are the conservative
-bootstrap estimates (upper 95% CDF band crossing at the 1% fracture-probability threshold,
-B=5000).
-
-Important notation note:
-
-- In `plots/step4_paired_posterior_stats/summary_grid_hist_cdf.png`, the plotted `q_k*`
-  marker is on the **6/12 schedule-element scale**.
-- In this document, the listed step-4 `q_k*` values are the corresponding **endpoint scale**
-  values used to define the 6-period DT-training arrays.
-- These two are related by a fixed affine mapping within each case, so they are not
-  contradictory; they are the same decision expressed on two different rate scales.
+Following the existing project convention, the `q_k*` values documented below are taken
+directly from that statistical analysis scale. In other words, the step-4 `q_k*` listed
+here is exactly the conservative crossing value shown in
+`plots/step4_paired_posterior_stats/summary_grid_hist_cdf.png`.
 
 Each array has **length 6**, linearly spaced from the matching **step-3 `q_k*`** to the new
 **step-4 `q_k*`**:
@@ -249,46 +240,35 @@ cases use their full `128` completed samples.
 ### Step-4 Case 1: POF ε=0.0
 
 - step-3 `q_k*`: `0.06201`
-- step-4 `q_k*`: `0.08670` from `122` completed samples
+- step-4 `q_k*`: `0.07323` from `122` completed samples
 - excluded infeasible / fracture candidates: `5, 16, 28, 36, 47, 117`
 
 ```
-[0.06201, 0.06695, 0.07189, 0.07682, 0.08176, 0.08670]
+[0.06201, 0.06425, 0.06650, 0.06874, 0.07099, 0.07323]
 ```
 
 ### Step-4 Case 2: POF ε=0.01
 
 - step-3 `q_k*`: `0.08023`
-- step-4 `q_k*`: `0.08224` from `128` completed samples
+- step-4 `q_k*`: `0.08114` from `128` completed samples
 
 ```
-[0.08023, 0.08063, 0.08103, 0.08143, 0.08183, 0.08224]
+[0.08023, 0.08041, 0.08059, 0.08078, 0.08096, 0.08114]
 ```
 
 ### Step-4 Case 3: CVaR γ=0.1 α=0.01
 
 - step-3 `q_k*`: `0.11866`
-- step-4 `q_k*`: `0.12210` from `128` completed samples
+- step-4 `q_k*`: `0.12022` from `128` completed samples
 
 ```
-[0.11866, 0.11935, 0.12003, 0.12072, 0.12141, 0.12210]
+[0.11866, 0.11897, 0.11928, 0.11960, 0.11991, 0.12022]
 ```
 
-## Reference Values (all three crossing points from step-4 CDF plot, mapped back to endpoint scale)
+## Reference Values (all three crossing points from the step-4 CDF plot)
 
 | Case | q_k\* (conservative) | ECDF (median) | Opt (optimistic) |
 |------|---------------------|---------------|-----------------|
-| POF ε=0.0 | 0.08670 | 0.09102 | 0.09965 |
-| POF ε=0.01 | 0.08224 | 0.08844 | 0.12636 |
-| CVaR γ=0.1 α=0.01 | 0.12210 | 0.13523 | 0.17353 |
-
-## Reference Values on the Plotted 6/12 Scale
-
-These are the actual crossing values shown in
-[summary_grid_hist_cdf.png](/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/plots/step4_paired_posterior_stats/summary_grid_hist_cdf.png):
-
-| Case | q_k\* (conservative, plotted 6/12 value) | ECDF (median) | Opt (optimistic) |
-|------|------------------------------------------|---------------|-----------------|
 | POF ε=0.0 | 0.07323 | 0.07519 | 0.07912 |
 | POF ε=0.01 | 0.08114 | 0.08396 | 0.10120 |
 | CVaR γ=0.1 α=0.01 | 0.12022 | 0.12619 | 0.14360 |
