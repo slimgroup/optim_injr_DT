@@ -198,3 +198,108 @@ and excluded from the histogram / CDF fit. The other two cases use their full `1
 - Fracture probability threshold: 1%
 - Number of geological samples used per case: `124` for `POF eps=0.0`, `128` for the other two cases
 - Step-3 infeasible / fracture candidates under `POF eps=0.0`: `11, 43, 54, 117`
+
+---
+
+# Step-4 Injection Rate Arrays for DT Training
+
+## Source
+
+Values derived from the final step-4 paired posterior statistical analysis
+([summary_grid_hist_cdf.png](/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/plots/step4_paired_posterior_stats/summary_grid_hist_cdf.png)
+and the corresponding single-case histogram / CDF figures under
+`plots/step4_paired_posterior_stats/`).
+
+For step 4, the plotted scalar in the statistical analysis is the **6th element of the
+length-12 optimized injection-rate array**, reconstructed from the saved `inj_rate_arr`
+endpoint and the matching step-3 `inj_start`.
+
+To build the DT-training arrays, we invert that affine mapping and recover the corresponding
+**step-4 endpoint `q_k*`** for each case. These recovered endpoints are the conservative
+bootstrap estimates (upper 95% CDF band crossing at the 1% fracture-probability threshold,
+B=5000).
+
+Important notation note:
+
+- In `plots/step4_paired_posterior_stats/summary_grid_hist_cdf.png`, the plotted `q_k*`
+  marker is on the **6/12 schedule-element scale**.
+- In this document, the listed step-4 `q_k*` values are the corresponding **endpoint scale**
+  values used to define the 6-period DT-training arrays.
+- These two are related by a fixed affine mapping within each case, so they are not
+  contradictory; they are the same decision expressed on two different rate scales.
+
+Each array has **length 6**, linearly spaced from the matching **step-3 `q_k*`** to the new
+**step-4 `q_k*`**:
+
+```
+array = range(step3_q_k_star, step4_q_k_star, length=6)   # Julia: 6 points inclusive
+```
+
+This means the step-4 DT-training arrays start from the already-selected third monitoring
+step endpoint for the same risk case.
+
+**Case-count note:** step 4 again does **not** use all 128 realizations for `POF eps=0.0`.
+Samples `5`, `16`, `28`, `36`, `47`, and `117` hit
+`first_forward failed even at minimum injection rate 0.0001`, so they are treated as strong
+infeasible / fracture candidates and excluded from the histogram / CDF fit. The other two
+cases use their full `128` completed samples.
+
+## Injection Rate Arrays
+
+### Step-4 Case 1: POF ε=0.0
+
+- step-3 `q_k*`: `0.06201`
+- step-4 `q_k*`: `0.08670` from `122` completed samples
+- excluded infeasible / fracture candidates: `5, 16, 28, 36, 47, 117`
+
+```
+[0.06201, 0.06695, 0.07189, 0.07682, 0.08176, 0.08670]
+```
+
+### Step-4 Case 2: POF ε=0.01
+
+- step-3 `q_k*`: `0.08023`
+- step-4 `q_k*`: `0.08224` from `128` completed samples
+
+```
+[0.08023, 0.08063, 0.08103, 0.08143, 0.08183, 0.08224]
+```
+
+### Step-4 Case 3: CVaR γ=0.1 α=0.01
+
+- step-3 `q_k*`: `0.11866`
+- step-4 `q_k*`: `0.12210` from `128` completed samples
+
+```
+[0.11866, 0.11935, 0.12003, 0.12072, 0.12141, 0.12210]
+```
+
+## Reference Values (all three crossing points from step-4 CDF plot, mapped back to endpoint scale)
+
+| Case | q_k\* (conservative) | ECDF (median) | Opt (optimistic) |
+|------|---------------------|---------------|-----------------|
+| POF ε=0.0 | 0.08670 | 0.09102 | 0.09965 |
+| POF ε=0.01 | 0.08224 | 0.08844 | 0.12636 |
+| CVaR γ=0.1 α=0.01 | 0.12210 | 0.13523 | 0.17353 |
+
+## Reference Values on the Plotted 6/12 Scale
+
+These are the actual crossing values shown in
+[summary_grid_hist_cdf.png](/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/plots/step4_paired_posterior_stats/summary_grid_hist_cdf.png):
+
+| Case | q_k\* (conservative, plotted 6/12 value) | ECDF (median) | Opt (optimistic) |
+|------|------------------------------------------|---------------|-----------------|
+| POF ε=0.0 | 0.07323 | 0.07519 | 0.07912 |
+| POF ε=0.01 | 0.08114 | 0.08396 | 0.10120 |
+| CVaR γ=0.1 α=0.01 | 0.12022 | 0.12619 | 0.14360 |
+
+## Parameters
+
+- step-4 array start: matching step-3 `q_k*` for the same risk case
+- step-4 array end: step-4 conservative `q_k*`
+- Array length: 6
+- Unit: m³/s
+- Bootstrap: B=5000, 95% CI, seed=42
+- Fracture probability threshold: 1%
+- Number of geological samples used per case: `122` for `POF eps=0.0`, `128` for the other two cases
+- Step-4 infeasible / fracture candidates under `POF eps=0.0`: `5, 16, 28, 36, 47, 117`
