@@ -2,9 +2,17 @@
 
 ## Source
 
-Values derived from bootstrap CDF analysis (`plots/bootstrap_cdf_analysis/grid_cdf_4x3.png`).
+Values derived from the first monitoring-step bootstrap CDF analysis
+(`plots/bootstrap_cdf_analysis/grid_cdf_4x3.png` and the matching single-case CDF figures).
 
-The ending rate for each case is **q_k\*** — the conservative bootstrap estimate (upper 95% CI band crossing at 1% fracture probability threshold, B=10000).
+For step 1, the ending rate for each case is **q_k\*** — the conservative statistical-analysis
+estimate (upper 95% CI band crossing at the 1% fracture probability threshold, `B=10000`).
+In this repository, `q_k*` means the value selected directly from the monitoring-step
+statistical analysis; it is not a separately back-solved quantity.
+
+Because the first monitoring step has no previous monitoring-step campaign, the step-1
+DT-training arrays start from the global optimization lower bound `inj_start = 0.0001`
+and end at the step-1 `q_k*` selected from the bootstrap CDF analysis.
 
 Each array has **length 6**, linearly spaced from `inj_start = 0.0001` to `q_k*`:
 
@@ -12,9 +20,13 @@ Each array has **length 6**, linearly spaced from `inj_start = 0.0001` to `q_k*`
 array = range(inj_start, q_k_star, length=6)   # Julia: 6 points inclusive
 ```
 
-**Indexing (same dimension as optimization / bootstrap summaries):** the six entries are the six injection **periods**; the **last period** is **Julia index 6** (`rates[6]` / `rates[end]`) and **Python** `rates[-1]` or `rates[5]` in 0-based indexing. That last value equals **q_k\*** in the table below (before any visualization multiplier).
+**Indexing (same dimension as optimization / bootstrap summaries):** the six entries are the six injection **periods**; the **last period** is **Julia index 6** (`rates[6]` / `rates[end]`) and **Python** `rates[-1]` or `rates[5]` in 0-based indexing. That last value equals the step-1 **q_k\*** in the table below.
 
 **`forward_sim_data.jld2` and `run_forward_export.jl`:** the forward simulator uses the **same ramps as this table** (no global multiplier). The last column of `fracture_comparison_3x3.png` is **`q_k\*` in m³/s**, directly comparable to the horizontal axis of the bootstrap CDF plots (`cdf_POF_eps0.png` / `cdf_POF_eps0.01.png` / CVaR case) for the matching risk setting.
+
+**Representative-case note:** this section records the three representative risk cases that are
+carried forward through the later monitoring steps:
+`POF ε=0.0`, `POF ε=0.01`, and `CVaR γ=0.1 α=0.01`.
 
 ## Injection Rate Arrays
 
