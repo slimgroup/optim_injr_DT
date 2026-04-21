@@ -288,8 +288,8 @@ def main() -> None:
     fig.suptitle("Injection Schedules and Cumulative CO$_2$ Across Four Monitoring Steps", y=0.855, fontsize=20)
     fig.tight_layout(rect=[0.02, 0.03, 0.98, 0.87])
 
-    png_path = OUTDIR / "monitoring_campaign_schedule.png"
-    csv_path = OUTDIR / "monitoring_campaign_schedule_data.csv"
+    png_path = OUTDIR / "injection_schedule_over_four_steps.png"
+    csv_path = OUTDIR / "injection_schedule_over_four_steps_data.csv"
     fig.savefig(png_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
 
