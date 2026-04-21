@@ -56,7 +56,7 @@ VAR_CONFIG = {
         "title": "Relative Margin",
         "slug": "relative_margin",
         "cmap": None,
-        "label": r"$r = (p_{\mathrm{frac}} - p) / (p_{\mathrm{frac}} - p_{w,0})$",
+        "label": r"$r = (p_{\mathrm{frac}} - p) / p_{\mathrm{frac}}$",
         "display_scale": 1.0,
         "fixed_vmin": -0.1,
         "fixed_vmax": 1.0,
@@ -138,7 +138,6 @@ def load_samples(filepath):
     f = h5py.File(filepath, "r")
     pres_hyd = f["pres_Hyd"][:].astype(np.float32)
     p_max = pres_hyd + np.float32(4.0e6)
-    margin_denom = np.maximum(np.float32(1e-9), p_max - pres_hyd)
 
     samples = {}
     for key in CASES:
@@ -150,7 +149,7 @@ def load_samples(filepath):
             "sat": arr[:, 0, :, :].astype(np.float32),
             "pressure": pressure,
             "pressure_diff": pressure - pres_hyd[None, :, :],
-            "relative_margin": (p_max[None, :, :] - pressure) / margin_denom[None, :, :],
+            "relative_margin": (p_max[None, :, :] - pressure) / np.maximum(np.float32(1e-9), p_max[None, :, :]),
         }
     f.close()
     return samples, pres_hyd

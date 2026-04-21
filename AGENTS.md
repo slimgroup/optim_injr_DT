@@ -27,6 +27,15 @@ Apply these additional rules whenever editing plotting code, especially under `s
 - Match fonts, spacing, and colorbar styling to nearby paper figures when the user asks for consistency.
 - If a statistic is mathematically redundant in a figure, flag it instead of presenting it as a distinct visual insight.
 
+## Posterior Field Plot Rules
+
+Apply these additional rules whenever creating or updating posterior field mean / std / median figures from posterior-sample JLD2 files.
+
+- In this repository, `relative margin` means `r = (p_max - p) / p_max` unless the user explicitly asks for a different normalization.
+- For posterior-field plots, compute `p_max` consistently as `pres_Hyd + 4 MPa` for the matching monitoring step file.
+- Do not silently replace the repository's `relative margin` definition with the window-normalized variant `(p_max - p) / (p_max - p0)` unless the user explicitly requests that change.
+- When plotting posterior-derived `relative margin`, load the posterior pressure field itself, not `pressure_diff`, and derive the margin from that pressure field.
+
 ## Statistical Analysis Plot Rules
 
 Apply these additional rules whenever creating or updating histogram / CDF statistical analysis plots for optimized injection rates.
