@@ -11,6 +11,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 
 
@@ -25,7 +26,7 @@ N_PERIODS_PER_STEP = 6
 TOTAL_STEPS = 4
 
 CASE_SCHEDULES = {
-    "POF eps = 0.0": [
+    "POF eps = 0.0 (= CVaR γ = 0.0)": [
         0.00010,
         0.00534,
         0.01058,
@@ -108,15 +109,15 @@ CASE_SCHEDULES = {
 
 def make_no_control_schedule() -> tuple[np.ndarray, float]:
     """
-    Stylized no-control campaign.
+    Representative no-control campaign.
 
-    The schedule ramps up without optimization, fractures at day 720,
-    and is terminated after that point.
+    Chosen to illustrate a non-optimized ramp that starts low, increases
+    steadily, and reaches fracture at day 720 before termination.
     """
     frac_day = 480.0 + 240.0
     frac_period = int(frac_day / PERIOD_DAYS)
     rates = np.zeros(N_PERIODS_PER_STEP * TOTAL_STEPS, dtype=float)
-    rates[:frac_period] = np.linspace(0.012, 0.180, frac_period)
+    rates[:frac_period] = np.linspace(0.010, 0.180, frac_period)
     return rates, frac_day
 
 
@@ -164,7 +165,7 @@ def main() -> None:
     no_control, frac_day = make_no_control_schedule()
 
     colors = {
-        "POF eps = 0.0": "#0E7490",
+        "POF eps = 0.0 (= CVaR γ = 0.0)": "#0E7490",
         "POF eps = 0.01": "#D97706",
         "CVaR γ = 0.1, α = 0.01": "#B91C1C",
         "No control": "#6B7280",
@@ -173,29 +174,29 @@ def main() -> None:
     plt.rcParams.update(
         {
             "font.family": "serif",
-            "axes.titlesize": 16,
-            "axes.labelsize": 15,
-            "xtick.labelsize": 12,
-            "ytick.labelsize": 12,
-            "legend.fontsize": 11,
+            "axes.titlesize": 21,
+            "axes.labelsize": 18,
+            "xtick.labelsize": 15,
+            "ytick.labelsize": 15,
+            "legend.fontsize": 13,
         }
     )
 
-    fig, ax = plt.subplots(figsize=(13.8, 7.4))
+    fig, ax = plt.subplots(figsize=(15.2, 8.8))
     ax2 = ax.twinx()
 
     for i in range(1, TOTAL_STEPS):
         ax.axvline(i * N_PERIODS_PER_STEP * PERIOD_DAYS, color="#D1D5DB", linewidth=1.0, linestyle="--", zorder=0)
 
     for step_idx, x in enumerate([240, 720, 1200, 1680], start=1):
-        ax.text(x, 0.195, f"Step {step_idx}", ha="center", va="top", fontsize=10.5, color="#4B5563")
+        ax.text(x, 0.198, f"Step {step_idx}", ha="center", va="top", fontsize=13.5, color="#4B5563")
 
     for case, rates in schedules.items():
         color = colors[case]
         t_rate, y_rate = step_series(rates)
         t_cum, y_cum = line_series(cumulative_mt(rates))
-        ax.step(t_rate, y_rate, where="post", color=color, linewidth=2.6, label=case)
-        ax2.plot(t_cum, y_cum, color=color, linewidth=1.6, alpha=0.32)
+        ax.step(t_rate, y_rate, where="post", color=color, linewidth=3.0, label=case, zorder=4)
+        ax2.plot(t_cum, y_cum, color=color, linewidth=2.2, alpha=0.78, linestyle="--", zorder=2)
 
     no_control_case = "No control"
     t_rate, y_rate = step_series(no_control)
@@ -205,11 +206,11 @@ def main() -> None:
         y_rate,
         where="post",
         color=colors[no_control_case],
-        linewidth=2.6,
-        linestyle="--",
+        linewidth=3.2,
         label=no_control_case,
+        zorder=4,
     )
-    ax2.plot(t_cum, y_cum, color=colors[no_control_case], linewidth=1.6, alpha=0.38, linestyle="--")
+    ax2.plot(t_cum, y_cum, color=colors[no_control_case], linewidth=2.2, alpha=0.82, linestyle="--", zorder=2)
 
     frac_idx = int(frac_day / PERIOD_DAYS)
     frac_rate = no_control[frac_idx - 1]
@@ -219,9 +220,9 @@ def main() -> None:
         [frac_rate],
         color="#DC2626",
         edgecolor="white",
-        linewidth=0.8,
+        linewidth=1.1,
         marker="*",
-        s=180,
+        s=420,
         zorder=6,
     )
     ax2.scatter(
@@ -229,24 +230,12 @@ def main() -> None:
         [frac_mass],
         color="#DC2626",
         edgecolor="white",
-        linewidth=0.8,
+        linewidth=1.1,
         marker="*",
-        s=140,
+        s=420,
         zorder=6,
     )
     ax.axvline(frac_day, color="#DC2626", linewidth=1.2, linestyle=":", alpha=0.9)
-    ax.annotate(
-        "Fracture\n(day 720)",
-        xy=(frac_day, frac_rate),
-        xytext=(34, 18),
-        textcoords="offset points",
-        fontsize=10.5,
-        ha="left",
-        va="bottom",
-        color="#991B1B",
-        bbox=dict(boxstyle="round,pad=0.22", facecolor="white", alpha=0.95, edgecolor="#DC2626"),
-        arrowprops=dict(arrowstyle="->", color="#DC2626"),
-    )
 
     ax.set_xlim(0, N_PERIODS_PER_STEP * TOTAL_STEPS * PERIOD_DAYS)
     ax.set_ylim(0.0, 0.20)
@@ -255,37 +244,48 @@ def main() -> None:
     ax.set_xlabel("Time [days]")
     ax.set_ylabel("Injection rate [m$^3$/s]")
     ax2.set_ylabel("Total injected CO$_2$ [Mt]")
+    ax.set_title("Injection Schedules and Cumulative CO$_2$ Across Four Monitoring Steps", pad=18)
 
-    ax.set_title("Injection Schedules and Cumulative CO$_2$ Across Four Monitoring Steps")
     ax.grid(True, axis="y", linestyle="--", linewidth=0.5, alpha=0.4)
 
-    handles1, labels1 = ax.get_legend_handles_labels()
-    ax.legend(handles1, labels1, loc="upper left", bbox_to_anchor=(0.01, 0.72), framealpha=0.95)
+    case_handles = [
+        Line2D([0], [0], color=colors[name], linewidth=3.2, label=name)
+        for name in ["POF eps = 0.0 (= CVaR γ = 0.0)", "POF eps = 0.01", "CVaR γ = 0.1, α = 0.01", "No control"]
+    ]
+    style_handles = [
+        Line2D([0], [0], color="#111827", linewidth=3.0, linestyle="-", label="Injection rate (left axis)"),
+        Line2D([0], [0], color="#111827", linewidth=2.2, linestyle="--", label="Total injected CO$_2$ (right axis)"),
+        Line2D([0], [0], color="#DC2626", marker="*", markersize=16, linewidth=0, label="Fracture onset"),
+    ]
 
-    ax.text(
-        0.015,
-        0.96,
-        "Faint lines = cumulative CO$_2$ | red star = fracture onset",
-        transform=ax.transAxes,
-        ha="left",
-        va="top",
-        fontsize=10.1,
-        color="#374151",
-        bbox=dict(boxstyle="round,pad=0.20", facecolor="white", alpha=0.90, edgecolor="#D1D5DB"),
+    legend_cases = ax.legend(
+        handles=case_handles,
+        loc="upper left",
+        bbox_to_anchor=(0.012, 0.93),
+        framealpha=0.96,
+        title="Cases",
+        title_fontsize=14,
+        borderpad=0.6,
+        labelspacing=0.45,
+        handlelength=2.2,
+        ncol=2,
+        columnspacing=1.1,
+    )
+    ax.add_artist(legend_cases)
+
+    ax.legend(
+        handles=style_handles,
+        loc="upper right",
+        bbox_to_anchor=(0.988, 0.93),
+        framealpha=0.96,
+        title="Line meaning",
+        title_fontsize=14,
+        borderpad=0.6,
+        labelspacing=0.45,
+        handlelength=2.2,
     )
 
-    ax.text(
-        0.015,
-        0.91,
-        "POF ε = 0.0 overlaps the saved CVaR γ = 0.0 schedules.",
-        transform=ax.transAxes,
-        ha="left",
-        va="top",
-        fontsize=9.8,
-        color="#4B5563",
-    )
-
-    fig.tight_layout()
+    fig.tight_layout(rect=[0.02, 0.03, 0.98, 0.98])
 
     png_path = OUTDIR / "monitoring_campaign_schedule.png"
     csv_path = OUTDIR / "monitoring_campaign_schedule_data.csv"
