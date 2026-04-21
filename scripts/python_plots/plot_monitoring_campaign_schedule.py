@@ -174,11 +174,11 @@ def main() -> None:
     plt.rcParams.update(
         {
             "font.family": "serif",
-            "axes.titlesize": 21,
-            "axes.labelsize": 18,
-            "xtick.labelsize": 15,
-            "ytick.labelsize": 15,
-            "legend.fontsize": 13,
+            "axes.titlesize": 22,
+            "axes.labelsize": 19,
+            "xtick.labelsize": 16,
+            "ytick.labelsize": 16,
+            "legend.fontsize": 14,
         }
     )
 
@@ -222,7 +222,7 @@ def main() -> None:
         edgecolor="white",
         linewidth=1.1,
         marker="*",
-        s=420,
+        s=560,
         zorder=6,
     )
     ax2.scatter(
@@ -232,7 +232,7 @@ def main() -> None:
         edgecolor="white",
         linewidth=1.1,
         marker="*",
-        s=420,
+        s=560,
         zorder=6,
     )
     ax.axvline(frac_day, color="#DC2626", linewidth=1.2, linestyle=":", alpha=0.9)
@@ -244,7 +244,6 @@ def main() -> None:
     ax.set_xlabel("Time [days]")
     ax.set_ylabel("Injection rate [m$^3$/s]")
     ax2.set_ylabel("Total injected CO$_2$ [Mt]")
-    ax.set_title("Injection Schedules and Cumulative CO$_2$ Across Four Monitoring Steps", pad=18)
 
     ax.grid(True, axis="y", linestyle="--", linewidth=0.5, alpha=0.4)
 
@@ -255,37 +254,39 @@ def main() -> None:
     style_handles = [
         Line2D([0], [0], color="#111827", linewidth=3.0, linestyle="-", label="Injection rate (left axis)"),
         Line2D([0], [0], color="#111827", linewidth=2.2, linestyle="--", label="Total injected CO$_2$ (right axis)"),
-        Line2D([0], [0], color="#DC2626", marker="*", markersize=16, linewidth=0, label="Fracture onset"),
+        Line2D([0], [0], color="#DC2626", marker="*", markersize=19, linewidth=0, label="Fracture onset"),
     ]
 
-    legend_cases = ax.legend(
+    legend_cases = fig.legend(
         handles=case_handles,
         loc="upper left",
-        bbox_to_anchor=(0.012, 0.93),
+        bbox_to_anchor=(0.055, 0.988),
         framealpha=0.96,
         title="Cases",
-        title_fontsize=14,
-        borderpad=0.6,
-        labelspacing=0.45,
+        title_fontsize=15,
+        borderpad=0.45,
+        labelspacing=0.35,
         handlelength=2.2,
         ncol=2,
-        columnspacing=1.1,
+        columnspacing=0.95,
     )
-    ax.add_artist(legend_cases)
 
-    ax.legend(
+    fig.legend(
         handles=style_handles,
         loc="upper right",
-        bbox_to_anchor=(0.988, 0.93),
+        bbox_to_anchor=(0.975, 0.988),
         framealpha=0.96,
         title="Line meaning",
-        title_fontsize=14,
-        borderpad=0.6,
-        labelspacing=0.45,
+        title_fontsize=15,
+        borderpad=0.45,
+        labelspacing=0.35,
         handlelength=2.2,
+        ncol=2,
+        columnspacing=0.9,
     )
 
-    fig.tight_layout(rect=[0.02, 0.03, 0.98, 0.98])
+    fig.suptitle("Injection Schedules and Cumulative CO$_2$ Across Four Monitoring Steps", y=0.855, fontsize=20)
+    fig.tight_layout(rect=[0.02, 0.03, 0.98, 0.87])
 
     png_path = OUTDIR / "monitoring_campaign_schedule.png"
     csv_path = OUTDIR / "monitoring_campaign_schedule_data.csv"
