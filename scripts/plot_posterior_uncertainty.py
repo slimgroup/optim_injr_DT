@@ -51,6 +51,16 @@ CASE_SHORT = {
 }
 
 VAR_CONFIG = {
+    "relative_margin": {
+        "index": None,
+        "title": "Relative Margin",
+        "slug": "relative_margin",
+        "cmap": None,
+        "label": r"$r = (p_{\mathrm{frac}} - p) / p_{\mathrm{frac}}$",
+        "display_scale": 1.0,
+        "fixed_vmin": -0.1,
+        "fixed_vmax": 1.0,
+    },
     "sat": {
         "index": 0,
         "title": r"CO$_2$ Saturation",
@@ -107,24 +117,39 @@ def make_rainforest_r():
 
 CMAP_SAT = cmasher.rainforest_r
 CMAP_PRES = cc.cm["CET_L3_r"]
+CMAP_MARGIN = LinearSegmentedColormap.from_list(
+    "relative_margin_map",
+    [
+        (0.00, "#7f0000"),
+        (0.08, "#ef8a62"),
+        (0.10, "#f7f7f7"),
+        (0.45, "#d1e5f0"),
+        (0.75, "#67a9cf"),
+        (1.00, "#2166ac"),
+    ],
+)
 VAR_CONFIG["sat"]["cmap"] = CMAP_SAT
 VAR_CONFIG["pressure"]["cmap"] = CMAP_PRES
 VAR_CONFIG["pressure_diff"]["cmap"] = CMAP_PRES
+VAR_CONFIG["relative_margin"]["cmap"] = CMAP_MARGIN
 
 
 def load_samples(filepath):
     f = h5py.File(filepath, "r")
-    pres_hyd = f["pres_Hyd"][:]
+    pres_hyd = f["pres_Hyd"][:].astype(np.float32)
+    p_max = pres_hyd + np.float32(4.0e6)
 
     samples = {}
     for key in CASES:
         arr = f[key][:]  # h5py view: (sample, variable, z, x)
         if arr.shape != (NSAMPLES_EXPECTED, 2, NZ, NX):
             raise ValueError(f"{key} has unexpected shape {arr.shape}")
+        pressure = arr[:, 1, :, :].astype(np.float32)
         samples[key] = {
             "sat": arr[:, 0, :, :].astype(np.float32),
-            "pressure": arr[:, 1, :, :].astype(np.float32),
-            "pressure_diff": arr[:, 1, :, :].astype(np.float32) - pres_hyd[None, :, :].astype(np.float32),
+            "pressure": pressure,
+            "pressure_diff": pressure - pres_hyd[None, :, :],
+            "relative_margin": (p_max[None, :, :] - pressure) / np.maximum(np.float32(1e-9), p_max[None, :, :]),
         }
     f.close()
     return samples, pres_hyd
@@ -348,11 +373,11 @@ def plot_paper_style_summary(samples, out_dir, stat_name, monitoring_step_label)
         r"(b) POF $\varepsilon = 0.01$",
         r"(c) CVaR $\gamma = 0.1, \alpha = 0.01$",
     ]
-    row_vars = ["sat", "pressure", "pressure_diff"]
+    row_vars = ["relative_margin", "pressure_diff", "sat"]
     row_labels = (
-        [r"CO$_2$ Saturation", "Pressure", "Pressure Difference"]
+        ["Relative Margin", "Pressure Difference", r"CO$_2$ Saturation"]
         if is_mean
-        else [r"CO$_2$ Sat. Std Dev", "Pressure Std Dev", "Pressure Diff. Std Dev"]
+        else ["Relative Margin Std Dev", "Pressure Diff. Std Dev", r"CO$_2$ Sat. Std Dev"]
     )
 
     if is_mean:
@@ -394,9 +419,35 @@ def plot_paper_style_summary(samples, out_dir, stat_name, monitoring_step_label)
             ax.tick_params(labelsize=14, length=3, pad=2)
 
         cax = fig.add_subplot(gs[row, 3])
-        cbar = fig.colorbar(row_images[-1], cax=cax)
-        cbar.ax.tick_params(labelsize=14)
-        if var_name != "sat":
+        if is_mean and var_name == "relative_margin":
+            cbar = fig.colorbar(row_images[-1], cax=cax, extend="min")
+            cbar.set_ticks([0.0, 0.25, 0.5, 0.75, 1.0])
+            cbar.set_ticklabels(["0", "0.25", "0.5", "0.75", "1.0"])
+            cbar.ax.tick_params(labelsize=14, pad=1, length=2)
+            cbar.ax.text(
+                0.5,
+                1.02,
+                "(safe)",
+                transform=cbar.ax.transAxes,
+                fontsize=10.5,
+                ha="center",
+                va="bottom",
+                fontstyle="italic",
+            )
+            cbar.ax.text(
+                0.5,
+                -0.06,
+                "<0 (frac.)",
+                transform=cbar.ax.transAxes,
+                fontsize=10.5,
+                ha="center",
+                va="top",
+                fontstyle="italic",
+            )
+        else:
+            cbar = fig.colorbar(row_images[-1], cax=cax)
+            cbar.ax.tick_params(labelsize=14)
+        if var_name == "pressure_diff":
             cbar.set_label("MPa", fontsize=16)
 
     title = (
