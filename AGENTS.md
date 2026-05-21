@@ -5,12 +5,14 @@ These instructions apply to all Codex work in this repository.
 ## Safety and Workflow
 
 - Do not delete or overwrite `data/`, `plots/`, `logs/`, generated `.jld2` files, SLURM outputs, or user-created scripts unless the user explicitly authorizes that exact cleanup in the current conversation.
+- When adding new plots to an existing output folder, do not clear or remove pre-existing PNG/MP4/frame outputs unless the user explicitly asks for that cleanup in the current conversation.
 - Treat edits to `data/three_set_posteriro_samples_t1_pof_cvar.jld2`, posterior exports, and other local analysis artifacts as destructive; ask before replacing or removing them.
 - Preserve the project activation pattern in Julia entry points: keep `Pkg.activate(".")`, `using DrWatson`, and `@quickactivate "optim_injr_DT"` working unless the user explicitly asks for a workflow change.
 - Preserve CLI and batch-job interfaces for `src/optim_inject.jl` and `scripts/shell/*.sh`; do not silently rename flags, change argument meanings, or break SLURM environment assumptions.
 - Keep directory conventions stable: optimization outputs under `data/`, figures under `plots/`, logs under `logs/`, and reusable scripts under `scripts/`.
 - When statistics are mathematically redundant, point that out instead of presenting them as different insights.
 - Light plotting or lightweight analysis can be run on the login node when it is genuinely inexpensive, but heavy computation must go through `sbatch` or `salloc`; do not run computation-heavy jobs directly on the login node.
+- Treat multi-file posterior re-rendering, bulk figure regeneration across monitoring steps, and animation generation as heavy work on PACE; run them through `sbatch` or `salloc`, not directly on the login node.
 - On PACE, Codex sandboxed `sbatch`, `squeue`, and `scontrol` calls may fail with false Slurm controller connectivity errors. Before concluding that Slurm is down or that a submission script is broken, re-check those commands outside the sandbox.
 - Do not rewrite git history, force push, or create commits unless the user explicitly requests it.
 - At the end of a task that changes files, ask whether the user wants a git commit; if yes, use a detailed commit message that explains why and the main scope.
@@ -35,6 +37,7 @@ Apply these additional rules whenever creating or updating posterior field mean 
 - For posterior-field plots, compute `p_max` consistently as `pres_Hyd + 4 MPa` for the matching monitoring step file.
 - Do not silently replace the repository's `relative margin` definition with the window-normalized variant `(p_max - p) / (p_max - p0)` unless the user explicitly requests that change.
 - When plotting posterior-derived `relative margin`, load the posterior pressure field itself, not `pressure_diff`, and derive the margin from that pressure field.
+- When comparing posterior mean / std figures across multiple monitoring steps, keep the color scale for the same plotted variable consistent across those steps unless the user explicitly asks for step-specific rescaling.
 
 ## Statistical Analysis Plot Rules
 

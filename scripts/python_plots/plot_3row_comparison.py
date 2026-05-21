@@ -31,6 +31,7 @@ QK_STAR = {
     "POF_eps0": 0.02630,
     "CVaR_g01_a001": 0.07470,
 }
+FORWARD_RATE_MULTIPLIER = 3.0
 
 _CASE_KEYS = ["POF_eps0", "CVaR_g01_a001", "No_Control"]
 
@@ -100,9 +101,9 @@ for ck, _ in cases:
             f"$q_k^*$ = {QK_STAR[ck]:.4f} m$^3$/s\n" + co2_line
         )
     else:
-        # No risk cap in optimization: value is terminal rate from forward schedule (sim).
+        # No risk cap in optimization: report the unscaled baseline terminal rate.
         case_annotations[ck] = (
-            f"$q_k^*$ = {last_sim:.4f} m$^3$/s\n" + co2_line
+            f"$q_k^*$ = {last_sim / FORWARD_RATE_MULTIPLIER:.4f} m$^3$/s\n" + co2_line
         )
 
 cmap_margin = mcolors.ListedColormap(np.vstack([

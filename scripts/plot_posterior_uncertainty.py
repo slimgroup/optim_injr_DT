@@ -156,15 +156,7 @@ def load_samples(filepath):
 
 
 def ensure_clean_output_dir(out_dir):
-    if not os.path.isdir(out_dir):
-        return
-    for name in os.listdir(out_dir):
-        if name.endswith((".png", ".mp4")) or name.startswith("frames_"):
-            path = os.path.join(out_dir, name)
-            if os.path.isdir(path):
-                shutil.rmtree(path)
-            else:
-                os.remove(path)
+    os.makedirs(out_dir, exist_ok=True)
 
 
 def get_std_vmax(fields):
@@ -355,7 +347,15 @@ def plot_median_grid(samples, out_dir, monitoring_step_label):
     save_figure(fig, os.path.join(out_dir, "state_median_all_cases.png"))
 
 
-def plot_paper_style_summary(samples, out_dir, stat_name, monitoring_step_label):
+def plot_paper_style_summary(
+    samples,
+    out_dir,
+    stat_name,
+    monitoring_step_label,
+    row_vars=None,
+    out_name=None,
+    value_ranges=None,
+):
     is_mean = stat_name == "mean"
     fig = plt.figure(figsize=(16.0, 8.9))
     gs = GridSpec(
@@ -373,14 +373,27 @@ def plot_paper_style_summary(samples, out_dir, stat_name, monitoring_step_label)
         r"(b) POF $\varepsilon = 0.01$",
         r"(c) CVaR $\gamma = 0.1, \alpha = 0.01$",
     ]
-    row_vars = ["relative_margin", "pressure_diff", "sat"]
-    row_labels = (
-        ["Relative Margin", "Pressure Difference", r"CO$_2$ Saturation"]
-        if is_mean
-        else ["Relative Margin Std Dev", "Pressure Diff. Std Dev", r"CO$_2$ Sat. Std Dev"]
-    )
+    row_vars = row_vars or ["relative_margin", "pressure_diff", "sat"]
+    label_map_mean = {
+        "relative_margin": "Relative Margin",
+        "pressure": "Pressure",
+        "pressure_diff": "Pressure Difference",
+        "sat": r"CO$_2$ Saturation",
+    }
+    label_map_std = {
+        "relative_margin": "Relative Margin Std Dev",
+        "pressure": "Pressure Std Dev",
+        "pressure_diff": "Pressure Diff. Std Dev",
+        "sat": r"CO$_2$ Sat. Std Dev",
+    }
+    row_labels = [
+        (label_map_mean if is_mean else label_map_std)[var_name]
+        for var_name in row_vars
+    ]
 
-    if is_mean:
+    if value_ranges is not None:
+        value_ranges = value_ranges
+    elif is_mean:
         value_ranges = {
             var_name: get_display_limits(samples, var_name)
             for var_name in row_vars
@@ -447,7 +460,7 @@ def plot_paper_style_summary(samples, out_dir, stat_name, monitoring_step_label)
         else:
             cbar = fig.colorbar(row_images[-1], cax=cax)
             cbar.ax.tick_params(labelsize=14)
-        if var_name == "pressure_diff":
+        if var_name in {"pressure", "pressure_diff"}:
             cbar.set_label("MPa", fontsize=16)
 
     title = (
@@ -457,7 +470,7 @@ def plot_paper_style_summary(samples, out_dir, stat_name, monitoring_step_label)
     )
     fig.suptitle(title, fontsize=27, fontweight="bold", y=0.962)
     fig.subplots_adjust(left=0.075, right=0.965, top=0.885, bottom=0.10)
-    out_name = "state_mean_all_cases.png" if is_mean else "state_std_all_cases.png"
+    out_name = out_name or ("state_mean_all_cases.png" if is_mean else "state_std_all_cases.png")
     save_figure(fig, os.path.join(out_dir, out_name))
 
 
@@ -582,6 +595,22 @@ def main():
     print("Generating paper-style mean/std summary figures...")
     plot_paper_style_summary(samples, out_dir, "mean", monitoring_step_label)
     plot_paper_style_summary(samples, out_dir, "std", monitoring_step_label)
+    plot_paper_style_summary(
+        samples,
+        out_dir,
+        "mean",
+        monitoring_step_label,
+        row_vars=["pressure", "pressure_diff", "sat"],
+        out_name="state_mean_pressure_pressurediff_sat_all_cases.png",
+    )
+    plot_paper_style_summary(
+        samples,
+        out_dir,
+        "std",
+        monitoring_step_label,
+        row_vars=["pressure", "pressure_diff", "sat"],
+        out_name="state_std_pressure_pressurediff_sat_all_cases.png",
+    )
 
     if args.skip_videos:
         print("\nSkipping sample videos (--skip-videos).")

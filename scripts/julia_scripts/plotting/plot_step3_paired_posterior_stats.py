@@ -492,6 +492,15 @@ def main() -> None:
         else:
             lines.append(f"- {spec.title} no-final candidates: `none`")
 
+    lines += [
+        "",
+        "Bias note for `POF eps=0.0`:",
+        "- The step-3 histogram / CDF for `POF eps=0.0` is fitted on the `124` feasible completed samples only.",
+        "- Samples `11, 43, 54, 117` are excluded because `first_forward` fails even at the minimum injection rate `0.0001`, so they represent an infeasible / fracture-candidate mass rather than ordinary low-rate completed realizations.",
+        "- This means the reported step-3 `q_k*` for `POF eps=0.0` is a conservative left-tail estimate conditional on feasibility, not an unbiased full-128-sample tail metric.",
+        "- As a result, the larger increase from step 2 to step 3 for `POF eps=0.0` may partly reflect selection bias from dropping the most severe left-tail samples, not only a genuine right-shift of the feasible-sample distribution.",
+    ]
+
     plot_grid(results, OUTDIR / "summary_grid_hist_cdf.png")
     write_csv(all_sample_ids, lookups, OUTDIR / "samplewise_plot_data.csv")
     (OUTDIR / "summary.md").write_text("\n".join(lines) + "\n")
