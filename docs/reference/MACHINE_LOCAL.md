@@ -6,12 +6,16 @@ These folders live at the repository root but are **not** part of the shared pro
 |-----------|---------|-----------------|
 | `.vscode/` | VS Code / Cursor workspace settings (tasks, launch configs, extensions state) | Yes — personal preference only |
 | `.mplconfig/` | Matplotlib font cache and user config (`fontlist-*.json`, etc.) | Yes — regenerated on next plot |
-| `.julia_depot_cdf/` | Project-local Julia depot used by some CDF/bootstrap workflows | Yes — `Pkg.instantiate()` repopulates |
-| `.julia_depot_cursor/` | Project-local Julia depot used by Cursor/IDE sessions | Yes — same as above |
+| `.julia_depot_cdf/` | Optional project-local depot (Cursor/experiments); **not** used by SLURM scripts | Yes — SLURM uses `~/julia-depot` instead |
+| `.julia_depot_cursor/` | Optional project-local depot (Cursor/IDE sessions); **not** used by SLURM scripts | Yes — same as above |
 
-## Julia depots
+## Julia depots (repo vs home)
 
-A project-local depot is like a mini `~/.julia` under the repo. It avoids polluting your global Julia environment on shared HPC systems but can grow large (packages, compiled caches, registries).
+**SLURM / shell entry points** set `JULIA_DEPOT_PATH="$HOME/julia-depot"` (see `scripts/shell/run/optim_inject_pace.sh`). Deleting repo `.julia_depot_*` does **not** affect batch jobs.
+
+`run_bootstrap_cdf.sh` defaults to `$HOME/.julia` unless you override `JULIA_DEPOT_PATH`.
+
+A project-local depot under the repo is like a mini `~/.julia`. Cursor may create `.julia_depot_cursor/` when you run Julia from the IDE.
 
 To reclaim space:
 

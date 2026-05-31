@@ -51,31 +51,23 @@ bash scripts/shell/check/check_step2_progress.sh
 
 在 `optim_inject_pace.sh` 里写的是：
 
-- `#SBATCH --output=../logs/out_%x_%A_%a.txt`
-- `#SBATCH --error=../logs/err_%x_%A_%a.txt`
+- `#SBATCH --output=logs/out_%x_%A_%a.txt`
+- `#SBATCH --error=logs/err_%x_%A_%a.txt`
 
 这里的路径是**相对你提交任务时所在目录**的：
 
-- **如果你是在项目根目录提交的**（例如 `bash scripts/shell/submit/submit_step2_dual_prior_smoketest.sh`）：  
-  日志在 **项目根目录的上一级目录里的 `logs`**，即：
+- **从项目根目录提交**（推荐：`cd optim_injr_DT && sbatch scripts/shell/run/optim_inject_pace.sh`）：  
+  日志在项目根下的 `logs/`：
   ```text
-  <项目根目录>/../logs/
+  optim_injr_DT/logs/out_DT_step2_...txt
   ```
-  例如项目根是 `/storage/project/r-fherrmann9-0/hli853/optim_injr_DT`，则 logs 在：
-  ```text
-  /storage/project/r-fherrmann9-0/hli853/logs/
-  ```
-  里面的文件类似：`out_DT_step2_POF_eps=0.01_prior=pointwise_median_4971483_1.txt`（job 名 + job id + array index）。
+  整理后可在 `logs/optimization/step2/` 找到（运行 `python3 scripts/shell/maintenance/organize_logs.py`）。
 
-- **如果你是在 `scripts/shell` 下提交的**（例如 `cd scripts/shell && bash submit_step2_dual_prior_smoketest.sh`）：  
-  则 `../logs` 表示 `scripts/logs`。
+- **历史说明**：旧版脚本曾用 `../logs/`，从项目根提交时会误写到 `r-fherrmann9-0/logs/`；2026-05-31 已改为 `logs/` 并迁移 646 个 step-2 文件。
 
 ### 2. 项目里的 `logs/`
 
-脚本里还会在项目根下建 `logs/` 目录（`mkdir -p "${PROJECT_ROOT}/logs"`），但 **SLURM 的 stdout/stderr 不会写进这里**，除非你改过 `#SBATCH --output/--error`。所以：
-
-- 查 **SLURM 打印出来的内容**：以 `#SBATCH` 里的路径为准，即上面的 `../logs`。
-- 项目根下的 `logs/` 可能被别的脚本或你本地测试用。
+SLURM 的 stdout/stderr 写入提交时 cwd 下的 `logs/`（从项目根提交即为 `optim_injr_DT/logs/`）。子目录布局见 `logs/README.md`。
 
 ### 3. 迭代/中间结果（JLD2）
 
@@ -92,7 +84,7 @@ bash scripts/shell/check/check_step2_progress.sh
 
 | 内容           | 位置 |
 |----------------|------|
-| SLURM 标准输出/错误 | 提交时当前目录的 `../logs/`（从项目根提交则为 `<项目根>/../logs/`） |
+| SLURM 标准输出/错误 | 从项目根提交时：`optim_injr_DT/logs/`（可用 `organize_logs.py` 归入 `logs/optimization/step2/` 等） |
 | 各 case 结果   | `data/DT_control/exp_name=step2/<case_tag>/sample=s*/final.jld2` |
 | 迭代中间文件   | `$SCRATCH/optim_injr_DT/DT_control/exp_name=step2/...` |
 

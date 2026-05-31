@@ -10,9 +10,9 @@ ERRORS=0
 
 # Check optim_inject_pace.sh
 echo "1. Checking optim_inject_pace.sh..."
-if grep -q "#SBATCH --output=../logs/" scripts/shell/run/optim_inject_pace.sh && \
-   grep -q "#SBATCH --error=../logs/" scripts/shell/run/optim_inject_pace.sh; then
-  echo "   ✓ Correct (uses ../logs/ relative to scripts/)"
+if grep -q "#SBATCH --output=logs/" scripts/shell/run/optim_inject_pace.sh && \
+   grep -q "#SBATCH --error=logs/" scripts/shell/run/optim_inject_pace.sh; then
+  echo "   ✓ Correct (uses logs/ relative to repo root when sbatch is run from project root)"
 else
   echo "   ✗ ERROR: Wrong path"
   ((ERRORS++))

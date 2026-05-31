@@ -8,8 +8,8 @@
 #SBATCH -t 24:00:00
 #SBATCH -q inferno
 #SBATCH --array=1-32
-#SBATCH --output=../logs/out_%x_%A_%a.txt
-#SBATCH --error=../logs/err_%x_%A_%a.txt
+#SBATCH --output=logs/out_%x_%A_%a.txt
+#SBATCH --error=logs/err_%x_%A_%a.txt
 #SBATCH --signal=TERM@60
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=hli853@gatech.edu
