@@ -206,7 +206,7 @@ fits parameters, then resamples from the fitted distribution. We avoid this beca
 
 The previous approach computed CDF by integrating a KDE-smoothed PDF.
 Problems documented in detail:
-- Bandwidth sensitivity at the 1% tail (see docs/KDE_CI_METHODOLOGY.md)
+- Bandwidth sensitivity at the 1% tail (see `docs/statistics/KDE_CI_METHODOLOGY.md`)
 - Different kernels produce different results
 - Confidence intervals based on Wald/Wilson/Jeffreys methods applied to
   KDE-derived CDF values mix two sources of uncertainty
@@ -302,7 +302,7 @@ a two-panel figure:
 - Full analysis: `scripts/julia_scripts/analysis/bootstrap_cdf_analysis.jl`
 - Two-panel plots: `scripts/julia_scripts/analysis/plot_bootstrap_two_panels.jl`
 - Previous KDE approach (backup): `scripts/julia_scripts/plotting/plot_cdf_ci.jl`
-- Previous KDE methodology: `docs/KDE_CI_METHODOLOGY.md`
+- Previous KDE methodology: `docs/statistics/KDE_CI_METHODOLOGY.md`
 
 ---
 

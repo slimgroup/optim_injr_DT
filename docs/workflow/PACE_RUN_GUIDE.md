@@ -20,7 +20,7 @@
 2. 读取此时的 CVaR 值作为 gamma
 3. 这样 gamma table 中的 gamma 值就是"当 POF = eps 时，CVaR = gamma"的对应关系
 
-详见 `docs/EPS_GAMMA_ALIGNMENT.md`。
+对应关系说明见上文「EPS 和 Gamma 对应关系」一节（原 `EPS_GAMMA_ALIGNMENT.md` 已合并入本文档）。
 
 ## ⚠️ 重要：先检查并重新生成 Gamma Table
 

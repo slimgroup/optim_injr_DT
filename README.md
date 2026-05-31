@@ -83,7 +83,7 @@ optim_injr_DT/
 └── test/                  # Test suite
 ```
 
-For detailed structure and script entry points, see [docs/DIRECTORY_STRUCTURE.md](docs/DIRECTORY_STRUCTURE.md) and [docs/SCRIPTS_INDEX.md](docs/SCRIPTS_INDEX.md).
+For detailed structure and script entry points, see [docs/reference/DIRECTORY_STRUCTURE.md](docs/reference/DIRECTORY_STRUCTURE.md) and [docs/reference/SCRIPTS_INDEX.md](docs/reference/SCRIPTS_INDEX.md).
 
 ---
 
@@ -121,13 +121,14 @@ See [test/README.md](test/README.md) for more details.
 
 ## 📚 Documentation
 
-- **[Directory Structure](docs/DIRECTORY_STRUCTURE.md)** - Detailed project organization
-- **[Scripts Index](docs/SCRIPTS_INDEX.md)** - Script entry points by purpose
-- **[Optimization Choice Guide](docs/OPTIMIZATION_CHOICE_GUIDE.md)** - Algorithm selection
-- **[Submit Guide](docs/SUBMIT_GUIDE.md)** - Job submission guide
-- **[Script Explanation](docs/SCRIPT_EXPLANATION.md)** - Detailed explanation of a specific SLURM script pattern
-- **[Quick Run Guide](docs/QUICK_RUN_WITH_RISK.md)** - Quick start with risk parameters
-- **[Bootstrap CDF Methodology](docs/BOOTSTRAP_CDF_METHODOLOGY.md)** - Bootstrap/CDF plotting notes
+- **[Documentation Index](docs/README.md)** - Full docs map by topic
+- **[Directory Structure](docs/reference/DIRECTORY_STRUCTURE.md)** - Detailed project organization
+- **[Scripts Index](docs/reference/SCRIPTS_INDEX.md)** - Script entry points by purpose
+- **[Optimization Choice Guide](docs/optimization/OPTIMIZATION_CHOICE_GUIDE.md)** - Algorithm selection
+- **[Submit Guide](docs/workflow/SUBMIT_GUIDE.md)** - Job submission guide
+- **[Script Explanation](docs/reference/SCRIPT_EXPLANATION.md)** - Detailed explanation of a specific SLURM script pattern
+- **[Quick Run Guide](docs/workflow/QUICK_RUN_WITH_RISK.md)** - Quick start with risk parameters
+- **[Bootstrap CDF Methodology](docs/statistics/BOOTSTRAP_CDF_METHODOLOGY.md)** - Bootstrap/CDF plotting notes
 - **[Injection Rate Arrays](docs/injection_rate_arrays.md)** - Injection ramp definitions used in plotting/export docs
 
 ---

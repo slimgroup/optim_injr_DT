@@ -1,68 +1,83 @@
 # Documentation
 
-This directory contains project notes, workflow guides, and methodology writeups.
-The list below is trimmed to files that actually exist in the current repo.
+Project notes, workflow guides, and methodology writeups. Start here for navigation.
+
+## Layout
+
+```text
+docs/
+├── README.md
+├── injection_rate_arrays.md   # canonical injection ramps (referenced from src/ and AGENTS.md)
+├── workflow/                  # running and submitting jobs
+├── reference/                 # repo navigation and script index
+├── optimization/              # optimizer, parameters, refactor notes
+├── statistics/                # bootstrap/KDE and figure methodology
+├── analysis/                  # performance, solver, troubleshooting
+└── historical/                # deprecated gamma-table POF/CVaR workflow
+```
 
 ## Documentation Index
 
-### Getting started and running workflows
-- [QUICK_START.md](QUICK_START.md): quick-start workflow notes
-- [QUICK_RUN_WITH_RISK.md](QUICK_RUN_WITH_RISK.md): short run examples with risk parameters
-- [PACE_RUN_GUIDE.md](PACE_RUN_GUIDE.md): running on the PACE cluster
-- [SUBMIT_GUIDE.md](SUBMIT_GUIDE.md): submission patterns and batch guidance
-- [RUN_ALL_INDICES.md](RUN_ALL_INDICES.md): batch-processing walkthrough
-- [MULTI_MACHINE_WORKFLOW.md](MULTI_MACHINE_WORKFLOW.md): multi-machine workflow notes
+### Workflow — running and submitting
+- [QUICK_RUN_WITH_RISK.md](workflow/QUICK_RUN_WITH_RISK.md): short run examples with risk parameters
+- [PACE_RUN_GUIDE.md](workflow/PACE_RUN_GUIDE.md): running on the PACE cluster
+- [SUBMIT_GUIDE.md](workflow/SUBMIT_GUIDE.md): submission patterns and batch guidance
+- [RUN_ALL_INDICES.md](workflow/RUN_ALL_INDICES.md): batch-processing walkthrough
+- [MULTI_MACHINE_WORKFLOW.md](workflow/MULTI_MACHINE_WORKFLOW.md): multi-machine workflow notes
+- [STEP2_LOGS_AND_PROGRESS.md](workflow/STEP2_LOGS_AND_PROGRESS.md): step-2 progress and log notes
 
-### Repository navigation
-- [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md): current directory layout and storage conventions
-- [SCRIPTS_INDEX.md](SCRIPTS_INDEX.md): entry-point map for `scripts/`
-- [SCRIPT_EXPLANATION.md](SCRIPT_EXPLANATION.md): detailed explanation of a specific SLURM script pattern
+### Reference — repository navigation
+- [DIRECTORY_STRUCTURE.md](reference/DIRECTORY_STRUCTURE.md): directory layout and storage conventions
+- [SCRIPTS_INDEX.md](reference/SCRIPTS_INDEX.md): entry-point map for `scripts/`
+- [SCRIPT_EXPLANATION.md](reference/SCRIPT_EXPLANATION.md): detailed SLURM script pattern notes
 
-### Methods, optimization, and parameters
-- [OPTIMIZATION_CHOICE_GUIDE.md](OPTIMIZATION_CHOICE_GUIDE.md): optimizer selection notes
-- [KAPPA_PARAMETER_EXPLANATION.md](KAPPA_PARAMETER_EXPLANATION.md): kappa parameter explanation
-- [LAMBDA_SELECTION_GUIDE.md](LAMBDA_SELECTION_GUIDE.md): lambda-weight guidance
-- [STEP_SIZE_EXPLANATION.md](STEP_SIZE_EXPLANATION.md): step-size notes
-- [STOPPING_CRITERIA_UPDATE.md](STOPPING_CRITERIA_UPDATE.md): stopping-criterion updates
-- [POF_CVAR_COMPARISON_METHODS.md](POF_CVAR_COMPARISON_METHODS.md): POF/CVaR comparison methods
-- [CONTROL_THEORY_ANALYSIS.md](CONTROL_THEORY_ANALYSIS.md): control-theory interpretation
+### Optimization — methods and parameters
+- [OPTIMIZATION_CHOICE_GUIDE.md](optimization/OPTIMIZATION_CHOICE_GUIDE.md): optimizer selection and hard vs soft constraints
+- [OPTIM_INJECT_REFACTOR_NOTES.md](optimization/OPTIM_INJECT_REFACTOR_NOTES.md): `optim_inject.jl` refactor plan
+- [KAPPA_PARAMETER_EXPLANATION.md](optimization/KAPPA_PARAMETER_EXPLANATION.md): kappa parameter explanation
+- [LAMBDA_SELECTION_GUIDE.md](optimization/LAMBDA_SELECTION_GUIDE.md): lambda-weight guidance
+- [STEP_SIZE_EXPLANATION.md](optimization/STEP_SIZE_EXPLANATION.md): step-size notes
+- [STOPPING_CRITERIA_UPDATE.md](optimization/STOPPING_CRITERIA_UPDATE.md): stopping-criterion updates
+- [CONTROL_THEORY_ANALYSIS.md](optimization/CONTROL_THEORY_ANALYSIS.md): control-theory interpretation
 
-### Statistics, bootstrap, and plotting
-- [BOOTSTRAP_CDF_METHODOLOGY.md](BOOTSTRAP_CDF_METHODOLOGY.md): bootstrap CDF methodology
-- [KDE_CI_METHODOLOGY.md](KDE_CI_METHODOLOGY.md): KDE and confidence-interval notes
+### Statistics and plotting
+- [BOOTSTRAP_CDF_METHODOLOGY.md](statistics/BOOTSTRAP_CDF_METHODOLOGY.md): bootstrap CDF methodology
+- [KDE_CI_METHODOLOGY.md](statistics/KDE_CI_METHODOLOGY.md): KDE and confidence-interval notes
 - [injection_rate_arrays.md](injection_rate_arrays.md): documented injection-rate ramps and indexing
-- [PLOT_LAYOUT_DISCUSSION.md](PLOT_LAYOUT_DISCUSSION.md): figure-layout notes
+- [PLOT_LAYOUT_DISCUSSION.md](statistics/PLOT_LAYOUT_DISCUSSION.md): figure-layout notes
 
-### Historical workflows
-- Gamma-table-based POF/CVaR comparison material is retained only for reproducibility.
-- Treat `scripts/gamma_tables/` and `scripts/shell/submit_gamma_table_generation.sh` as deprecated unless a task explicitly targets that older workflow.
+### Analysis — performance and troubleshooting
+- [PERFORMANCE_ANALYSIS.md](analysis/PERFORMANCE_ANALYSIS.md): performance notes
+- [COMPUTATIONAL_COST_BREAKDOWN.md](analysis/COMPUTATIONAL_COST_BREAKDOWN.md): cost breakdown
+- [SOLVER_ANALYSIS.md](analysis/SOLVER_ANALYSIS.md): solver analysis
+- [TIME_STEPPING_ANALYSIS.md](analysis/TIME_STEPPING_ANALYSIS.md): time-stepping notes
+- [MISSING_SAMPLES_ANALYSIS.md](analysis/MISSING_SAMPLES_ANALYSIS.md): missing-sample investigation
 
-### Performance and troubleshooting
-- [PERFORMANCE_ANALYSIS.md](PERFORMANCE_ANALYSIS.md): performance notes
-- [COMPUTATIONAL_COST_BREAKDOWN.md](COMPUTATIONAL_COST_BREAKDOWN.md): cost breakdown
-- [SOLVER_ANALYSIS.md](SOLVER_ANALYSIS.md): solver analysis
-- [TIME_STEPPING_ANALYSIS.md](TIME_STEPPING_ANALYSIS.md): time-stepping notes
-- [MISSING_SAMPLES_ANALYSIS.md](MISSING_SAMPLES_ANALYSIS.md): missing-sample investigation
-- [STEP2_LOGS_AND_PROGRESS.md](STEP2_LOGS_AND_PROGRESS.md): step-2 progress and log notes
+### Historical — deprecated workflows
+- [QUICK_START.md](historical/QUICK_START.md): gamma-table quick start (deprecated)
+- [POF_CVAR_COMPARISON_METHODS.md](historical/POF_CVAR_COMPARISON_METHODS.md): POF/CVaR comparison methods (deprecated)
+
+Gamma-table material under `scripts/gamma_tables/` is retained for reproducibility only.
 
 ## Quick Links
 
 - [../README.md](../README.md): project overview
 - [../test/README.md](../test/README.md): test guide
+- [../logs/README.md](../logs/README.md): SLURM log layout
 
 ## Suggested Reading Paths
 
 ### New to the repo
-- Start with [QUICK_START.md](QUICK_START.md)
-- Then read [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md)
-- Use [SCRIPTS_INDEX.md](SCRIPTS_INDEX.md) to find the right entry point
+1. [QUICK_RUN_WITH_RISK.md](workflow/QUICK_RUN_WITH_RISK.md)
+2. [DIRECTORY_STRUCTURE.md](reference/DIRECTORY_STRUCTURE.md)
+3. [SCRIPTS_INDEX.md](reference/SCRIPTS_INDEX.md)
 
 ### Running jobs on PACE
-- [PACE_RUN_GUIDE.md](PACE_RUN_GUIDE.md)
-- [SUBMIT_GUIDE.md](SUBMIT_GUIDE.md)
-- [SCRIPTS_INDEX.md](SCRIPTS_INDEX.md)
+- [PACE_RUN_GUIDE.md](workflow/PACE_RUN_GUIDE.md)
+- [SUBMIT_GUIDE.md](workflow/SUBMIT_GUIDE.md)
+- [SCRIPTS_INDEX.md](reference/SCRIPTS_INDEX.md)
 
 ### Working on paper figures
 - [injection_rate_arrays.md](injection_rate_arrays.md)
-- [BOOTSTRAP_CDF_METHODOLOGY.md](BOOTSTRAP_CDF_METHODOLOGY.md)
-- [PLOT_LAYOUT_DISCUSSION.md](PLOT_LAYOUT_DISCUSSION.md)
+- [BOOTSTRAP_CDF_METHODOLOGY.md](statistics/BOOTSTRAP_CDF_METHODOLOGY.md)
+- [PLOT_LAYOUT_DISCUSSION.md](statistics/PLOT_LAYOUT_DISCUSSION.md)

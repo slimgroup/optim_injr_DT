@@ -33,7 +33,7 @@ scripts/
 └── __pycache__/                # Local cache only; ignored
 ```
 
-For actual script entry points and when to use them, see `docs/SCRIPTS_INDEX.md`.
+For actual script entry points and when to use them, see `docs/reference/SCRIPTS_INDEX.md`.
 
 ## Root Directory (Keep Tidy)
 
@@ -66,7 +66,17 @@ Editor- or machine-specific directories such as **`.julia_depot*/`** (project-lo
 
 ### Logs (`logs/`)
 - SLURM stdout/stderr, status captures, and workflow logs
+- Organized by task type under `logs/optimization/`, `logs/utilities/`, and `logs/submit/`; see `logs/README.md`
 - This directory is intentionally large and remains ignored by git.
+
+### Documentation (`docs/`)
+- **`workflow/`**: PACE submission, batch runs, progress checks
+- **`reference/`**: directory layout, scripts index
+- **`optimization/`**: optimizer choice, parameters, refactor notes
+- **`statistics/`**: bootstrap/KDE methodology, figure layout
+- **`analysis/`**: performance, solver, troubleshooting writeups
+- **`historical/`**: deprecated gamma-table POF/CVaR comparison docs
+- **`injection_rate_arrays.md`**: canonical injection ramps (kept at `docs/` root for stable references from `src/`)
 
 ## File Naming Conventions
 

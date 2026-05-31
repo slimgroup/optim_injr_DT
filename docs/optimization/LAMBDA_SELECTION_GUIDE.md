@@ -90,8 +90,7 @@ pen_cvar = risk.use_cvar ? risk.λ_cvar * (softplus(cvar_smooth     - risk.γ; �
 
 ### 代码实现
 - `src/optim_inject.jl` - 主要优化代码，包含 lambda 使用逻辑
-- `docs/HARD_VS_SOFT_CONSTRAINTS.md` - 硬约束 vs 软约束说明
-- `docs/OPTIMIZATION_CHOICE_GUIDE.md` - 优化选择指南
+- `docs/optimization/OPTIMIZATION_CHOICE_GUIDE.md` - 优化选择指南（含硬约束 vs 软约束说明）
 
 ## 建议
 
@@ -101,8 +100,8 @@ pen_cvar = risk.use_cvar ? risk.λ_cvar * (softplus(cvar_smooth     - risk.γ; �
 
 ## 日志文件
 
-提交日志记录了实际的提交情况（位于 `logs/`）：
-- `logs/submit_pof_cases_simple.log`（或历史 `submit_pof_cases.log`）- POF cases 提交日志
-- `logs/submit_20_cases_65_128.log` - CVaR cases 提交日志（部分）
-- `logs/submit_20_cases_65_128_continue.log` - CVaR cases 继续提交日志
+提交日志记录了实际的提交情况（位于 `logs/submit/`）：
+- `logs/submit/submit_pof_cases_simple.log`（或历史 `submit_pof_cases.log`）- POF cases 提交日志
+- `logs/submit/submit_20_cases_65_128.log` - CVaR cases 提交日志（部分）
+- `logs/submit/submit_20_cases_65_128_continue.log` - CVaR cases 继续提交日志
 

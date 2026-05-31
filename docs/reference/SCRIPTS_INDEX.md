@@ -167,7 +167,7 @@ scripts/
 
 ## Related Docs
 
-- `docs/DIRECTORY_STRUCTURE.md`
+- `docs/reference/DIRECTORY_STRUCTURE.md`
 - `docs/README.md`
-- `docs/QUICK_START.md`
-- `docs/SUBMIT_GUIDE.md`
+- `docs/historical/QUICK_START.md`
+- `docs/workflow/SUBMIT_GUIDE.md`
