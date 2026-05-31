@@ -8,7 +8,7 @@ import re
 import shutil
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 LOGS = ROOT / "logs"
 
 STEP_RE = re.compile(r"step(\d+)", re.I)

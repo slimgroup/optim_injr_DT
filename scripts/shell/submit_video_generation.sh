@@ -45,7 +45,7 @@ julia --project=. scripts/julia_scripts/plotting/generate_128samples_video.jl
 echo ""
 echo "Creating videos from frames..."
 pip install --user --quiet imageio imageio-ffmpeg
-python scripts/create_videos_from_frames.py
+python scripts/python_plots/create_videos_from_frames.py
 
 echo ""
 echo "========================================"

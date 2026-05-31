@@ -14,4 +14,4 @@ cd "${SLURM_SUBMIT_DIR:-$PWD}"
 export MPLCONFIGDIR=/tmp/mplconfig_${SLURM_JOB_ID}
 mkdir -p "$MPLCONFIGDIR"
 
-python scripts/plot_posterior_summary_all_steps.py
+python scripts/python_plots/plot_posterior_summary_all_steps.py

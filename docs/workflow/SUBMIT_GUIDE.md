@@ -34,7 +34,7 @@ tail -f logs/threshold_sensitivity_<JOB_ID>.err
 
 ```bash
 # 检查进度
-julia scripts/check_progress.jl 128
+julia scripts/julia_scripts/utilities/check_progress.jl 128
 ```
 
 ## 取消作业

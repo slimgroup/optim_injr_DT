@@ -82,7 +82,7 @@ julia src/threshold_sensitivity.jl \
 
 在另一个终端运行：
 ```bash
-julia scripts/check_progress.jl 128
+julia scripts/julia_scripts/utilities/check_progress.jl 128
 ```
 
 ## 结果文件

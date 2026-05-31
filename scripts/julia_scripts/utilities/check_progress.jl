@@ -1,7 +1,7 @@
 # Quick script to check progress of threshold sensitivity analysis
 # Usage: 
-#   julia scripts/check_progress.jl 128
-#   julia scripts/check_progress.jl        (defaults to 128)
+#   julia scripts/julia_scripts/utilities/check_progress.jl 128
+#   julia scripts/julia_scripts/utilities/check_progress.jl        (defaults to 128)
 
 using Pkg
 Pkg.activate(".")

@@ -17,6 +17,6 @@ module load anaconda3/2023.03
 julia --project=. scripts/julia_scripts/plotting/generate_128samples_video.jl
 
 echo "Creating video from frames..."
-python scripts/create_videos_from_frames.py
+python scripts/python_plots/create_videos_from_frames.py
 
 echo "Done!"

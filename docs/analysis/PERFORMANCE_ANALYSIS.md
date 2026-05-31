@@ -87,7 +87,7 @@ julia src/threshold_sensitivity.jl \
 
 ```bash
 # 检查进度
-julia scripts/check_progress.jl 128
+julia scripts/julia_scripts/utilities/check_progress.jl 128
 
 # 检查进程
 ps aux | grep threshold_sensitivity

@@ -18,7 +18,7 @@ echo "Checking 7 missing samples for outliers"
 echo "=========================================="
 echo ""
 
-julia scripts/julia_scripts/check_7cases_outlier_analysis.jl
+julia scripts/julia_scripts/utilities/check_7cases_outlier_analysis.jl
 
 echo ""
 echo "=========================================="

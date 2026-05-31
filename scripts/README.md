@@ -1,0 +1,42 @@
+# scripts/
+
+Operational scripts for batch jobs, plotting, and analysis. **Do not store large outputs here.**
+
+## Layout
+
+```text
+scripts/
+├── shell/                      # SLURM submit / run / check (primary entry points)
+│   └── maintenance/            # organize_logs.py, organize_step1_data.py, …
+├── julia_scripts/
+│   ├── plotting/               # Julia figures and video frame generation
+│   ├── data_collection/        # Aggregate injection-rate CSV/JLD2 exports
+│   ├── analysis/               # Post-processing comparisons
+│   ├── utilities/              # Diagnostics, scaling, 7-case checks
+│   └── archive/                # Historical scripts (reference only)
+├── python_plots/               # Python paper figures + create_videos_from_frames.py
+└── gamma_tables/               # Deprecated gamma-table artifacts
+```
+
+## Common entry points
+
+| Task | Script |
+|------|--------|
+| Submit optimization array | `shell/optim_inject_pace.sh` |
+| Bootstrap ECDF figures | `shell/run_bootstrap_cdf.sh` |
+| Posterior field plots | `shell/submit_posterior_summary_all_steps_shared.sh` |
+| Video frames → MP4 | `python_plots/create_videos_from_frames.py` |
+| Collect step1 inj rates | `julia_scripts/data_collection/collect_all_injection_rates.jl` |
+
+Full index: `docs/reference/SCRIPTS_INDEX.md`
+
+## Output conventions (after repo layout cleanup)
+
+| Output type | Location |
+|-------------|----------|
+| Optimization results | `data/DT_control/exp_name=step*/` |
+| Collection CSV/JLD2 | `data/.../step1/_aggregates/` |
+| Bootstrap ECDF plots | `plots/DT_control/exp_name=step1/statistical_analysis/ecdf/` |
+| KDE plots (legacy) | `plots/.../statistical_analysis/kde/` |
+| Video runs | `plots/DT_control/videos/{5cases,128perm}/` |
+| SLURM logs | `logs/` (run `shell/maintenance/organize_logs.py` to tidy) |

@@ -13,7 +13,7 @@ timings = Dict{Int, Float64}()
 function benchmark_run(nthreads::Int)
     println("Running with $nthreads threads...")
     t0 = time()  # More precise than `now()`
-    run(`julia --threads=$nthreads scripts/scaling_jutul.jl`)
+    run(`julia --threads=$nthreads scripts/julia_scripts/utilities/scaling_jutul.jl`)
     duration = time() - t0
     println("Completed in ", duration, " seconds.")
     timings[nthreads] = duration

@@ -224,7 +224,7 @@ end
 # Skip video creation in Julia - use Python script
 function create_video(frames_dir, output_video, fps=10)
     println("Frames saved in: $frames_dir")
-    println("Run 'python scripts/create_videos_from_frames.py' to create videos")
+    println("Run 'python scripts/python_plots/create_videos_from_frames.py' to create videos")
 end
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -249,7 +249,7 @@ function main()
     p_max = p0' .+ THRESHOLD * 10^6
     
     ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-    output_root = plotsdir("DT_control", "videos_5cases_$(ts)")
+    output_root = plotsdir("DT_control", "videos", "5cases", "videos_5cases_$(ts)")
     mkpath(output_root)
     println("Output directory: $output_root")
     

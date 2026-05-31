@@ -83,17 +83,20 @@ def format_total_mass_mt(total_volume_m3):
     return f"{total_mass_mt:.2f} Mt"
 
 
-# Injected CO₂ (all columns, same formula): total volumetric injection × ρ_CO₂.
-#   Not "q_k* × total days": rates[] is length-6 increasing schedule (from forward export, incl. ×3).
-#   total_volume_m³ = Σ_{k=1}^6 (rates[k] × period_seconds) = period_seconds × sum(rates)
+# Injected CO2 in annotations is reported on the unscaled/base-rate schedule.
+# The forward fields in forward_sim_data.jld2 were generated with rates x3
+# for visual contrast, so divide by FORWARD_RATE_MULTIPLIER for the labels.
+#   Not "q_k* x total days": base_rates[] is the length-6 increasing schedule.
+#   total_volume_m3 = sum(base_rates[k] x period_seconds)
 #   when each of the 6 control periods has the same duration period_seconds.
-#   period_seconds = DT_DAYS × SUBSTEPS_PER_PERIOD × SECONDS_PER_DAY (matches forward/video).
-#   mass [Mt] = total_volume_m³ × RHO_CO2 [kg/m³] / 1e9.
+#   period_seconds = DT_DAYS x SUBSTEPS_PER_PERIOD x SECONDS_PER_DAY.
+#   mass [Mt] = total_volume_m3 x RHO_CO2 [kg/m3] / 1e9.
 case_annotations = {}
 period_seconds = DT_DAYS * SUBSTEPS_PER_PERIOD * SECONDS_PER_DAY
 for ck, _ in cases:
     rates = np.asarray(data[f"{ck}_rates"], dtype=float).ravel()
-    total_volume = float(np.sum(rates) * period_seconds)
+    base_rates = rates / FORWARD_RATE_MULTIPLIER
+    total_volume = float(np.sum(base_rates) * period_seconds)
     co2_line = f"Injected CO$_2$: {format_total_mass_mt(total_volume)}"
     last_sim = float(rates[-1])
     if ck in QK_STAR:

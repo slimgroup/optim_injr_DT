@@ -10,7 +10,7 @@ JOB_ID=$(squeue -u $USER -o "%.10i %.20j" 2>/dev/null | grep "ds_verification" |
 
 # 如果没有运行中的任务，查找最新的输出文件
 if [ -z "${JOB_ID}" ]; then
-    LATEST_OUTPUT=$(ls -t logs/ds_verification_*.out 2>/dev/null | head -1)
+    LATEST_OUTPUT=$(ls -t logs/utilities/ds_verification_*.out logs/ds_verification_*.out 2>/dev/null | head -1)
     if [ -n "${LATEST_OUTPUT}" ]; then
         JOB_ID=$(echo "${LATEST_OUTPUT}" | sed 's/.*ds_verification_\([0-9]*\)\.out/\1/')
     else
@@ -28,8 +28,8 @@ echo ""
 
 # 检查输出文件
 echo "2. 输出文件:"
-OUTPUT_FILE=$(ls -t logs/ds_verification_${JOB_ID}.out 2>/dev/null | head -1)
-ERROR_FILE=$(ls -t logs/ds_verification_${JOB_ID}.err 2>/dev/null | head -1)
+OUTPUT_FILE=$(ls -t logs/utilities/ds_verification_${JOB_ID}.out logs/ds_verification_${JOB_ID}.out 2>/dev/null | head -1)
+ERROR_FILE=$(ls -t logs/utilities/ds_verification_${JOB_ID}.err logs/ds_verification_${JOB_ID}.err 2>/dev/null | head -1)
 
 if [ -f "${OUTPUT_FILE}" ]; then
     echo "  输出文件: ${OUTPUT_FILE}"

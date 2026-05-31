@@ -6,7 +6,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 DT = ROOT / "plots/DT_control"
 STEP1 = DT / "exp_name=step1"
 ECDF_SRC = ROOT / "plots/bootstrap_cdf_analysis"

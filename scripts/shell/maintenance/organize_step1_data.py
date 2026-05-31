@@ -7,7 +7,7 @@ import re
 import shutil
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 STEP1 = ROOT / "data/DT_control/exp_name=step1"
 PLOTS = ROOT / "plots/DT_control/exp_name=step1/statistical_analysis"
 AGG = STEP1 / "_aggregates"

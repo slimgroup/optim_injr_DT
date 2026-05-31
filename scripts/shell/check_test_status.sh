@@ -14,7 +14,7 @@ squeue -u $USER -o "%.10i %.12P %.20j %.8u %.2t %.10M %.6D %R" 2>/dev/null
 
 echo ""
 echo "最近的任务输出文件 (logs/):"
-ls -lt logs/*.out logs/*.err 2>/dev/null | head -5
+ls -lt logs/*.out logs/*.err logs/utilities/*.out logs/utilities/*.err 2>/dev/null | head -5
 
 echo ""
 echo "如果任务已完成，可以查看输出:"

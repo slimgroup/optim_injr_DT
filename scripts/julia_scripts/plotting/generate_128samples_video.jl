@@ -86,7 +86,7 @@ function main()
     println("Using $(length(sample_indices)) posterior samples")
     
     ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-    output_root = plotsdir("DT_control", "video_128perm_$(ts)")
+    output_root = plotsdir("DT_control", "videos", "128perm", "video_128perm_$(ts)")
     mkpath(output_root)
     println("Output directory: $output_root")
     
@@ -107,7 +107,7 @@ function main()
     end
     
     println("\nFrames saved in: $frames_dir")
-    println("Run 'python scripts/create_videos_from_frames.py' to create videos")
+    println("Run 'python scripts/python_plots/create_videos_from_frames.py' to create videos")
     println("\n" * "="^60)
     println("Frame generation complete!")
     println("Output directory: $output_root")
