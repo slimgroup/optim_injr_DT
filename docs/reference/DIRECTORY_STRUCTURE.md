@@ -11,6 +11,7 @@ optim_injr_DT/
 ├── data/                       # Generated optimization outputs and analysis artifacts
 ├── plots/                      # Generated figures and paper assets
 ├── logs/                       # SLURM stdout/stderr and workflow logs
+├── archive/                    # Superseded runs, logs, and code (reference only)
 ├── .cursor/                    # Tracked editor rule files
 ├── .vscode/                    # Local workspace settings (ignored)
 ├── .mplconfig/                 # Local Matplotlib cache (ignored)
@@ -21,7 +22,12 @@ optim_injr_DT/
 
 ```text
 scripts/
-├── shell/                      # SLURM submit/run/check helpers
+├── shell/
+│   ├── submit/                 # sbatch wrappers
+│   ├── run/                    # bash drivers
+│   ├── check/                  # progress & verification
+│   ├── retry/                  # reruns & queue cleanup
+│   └── maintenance/            # organizers + layout tools
 ├── julia_scripts/
 │   ├── plotting/               # Julia figure and video entry points
 │   ├── data_collection/        # Aggregation scripts for finished runs
@@ -41,7 +47,17 @@ Keep the repository root limited to project metadata and agent-facing docs (for 
 
 ## Local Tooling (Not In Git)
 
-Editor- or machine-specific directories such as **`.julia_depot*/`** (project-local Julia depots), **`.mplconfig/`** (Matplotlib cache), and **`.vscode/`** (workspace settings) are listed in `.gitignore` and should not be committed. The tracked **`.cursor/rules/`** files are the exception: they encode shared repo guidance and are part of the project.
+Editor- or machine-specific directories such as **`.julia_depot*/`** (project-local Julia depots), **`.mplconfig/`** (Matplotlib cache), and **`.vscode/`** (workspace settings) are listed in `.gitignore` and should not be committed. See **`docs/reference/MACHINE_LOCAL.md`** for what each folder does and when it is safe to delete. The tracked **`.cursor/rules/`** files are the exception: they encode shared repo guidance and are part of the project.
+
+## `archive/` Layout
+
+```text
+archive/
+├── 2026-04-07_step3_bad_sample_specific_injstart/   # bad step-3 campaign (data/plots/logs)
+└── logs/2025-11-24_backup_logs/                     # former 11-24-2025_backup_logs/
+```
+
+See `archive/README.md`. Large archived logs are gitignored under `archive/logs/`.
 
 ## File Category Descriptions
 
@@ -77,6 +93,11 @@ Editor- or machine-specific directories such as **`.julia_depot*/`** (project-lo
 - **`analysis/`**: performance, solver, troubleshooting writeups
 - **`historical/`**: deprecated gamma-table POF/CVaR comparison docs
 - **`injection_rate_arrays.md`**: canonical injection ramps (kept at `docs/` root for stable references from `src/`)
+
+### Tests (`test/`)
+- **`unit/`**: Fast isolated tests (utils, risk metrics, I/O, optimization helpers)
+- **`integration/`**: Heavier tests (e.g. forward-simulation `ds` verification)
+- **`runtests.jl`**: Main test runner; see `test/README.md`
 
 ## File Naming Conventions
 

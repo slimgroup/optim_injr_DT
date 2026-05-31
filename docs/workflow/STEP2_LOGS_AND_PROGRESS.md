@@ -7,7 +7,7 @@
 在**项目根目录**执行：
 
 ```bash
-bash scripts/shell/check_step2_progress.sh
+bash scripts/shell/check/check_step2_progress.sh
 ```
 
 会输出：当前队列里的 step2 任务、各 case 的 `final.jld2` 完成数量、日志目录和常用命令。
@@ -56,7 +56,7 @@ bash scripts/shell/check_step2_progress.sh
 
 这里的路径是**相对你提交任务时所在目录**的：
 
-- **如果你是在项目根目录提交的**（例如 `bash scripts/shell/submit_step2_dual_prior_smoketest.sh`）：  
+- **如果你是在项目根目录提交的**（例如 `bash scripts/shell/submit/submit_step2_dual_prior_smoketest.sh`）：  
   日志在 **项目根目录的上一级目录里的 `logs`**，即：
   ```text
   <项目根目录>/../logs/
@@ -97,4 +97,4 @@ bash scripts/shell/check_step2_progress.sh
 | 迭代中间文件   | `$SCRATCH/optim_injr_DT/DT_control/exp_name=step2/...` |
 
 查进度最快的方式：在项目根执行一次  
-`bash scripts/shell/check_step2_progress.sh`。
+`bash scripts/shell/check/check_step2_progress.sh`。

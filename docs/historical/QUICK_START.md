@@ -11,7 +11,7 @@
 **方法 A: 提交作业（推荐）**
 
 ```bash
-sbatch scripts/shell/submit_gamma_table_generation.sh
+sbatch scripts/shell/submit/submit_gamma_table_generation.sh
 ```
 
 **方法 B: 交互式运行（可以看到进度）**
@@ -69,7 +69,7 @@ julia --project=. scripts/julia_scripts/utilities/check_gamma_table.jl \
 
 ```bash
 export EPS_POF=0.01
-sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_pof_only.sh
+sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh
 ```
 
 **检查作业状态**：
@@ -97,14 +97,14 @@ export EPS_POF=0.01
 export GAMMA_TABLE_PATH=data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__sample=128__*.jld2
 
 # 提交作业
-sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_cvar_only.sh
+sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_cvar_only.sh
 ```
 
 **或者直接指定完整路径**（如果知道文件名）：
 ```bash
 export EPS_POF=0.01
 export GAMMA_TABLE_PATH=data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__sample=128__20251125_*.jld2
-sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_cvar_only.sh
+sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_cvar_only.sh
 ```
 
 **检查作业状态**：
@@ -205,16 +205,16 @@ tail -f logs/threshold_sensitivity_CVaR_<JOBID>_<ARRAY_ID>.txt
 
 ```bash
 # 1. 生成 gamma table
-JOB1=$(sbatch scripts/shell/submit_gamma_table_generation.sh | awk '{print $4}')
+JOB1=$(sbatch scripts/shell/submit/submit_gamma_table_generation.sh | awk '{print $4}')
 
 # 2. 等 gamma table 完成后，运行 POF-only（需要手动等待）
 # export EPS_POF=0.01
-# sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_pof_only.sh
+# sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh
 
 # 3. 运行 CVaR-only（需要手动等待步骤 1 完成）
 # export EPS_POF=0.01
 # export GAMMA_TABLE_PATH=data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__sample=128__*.jld2
-# sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_cvar_only.sh
+# sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_cvar_only.sh
 ```
 
 **建议**: 按顺序运行，确保每一步都成功完成。

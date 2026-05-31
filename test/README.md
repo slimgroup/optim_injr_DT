@@ -1,51 +1,50 @@
 # Test Suite
 
-This directory contains the test suite for the `optim_injr_DT` project.
+Julia tests for `optim_injr_DT`, organized by scope.
 
-## Running Tests
+## Layout
 
-To run all tests, use:
+```text
+test/
+├── runtests.jl              # Main runner (includes all below)
+├── unit/                    # Fast, isolated tests (no full forward sim)
+│   ├── test_utils.jl
+│   ├── test_risk_metrics.jl
+│   ├── test_data_io.jl
+│   └── test_optimization.jl
+└── integration/
+    └── test_ds_minimal.jl   # Forward-simulation / ds verification (heavy)
+```
 
-```julia
+## Running tests
+
+All tests:
+
+```bash
 julia --project=. test/runtests.jl
 ```
 
-Or from the Julia REPL:
+Unit tests only (from Julia REPL):
 
 ```julia
-using Pkg
-Pkg.activate(".")
-include("test/runtests.jl")
+using Pkg; Pkg.activate(".")
+include("test/unit/test_utils.jl")
+include("test/unit/test_risk_metrics.jl")
+include("test/unit/test_data_io.jl")
+include("test/unit/test_optimization.jl")
 ```
 
-## Test Files
+Integration test on PACE (single CPU, ~minutes per `ds` value):
 
-- `test_utils.jl` - Tests for utility functions (softplus, basic math operations, array operations)
-- `test_risk_metrics.jl` - Tests for risk metric computations (POF, CVaR, weights)
-- `test_data_io.jl` - Tests for data I/O operations (file paths, JLD2 operations)
-- `test_optimization.jl` - Tests for optimization-related functions (gradients, projections, line search)
-
-## Test Structure
-
-Each test file contains multiple `@testset` blocks that group related tests together. The main test runner (`runtests.jl`) includes all test files and reports the results.
-
-## Adding New Tests
-
-To add new tests:
-
-1. Create a new test file in the `test/` directory (e.g., `test_new_feature.jl`)
-2. Follow the existing pattern with `@testset` blocks
-3. Include the new test file in `runtests.jl`
-
-Example test structure:
-
-```julia
-using DrWatson, Test
-@quickactivate "optim_injr_DT"
-
-@testset "New Feature Tests" begin
-    @test 1 + 1 == 2
-    # Add more tests here
-end
+```bash
+sbatch scripts/shell/check/test_ds_verification.sh
+bash scripts/shell/check/check_ds_verification.sh   # after job completes
 ```
 
+See also [docs/analysis/COMPUTATIONAL_COST_BREAKDOWN.md](../analysis/COMPUTATIONAL_COST_BREAKDOWN.md).
+
+## Adding tests
+
+1. Add `test/unit/test_<feature>.jl` or `test/integration/test_<feature>.jl`.
+2. Use `@testset` blocks and `@quickactivate "optim_injr_DT"`.
+3. Include the file from `runtests.jl`.

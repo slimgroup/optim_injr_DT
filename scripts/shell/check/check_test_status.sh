@@ -21,5 +21,5 @@ echo "如果任务已完成，可以查看输出:"
 echo "  tail -f logs/ds_verification_<jobid>.out"
 echo ""
 echo "或者重新运行查看结果:"
-echo "  srun --partition=interactive-cpu --time=00:30:00 --mem=8G --cpus-per-task=2 --pty bash -c 'module load julia/1.11.3 && cd \"${ROOT_DIR}\" && julia test/test_ds_minimal.jl'"
+echo "  srun --partition=interactive-cpu --time=00:30:00 --mem=8G --cpus-per-task=2 --pty bash -c 'module load julia/1.11.3 && cd \"${ROOT_DIR}\" && julia test/integration/test_ds_minimal.jl'"
 

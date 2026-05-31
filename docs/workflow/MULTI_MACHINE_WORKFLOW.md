@@ -119,7 +119,7 @@ git push origin main
 git pull origin main
 
 # 4. 运行任务
-sbatch scripts/shell/submit_job.sh
+sbatch scripts/shell/submit/submit_job.sh
 
 # 5. 如果有bug修复
 vim src/new_feature.jl  # 修复bug

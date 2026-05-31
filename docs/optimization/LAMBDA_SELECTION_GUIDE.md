@@ -34,7 +34,7 @@
 ## 使用场景
 
 ### POF Cases 提交
-- **脚本**: `scripts/shell/submit_pof_cases_smart.sh`
+- **脚本**: `scripts/shell/submit/submit_pof_cases_smart.sh`
 - **总任务数**: 832 jobs
   - 5 cases (eps=0.0,0.001,0.01,0.02,0.05) × 64 samples (65-128) = 320 jobs
   - 4 cases (eps=0.002,0.003,0.005,0.03) × 96 samples (33-128) = 384 jobs
@@ -42,7 +42,7 @@
 - **Lambda 设置**: `--lambda_pof 8.5e8`
 
 ### CVaR Cases 提交
-- **脚本**: `scripts/shell/submit_20_cases_samples_65_128_smart.sh`
+- **脚本**: `scripts/shell/submit/submit_20_cases_samples_65_128_smart.sh`
 - **总任务数**: 1280 jobs (20 cases × 64 samples)
 - **Lambda 设置**: `--lambda_cvar 3.0e9`
 - **20 个 cases 组合**:
@@ -84,9 +84,9 @@ pen_cvar = risk.use_cvar ? risk.λ_cvar * (softplus(cvar_smooth     - risk.γ; �
 ## 相关文件
 
 ### 提交脚本
-- `scripts/shell/submit_pof_cases_smart.sh` - POF cases 提交
-- `scripts/shell/submit_20_cases_samples_65_128_smart.sh` - CVaR cases 提交
-- `scripts/shell/submit_all.sh` - 早期提交脚本（也使用相同 lambda 值）
+- `scripts/shell/submit/submit_pof_cases_smart.sh` - POF cases 提交
+- `scripts/shell/submit/submit_20_cases_samples_65_128_smart.sh` - CVaR cases 提交
+- `scripts/shell/submit/submit_all.sh` - 早期提交脚本（也使用相同 lambda 值）
 
 ### 代码实现
 - `src/optim_inject.jl` - 主要优化代码，包含 lambda 使用逻辑

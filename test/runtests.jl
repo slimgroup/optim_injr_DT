@@ -5,11 +5,12 @@ using DrWatson, Test
 println("Starting tests for optim_injr_DT")
 ti = time()
 
-# Include test files
-include("test_utils.jl")
-include("test_risk_metrics.jl")
-include("test_data_io.jl")
-include("test_optimization.jl")
+# Include test files (unit tests first, then integration)
+include("unit/test_utils.jl")
+include("unit/test_risk_metrics.jl")
+include("unit/test_data_io.jl")
+include("unit/test_optimization.jl")
+include("integration/test_ds_minimal.jl")
 
 ti = time() - ti
 println("\nAll tests completed!")

@@ -29,6 +29,7 @@ docs/
 ### Reference — repository navigation
 - [DIRECTORY_STRUCTURE.md](reference/DIRECTORY_STRUCTURE.md): directory layout and storage conventions
 - [SCRIPTS_INDEX.md](reference/SCRIPTS_INDEX.md): entry-point map for `scripts/`
+- [MACHINE_LOCAL.md](reference/MACHINE_LOCAL.md): `.vscode`, `.mplconfig`, `.julia_depot_*` (not in git)
 - [SCRIPT_EXPLANATION.md](reference/SCRIPT_EXPLANATION.md): detailed SLURM script pattern notes
 
 ### Optimization — methods and parameters

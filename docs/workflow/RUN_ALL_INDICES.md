@@ -10,7 +10,7 @@
 
 ### 方法1: 修改为SLURM array job（推荐）
 
-修改 `scripts/shell/submit_cvar_gamma0.sh` 和 `submit_cvar_additional.sh`：
+修改 `scripts/shell/submit/submit_cvar_gamma0.sh` 和 `submit_cvar_additional.sh`：
 
 ```bash
 # 在脚本中添加一个index数组参数

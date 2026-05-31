@@ -7,6 +7,10 @@ Operational scripts for batch jobs, plotting, and analysis. **Do not store large
 ```text
 scripts/
 ├── shell/                      # SLURM submit / run / check (primary entry points)
+│   ├── submit/                 # sbatch wrappers
+│   ├── run/                    # bash drivers
+│   ├── check/                  # progress & verification
+│   ├── retry/                  # reruns & queue cleanup
 │   └── maintenance/            # organize_logs.py, organize_step1_data.py, …
 ├── julia_scripts/
 │   ├── plotting/               # Julia figures and video frame generation
@@ -22,9 +26,9 @@ scripts/
 
 | Task | Script |
 |------|--------|
-| Submit optimization array | `shell/optim_inject_pace.sh` |
-| Bootstrap ECDF figures | `shell/run_bootstrap_cdf.sh` |
-| Posterior field plots | `shell/submit_posterior_summary_all_steps_shared.sh` |
+| Submit optimization array | `shell/run/optim_inject_pace.sh` |
+| Bootstrap ECDF figures | `shell/submit/submit_bootstrap_cdf.sh` |
+| Posterior field plots | `shell/submit/submit_posterior_summary_all_steps_shared.sh` |
 | Video frames → MP4 | `python_plots/create_videos_from_frames.py` |
 | Collect step1 inj rates | `julia_scripts/data_collection/collect_all_injection_rates.jl` |
 

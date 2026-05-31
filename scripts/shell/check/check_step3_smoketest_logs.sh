@@ -11,7 +11,7 @@ PATTERN=""
 usage() {
   cat <<'EOF'
 Usage:
-  bash scripts/shell/check_step3_smoketest_logs.sh [--case CASE_KEY] [--job JOBID] [--pattern TEXT]
+  bash scripts/shell/check/check_step3_smoketest_logs.sh [--case CASE_KEY] [--job JOBID] [--pattern TEXT]
 
 Options:
   --case      One of: pof_eps0.0, pof_eps0.01, cvar_g0.1_a0.01
@@ -19,8 +19,8 @@ Options:
   --pattern   Extra filename substring filter when job id is unknown
 
 Examples:
-  bash scripts/shell/check_step3_smoketest_logs.sh --case pof_eps0.01 --job 1234567
-  bash scripts/shell/check_step3_smoketest_logs.sh --case pof_eps0.01 --pattern paired
+  bash scripts/shell/check/check_step3_smoketest_logs.sh --case pof_eps0.01 --job 1234567
+  bash scripts/shell/check/check_step3_smoketest_logs.sh --case pof_eps0.01 --pattern paired
 EOF
 }
 

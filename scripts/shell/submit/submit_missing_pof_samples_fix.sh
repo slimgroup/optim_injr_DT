@@ -43,7 +43,7 @@ submit_one_sample() {
                     export JULIA_PKG_PRECOMPILE_AUTO=0 && export MPLBACKEND=Agg && \
                     export OPENBLAS_NUM_THREADS=1 && export OMP_NUM_THREADS=1 && \
                     cd ${ROOT_DIR} && \
-                    julia --project=. -t 1 src/optim_inject_7cases_fix.jl \
+                    julia --project=. -t 1 src/archive/optim_inject_7cases_fix.jl \
                     --idx_num \${SLURM_ARRAY_TASK_ID} \
                     --niterations 40 --inj_guess 0.20 \
                     --save_plots --plot_stride 5 --save_every 5 --grad_forward \

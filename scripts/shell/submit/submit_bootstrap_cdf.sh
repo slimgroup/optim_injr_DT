@@ -12,10 +12,10 @@
 #SBATCH --error=logs/bootstrap_cdf_%j.err
 
 # Run from **repository root**:
-#   cd /path/to/optim_injr_DT && sbatch scripts/shell/submit_bootstrap_cdf.sh
+#   cd /path/to/optim_injr_DT && sbatch scripts/shell/submit/submit_bootstrap_cdf.sh
 #
 # Quick mode (no 4×3 grids):
-#   cd .../optim_injr_DT && sbatch --export=ALL,BOOTSTRAP_QUICK=1 scripts/shell/submit_bootstrap_cdf.sh
+#   cd .../optim_injr_DT && sbatch --export=ALL,BOOTSTRAP_QUICK=1 scripts/shell/submit/submit_bootstrap_cdf.sh
 
 set -euo pipefail
 
@@ -23,4 +23,4 @@ cd "${SLURM_SUBMIT_DIR:-$PWD}"
 export REPO_ROOT="$(pwd)"
 mkdir -p logs
 
-exec bash "$REPO_ROOT/scripts/shell/run_bootstrap_cdf.sh"
+exec bash "$REPO_ROOT/scripts/shell/run/run_bootstrap_cdf.sh"

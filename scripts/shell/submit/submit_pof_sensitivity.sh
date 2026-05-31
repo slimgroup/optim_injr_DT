@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # Usage:
-#   scripts/shell/submit_pof_sensitivity.sh
-#   scripts/shell/submit_pof_sensitivity.sh -s 17
-#   scripts/shell/submit_pof_sensitivity.sh -s 1-64
+#   scripts/shell/submit/submit_pof_sensitivity.sh
+#   scripts/shell/submit/submit_pof_sensitivity.sh -s 17
+#   scripts/shell/submit/submit_pof_sensitivity.sh -s 1-64
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"     # repo root directory

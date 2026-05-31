@@ -72,6 +72,6 @@ echo "IDX_NUM=${task_id}"
 
 # Run (no longer pass --output_dir; use project root as --project)
 # Using fixed version for 7 missing cases
-julia --project="$SLURM_SUBMIT_DIR" -t 1 src/optim_inject_7cases_fix.jl \
+julia --project="$SLURM_SUBMIT_DIR" -t 1 src/archive/optim_inject_7cases_fix.jl \
   --idx_num "${task_id}" \
   ${RISK_ARGS} ${TRAIN_ARGS} ${TUNING_HINTS} ${COMMON_ARGS}

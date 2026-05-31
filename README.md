@@ -6,7 +6,6 @@
 
 [![Julia](https://img.shields.io/badge/Julia-1.11-blue.svg)](https://julialang.org/)
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/haoyunl2/optim_injr_DT/workflows/CI/badge.svg)](https://github.com/haoyunl2/optim_injr_DT/actions)
 
 </div>
@@ -70,13 +69,14 @@ optim_injr_DT/
 │   └── threshold_sensitivity.jl
 │
 ├── scripts/               # Analysis and utility scripts
-│   ├── shell/            # SLURM job submission scripts
+│   ├── shell/            # SLURM helpers (submit/, run/, check/, retry/, maintenance/)
 │   └── julia_scripts/    # Julia scripts (organized by function)
 │       ├── plotting/     # Plotting scripts
 │       ├── data_collection/ # Data collection
 │       ├── analysis/     # Analysis scripts
 │       └── utilities/    # Utility scripts
 │
+├── archive/               # Superseded runs, logs, and code (reference only)
 ├── docs/                  # Documentation files
 ├── data/                  # Experiment data and results
 ├── plots/                 # Generated visualizations
@@ -128,6 +128,7 @@ See [test/README.md](test/README.md) for more details.
 - **[Submit Guide](docs/workflow/SUBMIT_GUIDE.md)** - Job submission guide
 - **[Script Explanation](docs/reference/SCRIPT_EXPLANATION.md)** - Detailed explanation of a specific SLURM script pattern
 - **[Quick Run Guide](docs/workflow/QUICK_RUN_WITH_RISK.md)** - Quick start with risk parameters
+- **[Machine-local dirs](docs/reference/MACHINE_LOCAL.md)** - `.vscode`, `.mplconfig`, `.julia_depot_*`
 - **[Bootstrap CDF Methodology](docs/statistics/BOOTSTRAP_CDF_METHODOLOGY.md)** - Bootstrap/CDF plotting notes
 - **[Injection Rate Arrays](docs/injection_rate_arrays.md)** - Injection ramp definitions used in plotting/export docs
 
@@ -171,10 +172,10 @@ For cluster environments (e.g., PACE), use the scripts in `scripts/shell/`:
 
 ```bash
 # Submit batch jobs
-./scripts/shell/submit_all.sh
+./scripts/shell/submit/submit_all.sh
 
 # Run the bootstrap CDF workflow
-bash scripts/shell/run_bootstrap_cdf.sh
+bash scripts/shell/run/run_bootstrap_cdf.sh
 ```
 
 ---

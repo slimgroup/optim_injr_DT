@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Query progress for step-2 dual-prior jobs and show where logs/results live.
-# Run from project root:  bash scripts/shell/check_step2_progress.sh
+# Run from project root:  bash scripts/shell/check/check_step2_progress.sh
 
 set -euo pipefail
 

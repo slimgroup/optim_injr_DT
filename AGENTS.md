@@ -10,6 +10,7 @@ These instructions apply to all Codex work in this repository.
 - Preserve the project activation pattern in Julia entry points: keep `Pkg.activate(".")`, `using DrWatson`, and `@quickactivate "optim_injr_DT"` working unless the user explicitly asks for a workflow change.
 - Preserve CLI and batch-job interfaces for `src/optim_inject.jl` and `scripts/shell/*.sh`; do not silently rename flags, change argument meanings, or break SLURM environment assumptions.
 - Keep directory conventions stable: optimization outputs under `data/`, figures under `plots/`, logs under `logs/`, and reusable scripts under `scripts/`.
+- For ground-truth permeability in forward-comparison figures or exports, use the 2000th element/slice from `data/geo/wise_perm_models_2000_new.jld2` unless the user explicitly asks for a different reference.
 - When statistics are mathematically redundant, point that out instead of presenting them as different insights.
 - Light plotting or lightweight analysis can be run on the login node when it is genuinely inexpensive, but heavy computation must go through `sbatch` or `salloc`; do not run computation-heavy jobs directly on the login node.
 - Treat multi-file posterior re-rendering, bulk figure regeneration across monitoring steps, and animation generation as heavy work on PACE; run them through `sbatch` or `salloc`, not directly on the login node.

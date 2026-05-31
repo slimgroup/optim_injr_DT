@@ -17,11 +17,11 @@
 #
 # Usage:
 #   # Default settings (eps=0.01, 5 thresholds: 2.0-6.0)
-#   sbatch scripts/shell/submit_gamma_table_generation.sh
+#   sbatch scripts/shell/submit/submit_gamma_table_generation.sh
 #   
 #   # Custom eps values and thresholds
 #   export EPS_LIST=0.005,0.01,0.02 THRESHOLD_MIN=2.0 THRESHOLD_MAX=6.0 THRESHOLD_NUM=10
-#   sbatch scripts/shell/submit_gamma_table_generation.sh
+#   sbatch scripts/shell/submit/submit_gamma_table_generation.sh
 
 set -euo pipefail
 module purge

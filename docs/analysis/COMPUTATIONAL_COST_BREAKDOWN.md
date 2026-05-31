@@ -247,7 +247,7 @@ Each Sblk call always simulates **80 days** regardless of `ds` (`ds × 80/ds = 8
 
 ### Experimental Verification (Job 3142671, Jan 3 2026)
 
-The test script `test/test_ds_minimal.jl` was run via `scripts/shell/test_ds_verification.sh` on PACE (single CPU, 8GB RAM). It runs one complete forward simulation (960 days, 12 injection periods) for each `ds` value, with a warmup run to eliminate JIT effects.
+The test script `test/integration/test_ds_minimal.jl` was run via `scripts/shell/check/test_ds_verification.sh` on PACE (single CPU, 8GB RAM). It runs one complete forward simulation (960 days, 12 injection periods) for each `ds` value, with a warmup run to eliminate JIT effects.
 
 **Results** (from `logs/ds_verification_3142671.out`):
 
@@ -270,7 +270,7 @@ The test script `test/test_ds_minimal.jl` was run via `scripts/shell/test_ds_ver
 
 **Recommendation**: Keep `ds=10` for its superior temporal resolution in risk assessment, with only ~18% runtime overhead vs ds=1.
 
-**Test infrastructure**: `test/test_ds_minimal.jl` (test script), `scripts/shell/test_ds_verification.sh` (SBATCH submission), `scripts/shell/check_ds_verification.sh` (result checker), `logs/ds_verification_3142671.out` (full results).
+**Test infrastructure**: `test/integration/test_ds_minimal.jl` (test script), `scripts/shell/check/test_ds_verification.sh` (SBATCH submission), `scripts/shell/check/check_ds_verification.sh` (result checker), `logs/ds_verification_3142671.out` (full results).
 
 ---
 

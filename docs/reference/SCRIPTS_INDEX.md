@@ -9,6 +9,11 @@ renaming the existing research workflow.
 ```text
 scripts/
 ├── shell/                 # SLURM submit/run/check helpers
+│   ├── submit/            # sbatch wrappers
+│   ├── run/               # bash drivers
+│   ├── check/             # progress & verification
+│   ├── retry/             # reruns & queue cleanup
+│   └── maintenance/       # organizers + layout tools
 ├── julia_scripts/
 │   ├── plotting/          # Julia plotting and figure-generation entry points
 │   ├── data_collection/   # Aggregate results from finished runs
@@ -31,66 +36,68 @@ scripts/
 
 ### Shell entry points in `scripts/shell/`
 
+Paths below are relative to `scripts/shell/`.
+
 #### Common current entry points
 
-- `optim_inject_pace.sh`
+- `run/optim_inject_pace.sh`
   Main SLURM job entry point for array optimization runs on PACE.
-- `submit_all.sh`
+- `submit/submit_all.sh`
   Broad batch submission helper.
-- `run_bootstrap_cdf.sh`
+- `run/run_bootstrap_cdf.sh`
   Run the bootstrap CDF plotting pipeline on a compute node or interactive allocation.
-- `submit_bootstrap_cdf.sh`
+- `submit/submit_bootstrap_cdf.sh`
   SLURM wrapper for the bootstrap CDF plotting pipeline.
-- `run_plot_threshold_sensitivity.sh`
+- `run/run_plot_threshold_sensitivity.sh`
   Direct run helper for threshold-sensitivity plotting.
-- `submit_threshold_sensitivity.sh`
+- `submit/submit_threshold_sensitivity.sh`
   Threshold-sensitivity submission wrapper that still exists in this tree.
-- `submit_video_generation.sh`
+- `submit/submit_video_generation.sh`
   Batch entry point for video-generation workflows.
 
 #### Diagnostics and status checks
 
-- `check_*`
+- `check/check_*`
   Queue status, sample completeness, verification, and progress helpers.
-- `verify_logs_path.sh`, `verify_skip_from_log.sh`
+- `check/verify_logs_path.sh`, `check/verify_skip_from_log.sh`
   Log-path and skip-behavior checks.
-- `test_ds_verification.sh`
-  Verification-oriented test helper.
+- `check/test_ds_verification.sh`
+  Verification-oriented test helper (runs `test/integration/test_ds_minimal.jl`).
 
 #### Recovery and special-case reruns
 
-- `retry_failed_job.sh`, `retry_step2_sample113.sh`
+- `retry/retry_failed_job.sh`, `retry/retry_step2_sample113.sh`
   Retry helpers for specific failed runs.
-- `rerun_7_missing_cvar_samples_fix.sh`
+- `retry/rerun_7_missing_cvar_samples_fix.sh`
   Targeted rerun helper for missing CVaR samples.
-- `cancel_duplicate_pof_jobs.sh`
+- `retry/cancel_duplicate_pof_jobs.sh`
   Queue cleanup helper for duplicate POF jobs.
-- `move_iteration_files_to_scratch.sh`
+- `maintenance/move_iteration_files_to_scratch.sh`
   File-placement helper for iteration artifacts.
 
 #### Historical or narrow-use submission scripts
 
-- `submit_11_cases_samples_1_128.sh`
-- `submit_11_cases_samples_2_64_smart.sh`
-- `submit_20_cases_samples_65_128_smart.sh`
-- `submit_128perm_only.sh`
-- `submit_cvar_2cases_alpha_0.02.sh`
-- `submit_cvar_4cases_alpha_0_0.01.sh`
-- `submit_cvar_g=0.2_a=0.01.sh`
-- `submit_cvar_gamma_0.1_0.2.sh`
-- `submit_cvar_gamma_0.4.sh`
-- `submit_missing_pof_samples.sh`
-- `submit_missing_pof_samples_fix.sh`
-- `submit_pof_cases_simple.sh`
-- `submit_pof_cases_smart.sh`
-- `submit_pof_sensitivity.sh`
-- `submit_step2_dual_prior_smoketest.sh`
-- `optim_inject_cruyff.sh`, `optim_inject_cruyff_cpu.sh`, `optim_inject_pace_7cases_fix.sh`
+- `submit/submit_11_cases_samples_1_128.sh`
+- `submit/submit_11_cases_samples_2_64_smart.sh`
+- `submit/submit_20_cases_samples_65_128_smart.sh`
+- `submit/submit_128perm_only.sh`
+- `submit/submit_cvar_2cases_alpha_0.02.sh`
+- `submit/submit_cvar_4cases_alpha_0_0.01.sh`
+- `submit/submit_cvar_g=0.2_a=0.01.sh`
+- `submit/submit_cvar_gamma_0.1_0.2.sh`
+- `submit/submit_cvar_gamma_0.4.sh`
+- `submit/submit_missing_pof_samples.sh`
+- `submit/submit_missing_pof_samples_fix.sh`
+- `submit/submit_pof_cases_simple.sh`
+- `submit/submit_pof_cases_smart.sh`
+- `submit/submit_pof_sensitivity.sh`
+- `submit/submit_step2_dual_prior_smoketest.sh`
+- `run/optim_inject_cruyff.sh`, `run/optim_inject_cruyff_cpu.sh`, `run/optim_inject_pace_7cases_fix.sh`
   Case-specific or historical workflows kept for reference or reruns.
 
 #### Deprecated gamma-table path
 
-- `submit_gamma_table_generation.sh`
+- `submit/submit_gamma_table_generation.sh`
   Historical helper for a deprecated gamma-table-based POF/CVaR comparison path.
   Keep for reproducibility only; do not treat as the recommended workflow.
 
@@ -128,16 +135,18 @@ scripts/
 
 ### `scripts/shell/`
 
+Subfolders: `submit/`, `run/`, `check/`, `retry/`, `maintenance/`. See `scripts/shell/README.md`.
+
 - Common current entry points:
-  `optim_inject_pace.sh`, `submit_all.sh`, `run_bootstrap_cdf.sh`, `submit_bootstrap_cdf.sh`, `run_plot_threshold_sensitivity.sh`, `submit_threshold_sensitivity.sh`
+  `run/optim_inject_pace.sh`, `submit/submit_all.sh`, `run/run_bootstrap_cdf.sh`, `submit/submit_bootstrap_cdf.sh`, `run/run_plot_threshold_sensitivity.sh`, `submit/submit_threshold_sensitivity.sh`
 - Diagnostics:
-  `check_*`, `verify_*`, `test_ds_verification.sh`
+  `check/check_*`, `check/verify_*`, `check/test_ds_verification.sh`
 - Recovery and queue management:
-  `retry_*`, `rerun_*`, `cancel_*`, `move_*`
+  `retry/retry_*`, `retry/rerun_*`, `retry/cancel_*`, `maintenance/move_*`
 - Historical or narrow-use submit wrappers:
-  case-specific `submit_*` scripts retained for reproducibility
+  case-specific `submit/submit_*` scripts retained for reproducibility
 - Deprecated:
-  `submit_gamma_table_generation.sh` for the old gamma-table comparison route
+  `submit/submit_gamma_table_generation.sh` for the old gamma-table comparison route
 
 ### `scripts/julia_scripts/data_collection/`
 

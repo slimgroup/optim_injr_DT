@@ -2,8 +2,8 @@
 # Run bootstrap CDF plotting on a compute node (or interactive salloc), not the login node.
 #
 # Usage (from repo root):
-#   bash scripts/shell/run_bootstrap_cdf.sh
-#   BOOTSTRAP_QUICK=1 bash scripts/shell/run_bootstrap_cdf.sh   # Part 1 + Part 1b only (no 4×3 grids)
+#   bash scripts/shell/run/run_bootstrap_cdf.sh
+#   BOOTSTRAP_QUICK=1 bash scripts/shell/run/run_bootstrap_cdf.sh   # Part 1 + Part 1b only (no 4×3 grids)
 #
 # Uses the project environment. Julia depot: only $HOME/.julia (do not set a repo-local depot).
 # Override only if you know what you are doing: export JULIA_DEPOT_PATH=...

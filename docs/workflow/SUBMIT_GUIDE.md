@@ -4,14 +4,14 @@
 
 ```bash
 # 提交快速运行作业（5 个阈值，10 次迭代，预计 1-3 小时）
-sbatch scripts/shell/submit_threshold_sensitivity.sh
+sbatch scripts/shell/submit/submit_threshold_sensitivity.sh
 ```
 
 ## 完整运行
 
 ```bash
 # 提交完整运行作业（10 个阈值，20 次迭代，预计 10-20 小时）
-sbatch scripts/shell/submit_threshold_sensitivity_full.sh
+sbatch scripts/shell/submit/submit_threshold_sensitivity_full.sh
 ```
 
 ## 检查作业状态
@@ -51,8 +51,8 @@ scancel -n thresh_sens_128
 
 如果需要修改参数（如 `idx_num`、`threshold_num` 等），编辑对应的脚本文件：
 
-- 快速运行：`scripts/shell/submit_threshold_sensitivity.sh`
-- 完整运行：`scripts/shell/submit_threshold_sensitivity_full.sh`
+- 快速运行：`scripts/shell/submit/submit_threshold_sensitivity.sh`
+- 完整运行：`scripts/shell/submit/submit_threshold_sensitivity_full.sh`
 
 ## 资源说明
 

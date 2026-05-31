@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Script to retry a single failed job
-# Usage: bash scripts/shell/retry_failed_job.sh DT_CVaR_a=0.0_g=0.01 2
+# Usage: bash scripts/shell/retry/retry_failed_job.sh DT_CVaR_a=0.0_g=0.01 2
 
 set -euo pipefail
 

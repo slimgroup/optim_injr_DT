@@ -30,7 +30,7 @@
 
 ```bash
 # 提交作业生成（推荐，约 15-25 分钟）
-sbatch scripts/shell/submit_gamma_table_generation.sh
+sbatch scripts/shell/submit/submit_gamma_table_generation.sh
 ```
 
 或者交互式运行：
@@ -59,7 +59,7 @@ julia --project=. src/threshold_sensitivity.jl \
 
 ```bash
 # 提交 5 个 array 任务（每个阈值一个）
-sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_pof_only.sh
+sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh
 ```
 
 这会生成：`summary__POF__sample=128.jld2`
@@ -69,7 +69,7 @@ sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_pof_only.sh
 ```bash
 # 确保 gamma table 已生成（如果还没有）
 # 然后提交 5 个 array 任务
-sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_cvar_only.sh
+sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_cvar_only.sh
 ```
 
 这会生成：`summary__CVaR__sample=128.jld2`
@@ -107,7 +107,7 @@ julia --project=. scripts/julia_scripts/plotting/plot_pof_vs_cvar.jl --idx_num 1
 
 ### 1. POF-only 运行
 
-**脚本**: `scripts/shell/submit_threshold_sensitivity_pof_only.sh`
+**脚本**: `scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh`
 
 **默认设置**:
 - `eps_pof = 0.01`
@@ -120,7 +120,7 @@ julia --project=. scripts/julia_scripts/plotting/plot_pof_vs_cvar.jl --idx_num 1
 export EPS_POF=0.005
 export LAMBDA_POF=2.0
 export THRESHOLD_VALUES=2.0,3.0,4.0,5.0,6.0
-sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_pof_only.sh
+sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh
 ```
 
 **输出文件**:
@@ -129,7 +129,7 @@ sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_pof_only.sh
 
 ### 2. CVaR-only 运行
 
-**脚本**: `scripts/shell/submit_threshold_sensitivity_cvar_only.sh`
+**脚本**: `scripts/shell/submit/submit_threshold_sensitivity_cvar_only.sh`
 
 **默认设置**:
 - 使用 gamma table: `scripts/gamma_tables/gamma_table__sample=128__20251125_122949.jld2`
@@ -144,7 +144,7 @@ export GAMMA_TABLE_PATH=scripts/gamma_tables/your_custom_table.jld2
 export EPS_POF=0.01
 export LAMBDA_CVAR=2.0
 export THRESHOLD_VALUES=2.0,3.0,4.0,5.0,6.0
-sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_cvar_only.sh
+sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_cvar_only.sh
 ```
 
 **输出文件**:
@@ -158,7 +158,7 @@ sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_cvar_only.sh
 **方法 1: 提交作业（推荐）**
 
 ```bash
-sbatch scripts/shell/submit_gamma_table_generation.sh
+sbatch scripts/shell/submit/submit_gamma_table_generation.sh
 ```
 
 **方法 2: 交互式运行**
@@ -259,10 +259,10 @@ julia --project=. src/threshold_sensitivity.jl \
   --gamma_table_eps_list 0.01
 
 # 2. 提交 POF-only 作业
-sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_pof_only.sh
+sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh
 
 # 3. 提交 CVaR-only 作业（等 POF 完成后或并行运行）
-sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity_cvar_only.sh
+sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_cvar_only.sh
 
 # 4. 等待作业完成，然后生成对比图
 salloc -N1 -t 60 --account=gts-fherrmann9 -q inferno

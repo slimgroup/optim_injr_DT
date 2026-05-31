@@ -18,19 +18,19 @@
 # 
 # Usage examples:
 #   # Basic run with defaults (POF+CVaR, 5 thresholds, 10 iterations)
-#   sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity.sh
+#   sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity.sh
 #   
 #   # POF-only mode
 #   export USE_POF=1 USE_CVAR=0
-#   sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity.sh
+#   sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity.sh
 #   
 #   # CVaR-only mode (requires gamma table)
 #   export USE_POF=0 USE_CVAR=1 GAMMA_TABLE_PATH=path/to/gamma_table.jld2
-#   sbatch --array=1-5 scripts/shell/submit_threshold_sensitivity.sh
+#   sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity.sh
 #   
 #   # Custom thresholds and iterations
 #   export THRESHOLD_VALUES=2.0,3.0,4.0 NITERATIONS=20
-#   sbatch --array=1-3 scripts/shell/submit_threshold_sensitivity.sh
+#   sbatch --array=1-3 scripts/shell/submit/submit_threshold_sensitivity.sh
 
 set -euo pipefail
 module purge

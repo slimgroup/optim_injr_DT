@@ -10,8 +10,8 @@ ERRORS=0
 
 # Check optim_inject_pace.sh
 echo "1. Checking optim_inject_pace.sh..."
-if grep -q "#SBATCH --output=../logs/" scripts/shell/optim_inject_pace.sh && \
-   grep -q "#SBATCH --error=../logs/" scripts/shell/optim_inject_pace.sh; then
+if grep -q "#SBATCH --output=../logs/" scripts/shell/run/optim_inject_pace.sh && \
+   grep -q "#SBATCH --error=../logs/" scripts/shell/run/optim_inject_pace.sh; then
   echo "   ✓ Correct (uses ../logs/ relative to scripts/)"
 else
   echo "   ✗ ERROR: Wrong path"
