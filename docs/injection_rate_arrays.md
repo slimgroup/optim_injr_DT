@@ -3,7 +3,7 @@
 ## Source
 
 Values derived from the first monitoring-step bootstrap CDF analysis
-(`plots/bootstrap_cdf_analysis/grid_cdf_4x3.png` and the matching single-case CDF figures).
+(`plots/DT_control/exp_name=step1/statistical_analysis/ecdf/grid_cdf_4x3.png` and the matching single-case CDF figures).
 
 For step 1, the ending rate for each case is **q_k\*** — the conservative statistical-analysis
 estimate (upper 95% CI band crossing at the 1% fracture probability threshold, `B=10000`).

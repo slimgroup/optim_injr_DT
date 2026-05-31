@@ -15,7 +15,7 @@ using Statistics
 using Dates
 
 # ===================== Parameters =====================
-const ROOT      = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT      = datadir("DT_control", "exp_name=step1")
 const SAMPLES   = 1:128
 const INIT_RATE = 1e-4
 const INJ_START = 0.0001  # Default inj_start for step1
@@ -137,7 +137,8 @@ println("Cases: ", sort(cases_cvar))
 
 # Save CSV
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-csv_detail = joinpath(ROOT, "inj_rate_detail_$ts.csv")
+mkpath(joinpath(ROOT, "_aggregates", "csv"))
+csv_detail = joinpath(ROOT, "_aggregates", "csv", "inj_rate_detail_$ts.csv")
 CSV.write(csv_detail, df)
 
 println("\nSaved CSV: ", csv_detail)

@@ -12,8 +12,8 @@ using DrWatson
 using JLD2, PyPlot, Statistics, Random, StatsBase
 
 # ===================== Config =====================
-const ROOT   = "/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
-const OUTDIR = "/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/plots/bootstrap_cdf_analysis"
+const ROOT   = datadir("DT_control", "exp_name=step1")
+const OUTDIR = joinpath(projectdir(), "plots", "DT_control", "exp_name=step1", "statistical_analysis", "ecdf")
 const B_SINGLE = 10000   # bootstrap resamples for single plots
 const B_GRID   = 10000   # bootstrap resamples for grid plots
 const CONF     = 0.95

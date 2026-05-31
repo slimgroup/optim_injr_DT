@@ -20,8 +20,8 @@ using Random
 using StatsBase
 
 # ===================== Config =====================
-const ROOT = "/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
-const OUTDIR = "/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/plots/bootstrap_cdf_analysis"
+const ROOT = datadir("DT_control", "exp_name=step1")
+const OUTDIR = joinpath(projectdir(), "plots", "DT_control", "exp_name=step1", "statistical_analysis", "ecdf")
 const NUM_BOOTSTRAP = 10000
 const CONF_LEVEL = 0.95
 const FRACTURE_PROB_THRESHOLD = 0.01  # 1%

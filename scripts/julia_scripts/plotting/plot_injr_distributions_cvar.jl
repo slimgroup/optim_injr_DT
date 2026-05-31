@@ -11,7 +11,8 @@ using CSV, DataFrames, Dates
 using PyPlot
 
 # ===================== Config =====================
-const ROOT     = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT     = datadir("DT_control", "exp_name=step1")
+const OUTDIR   = joinpath(projectdir(), "plots", "DT_control", "exp_name=step1", "statistical_analysis", "kde", "new_runs")
 const USE_LOGX = false       # Set to true if injection rate spans large orders of magnitude (log x-axis)
 const NBINS    = 30          # Number of histogram bins
 const PAD      = 0.05        # Left/right padding ratio for x-axis (when using linear axis)
@@ -192,7 +193,8 @@ end
 
 # Generate plot
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-out_cvar = joinpath(ROOT, "panel_CVaR_distribution_optimized_injectivities_$ts.png")
+mkpath(OUTDIR)
+out_cvar = joinpath(OUTDIR, "panel_CVaR_distribution_optimized_injectivities_$ts.png")
 
 plot_cvar_panels(df_ok, cases_cvar;
     filename=out_cvar,

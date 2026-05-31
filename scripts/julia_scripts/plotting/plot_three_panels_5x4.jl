@@ -17,7 +17,8 @@ using Distributions
 using JLD2
 
 # ===================== Config =====================
-const ROOT     = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT     = datadir("DT_control", "exp_name=step1")
+const OUTDIR   = joinpath(projectdir(), "plots", "DT_control", "exp_name=step1", "statistical_analysis", "kde", "new_runs")
 const USE_LOGX = false
 const NBINS    = 30
 const PAD      = 0.05
@@ -36,16 +37,30 @@ const FONT_SIZE_ANNOTATION = 11
 # ==================================================
 
 # ========== Find latest CSV files ==========
+function _aggregate_csv_dirs(root::AbstractString)
+    [joinpath(root, "_aggregates", "csv"), root]
+end
+
 function latest_detail_csv(root::AbstractString)
-    files = filter(f -> occursin(r"^inj_rate_detail_.*\.csv$", f), readdir(root))
-    isempty(files) && error("Cannot find inj_rate_detail_*.csv")
-    joinpath(root, sort(files)[end])
+    for dir in _aggregate_csv_dirs(root)
+        isdir(dir) || continue
+        files = filter(f -> occursin(r"^inj_rate_detail_.*\.csv$", f), readdir(dir))
+        if !isempty(files)
+            return joinpath(dir, sort(files)[end])
+        end
+    end
+    error("Cannot find inj_rate_detail_*.csv")
 end
 
 function latest_pof_detail_csv(root::AbstractString)
-    files = filter(f -> occursin(r"^pof_inj_rate_detail_.*\.csv$", f), readdir(root))
-    isempty(files) && return nothing
-    joinpath(root, sort(files)[end])
+    for dir in _aggregate_csv_dirs(root)
+        isdir(dir) || continue
+        files = filter(f -> occursin(r"^pof_inj_rate_detail_.*\.csv$", f), readdir(dir))
+        if !isempty(files)
+            return joinpath(dir, sort(files)[end])
+        end
+    end
+    return nothing
 end
 
 # ========== Collect POF data from directories ==========
@@ -949,20 +964,21 @@ end
 
 # Plot Panel 1: Histogram + KDE
 if length(cases_data) > 0
-    filename1 = joinpath(ROOT, "panel1_histogram_kde_5x4_$(ts).png")
+    mkpath(OUTDIR)
+    filename1 = joinpath(OUTDIR, "panel1_histogram_kde_5x4_$(ts).png")
     plot_histogram_kde_panel(cases_data, filename1; kde_bandwidth=KDE_BANDWIDTH, nbins=NBINS)
 end
 
 # Plot Panel 2: CDF + CI
 if length(cases_data) > 0
-    filename2 = joinpath(ROOT, "panel2_cdf_ci_5x4_$(ts).png")
+    filename2 = joinpath(OUTDIR, "panel2_cdf_ci_5x4_$(ts).png")
     plot_cdf_ci_panel(cases_data, filename2; kde_bandwidth=KDE_BANDWIDTH, 
                      num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
 end
 
 # Plot Panel 3: CDF + CI Zoom-in
 if length(cases_data) > 0
-    filename3 = joinpath(ROOT, "panel3_cdf_ci_zoom_5x4_$(ts).png")
+    filename3 = joinpath(OUTDIR, "panel3_cdf_ci_zoom_5x4_$(ts).png")
     plot_cdf_ci_zoom_panel(cases_data, filename3; kde_bandwidth=KDE_BANDWIDTH, 
                            num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
 end

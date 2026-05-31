@@ -12,7 +12,8 @@ using PyPlot
 using Statistics
 
 # ==================== CONFIG ====================
-const ROOT    = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT    = datadir("DT_control", "exp_name=step1")
+const OUTDIR  = joinpath(projectdir(), "plots", "DT_control", "exp_name=step1", "statistical_analysis", "kde", "new_runs")
 const USE_LOGX = false
 const NBINS   = 30
 const PAD     = 0.05
@@ -189,7 +190,8 @@ end
 
 # Generate plot
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-out_pof = joinpath(ROOT, "panel_POF_distribution_optimized_injectivities_$ts.png")
+mkpath(OUTDIR)
+out_pof = joinpath(OUTDIR, "panel_POF_distribution_optimized_injectivities_$ts.png")
 
 plot_pof_panels(df_ok, cases_pof;
     filename=out_pof,

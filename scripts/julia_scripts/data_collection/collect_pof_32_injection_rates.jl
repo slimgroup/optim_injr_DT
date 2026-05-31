@@ -31,7 +31,9 @@ using Printf
 # ─────────────────────────────────────────────────────────────────────────────
 # Parameters
 # ─────────────────────────────────────────────────────────────────────────────
-const ROOT      = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT      = datadir("DT_control", "exp_name=step1")
+const AGG_CSV   = joinpath(ROOT, "_aggregates", "csv")
+const AGG_JLD2  = joinpath(ROOT, "_aggregates", "jld2")
 const SAMPLES   = 1:32           # Only collect 1..32
 const INIT_RATE = 1e-4           # Fallback value if inj_rate_arr is all zeros
 
@@ -194,13 +196,15 @@ loaderr_summary_both = summarize_samples_by(df_loaderr, [:case_tag, :risk_dir])
 # Save (with pof_ prefix)
 # ─────────────────────────────────────────────────────────────────────────────
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-csv_detail          = joinpath(ROOT, "pof_inj_rate_detail_$ts.csv")
-csv_stats           = joinpath(ROOT, "pof_inj_rate_stats_$ts.csv")
-csv_missing         = joinpath(ROOT, "pof_inj_rate_missing_$ts.csv")          # by tag
-csv_loaderr         = joinpath(ROOT, "pof_inj_rate_load_errors_$ts.csv")      # by tag
-csv_missing_by_dir  = joinpath(ROOT, "pof_inj_rate_missing_by_dir_$ts.csv")   # by dir
-csv_loaderr_by_dir  = joinpath(ROOT, "pof_inj_rate_load_errors_by_dir_$ts.csv")
-jld_path            = joinpath(ROOT, "pof_inj_rate_all_$ts.jld2")
+mkpath(AGG_CSV)
+mkpath(AGG_JLD2)
+csv_detail          = joinpath(AGG_CSV, "pof_inj_rate_detail_$ts.csv")
+csv_stats           = joinpath(AGG_CSV, "pof_inj_rate_stats_$ts.csv")
+csv_missing         = joinpath(AGG_CSV, "pof_inj_rate_missing_$ts.csv")          # by tag
+csv_loaderr         = joinpath(AGG_CSV, "pof_inj_rate_load_errors_$ts.csv")      # by tag
+csv_missing_by_dir  = joinpath(AGG_CSV, "pof_inj_rate_missing_by_dir_$ts.csv")   # by dir
+csv_loaderr_by_dir  = joinpath(AGG_CSV, "pof_inj_rate_load_errors_by_dir_$ts.csv")
+jld_path            = joinpath(AGG_JLD2, "pof_inj_rate_all_$ts.jld2")
 
 CSV.write(csv_detail, df)
 CSV.write(csv_stats,  stats)

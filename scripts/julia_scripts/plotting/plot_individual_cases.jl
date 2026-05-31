@@ -12,7 +12,8 @@ using PyPlot
 using KernelDensity
 
 # ===================== Config =====================
-const ROOT     = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT     = datadir("DT_control", "exp_name=step1")
+const OUTDIR   = joinpath(projectdir(), "plots", "DT_control", "exp_name=step1", "statistical_analysis", "kde", "new_runs")
 const NBINS    = 30          # Number of histogram bins
 const PAD      = 0.05        # Left/right padding ratio for x-axis
 const KDE_BANDWIDTH = nothing  # KDE bandwidth (nothing = use default/Silverman's rule)
@@ -518,7 +519,7 @@ for case_tag in cases_to_plot
     
     # Create filename
     safe_case = replace(case_tag, "=" => "_", " " => "_")
-    filename = joinpath(ROOT, "individual_$(safe_case)_$(ts).png")
+    filename = joinpath(OUTDIR, "individual_$(safe_case)_$(ts).png")
     
     # Store data for combined plot
     push!(cases_data, (case_tag, data))
@@ -529,7 +530,8 @@ end
 
 # Plot all cases in one figure
 if length(cases_data) > 0
-    combined_filename = joinpath(ROOT, "combined_4cases_$(ts).png")
+    mkpath(OUTDIR)
+    combined_filename = joinpath(OUTDIR, "combined_4cases_$(ts).png")
     plot_multiple_cases(cases_data, combined_filename; nbins=NBINS, kde_bandwidth=KDE_BANDWIDTH)
 end
 

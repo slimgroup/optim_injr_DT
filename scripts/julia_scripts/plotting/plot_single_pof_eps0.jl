@@ -17,7 +17,8 @@ using Distributions
 using JLD2
 
 # ===================== Config =====================
-const ROOT     = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT     = datadir("DT_control", "exp_name=step1")
+const OUTDIR   = joinpath(projectdir(), "plots", "DT_control", "exp_name=step1", "statistical_analysis", "kde", "new_runs")
 const USE_LOGX = false
 const NBINS    = 30
 const PAD      = 0.05
@@ -426,14 +427,15 @@ println("\nPOF eps=0.0: $(length(data)) samples")
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
 
 # Plot and save individual figures
-filename1 = joinpath(ROOT, "POF_eps0_histogram_kde_$(ts).png")
+mkpath(OUTDIR)
+filename1 = joinpath(OUTDIR, "POF_eps0_histogram_kde_$(ts).png")
 plot_single_histogram_kde(data, "POF_eps=0.0", filename1; kde_bandwidth=KDE_BANDWIDTH, nbins=NBINS)
 
-filename2 = joinpath(ROOT, "POF_eps0_cdf_ci_$(ts).png")
+filename2 = joinpath(OUTDIR, "POF_eps0_cdf_ci_$(ts).png")
 plot_single_cdf_ci(data, "POF_eps=0.0", filename2; kde_bandwidth=KDE_BANDWIDTH, 
-                  num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
+                     num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
 
-filename3 = joinpath(ROOT, "POF_eps0_cdf_ci_zoom_$(ts).png")
+filename3 = joinpath(OUTDIR, "POF_eps0_cdf_ci_zoom_$(ts).png")
 plot_single_cdf_ci_zoom(data, "POF_eps=0.0", filename3; kde_bandwidth=KDE_BANDWIDTH, 
                         num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
 

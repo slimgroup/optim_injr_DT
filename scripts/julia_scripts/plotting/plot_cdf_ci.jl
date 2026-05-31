@@ -14,7 +14,8 @@ using Distributions
 using JLD2
 
 # ===================== Config =====================
-const ROOT     = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT     = datadir("DT_control", "exp_name=step1")
+const OUTDIR   = joinpath(projectdir(), "plots", "DT_control", "exp_name=step1", "statistical_analysis", "kde", "new_runs")
 const KDE_BANDWIDTH = nothing  # KDE bandwidth (nothing = use default)
 const NUM_GRID = 16000          # Number of grid points for KDE evaluation
 const CONF_LEVEL = 0.95          # Confidence level (95%)
@@ -28,16 +29,30 @@ const FONT_SIZE_ANNOTATION = 11
 # ==================================================
 
 # ========== Find latest CSV files ==========
+function _aggregate_csv_dirs(root::AbstractString)
+    [joinpath(root, "_aggregates", "csv"), root]
+end
+
 function latest_detail_csv(root::AbstractString)
-    files = filter(f -> occursin(r"^inj_rate_detail_.*\.csv$", f), readdir(root))
-    isempty(files) && error("Cannot find inj_rate_detail_*.csv")
-    joinpath(root, sort(files)[end])
+    for dir in _aggregate_csv_dirs(root)
+        isdir(dir) || continue
+        files = filter(f -> occursin(r"^inj_rate_detail_.*\.csv$", f), readdir(dir))
+        if !isempty(files)
+            return joinpath(dir, sort(files)[end])
+        end
+    end
+    error("Cannot find inj_rate_detail_*.csv")
 end
 
 function latest_pof_detail_csv(root::AbstractString)
-    files = filter(f -> occursin(r"^pof_inj_rate_detail_.*\.csv$", f), readdir(root))
-    isempty(files) && return nothing
-    joinpath(root, sort(files)[end])
+    for dir in _aggregate_csv_dirs(root)
+        isdir(dir) || continue
+        files = filter(f -> occursin(r"^pof_inj_rate_detail_.*\.csv$", f), readdir(dir))
+        if !isempty(files)
+            return joinpath(dir, sort(files)[end])
+        end
+    end
+    return nothing
 end
 
 # ========== Collect POF data from directories ==========
@@ -668,7 +683,8 @@ end
 
 # Plot all cases together with zoom-in
 if length(cases_data) > 0
-    combined_filename = joinpath(ROOT, "combined_cdf_ci_4cases_$(ts).png")
+    combined_filename = joinpath(OUTDIR, "combined_cdf_ci_4cases_$(ts).png")
+    mkpath(OUTDIR)
     plot_multiple_cdf_ci(cases_data, combined_filename; kde_bandwidth=KDE_BANDWIDTH, 
                        num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
 end

@@ -13,16 +13,22 @@ using CSV, DataFrames, Dates
 using PyPlot
 
 # ===================== Config =====================
-const ROOT     = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT     = datadir("DT_control", "exp_name=step1")
+const OUTDIR   = joinpath(projectdir(), "plots", "DT_control", "exp_name=step1", "statistical_analysis", "kde", "new_runs")
 const USE_LOGX = false       # Set to true if injection rate spans large orders of magnitude (log x-axis)
 const NBINS    = 30          # Number of histogram bins
 const PAD      = 0.05        # Left/right padding ratio for x-axis (when using linear axis)
 
 # ========== Find latest inj_rate_detail_*.csv ==========
 function latest_detail_csv(root::AbstractString)
-    files = filter(f -> occursin(r"^inj_rate_detail_.*\.csv$", f), readdir(root))
-    isempty(files) && error("Cannot find inj_rate_detail_*.csv, please run collection script first.")
-    joinpath(root, sort(files)[end])
+    for dir in (joinpath(root, "_aggregates", "csv"), root)
+        isdir(dir) || continue
+        files = filter(f -> occursin(r"^inj_rate_detail_.*\.csv$", f), readdir(dir))
+        if !isempty(files)
+            return joinpath(dir, sort(files)[end])
+        end
+    end
+    error("Cannot find inj_rate_detail_*.csv, please run collection script first.")
 end
 
 detail_csv = latest_detail_csv(ROOT)
@@ -151,8 +157,9 @@ end
 
 # ===================== Generate plots =====================
 ts = Dates.format(now(), "yyyymmdd_HHMMSS")
-out_pof  = joinpath(ROOT, "panel_POF_last_inj_rate_freq_$ts.png")
-out_cvar = joinpath(ROOT, "panel_CVaR_last_inj_rate_freq_$ts.png")
+mkpath(OUTDIR)
+out_pof  = joinpath(OUTDIR, "panel_POF_last_inj_rate_freq_$ts.png")
+out_cvar = joinpath(OUTDIR, "panel_CVaR_last_inj_rate_freq_$ts.png")
 
 plot_case_panels(df_ok, cases_pof;
     fig_title="POF: Distribution of last_inj_rate by case (ok_final)",
