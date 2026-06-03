@@ -34,12 +34,16 @@ include("test/unit/test_data_io.jl")
 include("test/unit/test_optimization.jl")
 ```
 
-Integration test on PACE (single CPU, ~minutes per `ds` value):
+Integration test on PACE (single CPU, ~minutes per `ds` value; requires `data/geo` and `data/state`):
 
 ```bash
+RUN_INTEGRATION_TESTS=1 julia --project=. test/runtests.jl
+# or SLURM:
 sbatch scripts/shell/check/test_ds_verification.sh
 bash scripts/shell/check/check_ds_verification.sh   # after job completes
 ```
+
+GitHub CI runs **unit tests only** (no local geo/state data on the runner).
 
 See also [docs/analysis/COMPUTATIONAL_COST_BREAKDOWN.md](../analysis/COMPUTATIONAL_COST_BREAKDOWN.md).
 

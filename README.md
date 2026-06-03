@@ -6,6 +6,7 @@
 
 [![Julia](https://img.shields.io/badge/Julia-1.11-blue.svg)](https://julialang.org/)
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/haoyunl2/optim_injr_DT/workflows/CI/badge.svg)](https://github.com/haoyunl2/optim_injr_DT/actions)
 
 </div>

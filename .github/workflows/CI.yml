@@ -66,3 +66,4 @@ jobs:
           PYTHON: ${{ env.PYTHON }}
           MPLBACKEND: Agg
           JULIA_PKG_PRECOMPILE_AUTO: 0
+          RUN_INTEGRATION_TESTS: "0"

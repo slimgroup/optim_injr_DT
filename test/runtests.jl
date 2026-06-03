@@ -10,7 +10,12 @@ include("unit/test_utils.jl")
 include("unit/test_risk_metrics.jl")
 include("unit/test_data_io.jl")
 include("unit/test_optimization.jl")
-include("integration/test_ds_minimal.jl")
+
+if get(ENV, "RUN_INTEGRATION_TESTS", "0") == "1"
+    include("integration/test_ds_minimal.jl")
+else
+    println("Skipping integration tests (set RUN_INTEGRATION_TESTS=1 to enable).")
+end
 
 ti = time() - ti
 println("\nAll tests completed!")
