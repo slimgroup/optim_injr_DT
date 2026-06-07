@@ -14,7 +14,7 @@ echo "Generating 128 permeability video..."
 module load julia/1.10.1
 module load anaconda3/2023.03
 
-julia --project=. scripts/julia_scripts/plotting/generate_128samples_video.jl
+julia --project=. scripts/julia_scripts/plotting/videos/generate_128samples_video.jl
 
 echo "Creating video from frames..."
 python scripts/python_plots/create_videos_from_frames.py

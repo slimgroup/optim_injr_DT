@@ -14,7 +14,7 @@ export MPLBACKEND=Agg
 cd /storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT
 
 echo "Running combined threshold sensitivity plotting..."
-julia --project=. scripts/julia_scripts/plotting/plot_threshold_sensitivity_combined.jl
+julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_threshold_sensitivity.jl
 
 echo ""
 echo "✓ Plotting complete!"

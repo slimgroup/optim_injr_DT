@@ -20,7 +20,7 @@ date -Is
 export MPLCONFIGDIR="${MPLCONFIGDIR:-/tmp/matplotlib-codex}"
 mkdir -p "$MPLCONFIGDIR"
 
-python scripts/julia_scripts/plotting/plot_step2_paired_posterior_stats.py
+python scripts/python_plots/posterior_stats/plot_step2_paired_posterior_stats.py
 
 echo "Done."
 date -Is

@@ -15,7 +15,13 @@ scripts/
 │   ├── retry/             # reruns & queue cleanup
 │   └── maintenance/       # organizers + layout tools
 ├── julia_scripts/
-│   ├── plotting/          # Julia plotting and figure-generation entry points
+│   ├── plotting/          # Julia figures/videos (see plotting/README.md)
+│   │   ├── posterior_stats/
+│   │   ├── bootstrap_ecdf/
+│   │   ├── videos/
+│   │   ├── legacy_step1/
+│   │   ├── diagnostics/
+│   │   └── general/
 │   ├── data_collection/   # Aggregate results from finished runs
 │   ├── analysis/          # Analysis / comparison utilities
 │   ├── utilities/         # Diagnostics, scaling, tuning, misc helpers
@@ -103,18 +109,25 @@ Paths below are relative to `scripts/shell/`.
 
 ### Julia plotting entry points
 
-- `scripts/julia_scripts/plotting/plot_bootstrap_panels.jl`
+- `scripts/julia_scripts/plotting/bootstrap_ecdf/plot_bootstrap_panels.jl`
   Bootstrap histogram/CDF figures, including part-1 and grid modes.
-- `scripts/julia_scripts/plotting/plot_pof_vs_cvar.jl`
+- `scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.jl`
   POF vs CVaR threshold-sensitivity comparison figures.
-- `scripts/julia_scripts/plotting/plot_perm_ensemble.jl`
+- `scripts/julia_scripts/plotting/general/plot_perm_ensemble.jl`
   Julia version of permeability ensemble plotting.
-- `scripts/julia_scripts/plotting/plot_fracture_comparison.jl`
+- `scripts/julia_scripts/plotting/general/plot_fracture_comparison.jl`
   Forward-simulation comparison figure from Julia.
-- `scripts/julia_scripts/plotting/generate_5case_videos.jl`
+- `scripts/julia_scripts/plotting/videos/generate_5case_videos.jl`
   Ground-truth forward videos for five control cases.
-- `scripts/julia_scripts/plotting/generate_stat3case_videos.jl`
+- `scripts/julia_scripts/plotting/videos/generate_stat3case_videos.jl`
   Three-case statistical/video workflow.
+
+### Python posterior-stats entry points
+
+- `scripts/python_plots/posterior_stats/plot_step2_paired_posterior_stats.py`
+- `scripts/python_plots/posterior_stats/plot_step3_paired_posterior_stats.py`
+- `scripts/python_plots/posterior_stats/plot_step4_paired_posterior_stats.py`
+  Paired-posterior histogram/CDF grids per monitoring step. Step 2 shell wrapper: `shell/run/run_step2_paired_posterior_stats.sh`.
 
 ### Python paper-figure entry points
 
@@ -147,6 +160,15 @@ Subfolders: `submit/`, `run/`, `check/`, `retry/`, `maintenance/`. See `scripts/
   case-specific `submit/submit_*` scripts retained for reproducibility
 - Deprecated:
   `submit/submit_gamma_table_generation.sh` for the old gamma-table comparison route
+
+### `scripts/julia_scripts/plotting/`
+
+Subfolders: `posterior_stats/`, `bootstrap_ecdf/`, `videos/`, `legacy_step1/`, `diagnostics/`, `general/`. See `scripts/julia_scripts/plotting/README.md`.
+
+### `scripts/python_plots/`
+
+- `posterior_stats/` — step 2–4 injection-rate statistical grids
+- Root scripts — forward comparison, posterior field summaries, video assembly
 
 ### `scripts/julia_scripts/data_collection/`
 

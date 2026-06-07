@@ -7,7 +7,7 @@ Pkg.activate(".")
 using DrWatson
 @quickactivate "optim_injr_DT"
 
-include("scripts/julia_scripts/plotting/plot_three_panels.jl")
+include("scripts/julia_scripts/plotting/legacy_step1/plot_three_panels.jl")
 
 const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
 

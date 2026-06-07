@@ -13,12 +13,12 @@ scripts/
 │   ├── retry/                  # reruns & queue cleanup
 │   └── maintenance/            # organize_logs.py, organize_step1_data.py, …
 ├── julia_scripts/
-│   ├── plotting/               # Julia figures and video frame generation
+│   ├── plotting/               # Julia figures/videos (posterior_stats, bootstrap_ecdf, …)
 │   ├── data_collection/        # Aggregate injection-rate CSV/JLD2 exports
 │   ├── analysis/               # Post-processing comparisons
 │   ├── utilities/              # Diagnostics, scaling, 7-case checks
 │   └── archive/                # Historical scripts (reference only)
-├── python_plots/               # Python paper figures + create_videos_from_frames.py
+├── python_plots/               # Python figures (posterior_stats/, paper plots, videos)
 └── gamma_tables/               # Deprecated gamma-table artifacts
 ```
 
@@ -28,6 +28,7 @@ scripts/
 |------|--------|
 | Submit optimization array | `shell/run/optim_inject_pace.sh` |
 | Bootstrap ECDF figures | `shell/submit/submit_bootstrap_cdf.sh` |
+| Step-2 paired posterior stats | `shell/run/run_step2_paired_posterior_stats.sh` |
 | Posterior field plots | `shell/submit/submit_posterior_summary_all_steps_shared.sh` |
 | Video frames → MP4 | `python_plots/create_videos_from_frames.py` |
 | Collect step1 inj rates | `julia_scripts/data_collection/collect_all_injection_rates.jl` |

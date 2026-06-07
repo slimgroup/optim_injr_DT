@@ -34,7 +34,7 @@ echo "Step 2: Generating histogram plots"
 echo "=========================================="
 
 # Run plotting script
-julia --project=. scripts/julia_scripts/plotting/plot_injr_distributions_cvar.jl
+julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_injr_distributions_cvar.jl
 
 echo ""
 echo "=========================================="

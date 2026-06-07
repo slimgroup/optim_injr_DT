@@ -100,7 +100,7 @@ module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0
 export MPLBACKEND=Agg
-julia --project=. scripts/julia_scripts/plotting/plot_pof_vs_cvar.jl --idx_num 128
+julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.jl --idx_num 128
 ```
 
 ## 详细说明
@@ -207,7 +207,7 @@ export JULIA_PKG_PRECOMPILE_AUTO=0
 export MPLBACKEND=Agg
 
 # 运行绘图脚本
-julia --project=. scripts/julia_scripts/plotting/plot_pof_vs_cvar.jl --idx_num 128
+julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.jl --idx_num 128
 ```
 
 **生成的图表**:
@@ -270,5 +270,5 @@ module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0
 export MPLBACKEND=Agg
-julia --project=. scripts/julia_scripts/plotting/plot_pof_vs_cvar.jl --idx_num 128
+julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.jl --idx_num 128
 ```

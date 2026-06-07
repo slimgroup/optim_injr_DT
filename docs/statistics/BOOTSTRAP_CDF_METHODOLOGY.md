@@ -301,7 +301,7 @@ a two-panel figure:
 
 - Full analysis: `scripts/julia_scripts/analysis/bootstrap_cdf_analysis.jl`
 - Two-panel plots: `scripts/julia_scripts/analysis/plot_bootstrap_two_panels.jl`
-- Previous KDE approach (backup): `scripts/julia_scripts/plotting/plot_cdf_ci.jl`
+- Previous KDE approach (backup): `scripts/julia_scripts/plotting/bootstrap_ecdf/plot_cdf_ci.jl`
 - Previous KDE methodology: `docs/statistics/KDE_CI_METHODOLOGY.md`
 
 ---

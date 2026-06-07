@@ -38,7 +38,7 @@ else
   exit 1
 fi
 
-JLP="scripts/julia_scripts/plotting/plot_bootstrap_panels.jl"
+JLP="scripts/julia_scripts/plotting/bootstrap_ecdf/plot_bootstrap_panels.jl"
 
 echo "Repo: $REPO_ROOT"
 echo "Julia: $(command -v julia) ($(julia --version))"

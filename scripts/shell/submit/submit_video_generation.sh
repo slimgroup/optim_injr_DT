@@ -34,12 +34,12 @@ echo "========================================"
 # Skipping - already done
 # echo ""
 # echo "Generating 5-case frames..."
-# julia --project=. scripts/julia_scripts/plotting/generate_5case_videos.jl
+# julia --project=. scripts/julia_scripts/plotting/videos/generate_5case_videos.jl
 
 # Option 2: Generate 128-sample video (permeability uncertainty)
 echo ""
 echo "Generating 128-sample frames..."
-julia --project=. scripts/julia_scripts/plotting/generate_128samples_video.jl
+julia --project=. scripts/julia_scripts/plotting/videos/generate_128samples_video.jl
 
 # Create videos from frames using Python
 echo ""
