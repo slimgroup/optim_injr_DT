@@ -118,12 +118,14 @@ clb_left = fig.colorbar(im0, cax=cax_left, orientation="horizontal")
 clb_left.set_ticks(np.log10([1, 10, 1000]))
 clb_left.set_ticklabels(["1", "1e1", "1e3"])
 clb_left.ax.tick_params(labelsize=14, length=2, pad=1)
+clb_left.set_label("Permeability [mD]", fontsize=16, labelpad=3)
 
 cb_gs_right = gs[1, 2].subgridspec(1, 1)
 cax_right = fig.add_subplot(cb_gs_right[0, 0])
 clb_right = fig.colorbar(im2, cax=cax_right, orientation="horizontal")
 clb_right.set_ticks(np.arange(0.0, vmax_std + 0.001, 0.5))
 clb_right.ax.tick_params(labelsize=14, length=2, pad=1)
+clb_right.set_label("Std. dev. of log10 permeability [-]", fontsize=16, labelpad=3)
 
 fig.suptitle(
     "Permeability Ensemble Statistics",
@@ -131,7 +133,7 @@ fig.suptitle(
     fontweight="bold",
     y=0.962,
 )
-fig.subplots_adjust(left=0.075, right=0.965, top=0.875, bottom=0.085)
+fig.subplots_adjust(left=0.075, right=0.965, top=0.875, bottom=0.12)
 
 fname = os.path.join(OUT_DIR, "perm_ensemble_statistics.png")
 fig.savefig(fname, dpi=300, bbox_inches="tight")

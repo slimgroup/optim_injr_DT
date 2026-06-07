@@ -46,9 +46,9 @@ cases = Dict(
         0.11529, 0.11596, 0.11664, 0.11731, 0.11798, 0.11866,
         0.11866, 0.11897, 0.11928, 0.11960, 0.11991, 0.12022,
     ],
-    # Non-optimized baseline: gradual increase with no artificial shutdown.
+    # Non-optimized baseline: constant uncontrolled injection with no artificial shutdown.
     # The forward simulation determines the actual fracture onset.
-    "No_Control" => collect(range(0.0001, 0.18, length=24)),
+    "No_Control" => fill(0.1, 24),
 )
 case_order = ["POF_eps0", "POF_eps0p01", "CVaR_g01_a001", "No_Control"]
 

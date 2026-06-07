@@ -13,6 +13,8 @@
 echo "Generating 128 permeability video..."
 module load julia/1.10.1
 module load anaconda3/2023.03
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+mkdir -p "$JULIA_DEPOT_PATH"
 
 julia --project=. scripts/julia_scripts/plotting/videos/generate_128samples_video.jl
 

@@ -13,7 +13,7 @@ scripts/
 │   ├── run/               # bash drivers
 │   ├── check/             # progress & verification
 │   ├── retry/             # reruns & queue cleanup
-│   └── maintenance/       # organizers + layout tools
+│   └── maintenance/       # shell-only maintenance helpers
 ├── julia_scripts/
 │   ├── plotting/          # Julia figures/videos (see plotting/README.md)
 │   │   ├── posterior_stats/
@@ -27,6 +27,7 @@ scripts/
 │   ├── utilities/         # Diagnostics, scaling, tuning, misc helpers
 │   └── archive/           # Historical scripts kept for reference
 ├── python_plots/          # Python-based paper figure assembly
+├── python_tools/          # Python maintenance / layout tools
 ├── gamma_tables/          # Historical gamma tables from a deprecated comparison path
 └── __pycache__/           # Local cache only; ignored by git
 ```
@@ -131,7 +132,7 @@ Paths below are relative to `scripts/shell/`.
 
 ### Python paper-figure entry points
 
-- `scripts/python_plots/run_forward_export.jl`
+- `scripts/julia_scripts/data_collection/forward_exports/run_forward_export.jl`
   Produces `plots/paper_figures/forward_sim_data.jld2` for downstream Python figure scripts.
 - `scripts/python_plots/plot_3row_comparison.py`
   Three-row paper figure using the forward-export file.
@@ -141,7 +142,7 @@ Paths below are relative to `scripts/shell/`.
   Tighter paper-layout version of the fracture comparison figure.
 - `scripts/python_plots/plot_perm_ensemble.py`
   Python paper figure for permeability ensemble statistics.
-- `scripts/python_plots/submit_forward_and_plot.sh`
+- `scripts/shell/submit/submit_forward_and_plot.sh`
   Batch wrapper for forward export plus Python plotting.
 
 ## Script Groups By Purpose
@@ -169,6 +170,10 @@ Subfolders: `posterior_stats/`, `bootstrap_ecdf/`, `videos/`, `legacy_step1/`, `
 
 - `posterior_stats/` — step 2–4 injection-rate statistical grids
 - Root scripts — forward comparison, posterior field summaries, video assembly
+
+### `scripts/python_tools/`
+
+- `maintenance/` — Python-only layout and artifact organizers (for logs, data aggregates, plots, and path patching)
 
 ### `scripts/julia_scripts/data_collection/`
 

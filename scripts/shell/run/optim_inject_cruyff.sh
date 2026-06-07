@@ -11,6 +11,8 @@
 
 # Load necessary modules
 module load Julia/1.8/5 Miniconda/3
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+mkdir -p "$JULIA_DEPOT_PATH"
 
 # Dynamically assign CPU cores to each task based on the task ID
 task_id=$SLURM_ARRAY_TASK_ID

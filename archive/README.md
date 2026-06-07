@@ -13,4 +13,4 @@ Cold storage for superseded runs, logs, and code — **not** part of the active 
 
 - Move old artifacts here instead of deleting when they may be needed for reproducibility.
 - Do **not** point new SLURM scripts or docs at archived paths unless explicitly reproducing a historical run.
-- Active SLURM logs belong under `logs/` at the repo root; run `scripts/shell/maintenance/organize_logs.py` to tidy.
+- Active SLURM logs belong under `logs/` at the repo root; run `scripts/python_tools/maintenance/organize_logs.py` to tidy.

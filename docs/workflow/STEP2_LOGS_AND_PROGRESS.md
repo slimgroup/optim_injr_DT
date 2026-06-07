@@ -61,7 +61,7 @@ bash scripts/shell/check/check_step2_progress.sh
   ```text
   optim_injr_DT/logs/out_DT_step2_...txt
   ```
-  整理后可在 `logs/optimization/step2/` 找到（运行 `python3 scripts/shell/maintenance/organize_logs.py`）。
+  整理后可在 `logs/optimization/step2/` 找到（运行 `python3 scripts/python_tools/maintenance/organize_logs.py`）。
 
 - **历史说明**：旧版脚本曾用 `../logs/`，从项目根提交时会误写到 `r-fherrmann9-0/logs/`；2026-05-31 已改为 `logs/` 并迁移 646 个 step-2 文件。
 

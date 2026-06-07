@@ -14,6 +14,7 @@ These instructions apply to all Codex work in this repository.
 - When statistics are mathematically redundant, point that out instead of presenting them as different insights.
 - Light plotting or lightweight analysis can be run on the login node when it is genuinely inexpensive, but heavy computation must go through `sbatch` or `salloc`; do not run computation-heavy jobs directly on the login node.
 - Treat multi-file posterior re-rendering, bulk figure regeneration across monitoring steps, and animation generation as heavy work on PACE; run them through `sbatch` or `salloc`, not directly on the login node.
+- Before launching Julia from repository shell or Slurm scripts, set `JULIA_DEPOT_PATH="$HOME/julia-depot"` and create that directory if needed. Install any missing Julia packages into this shared depot instead of silently using `~/.julia`.
 - On PACE, Codex sandboxed `sbatch`, `squeue`, and `scontrol` calls may fail with false Slurm controller connectivity errors. Before concluding that Slurm is down or that a submission script is broken, re-check those commands outside the sandbox.
 - Do not rewrite git history, force push, or create commits unless the user explicitly requests it.
 - At the end of a task that changes files, ask whether the user wants a git commit; if yes, use a detailed commit message that explains why and the main scope.

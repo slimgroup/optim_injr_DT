@@ -18,6 +18,8 @@
 # Environment setup
 module load anaconda3/2023.03
 module load julia/1.10.1
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+mkdir -p "$JULIA_DEPOT_PATH"
 
 # Navigate to project directory
 cd /storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT

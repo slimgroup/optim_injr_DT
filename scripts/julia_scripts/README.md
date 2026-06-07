@@ -5,10 +5,12 @@ Julia analysis, plotting, and collection scripts (non-SLURM entry points).
 ```text
 julia_scripts/
 ├── plotting/          # figures & videos (subfolders by workflow)
-├── data_collection/   # aggregate finished-run CSV/JLD2
+├── data_collection/   # aggregate finished-run CSV/JLD2 and forward exports
+│   └── forward_exports/
 ├── analysis/          # inj-rate / posterior comparisons
 ├── utilities/         # scaling, diagnostics, gamma-table checks
 └── archive/           # historical drivers and scratch plots
 ```
 
-See `plotting/README.md` for the plotting sub-tree.
+See `plotting/README.md` for the plotting sub-tree and
+`data_collection/README.md` for export/aggregation scripts.

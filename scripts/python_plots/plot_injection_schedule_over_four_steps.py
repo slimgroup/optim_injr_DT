@@ -12,12 +12,14 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+import h5py
 import numpy as np
 
 
 BASE = Path(__file__).resolve().parents[2]
 OUTDIR = BASE / "plots" / "paper_figures"
 OUTDIR.mkdir(parents=True, exist_ok=True)
+FORWARD_DATA = OUTDIR / "forward_sim_four_steps_base_data.jld2"
 
 PERIOD_DAYS = 80.0
 PERIOD_SECONDS = PERIOD_DAYS * 24 * 60 * 60
@@ -108,16 +110,14 @@ CASE_SCHEDULES = {
 
 
 def make_no_control_schedule() -> tuple[np.ndarray, float]:
-    """
-    Representative no-control campaign.
-
-    Chosen to illustrate a non-optimized ramp that starts low, increases
-    steadily, and reaches fracture at day 720 before termination.
-    """
-    frac_day = 480.0 + 240.0
-    frac_period = int(frac_day / PERIOD_DAYS)
-    rates = np.zeros(N_PERIODS_PER_STEP * TOTAL_STEPS, dtype=float)
-    rates[:frac_period] = np.linspace(0.010, 0.180, frac_period)
+    """Use the constant uncontrolled baseline and its forward-derived fracture day."""
+    rates = np.full(N_PERIODS_PER_STEP * TOTAL_STEPS, 0.1, dtype=float)
+    frac_day = np.nan
+    if FORWARD_DATA.exists():
+        with h5py.File(FORWARD_DATA, "r") as f:
+            saved_rates = np.asarray(f["No_Control_rates"][:], dtype=float)
+            if saved_rates.shape == rates.shape and np.allclose(saved_rates, rates):
+                frac_day = float(f["No_Control_first_fracture_day"][()])
     return rates, frac_day
 
 
@@ -212,30 +212,31 @@ def main() -> None:
     )
     ax2.plot(t_cum, y_cum, color=colors[no_control_case], linewidth=2.2, alpha=0.82, linestyle="--", zorder=2)
 
-    frac_idx = int(frac_day / PERIOD_DAYS)
-    frac_rate = no_control[frac_idx - 1]
-    frac_mass = cumulative_mt(no_control)[frac_idx - 1]
-    ax.scatter(
-        [frac_day],
-        [frac_rate],
-        color="#DC2626",
-        edgecolor="white",
-        linewidth=1.1,
-        marker="*",
-        s=560,
-        zorder=6,
-    )
-    ax2.scatter(
-        [frac_day],
-        [frac_mass],
-        color="#DC2626",
-        edgecolor="white",
-        linewidth=1.1,
-        marker="*",
-        s=560,
-        zorder=6,
-    )
-    ax.axvline(frac_day, color="#DC2626", linewidth=1.2, linestyle=":", alpha=0.9)
+    if np.isfinite(frac_day):
+        frac_idx = max(1, int(np.ceil(frac_day / PERIOD_DAYS)))
+        frac_rate = no_control[frac_idx - 1]
+        frac_mass = cumulative_mt(no_control)[frac_idx - 1]
+        ax.scatter(
+            [frac_day],
+            [frac_rate],
+            color="#DC2626",
+            edgecolor="white",
+            linewidth=1.1,
+            marker="*",
+            s=560,
+            zorder=6,
+        )
+        ax2.scatter(
+            [frac_day],
+            [frac_mass],
+            color="#DC2626",
+            edgecolor="white",
+            linewidth=1.1,
+            marker="*",
+            s=560,
+            zorder=6,
+        )
+        ax.axvline(frac_day, color="#DC2626", linewidth=1.2, linestyle=":", alpha=0.9)
 
     ax.set_xlim(0, N_PERIODS_PER_STEP * TOTAL_STEPS * PERIOD_DAYS)
     ax.set_ylim(0.0, 0.20)

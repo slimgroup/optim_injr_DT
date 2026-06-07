@@ -45,7 +45,7 @@ def _check_jld2_keys(path):
             if f"{ck}_rates" not in f:
                 sys.exit(
                     f"ERROR: {path} has no dataset '{ck}_rates'. "
-                    "Regenerate with: julia --project=. scripts/python_plots/run_forward_export.jl"
+                    "Regenerate with: julia --project=. scripts/julia_scripts/data_collection/forward_exports/run_forward_export.jl"
                 )
 
 

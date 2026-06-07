@@ -33,7 +33,7 @@ def choose_period(data):
     no_control_pres = data["No_Control_pres_snaps"]
     p_max = data["p_max"]
     for period in STEP_END_PERIODS:
-        r = (p_max - no_control_pres[period - 1]) / p_max
+        r = (p_max - no_control_pres[period - 1].T) / p_max
         if np.any(r < 0):
             return period
     return STEP_END_PERIODS[-1]

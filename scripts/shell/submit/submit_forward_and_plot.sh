@@ -11,11 +11,13 @@
 
 module load julia/1.11.3
 module load anaconda3/2023.03
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+mkdir -p "$JULIA_DEPOT_PATH"
 
 cd $SLURM_SUBMIT_DIR
 
 echo "=== Step 1: Julia forward simulation export ==="
-julia scripts/python_plots/run_forward_export.jl
+julia scripts/julia_scripts/data_collection/forward_exports/run_forward_export.jl
 
 echo ""
 echo "=== Step 2: Python 3-row comparison plot ==="

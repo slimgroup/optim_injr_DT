@@ -23,6 +23,8 @@ do
 
 # Load necessary modules
 module load Julia/1.8/5 Miniconda/3
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+mkdir -p "$JULIA_DEPOT_PATH"
 
 # Record start time
 start=\$(date +%s)

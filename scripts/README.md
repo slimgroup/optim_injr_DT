@@ -11,7 +11,7 @@ scripts/
 │   ├── run/                    # bash drivers
 │   ├── check/                  # progress & verification
 │   ├── retry/                  # reruns & queue cleanup
-│   └── maintenance/            # organize_logs.py, organize_step1_data.py, …
+│   └── maintenance/            # shell-only maintenance helpers
 ├── julia_scripts/
 │   ├── plotting/               # Julia figures/videos (posterior_stats, bootstrap_ecdf, …)
 │   ├── data_collection/        # Aggregate injection-rate CSV/JLD2 exports
@@ -19,6 +19,7 @@ scripts/
 │   ├── utilities/              # Diagnostics, scaling, 7-case checks
 │   └── archive/                # Historical scripts (reference only)
 ├── python_plots/               # Python figures (posterior_stats/, paper plots, videos)
+├── python_tools/               # Python maintenance / layout tools
 └── gamma_tables/               # Deprecated gamma-table artifacts
 ```
 
@@ -44,4 +45,4 @@ Full index: `docs/reference/SCRIPTS_INDEX.md`
 | Bootstrap ECDF plots | `plots/DT_control/exp_name=step1/statistical_analysis/ecdf/` |
 | KDE plots (legacy) | `plots/.../statistical_analysis/kde/` |
 | Video runs | `plots/DT_control/videos/{5cases,128perm}/` |
-| SLURM logs | `logs/` (run `shell/maintenance/organize_logs.py` to tidy) |
+| SLURM logs | `logs/` (run `python_tools/maintenance/organize_logs.py` to tidy) |

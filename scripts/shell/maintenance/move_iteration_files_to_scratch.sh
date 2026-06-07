@@ -5,7 +5,7 @@ set -euo pipefail
 # Preserves the original directory structure
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 DATA_DIR="${ROOT_DIR}/data/DT_control"
 
 # Determine scratch root

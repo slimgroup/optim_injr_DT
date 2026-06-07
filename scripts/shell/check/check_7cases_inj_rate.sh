@@ -6,6 +6,8 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 JULIA_SCRIPT="${ROOT_DIR}/scripts/julia_scripts/utilities/check_7cases_inj_rate.jl"
 
 cd "${ROOT_DIR}"
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+mkdir -p "$JULIA_DEPOT_PATH"
 
 # 尝试找到julia
 if command -v julia &> /dev/null; then
@@ -15,4 +17,3 @@ else
     echo "请确保julia在PATH中，或者使用sbatch提交作业"
     exit 1
 fi
-

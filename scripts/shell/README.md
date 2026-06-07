@@ -10,7 +10,7 @@ shell/
 ├── run/          # Direct bash drivers (often called from submit/*.sh)
 ├── check/        # Progress, verification, ds tests
 ├── retry/        # Failed-job reruns and queue cleanup
-└── maintenance/  # Log/data/plot organizers + path patch helpers
+└── maintenance/  # Shell-only maintenance helpers
 ```
 
 ## Common commands
@@ -21,7 +21,7 @@ shell/
 | Bootstrap ECDF pipeline | `sbatch scripts/shell/submit/submit_bootstrap_cdf.sh` |
 | Posterior summary (all steps) | `sbatch scripts/shell/submit/submit_posterior_summary_all_steps_shared.sh` |
 | Threshold sensitivity | `sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity.sh` |
-| Organize flat SLURM logs | `python3 scripts/shell/maintenance/organize_logs.py` |
+| Organize flat SLURM logs | `python3 scripts/python_tools/maintenance/organize_logs.py` |
 
 Full index: [docs/reference/SCRIPTS_INDEX.md](../../docs/reference/SCRIPTS_INDEX.md)
 
@@ -29,4 +29,4 @@ Full index: [docs/reference/SCRIPTS_INDEX.md](../../docs/reference/SCRIPTS_INDEX
 
 - `#SBATCH --output` paths are relative to the directory you were in when you ran `sbatch` — usually the repo root.
 - Historical 7-case reruns use `scripts/shell/run/optim_inject_pace_7cases_fix.sh` → `src/archive/optim_inject_7cases_fix.jl`.
-- `maintenance/reorganize_shell_layout.py` and `maintenance/patch_shell_paths.py` are one-off layout tools; safe to keep for reference.
+- Python layout helpers live in `scripts/python_tools/maintenance/`; `scripts/shell/maintenance/` is reserved for shell scripts.

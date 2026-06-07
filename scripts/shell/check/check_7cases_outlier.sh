@@ -12,6 +12,8 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${ROOT_DIR}"
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+mkdir -p "$JULIA_DEPOT_PATH"
 
 echo "=========================================="
 echo "Checking 7 missing samples for outliers"
@@ -24,4 +26,3 @@ echo ""
 echo "=========================================="
 echo "Done"
 echo "=========================================="
-

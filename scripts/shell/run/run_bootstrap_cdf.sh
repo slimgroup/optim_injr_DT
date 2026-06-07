@@ -5,8 +5,7 @@
 #   bash scripts/shell/run/run_bootstrap_cdf.sh
 #   BOOTSTRAP_QUICK=1 bash scripts/shell/run/run_bootstrap_cdf.sh   # Part 1 + Part 1b only (no 4×3 grids)
 #
-# Uses the project environment. Julia depot: only $HOME/.julia (do not set a repo-local depot).
-# Override only if you know what you are doing: export JULIA_DEPOT_PATH=...
+# Uses the project environment and the shared $HOME/julia-depot.
 
 set -euo pipefail
 
@@ -21,7 +20,7 @@ else
   cd "$REPO_ROOT"
 fi
 
-export JULIA_DEPOT_PATH="${JULIA_DEPOT_PATH:-$HOME/.julia}"
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
 mkdir -p "$JULIA_DEPOT_PATH"
 
 module purge 2>/dev/null || true

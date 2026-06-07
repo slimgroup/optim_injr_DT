@@ -27,7 +27,7 @@ scripts/
 │   ├── run/                    # bash drivers
 │   ├── check/                  # progress & verification
 │   ├── retry/                  # reruns & queue cleanup
-│   └── maintenance/            # organizers + layout tools
+│   └── maintenance/            # shell-only maintenance helpers
 ├── julia_scripts/
 │   ├── plotting/               # Julia figure and video entry points
 │   ├── data_collection/        # Aggregation scripts for finished runs
@@ -35,6 +35,7 @@ scripts/
 │   ├── utilities/              # Diagnostics, scaling, misc helpers
 │   └── archive/                # Historical scripts kept for reference
 ├── python_plots/               # Python paper-figure assembly scripts
+├── python_tools/               # Python maintenance / layout tools
 ├── gamma_tables/               # Historical gamma tables from a deprecated workflow
 └── __pycache__/                # Local cache only; ignored
 ```
@@ -69,6 +70,7 @@ See `archive/README.md`. Large archived logs are gitignored under `archive/logs/
 - **`shell/`**: SLURM submission, run, progress-check, and rerun helpers
 - **`julia_scripts/`**: Julia plotting, collection, analysis, and utility scripts
 - **`python_plots/`**: Python figure-assembly scripts for paper-quality plots
+- **`python_tools/`**: Python maintenance and reorganization helpers
 - **`gamma_tables/`**: historical gamma tables kept only for reproducibility of an older comparison workflow
 
 ### Data Files (`data/`)

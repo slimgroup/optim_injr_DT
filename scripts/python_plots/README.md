@@ -15,7 +15,7 @@ python_plots/
 |------|--------|
 | Step-k paired posterior stats | `posterior_stats/plot_step{k}_paired_posterior_stats.py` |
 | Posterior field mean/std (all steps) | `plot_posterior_summary_all_steps.py` |
-| Forward export + 3-row figure | `run_forward_export.jl` + `plot_3row_comparison.py` |
+| Forward export + 3-row figure | `../julia_scripts/data_collection/forward_exports/run_forward_export.jl` + `plot_3row_comparison.py` |
 | Video from frames | `create_videos_from_frames.py` |
 
 Shell wrapper for step-2 stats: `scripts/shell/run/run_step2_paired_posterior_stats.sh`
