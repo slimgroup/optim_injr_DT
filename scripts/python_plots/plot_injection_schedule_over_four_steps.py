@@ -20,6 +20,7 @@ BASE = Path(__file__).resolve().parents[2]
 OUTDIR = BASE / "plots" / "paper_figures"
 OUTDIR.mkdir(parents=True, exist_ok=True)
 FORWARD_DATA = OUTDIR / "forward_sim_four_steps_base_data.jld2"
+NO_CONTROL_SEVERE_DATA = OUTDIR / "no_control_delayed_ramp_10_periods.jld2"
 
 PERIOD_DAYS = 80.0
 PERIOD_SECONDS = PERIOD_DAYS * 24 * 60 * 60
@@ -110,19 +111,26 @@ CASE_SCHEDULES = {
 
 
 def make_no_control_schedule() -> tuple[np.ndarray, float]:
-    """Use the constant uncontrolled baseline and its forward-derived fracture day."""
-    rates = np.full(N_PERIODS_PER_STEP * TOTAL_STEPS, 0.1, dtype=float)
+    """Use a real uncontrolled ramp and stop injection at severe fracture."""
+    rates = np.r_[np.linspace(0.0, 0.2, N_PERIODS_PER_STEP), np.full(N_PERIODS_PER_STEP * (TOTAL_STEPS - 1), 0.2)]
     frac_day = np.nan
-    if FORWARD_DATA.exists():
-        with h5py.File(FORWARD_DATA, "r") as f:
-            saved_rates = np.asarray(f["No_Control_rates"][:], dtype=float)
-            if saved_rates.shape == rates.shape and np.allclose(saved_rates, rates):
-                frac_day = float(f["No_Control_first_fracture_day"][()])
+    if NO_CONTROL_SEVERE_DATA.exists():
+        with h5py.File(NO_CONTROL_SEVERE_DATA, "r") as f:
+            saved_rates = np.asarray(f["full_rates"][:], dtype=float)
+            if saved_rates.shape == rates.shape:
+                rates = saved_rates
+            frac_day = float(f["severe_day"][()])
+            if np.isfinite(frac_day):
+                rates[int(np.ceil(frac_day / PERIOD_DAYS)) :] = 0.0
     return rates, frac_day
 
 
-def cumulative_mt(rates: np.ndarray) -> np.ndarray:
-    volumes = rates * PERIOD_SECONDS
+def cumulative_mt(rates: np.ndarray, stop_day: float = np.nan) -> np.ndarray:
+    durations_days = np.full(len(rates), PERIOD_DAYS)
+    if np.isfinite(stop_day):
+        starts = np.arange(len(rates), dtype=float) * PERIOD_DAYS
+        durations_days = np.clip(stop_day - starts, 0.0, PERIOD_DAYS)
+    volumes = rates * durations_days * 24 * 60 * 60
     mass_mt = np.cumsum(volumes * RHO_CO2) / 1e9
     return mass_mt
 
@@ -133,17 +141,39 @@ def step_series(rates: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return t, y
 
 
+def stopped_step_series(rates: np.ndarray, stop_day: float) -> tuple[np.ndarray, np.ndarray]:
+    t, y = step_series(rates)
+    if not np.isfinite(stop_day) or stop_day in t:
+        return t, y
+    insert_at = int(np.searchsorted(t, stop_day))
+    return np.insert(t, insert_at, stop_day), np.insert(y, insert_at, 0.0)
+
+
 def line_series(cum_mt: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     t = np.arange(len(cum_mt) + 1, dtype=float) * PERIOD_DAYS
     y = np.r_[0.0, cum_mt]
     return t, y
 
 
-def write_csv(path: Path, schedules: dict[str, np.ndarray], no_control: np.ndarray) -> None:
+def stopped_cumulative_series(rates: np.ndarray, stop_day: float) -> tuple[np.ndarray, np.ndarray]:
+    if not np.isfinite(stop_day):
+        return line_series(cumulative_mt(rates))
+    t = np.arange(len(rates) + 1, dtype=float) * PERIOD_DAYS
+    if np.isfinite(stop_day) and stop_day not in t:
+        t = np.insert(t, int(np.searchsorted(t, stop_day)), stop_day)
+    starts = np.arange(len(rates), dtype=float) * PERIOD_DAYS
+    mass = []
+    for day in t:
+        durations = np.clip(min(day, stop_day) - starts, 0.0, PERIOD_DAYS)
+        mass.append(np.sum(rates * durations * 24 * 60 * 60) * RHO_CO2 / 1e9)
+    return t, np.asarray(mass)
+
+
+def write_csv(path: Path, schedules: dict[str, np.ndarray], no_control: np.ndarray, frac_day: float) -> None:
     fieldnames = ["period", "time_day", "case", "inj_rate_m3_per_s", "cum_co2_mt"]
     rows = []
-    for case, rates in {**schedules, "No control": no_control}.items():
-        cum = cumulative_mt(rates)
+    for case, rates in {**schedules, "No control (severe fracture)": no_control}.items():
+        cum = cumulative_mt(rates, frac_day if case == "No control (severe fracture)" else np.nan)
         for idx, rate in enumerate(rates, start=1):
             rows.append(
                 {
@@ -168,7 +198,7 @@ def main() -> None:
         "POF eps = 0.0 (= CVaR γ = 0.0)": "#0E7490",
         "POF eps = 0.01": "#D97706",
         "CVaR γ = 0.1, α = 0.01": "#B91C1C",
-        "No control": "#6B7280",
+        "No control (severe fracture)": "#6B7280",
     }
 
     plt.rcParams.update(
@@ -189,7 +219,7 @@ def main() -> None:
         ax.axvline(i * N_PERIODS_PER_STEP * PERIOD_DAYS, color="#D1D5DB", linewidth=1.0, linestyle="--", zorder=0)
 
     for step_idx, x in enumerate([240, 720, 1200, 1680], start=1):
-        ax.text(x, 0.198, f"Step {step_idx}", ha="center", va="top", fontsize=13.5, color="#4B5563")
+        ax.text(x, 0.221, f"Step {step_idx}", ha="center", va="top", fontsize=13.5, color="#4B5563")
 
     for case, rates in schedules.items():
         color = colors[case]
@@ -198,9 +228,9 @@ def main() -> None:
         ax.step(t_rate, y_rate, where="post", color=color, linewidth=3.0, label=case, zorder=4)
         ax2.plot(t_cum, y_cum, color=color, linewidth=2.2, alpha=0.78, linestyle="--", zorder=2)
 
-    no_control_case = "No control"
-    t_rate, y_rate = step_series(no_control)
-    t_cum, y_cum = line_series(cumulative_mt(no_control))
+    no_control_case = "No control (severe fracture)"
+    t_rate, y_rate = stopped_step_series(no_control, frac_day)
+    t_cum, y_cum = stopped_cumulative_series(no_control, frac_day)
     ax.step(
         t_rate,
         y_rate,
@@ -215,7 +245,9 @@ def main() -> None:
     if np.isfinite(frac_day):
         frac_idx = max(1, int(np.ceil(frac_day / PERIOD_DAYS)))
         frac_rate = no_control[frac_idx - 1]
-        frac_mass = cumulative_mt(no_control)[frac_idx - 1]
+        frac_mass = stopped_cumulative_series(no_control, frac_day)[1][
+            np.where(stopped_cumulative_series(no_control, frac_day)[0] == frac_day)[0][0]
+        ]
         ax.scatter(
             [frac_day],
             [frac_rate],
@@ -239,8 +271,8 @@ def main() -> None:
         ax.axvline(frac_day, color="#DC2626", linewidth=1.2, linestyle=":", alpha=0.9)
 
     ax.set_xlim(0, N_PERIODS_PER_STEP * TOTAL_STEPS * PERIOD_DAYS)
-    ax.set_ylim(0.0, 0.20)
-    ax2.set_ylim(0.0, max(line_series(cumulative_mt(no_control))[1].max(), max(cumulative_mt(v).max() for v in schedules.values())) * 1.08)
+    ax.set_ylim(0.0, 0.225)
+    ax2.set_ylim(0.0, max(y_cum.max(), max(cumulative_mt(v).max() for v in schedules.values())) * 1.08)
 
     ax.set_xlabel("Time [days]")
     ax.set_ylabel("Injection rate [m$^3$/s]")
@@ -250,12 +282,12 @@ def main() -> None:
 
     case_handles = [
         Line2D([0], [0], color=colors[name], linewidth=3.2, label=name)
-        for name in ["POF eps = 0.0 (= CVaR γ = 0.0)", "POF eps = 0.01", "CVaR γ = 0.1, α = 0.01", "No control"]
+        for name in ["POF eps = 0.0 (= CVaR γ = 0.0)", "POF eps = 0.01", "CVaR γ = 0.1, α = 0.01", "No control (severe fracture)"]
     ]
     style_handles = [
         Line2D([0], [0], color="#111827", linewidth=3.0, linestyle="-", label="Injection rate (left axis)"),
         Line2D([0], [0], color="#111827", linewidth=2.2, linestyle="--", label="Total injected CO$_2$ (right axis)"),
-        Line2D([0], [0], color="#DC2626", marker="*", markersize=19, linewidth=0, label="Fracture onset"),
+        Line2D([0], [0], color="#DC2626", marker="*", markersize=19, linewidth=0, label="Severe fracture"),
     ]
 
     legend_cases = fig.legend(
@@ -294,7 +326,7 @@ def main() -> None:
     fig.savefig(png_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
 
-    write_csv(csv_path, schedules, no_control)
+    write_csv(csv_path, schedules, no_control, frac_day)
 
     print(f"Saved: {png_path}")
     print(f"Saved: {csv_path}")
