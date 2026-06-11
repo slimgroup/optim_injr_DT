@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Real ground-truth controlled/no-control comparison at the common severe-fracture day."""
 
+import os
 from pathlib import Path
 
 import cmasher
@@ -16,7 +17,13 @@ from matplotlib.gridspec import GridSpec
 
 BASE = Path(__file__).resolve().parents[2]
 OUTDIR = BASE / "plots" / "paper_figures"
-OUTFILE = OUTDIR / "fracture_comparison_3x3_four_steps_base.png"
+SENSITIVITY = float(os.environ.get("CVAR_SENSITIVITY", "1.0"))
+SENSITIVITY_TAG = f"{SENSITIVITY:.2f}".replace(".", "p")
+OUTFILE = (
+    OUTDIR / f"fracture_comparison_3x3_four_steps_cvar_sensitivity_{SENSITIVITY_TAG}x.png"
+    if SENSITIVITY != 1.0
+    else OUTDIR / "fracture_comparison_3x3_four_steps_base.png"
+)
 DAY = 728.0
 DT_DAYS = 8.0
 SUBSTEP = int(DAY / DT_DAYS) - 1
@@ -26,7 +33,15 @@ RHO_CO2 = 700.0
 
 CASES = [
     ("POF_eps0", r"(a) POF $\varepsilon = 0$ (Safe)", OUTDIR / "controlled_day728_POF_eps0.jld2"),
-    ("CVaR_g01_a001", r"(b) CVaR $\gamma = 0.1,\ \alpha = 0.01$ (Safe)", OUTDIR / "controlled_day728_CVaR_g01_a001.jld2"),
+    (
+        "CVaR_g01_a001",
+        r"(b) CVaR (Slight Fracture)"
+        if SENSITIVITY != 1.0
+        else r"(b) CVaR $\gamma = 0.1,\ \alpha = 0.01$ (Safe)",
+        OUTDIR / f"cvar_day728_sensitivity_{SENSITIVITY_TAG}x.jld2"
+        if SENSITIVITY != 1.0
+        else OUTDIR / "controlled_day728_CVaR_g01_a001.jld2",
+    ),
     ("No_Control", "(c) No Control (Severe Fracture)", OUTDIR / "no_control_delayed_ramp_10_periods.jld2"),
 ]
 
@@ -87,7 +102,8 @@ def main() -> None:
                     0.03,
                     0.94,
                     f"Active rate at day {DAY:.0f}: {rate_at_day(rates, DAY):.4f} m$^3$/s\n"
-                    f"Injected CO$_2$: {mass:.2f} Mt\nmin(r): {margin.min():.3f}; frac. cells: {(margin < 0).sum():,}",
+                    f"Injected CO$_2$ through day {DAY:.0f}: {mass:.2f} Mt\n"
+                    f"min(r): {margin.min():.3f}; frac. cells: {(margin < 0).sum():,}",
                     transform=ax.transAxes,
                     fontsize=11,
                     ha="left",
