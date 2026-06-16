@@ -209,7 +209,7 @@ function plot_single_histogram_kde(data::Vector{Float64}, case_tag::String, file
     
     # Title with sample count
     n_samples = length(data)
-    title_text = "POF ε = 0.0 (n=$n_samples)"
+    title_text = "PoF ε = 0.0 (n=$n_samples)"
     ax.set_title(title_text, fontsize=FONT_SIZE_TITLE, fontweight="bold")
     ax.set_xlabel("Injectivity (m³/s)", fontsize=FONT_SIZE_LABEL)
     ax.set_ylabel("Frequency", fontsize=FONT_SIZE_LABEL)
@@ -288,7 +288,7 @@ function plot_single_cdf_ci(data::Vector{Float64}, case_tag::String, filename::A
                    arrowprops=Dict("arrowstyle" => "->", "connectionstyle" => "arc3,rad=0"))
     end
     
-    title_text = "POF ε = 0.0"
+    title_text = "PoF ε = 0.0"
     ax.set_title(title_text, fontsize=FONT_SIZE_TITLE, fontweight="bold")
     ax.set_ylim(0, 100)
     ax.legend(loc="lower right", fontsize=FONT_SIZE_LEGEND, framealpha=0.9)
@@ -379,7 +379,7 @@ function plot_single_cdf_ci_zoom(data::Vector{Float64}, case_tag::String, filena
                    arrowprops=Dict("arrowstyle" => "->", "connectionstyle" => "arc3,rad=0"))
     end
     
-    title_text = "POF ε = 0.0 (Zoomed In)"
+    title_text = "PoF ε = 0.0 (Zoomed In)"
     ax.set_title(title_text, fontsize=FONT_SIZE_TITLE, fontweight="bold")
     ax.set_xlim(zoom_x_min, zoom_x_max)
     ax.set_ylim(0, zoom_y_max)
@@ -444,4 +444,3 @@ println("Saved files:")
 println("  1. $filename1")
 println("  2. $filename2")
 println("  3. $filename3")
-

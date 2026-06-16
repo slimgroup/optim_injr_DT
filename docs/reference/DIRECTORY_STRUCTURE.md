@@ -81,6 +81,10 @@ See `archive/README.md`. Large archived logs are gitignored under `archive/logs/
 - All generated image files
 - Organized by experiment type or figure family
 - This directory is intentionally large and remains ignored by git.
+- `plots/paper_figures/` may also contain expensive intermediate `.jld2`
+  forward exports used to regenerate final paper figures. See
+  `docs/reference/PAPER_FIGURE_MANIFEST.md` before moving or cleaning anything
+  in that folder.
 
 ### Logs (`logs/`)
 - SLURM stdout/stderr, status captures, and workflow logs
@@ -93,7 +97,7 @@ See `archive/README.md`. Large archived logs are gitignored under `archive/logs/
 - **`optimization/`**: optimizer choice, parameters, refactor notes
 - **`statistics/`**: bootstrap/KDE methodology, figure layout
 - **`analysis/`**: performance, solver, troubleshooting writeups
-- **`historical/`**: deprecated gamma-table POF/CVaR comparison docs
+- **`historical/`**: deprecated gamma-table PoF/CVaR comparison docs
 - **`injection_rate_arrays.md`**: canonical injection ramps (kept at `docs/` root for stable references from `src/`)
 
 ### Tests (`test/`)
@@ -121,5 +125,5 @@ See `archive/README.md`. Large archived logs are gitignored under `archive/logs/
 - The repository currently contains large local working directories: `data/`, `plots/`, and `logs/`.
 - Local depots such as `.julia_depot_cursor/` and `.julia_depot_cdf/` are intentionally ignored rather than deleted.
 - Some older docs and scripts still describe historical workflows; prefer the actual files present in `scripts/` when there is a mismatch.
-- `scripts/gamma_tables/` and related helper scripts belong to a deprecated POF/CVaR comparison route and should not be treated as the recommended workflow.
+- `scripts/gamma_tables/` and related helper scripts belong to a deprecated PoF/CVaR comparison route and should not be treated as the recommended workflow.
 - Do not delete historical gamma tables or their helper scripts without explicit user authorization.

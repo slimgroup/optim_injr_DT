@@ -177,7 +177,7 @@ The first pass should be structure-only, not behavior-changing.
 Once the file is split, these improvements become easy:
 
 - infer `inj_start` from actual previous-step result files instead of hardcoded case tables
-- make `case_key` inference stricter when both POF and CVaR are enabled
+- make `case_key` inference stricter when both PoF and CVaR are enabled
 - add `pointwise_mean` as an explicit optional prior mode
 - move line-search heuristics into a separate function like `initial_step_size(risk_opts, inj_start, inj_guess)`
 - add unit tests for:

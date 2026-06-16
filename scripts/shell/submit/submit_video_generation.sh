@@ -22,7 +22,9 @@ export JULIA_DEPOT_PATH="$HOME/julia-depot"
 mkdir -p "$JULIA_DEPOT_PATH"
 
 # Navigate to project directory
-cd /storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+cd "${ROOT_DIR}"
 
 # Create logs directory if it doesn't exist
 mkdir -p logs

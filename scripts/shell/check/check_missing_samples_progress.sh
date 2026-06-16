@@ -4,7 +4,8 @@
 
 set -euo pipefail
 
-ROOT_DIR="/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 DATA_DIR="${ROOT_DIR}/data/DT_control/exp_name=step1"
 
 echo "=========================================="

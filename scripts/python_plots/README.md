@@ -16,6 +16,13 @@ python_plots/
 | Step-k paired posterior stats | `posterior_stats/plot_step{k}_paired_posterior_stats.py` |
 | Posterior field mean/std (all steps) | `plot_posterior_summary_all_steps.py` |
 | Forward export + 3-row figure | `../julia_scripts/data_collection/forward_exports/run_forward_export.jl` + `plot_3row_comparison.py` |
+| Four-step injection schedule | `plot_injection_schedule_over_four_steps.py` |
+| Four-step pressure-risk trajectory | `plot_pressure_risk_trajectory_over_four_steps.py` |
+| Real fracture comparison | `plot_real_fracture_comparison_day408.py` |
+| Full-campaign fracture video | `create_full_campaign_fracture_video.py` |
 | Video from frames | `create_videos_from_frames.py` |
 
 Shell wrapper for step-2 stats: `scripts/shell/run/run_step2_paired_posterior_stats.sh`
+
+For paper-ready figures, expected input data, and caveats, see
+`docs/reference/PAPER_FIGURE_MANIFEST.md`.

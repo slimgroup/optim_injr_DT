@@ -7,7 +7,7 @@ Pkg.activate(".")
 using DrWatson
 @quickactivate "optim_injr_DT"
 
-const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "..", "data", "DT_control", "exp_name=step1")))
 
 function check_matching(target_gamma::String, target_alpha::String)
     println("\n" * "=" ^ 80)
@@ -72,4 +72,3 @@ for alpha in ["0.0", "0.01", "0.05"]
     dirs = check_matching("0.2", alpha)
     println("  alpha=$alpha: $(length(dirs)) directories matched")
 end
-

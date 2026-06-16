@@ -1,4 +1,4 @@
-# 快速运行指南（启用 POF + CVaR，自动校准）
+# 快速运行指南（启用 PoF + CVaR，自动校准）
 
 ## 快速运行命令（推荐）
 
@@ -20,12 +20,12 @@ julia src/threshold_sensitivity.jl \
 
 ## 参数说明
 
-### 风险参数（POF + CVaR 对齐）
-- `--use_pof`: 启用 POF
+### 风险参数（PoF + CVaR 对齐）
+- `--use_pof`: 启用 PoF
 - `--use_cvar`: 启用 CVaR
-- `--eps_pof 0.01`: POF 阈值（1% 违反概率）
+- `--eps_pof 0.01`: PoF 阈值（1% 违反概率）
 - `--calibrate_gamma`: **自动校准 gamma 以匹配 eps**
-- `--lambda_pof 1.0`: POF 惩罚权重
+- `--lambda_pof 1.0`: PoF 惩罚权重
 - `--lambda_cvar 1.0`: CVaR 惩罚权重
 
 ### 速度优化参数
@@ -75,7 +75,7 @@ julia src/threshold_sensitivity.jl \
 使用 `--calibrate_gamma` 时：
 1. 程序会在第一个阈值（或 `--calibration_threshold` 指定的阈值）运行一次前向模拟
 2. 根据给定的 `eps_pof`，自动计算对应的 `gamma_cvar`
-3. 确保 POF 和 CVaR 阈值对齐
+3. 确保 PoF 和 CVaR 阈值对齐
 4. 打印并保存校准后的 `(eps, gamma)` 值
 
 ## 检查进度

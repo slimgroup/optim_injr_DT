@@ -63,7 +63,7 @@ bash scripts/shell/check/check_step2_progress.sh
   ```
   整理后可在 `logs/optimization/step2/` 找到（运行 `python3 scripts/python_tools/maintenance/organize_logs.py`）。
 
-- **历史说明**：旧版脚本曾用 `../logs/`，从项目根提交时会误写到 `r-fherrmann9-0/logs/`；2026-05-31 已改为 `logs/` 并迁移 646 个 step-2 文件。
+- **历史说明**：旧版脚本曾用 `../logs/`，从项目根提交时会误写到项目父目录下的 `logs/`；2026-05-31 已改为 `logs/` 并迁移 646 个 step-2 文件。
 
 ### 2. 项目里的 `logs/`
 
@@ -76,7 +76,7 @@ SLURM 的 stdout/stderr 写入提交时 cwd 下的 `logs/`（从项目根提交�
   ```text
   $SCRATCH/optim_injr_DT/DT_control/exp_name=step2/<case_tag>/sample=s*/
   ```
-  若没设 `SCRATCH`，代码里默认是 `/storage/home/hcoda1/6/<user>/scratch`。
+  若没设 `SCRATCH`，代码会回退到用户主目录下的 `scratch` 路径。
 
 ---
 

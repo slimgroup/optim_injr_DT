@@ -11,7 +11,9 @@ export PYTHON=/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python
 export JULIA_PKG_PRECOMPILE_AUTO=0
 export MPLBACKEND=Agg
 
-cd /storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+cd "${ROOT_DIR}"
 
 echo "Running combined threshold sensitivity plotting..."
 julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_threshold_sensitivity.jl
@@ -19,4 +21,3 @@ julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_threshold_sen
 echo ""
 echo "✓ Plotting complete!"
 echo "Check plots in: plots/DT_control/exp_name=step1/threshold_sensitivity/"
-

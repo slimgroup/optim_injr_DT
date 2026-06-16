@@ -13,7 +13,7 @@ docs/
 ├── optimization/              # optimizer, parameters, refactor notes
 ├── statistics/                # bootstrap/KDE and figure methodology
 ├── analysis/                  # performance, solver, troubleshooting
-└── historical/                # deprecated gamma-table POF/CVaR workflow
+└── historical/                # deprecated gamma-table PoF/CVaR workflow
 ```
 
 ## Documentation Index
@@ -29,6 +29,9 @@ docs/
 ### Reference — repository navigation
 - [DIRECTORY_STRUCTURE.md](reference/DIRECTORY_STRUCTURE.md): directory layout and storage conventions
 - [SCRIPTS_INDEX.md](reference/SCRIPTS_INDEX.md): entry-point map for `scripts/`
+- [PAPER_FIGURE_MANIFEST.md](reference/PAPER_FIGURE_MANIFEST.md): paper figure outputs, scripts, input JLD2 files, and caveats
+- [REPO_MAINTENANCE_AUDIT_2026-06-15.md](reference/REPO_MAINTENANCE_AUDIT_2026-06-15.md): current repo audit and safe cleanup priorities
+- [../DATA_AVAILABILITY.md](../DATA_AVAILABILITY.md): required local data bundle and generated artifacts
 - [MACHINE_LOCAL.md](reference/MACHINE_LOCAL.md): `.vscode`, `.mplconfig`, `.julia_depot_*` (not in git)
 - [SCRIPT_EXPLANATION.md](reference/SCRIPT_EXPLANATION.md): detailed SLURM script pattern notes
 
@@ -56,7 +59,7 @@ docs/
 
 ### Historical — deprecated workflows
 - [QUICK_START.md](historical/QUICK_START.md): gamma-table quick start (deprecated)
-- [POF_CVAR_COMPARISON_METHODS.md](historical/POF_CVAR_COMPARISON_METHODS.md): POF/CVaR comparison methods (deprecated)
+- [POF_CVAR_COMPARISON_METHODS.md](historical/POF_CVAR_COMPARISON_METHODS.md): PoF/CVaR comparison methods (deprecated)
 
 Gamma-table material under `scripts/gamma_tables/` is retained for reproducibility only.
 
@@ -80,5 +83,6 @@ Gamma-table material under `scripts/gamma_tables/` is retained for reproducibili
 
 ### Working on paper figures
 - [injection_rate_arrays.md](injection_rate_arrays.md)
+- [PAPER_FIGURE_MANIFEST.md](reference/PAPER_FIGURE_MANIFEST.md)
 - [BOOTSTRAP_CDF_METHODOLOGY.md](statistics/BOOTSTRAP_CDF_METHODOLOGY.md)
 - [PLOT_LAYOUT_DISCUSSION.md](statistics/PLOT_LAYOUT_DISCUSSION.md)

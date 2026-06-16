@@ -11,7 +11,7 @@
 #SBATCH --error=logs/threshold_sensitivity_%j.txt
 #SBATCH --signal=TERM@60
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=hli853@gatech.edu
+##SBATCH --mail-user=YOUR_EMAIL@example.com
 
 # Generic threshold sensitivity analysis script
 # Supports POF-only, CVaR-only, or both (POF+CVaR)

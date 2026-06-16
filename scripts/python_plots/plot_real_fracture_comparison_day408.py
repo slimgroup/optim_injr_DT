@@ -4,6 +4,8 @@
 import os
 from pathlib import Path
 
+os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).resolve().parents[2] / ".mplconfig"))
+
 import cmasher
 import colorcet as cc
 import h5py
@@ -32,12 +34,10 @@ SECONDS_PER_DAY = 86400
 RHO_CO2 = 700.0
 
 CASES = [
-    ("POF_eps0", r"(a) POF $\varepsilon = 0$ (Safe)", OUTDIR / "controlled_day728_POF_eps0.jld2"),
+    ("POF_eps0", r"(a) PoF $\varepsilon = 0$", OUTDIR / "controlled_day728_POF_eps0.jld2"),
     (
         "CVaR_g01_a001",
-        r"(b) CVaR (Slight Fracture)"
-        if SENSITIVITY != 1.0
-        else r"(b) CVaR $\gamma = 0.1,\ \alpha = 0.01$ (Safe)",
+        r"(b) CVaR $\gamma = 0.1,\ \alpha = 0.01$",
         OUTDIR / f"cvar_day728_sensitivity_{SENSITIVITY_TAG}x.jld2"
         if SENSITIVITY != 1.0
         else OUTDIR / "controlled_day728_CVaR_g01_a001.jld2",
@@ -73,13 +73,15 @@ def main() -> None:
                 pres = f["pres_all"][SUBSTEP].T
                 sat = f["sat_all"][SUBSTEP].T
                 rates = f["full_rates"][:]
+                display_rates = rates
             else:
                 pres = f["pres"][:].T
                 sat = f["sat"][:].T
                 rates = f["rates"][:]
+                display_rates = f["base_rates"][:] if key == "CVaR_g01_a001" and "base_rates" in f else rates
         margin = (p_max - pres) / p_max
         dp = (pres - p0) / 1e6
-        fields[key] = (title, margin, dp, sat, rates, injected_mt(rates, DAY))
+        fields[key] = (title, margin, dp, sat, rates, display_rates, injected_mt(rates, DAY))
         dp_vmax = max(dp_vmax, float(dp.max()))
 
     cmap_margin = mcolors.ListedColormap(
@@ -93,7 +95,7 @@ def main() -> None:
 
     for row in range(3):
         for col, (key, _, _) in enumerate(CASES):
-            title, margin, dp, sat, rates, mass = fields[key]
+            title, margin, dp, sat, rates, display_rates, mass = fields[key]
             ax = fig.add_subplot(gs[row, col])
             if row == 0:
                 im = ax.imshow(margin.T, extent=extent, cmap=cmap_margin, vmin=-0.1, vmax=1.0)
@@ -101,7 +103,7 @@ def main() -> None:
                 ax.text(
                     0.03,
                     0.94,
-                    f"Active rate at day {DAY:.0f}: {rate_at_day(rates, DAY):.4f} m$^3$/s\n"
+                    f"Active rate at day {DAY:.0f}: {rate_at_day(display_rates, DAY):.4f} m$^3$/s\n"
                     f"Injected CO$_2$ through day {DAY:.0f}: {mass:.2f} Mt\n"
                     f"min(r): {margin.min():.3f}; frac. cells: {(margin < 0).sum():,}",
                     transform=ax.transAxes,

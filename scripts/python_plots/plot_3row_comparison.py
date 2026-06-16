@@ -4,10 +4,10 @@ Paper figure: 3-row × 3-column forward simulation comparison.
 Row 1: Relative pressure margin  r = (p_frac - p) / p_max
 Row 2: Differential pressure  (p - p0) in MPa
 Row 3: CO2 saturation
-Columns: POF ε=0 | CVaR γ=0.1 α=0.01 | No Control
+Columns: PoF ε=0 | CVaR γ=0.1 α=0.01 | No Control
 Ground truth permeability: sample 2000.
 
-First-row text boxes (two lines): (1) $q_k^*$ — tabulated for POF/CVaR, last-period sim
+First-row text boxes (two lines): (1) $q_k^*$ — tabulated for PoF/CVaR, last-period sim
 rate for No Control (same label for a uniform figure); (2) injected CO₂ (same formula all columns).
 """
 import os
@@ -26,7 +26,7 @@ BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 DATA_FILE = os.path.join(BASE, "plots/paper_figures", "forward_sim_data.jld2")
 OUT_DIR = os.path.join(BASE, "plots", "paper_figures")
 
-# q_k* (m³/s, CDF / injection_rate_arrays.md scale) — only for POF and CVaR columns.
+# q_k* (m³/s, CDF / injection_rate_arrays.md scale) — only for PoF and CVaR columns.
 QK_STAR = {
     "POF_eps0": 0.02630,
     "CVaR_g01_a001": 0.07470,
@@ -72,7 +72,7 @@ with h5py.File(DATA_FILE, "r") as f:
 p0, p_max = data["p0"], data["p_max"]
 
 cases = [
-    ("POF_eps0", "(a) POF ε = 0 (Non-Fracture)"),
+    ("POF_eps0", "(a) PoF ε = 0 (Non-Fracture)"),
     ("CVaR_g01_a001", "(b) CVaR γ = 0.1, α = 0.01 (Fracture)"),
     ("No_Control", "(c) No Control (Severe Fracture)"),
 ]

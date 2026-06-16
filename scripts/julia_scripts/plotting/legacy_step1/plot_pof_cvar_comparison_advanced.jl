@@ -172,11 +172,11 @@ mkpath(plot_root)
 # Plot 1: CVaR/POF Ratio (shows how much more conservative CVaR is)
 fig, ax = subplots(figsize=(10, 6))
 ax.plot(sorted_thresholds, cvar_pof_ratio, "o-", linewidth=2.5, markersize=10, 
-        label="CVaR / POF", color="#d62728", alpha=0.8)
+        label="CVaR / PoF", color="#d62728", alpha=0.8)
 ax.axhline(1.0, linestyle="--", linewidth=2, color="gray", alpha=0.5, label="Equal (1.0)")
 ax.set_xlabel("Pressure Threshold (MPa)", fontsize=14, fontweight="bold")
-ax.set_ylabel("CVaR / POF Ratio", fontsize=14, fontweight="bold")
-ax.set_title("CVaR/POF Ratio vs Threshold\n(Higher ratio = CVaR more conservative)", 
+ax.set_ylabel("CVaR / PoF Ratio", fontsize=14, fontweight="bold")
+ax.set_title("CVaR/PoF Ratio vs Threshold\n(Higher ratio = CVaR more conservative)",
              fontsize=16, fontweight="bold")
 ax.legend(fontsize=12, loc="best", framealpha=0.9)
 ax.grid(true, alpha=0.3, linestyle="--")
@@ -198,7 +198,7 @@ println("✓ Saved: $plot_file")
 # Plot 2: Relative Change Comparison (normalized to first threshold)
 fig, ax = subplots(figsize=(10, 6))
 ax.plot(sorted_thresholds, pof_rel_change .* 100, "o-", linewidth=2.5, markersize=10, 
-        label="POF (relative change %)", color="#1f77b4", alpha=0.8)
+        label="PoF (relative change %)", color="#1f77b4", alpha=0.8)
 ax.plot(sorted_thresholds, cvar_rel_change .* 100, "^-", linewidth=2.5, markersize=10, 
         label="CVaR (relative change %)", color="#ff7f0e", alpha=0.8)
 ax.axhline(0.0, linestyle="--", linewidth=2, color="gray", alpha=0.5)
@@ -217,12 +217,12 @@ println("✓ Saved: $plot_file")
 # Plot 3: Normalized Comparison (both on 0-1 scale)
 fig, ax = subplots(figsize=(10, 6))
 ax.plot(sorted_thresholds, pof_normalized, "o-", linewidth=2.5, markersize=10, 
-        label="POF (normalized 0-1)", color="#1f77b4", alpha=0.8)
+        label="PoF (normalized 0-1)", color="#1f77b4", alpha=0.8)
 ax.plot(sorted_thresholds, cvar_normalized, "^-", linewidth=2.5, markersize=10, 
         label="CVaR (normalized 0-1)", color="#ff7f0e", alpha=0.8)
 ax.set_xlabel("Pressure Threshold (MPa)", fontsize=14, fontweight="bold")
 ax.set_ylabel("Normalized Value (0-1)", fontsize=14, fontweight="bold")
-ax.set_title("Normalized Comparison (0-1 Scale)\nPOF vs CVaR", 
+ax.set_title("Normalized Comparison (0-1 Scale)\nPoF vs CVaR",
              fontsize=16, fontweight="bold")
 ax.legend(fontsize=12, loc="best", framealpha=0.9)
 ax.grid(true, alpha=0.3, linestyle="--")
@@ -236,9 +236,9 @@ println("✓ Saved: $plot_file")
 fig, ax1 = subplots(figsize=(10, 6))
 color1 = "C0"
 ax1.set_xlabel("Pressure Threshold (MPa)", fontsize=14, fontweight="bold")
-ax1.set_ylabel("POF", color=color1, fontsize=14, fontweight="bold")
+ax1.set_ylabel("PoF", color=color1, fontsize=14, fontweight="bold")
 line1 = ax1.plot(sorted_thresholds, pof_hard, "o-", linewidth=2.5, markersize=10, 
-                 label="POF (hard)", color=color1)
+                 label="PoF (hard)", color=color1)
 ax1.tick_params(axis="y", labelcolor=color1)
 ax1.grid(true, alpha=0.3, linestyle="--")
 
@@ -254,7 +254,7 @@ lines = vcat(line1, line2)
 labels = [l.get_label() for l in lines]
 ax1.legend(lines, labels, loc="upper left", fontsize=12, framealpha=0.9)
 
-ax1.set_title("POF vs CVaR (Dual Y-axis)\n(Sample #$(sample_num))", 
+ax1.set_title("PoF vs CVaR (Dual Y-axis)\n(Sample #$(sample_num))",
               fontsize=16, fontweight="bold")
 plt.tight_layout()
 plot_file = joinpath(plot_root, "dual_axis_comparison_sample=$(sample_num).png")
@@ -265,12 +265,12 @@ println("✓ Saved: $plot_file")
 # Plot 5: Optimized Injection Rate Comparison
 fig, ax = subplots(figsize=(10, 6))
 ax.plot(sorted_thresholds, inj_rates_pof, "o-", linewidth=2.5, markersize=10, 
-        label="POF-optimized", color="#2ca02c", alpha=0.8)
+        label="PoF-optimized", color="#2ca02c", alpha=0.8)
 ax.plot(sorted_thresholds, inj_rates_cvar, "^-", linewidth=2.5, markersize=10, 
         label="CVaR-optimized", color="#d62728", alpha=0.8)
 ax.set_xlabel("Pressure Threshold (MPa)", fontsize=14, fontweight="bold")
 ax.set_ylabel("Optimal Injection Rate", fontsize=14, fontweight="bold")
-ax.set_title("Optimal Injection Rate: POF vs CVaR\n(Sample #$(sample_num))", 
+ax.set_title("Optimal Injection Rate: PoF vs CVaR\n(Sample #$(sample_num))",
              fontsize=16, fontweight="bold")
 ax.legend(fontsize=12, loc="best", framealpha=0.9)
 ax.grid(true, alpha=0.3, linestyle="--")
@@ -297,4 +297,3 @@ println()
 println("=" ^ 80)
 println("All advanced comparison plots saved to: $plot_root")
 println("=" ^ 80)
-

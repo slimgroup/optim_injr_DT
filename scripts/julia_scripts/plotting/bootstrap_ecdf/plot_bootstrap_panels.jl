@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
 # Generate:
-#   1. Split single-panel images (hist / CDF) for POF eps=0.01 and CVaR g=0.05 a=0.05
+#   1. Split single-panel images (hist / CDF) for PoF eps=0.01 and CVaR g=0.05 a=0.05
 #   2. 4×3 histogram grid (bootstrap style)
 #   3. 4×3 CDF grid with zoom-in inset (bootstrap style)
 
@@ -26,10 +26,10 @@ const INJ_START    = 0.0001
 
 # 4×3 parameter grid: 4 rows × 3 columns
 const GRID = [
-    # Row 1: POF
-    ("POF__HARD__eps=0.0__",               "POF ε=0.0"),
-    ("POF__HARD__eps=0.01__",              "POF ε=0.01"),
-    ("POF__HARD__eps=0.05__",              "POF ε=0.05"),
+    # Row 1: PoF
+    ("POF__HARD__eps=0.0__",               "PoF ε=0.0"),
+    ("POF__HARD__eps=0.01__",              "PoF ε=0.01"),
+    ("POF__HARD__eps=0.05__",              "PoF ε=0.05"),
     # Row 2: CVaR γ=0.0
     ("CVaR__HARD__alpha=0.0__gamma=0.0__",   "CVaR γ=0.0 α=0.0"),
     ("CVaR__HARD__alpha=0.01__gamma=0.0__",  "CVaR γ=0.0 α=0.01"),
@@ -45,8 +45,8 @@ const GRID = [
 ]
 
 const SELECTED_GRID = [
-    ("POF ε=0.0", "POF ε=0.0\n(identical to CVaR γ=0.0)"),
-    ("POF ε=0.01", "POF ε=0.01"),
+    ("PoF ε=0.0", "PoF ε=0.0\n(identical to CVaR γ=0.0)"),
+    ("PoF ε=0.01", "PoF ε=0.01"),
     ("CVaR γ=0.1 α=0.01", "CVaR γ=0.1 α=0.01"),
 ]
 
@@ -547,14 +547,14 @@ end
 
 # ===================== Main =====================
 """
-CDF + hist for POF ε=0 and CVaR γ=0.1 α=0.01 — **same scalar definition as** `run_part1_only!` / `cdf_POF_eps0.01.png`:
+CDF + hist for PoF ε=0 and CVaR γ=0.1 α=0.01 — **same scalar definition as** `run_part1_only!` / `cdf_POF_eps0.01.png`:
 `last_nonzero_inj_rate` (ramp 6th step from col-1 endpoint), not `inj_rate_arr[end, 6]`.
 """
 function run_part1b_inj6!(; root=ROOT, outdir=OUTDIR)
     mkpath(outdir)
-    println("\n=== Part 1b: CDF for POF ε=0 & CVaR γ=0.1 α=0.01 (same extractor as Part 1) ===")
+    println("\n=== Part 1b: CDF for PoF ε=0 & CVaR γ=0.1 α=0.01 (same extractor as Part 1) ===")
     for (pat, tag, label) in [
-        ("POF__HARD__eps=0.0__",               "POF_eps0",        "POF (ε=0)"),
+        ("POF__HARD__eps=0.0__",               "POF_eps0",        "PoF (ε=0)"),
         ("CVaR__HARD__alpha=0.01__gamma=0.1__", "CVaR_g0.1_a0.01", "CVaR (γ=0.1, α=0.01)"),
     ]
         println("Processing $label ...")
@@ -575,7 +575,7 @@ function run_part1_only!(; root=ROOT, outdir=OUTDIR)
     mkpath(outdir)
     println("\n=== Part 1: Split single-panel plots ===")
     for (pat, tag, label) in [
-        ("POF__HARD__eps=0.01__",              "POF_eps0.01",       "POF (eps=0.01)"),
+        ("POF__HARD__eps=0.01__",              "POF_eps0.01",       "PoF (eps=0.01)"),
         ("CVaR__HARD__alpha=0.05__gamma=0.05__","CVaR_g0.05_a0.05", "CVaR (g=0.05 a=0.05)"),
     ]
         println("Processing $label...")

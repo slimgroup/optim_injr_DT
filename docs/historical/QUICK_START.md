@@ -1,7 +1,7 @@
-# 快速开始：POF vs CVaR 对比实验
+# 快速开始：PoF vs CVaR 对比实验
 
 > **状态说明**
-> 本文档中的 gamma-table 流程属于较早期的 POF/CVaR 对比方法，现阶段不应再默认作为推荐比较路径。
+> 本文档中的 gamma-table 流程属于较早期的 PoF/CVaR 对比方法，现阶段不应再默认作为推荐比较路径。
 > 相关脚本和 `.jld2` 文件目前仅为复现实验历史结果而保留；除非任务明确要求，否则不要继续扩展这条 workflow。
 
 ## 完整运行流程（按顺序）
@@ -17,7 +17,7 @@ sbatch scripts/shell/submit/submit_gamma_table_generation.sh
 **方法 B: 交互式运行（可以看到进度）**
 
 ```bash
-salloc -N1 -t 120 --account=gts-fherrmann9 -q inferno
+salloc -N1 -t 120 --account=<PACE_ACCOUNT> -q inferno
 module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0
@@ -32,7 +32,7 @@ julia --project=. src/threshold_sensitivity.jl \
 
 **检查作业状态**：
 ```bash
-squeue -u hli853
+squeue -u $USER
 ```
 
 **查看输出**（如果提交了作业）：
@@ -50,7 +50,7 @@ tail -f logs/gamma_table_gen_<JOBID>.txt
 等步骤 1 完成后，检查准确性：
 
 ```bash
-salloc -N1 -t 30 --account=gts-fherrmann9 -q inferno
+salloc -N1 -t 30 --account=<PACE_ACCOUNT> -q inferno
 module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0
@@ -61,11 +61,11 @@ julia --project=. scripts/julia_scripts/utilities/check_gamma_table.jl \
   data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__sample=128__*.jld2
 ```
 
-应该看到大部分条目标记为 ✓（POF 误差 < 5%）。
+应该看到大部分条目标记为 ✓（PoF 误差 < 5%）。
 
 ---
 
-### 步骤 3: 运行 POF-only 优化
+### 步骤 3: 运行 PoF-only 优化
 
 ```bash
 export EPS_POF=0.01
@@ -74,7 +74,7 @@ sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh
 
 **检查作业状态**：
 ```bash
-squeue -u hli853
+squeue -u $USER
 ```
 
 **查看输出**：
@@ -109,7 +109,7 @@ sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_cvar_only.s
 
 **检查作业状态**：
 ```bash
-squeue -u hli853
+squeue -u $USER
 ```
 
 **查看输出**：
@@ -127,7 +127,7 @@ tail -f logs/threshold_sensitivity_CVaR_<JOBID>.txt
 等步骤 3 和 4 都完成后：
 
 ```bash
-salloc -N1 -t 60 --account=gts-fherrmann9 -q inferno
+salloc -N1 -t 60 --account=<PACE_ACCOUNT> -q inferno
 module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0
@@ -147,7 +147,7 @@ julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.j
 
 - **步骤 1 (Gamma Table)**: 3-5 分钟（并行处理，使用 8 线程）
 - **步骤 2 (验证)**: 1-2 分钟
-- **步骤 3 (POF-only)**: 1-3 小时（5 个阈值，每个约 20-30 分钟）
+- **步骤 3 (PoF-only)**: 1-3 小时（5 个阈值，每个约 20-30 分钟）
 - **步骤 4 (CVaR-only)**: 1-3 小时（5 个阈值，每个约 20-30 分钟）
 - **步骤 5 (绘图)**: 1-2 分钟
 
@@ -159,7 +159,7 @@ julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.j
 
 ```bash
 # 查看所有作业
-squeue -u hli853
+squeue -u $USER
 
 # 查看特定作业的输出
 tail -f logs/gamma_table_gen_<JOBID>.txt
@@ -176,16 +176,16 @@ tail -f logs/threshold_sensitivity_CVaR_<JOBID>_<ARRAY_ID>.txt
 **错误**: `[ERROR] Gamma table not found`
 
 **解决**: 
-1. 检查步骤 1 是否完成：`squeue -u hli853`
+1. 检查步骤 1 是否完成：`squeue -u $USER`
 2. 检查文件是否存在：`ls data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__*.jld2`
 3. 使用完整路径：`export GAMMA_TABLE_PATH=<完整路径>`
 
 ### 问题 2: Summary 文件未找到
 
-**错误**: `POF summary not found` 或 `CVaR summary not found`
+**错误**: `PoF summary not found` 或 `CVaR summary not found`
 
 **解决**:
-1. 检查作业是否完成：`squeue -u hli853`
+1. 检查作业是否完成：`squeue -u $USER`
 2. 检查输出日志：`tail logs/threshold_sensitivity_*.txt`
 3. 确认文件路径：`ls data/DT_control/exp_name=step1/threshold_sensitivity/summary__*.jld2`
 
@@ -207,7 +207,7 @@ tail -f logs/threshold_sensitivity_CVaR_<JOBID>_<ARRAY_ID>.txt
 # 1. 生成 gamma table
 JOB1=$(sbatch scripts/shell/submit/submit_gamma_table_generation.sh | awk '{print $4}')
 
-# 2. 等 gamma table 完成后，运行 POF-only（需要手动等待）
+# 2. 等 gamma table 完成后，运行 PoF-only（需要手动等待）
 # export EPS_POF=0.01
 # sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh
 

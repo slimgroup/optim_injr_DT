@@ -135,11 +135,11 @@ function plot_pof_vs_cvar_comparison(; idx_num::Int=128)
     
     # ---------- 1) Injection vs threshold ----------
     fig1, ax1 = subplots(figsize=(8, 6))
-    ax1.plot(t, inj_pof,  "o-", linewidth=2, markersize=8, label="POF control", color="C0")
+    ax1.plot(t, inj_pof,  "o-", linewidth=2, markersize=8, label="PoF control", color="C0")
     ax1.plot(t, inj_cvar, "s--", linewidth=2, markersize=8, label="CVaR control", color="C1")
     ax1.set_xlabel("Threshold t (MPa)", fontsize=14)
     ax1.set_ylabel("Optimal Injection Rate", fontsize=14)
-    ax1.set_title("Injection Rate vs Threshold\nPOF vs CVaR Control (Sample $(idx_num))", fontsize=16)
+    ax1.set_title("Injection Rate vs Threshold\nPoF vs CVaR Control (Sample $(idx_num))", fontsize=16)
     ax1.legend(fontsize=12)
     ax1.grid(true, alpha=0.3)
     plt.tight_layout()
@@ -149,12 +149,12 @@ function plot_pof_vs_cvar_comparison(; idx_num::Int=128)
     
     # ---------- 2) Risk utilization vs threshold ----------
     fig2, ax2 = subplots(figsize=(8, 6))
-    ax2.plot(t, norm_pof,  "o-", linewidth=2, markersize=8, label="POF / ε", color="C0")
+    ax2.plot(t, norm_pof,  "o-", linewidth=2, markersize=8, label="PoF / ε", color="C0")
     ax2.plot(t, norm_cvar, "s--", linewidth=2, markersize=8, label="CVaR / γ", color="C1")
     ax2.axhline(1.0, linestyle=":", linewidth=2, color="gray", alpha=0.7, label="Risk budget (1.0)")
     ax2.set_xlabel("Threshold t (MPa)", fontsize=14)
     ax2.set_ylabel("Risk Level / Budget", fontsize=14)
-    ax2.set_title("Risk Utilization vs Threshold\nPOF vs CVaR Control (Sample $(idx_num))", fontsize=16)
+    ax2.set_title("Risk Utilization vs Threshold\nPoF vs CVaR Control (Sample $(idx_num))", fontsize=16)
     ax2.legend(fontsize=12)
     ax2.grid(true, alpha=0.3)
     plt.tight_layout()
@@ -166,7 +166,7 @@ function plot_pof_vs_cvar_comparison(; idx_num::Int=128)
     fig3, axes = subplots(2, 2, figsize=(14, 10))
     
     # Top-left: Injection rates
-    axes[1,1].plot(t, inj_pof,  "o-", linewidth=2, markersize=8, label="POF", color="C0")
+    axes[1,1].plot(t, inj_pof,  "o-", linewidth=2, markersize=8, label="PoF", color="C0")
     axes[1,1].plot(t, inj_cvar, "s--", linewidth=2, markersize=8, label="CVaR", color="C1")
     axes[1,1].set_xlabel("Threshold t (MPa)", fontsize=12)
     axes[1,1].set_ylabel("Injection Rate", fontsize=12)
@@ -175,7 +175,7 @@ function plot_pof_vs_cvar_comparison(; idx_num::Int=128)
     axes[1,1].grid(true, alpha=0.3)
     
     # Top-right: Risk utilization
-    axes[1,2].plot(t, norm_pof,  "o-", linewidth=2, markersize=8, label="POF/ε", color="C0")
+    axes[1,2].plot(t, norm_pof,  "o-", linewidth=2, markersize=8, label="PoF/ε", color="C0")
     axes[1,2].plot(t, norm_cvar, "s--", linewidth=2, markersize=8, label="CVaR/γ", color="C1")
     axes[1,2].axhline(1.0, linestyle=":", linewidth=1.5, color="gray", alpha=0.7)
     axes[1,2].set_xlabel("Threshold t (MPa)", fontsize=12)
@@ -184,18 +184,18 @@ function plot_pof_vs_cvar_comparison(; idx_num::Int=128)
     axes[1,2].legend(fontsize=10)
     axes[1,2].grid(true, alpha=0.3)
     
-    # Bottom-left: POF values
+    # Bottom-left: PoF values
     pof_smooth_pof = sum_pof["final_pof_smooth"]
     pof_hard_pof   = sum_pof["final_pof_hard"]
-    axes[2,1].plot(t, pof_smooth_pof, "o-", linewidth=2, markersize=8, label="POF (smooth)", color="C0")
-    axes[2,1].plot(t, pof_hard_pof,   "s--", linewidth=1.5, markersize=6, label="POF (hard)", color="C0", alpha=0.7)
+    axes[2,1].plot(t, pof_smooth_pof, "o-", linewidth=2, markersize=8, label="PoF (smooth)", color="C0")
+    axes[2,1].plot(t, pof_hard_pof,   "s--", linewidth=1.5, markersize=6, label="PoF (hard)", color="C0", alpha=0.7)
     if !all(isnan, eps_used) && any(eps_used .> 0)
         eps_val = eps_used[findfirst(x -> !isnan(x) && x > 0, eps_used)]
         axes[2,1].axhline(eps_val, linestyle=":", linewidth=1.5, color="r", alpha=0.7, label="ε=$(eps_val)")
     end
     axes[2,1].set_xlabel("Threshold t (MPa)", fontsize=12)
-    axes[2,1].set_ylabel("POF", fontsize=12)
-    axes[2,1].set_title("POF Values", fontsize=14)
+    axes[2,1].set_ylabel("PoF", fontsize=12)
+    axes[2,1].set_title("PoF Values", fontsize=14)
     axes[2,1].legend(fontsize=10)
     axes[2,1].grid(true, alpha=0.3)
     
@@ -213,7 +213,7 @@ function plot_pof_vs_cvar_comparison(; idx_num::Int=128)
     axes[2,2].legend(fontsize=10)
     axes[2,2].grid(true, alpha=0.3)
     
-    plt.suptitle("POF vs CVaR Control Comparison (Sample $(idx_num))", fontsize=16, y=0.995)
+    plt.suptitle("PoF vs CVaR Control Comparison (Sample $(idx_num))", fontsize=16, y=0.995)
     plt.tight_layout(rect=[0, 0, 1, 0.99])
     safesave(joinpath(plot_dir, "pof_vs_cvar_comparison__sample=$(idx_num).png"), fig3)
     close(fig3)
@@ -262,4 +262,3 @@ function main()
 end
 
 main()
-

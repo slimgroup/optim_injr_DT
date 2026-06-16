@@ -9,7 +9,7 @@ using DrWatson
 
 include("scripts/julia_scripts/plotting/legacy_step1/plot_three_panels.jl")
 
-const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "..", "data", "DT_control", "exp_name=step1")))
 
 # Test collecting data for specific cases
 test_cases = [
@@ -48,4 +48,3 @@ for (case_type, gamma, alpha) in test_cases
         end
     end
 end
-

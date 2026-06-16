@@ -9,7 +9,7 @@ using DrWatson
 
 using JLD2
 
-const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "..", "data", "DT_control", "exp_name=step1")))
 const FORWARD_STEP = 2
 const INJ_START = 0.0001
 
@@ -93,4 +93,3 @@ end
 println("\n" * "=" ^ 80)
 println("Verification complete!")
 println("=" ^ 80)
-

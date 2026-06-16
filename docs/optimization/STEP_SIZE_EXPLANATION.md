@@ -51,7 +51,7 @@ end
 - `ex_step_size`: 梯度下降算法中初始的步长（用于 line search）
 - 用于更新注入速率：`inj_rate = proj(inj_rate + step * p)`
 - 根据不同的风险约束模式，使用不同的初始步长：
-  - POF 约束：`0.15`
+  - PoF 约束：`0.15`
   - CVaR 约束：`0.2`
   - 其他情况：`0.2`
 

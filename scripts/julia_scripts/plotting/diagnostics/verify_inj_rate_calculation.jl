@@ -11,7 +11,7 @@ using DrWatson
 using JLD2
 using DataFrames
 
-const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "..", "data", "DT_control", "exp_name=step1")))
 const FORWARD_STEP = 2
 const INJ_START = 0.0001
 
@@ -161,4 +161,3 @@ println("2. Y should be inj_rate[7] (element at index 6)")
 println("3. Z should be inj_start (0.0001)")
 println("4. This average is taken ONCE, and the result is used directly in plots")
 println("5. No additional averaging should occur in the plotting functions")
-

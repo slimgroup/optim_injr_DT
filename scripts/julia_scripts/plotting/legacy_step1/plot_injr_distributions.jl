@@ -162,7 +162,7 @@ out_pof  = joinpath(OUTDIR, "panel_POF_last_inj_rate_freq_$ts.png")
 out_cvar = joinpath(OUTDIR, "panel_CVaR_last_inj_rate_freq_$ts.png")
 
 plot_case_panels(df_ok, cases_pof;
-    fig_title="POF: Distribution of last_inj_rate by case (ok_final)",
+    fig_title="PoF: Distribution of last_inj_rate by case (ok_final)",
     filename=out_pof,
     use_logx=USE_LOGX,
     nbins=NBINS,

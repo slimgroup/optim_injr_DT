@@ -55,8 +55,8 @@ ax.vlines(q_alpha, 0, pdf[mask_right][0],
 ax.text(q_alpha, -0.10, r"$Q_\alpha$", ha="center", va="top")
 
 # ---------------- Internal text ----------------
-# POF: back inside the curve (new version)
-ax.text(0.28, 0.72, "POF",
+# PoF: back inside the curve (new version)
+ax.text(0.28, 0.72, "PoF",
         ha="center", va="center")
 
 ax.text(0.32, 0.42, "exceedance\nprobability",
@@ -77,9 +77,8 @@ ax.annotate(
 )
 
 # ---------------- Title ----------------
-ax.set_title("Relationship between POF and CVaR", pad=12)
+ax.set_title("Relationship between PoF and CVaR", pad=12)
 
 plt.tight_layout()
 plt.savefig("pof_cvar.png", dpi=300, bbox_inches="tight")
 plt.show()
-

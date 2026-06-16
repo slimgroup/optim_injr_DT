@@ -31,7 +31,7 @@ def crop_frame(path, top_frac=0.09, bottom_frac=0.0, left_frac=0.0, right_frac=0
 
 
 def make_2col_figure():
-    """2-column: POF vs CVaR, final time step. Tight layout."""
+    """2-column: PoF vs CVaR, final time step. Tight layout."""
     frame_pof  = os.path.join(FRAMES_ROOT, "frames_POF_eps00", "frame_0060.png")
     frame_cvar = os.path.join(FRAMES_ROOT, "frames_CVaR_gamma01_alpha001", "frame_0060.png")
 
@@ -42,7 +42,7 @@ def make_2col_figure():
     fig.subplots_adjust(wspace=0.02, left=0.01, right=0.99, top=0.90, bottom=0.01)
 
     axes[0].imshow(img_pof)
-    axes[0].set_title("(a) POF  $\\varepsilon = 0$  (Non-Fracture)",
+    axes[0].set_title("(a) PoF  $\\varepsilon = 0$  (Non-Fracture)",
                       fontsize=17, fontweight="bold", pad=4)
     axes[0].axis("off")
 
@@ -63,10 +63,10 @@ def make_2col_figure():
 
 
 def make_3col_figure():
-    """3-column: POF | CVaR | No Control, final time step. Tight layout."""
+    """3-column: PoF | CVaR | No Control, final time step. Tight layout."""
     dirs = [
         ("frames_POF_eps00",
-         "(a) POF $\\varepsilon = 0$\n(Non-Fracture)"),
+         "(a) PoF $\\varepsilon = 0$\n(Non-Fracture)"),
         ("frames_CVaR_gamma01_alpha001",
          "(b) CVaR $\\gamma = 0.1,\\ \\alpha = 0.01$\n(Fracture)"),
         ("frames_No_Control",
@@ -97,7 +97,7 @@ def make_3col_figure():
 def make_time_evolution():
     """3x3 grid: columns = cases, rows = time steps. Minimal whitespace."""
     case_dirs = [
-        ("frames_POF_eps00",            "POF $\\varepsilon = 0$"),
+        ("frames_POF_eps00",            "PoF $\\varepsilon = 0$"),
         ("frames_CVaR_gamma01_alpha001", "CVaR $\\gamma=0.1,\\ \\alpha=0.01$"),
         ("frames_No_Control",           "No Control"),
     ]

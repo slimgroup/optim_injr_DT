@@ -2,7 +2,7 @@
 """
 Paper figure: Fracture vs Non-Fracture Forward Simulation Comparison
 Composes existing simulation video frames into a 3-column paper figure.
-Columns: POF (non-fracture) | CVaR (moderate fracture) | No Control (severe fracture)
+Columns: PoF (non-fracture) | CVaR (moderate fracture) | No Control (severe fracture)
 Rows: Relative Pressure Margin | CO2 Saturation
 
 Outputs use the *_split.png suffix so they do not overwrite the tighter-cropped
@@ -68,7 +68,7 @@ gs = GridSpec(1, 3, figure=fig, wspace=0.03, hspace=0.02,
              left=0.02, right=0.98, top=0.92, bottom=0.02)
 
 cases = [
-    ("(a) POF  $\\varepsilon = 0$ (Non-Fracture)", img_pof),
+    ("(a) PoF  $\\varepsilon = 0$ (Non-Fracture)", img_pof),
     ("(b) CVaR  $\\gamma = 0.1,\\ \\alpha = 0.01$ (Fracture)", img_cvar),
     ("(c) No Control (Severe Fracture)", img_nc),
 ]
@@ -89,7 +89,7 @@ fig.savefig(fname, dpi=200, bbox_inches="tight", pad_inches=0.1)
 print(f"Saved: {fname}")
 plt.close(fig)
 
-# ── Also create a 2-column version (POF vs CVaR only) ────────────────────
+# ── Also create a 2-column version (PoF vs CVaR only) ────────────────────
 fig2 = plt.figure(figsize=(13, 11))
 gs2 = GridSpec(1, 2, figure=fig2, wspace=0.03,
               left=0.02, right=0.98, top=0.92, bottom=0.02)
@@ -123,7 +123,7 @@ gs3 = GridSpec(3, 3, figure=fig3, wspace=0.03, hspace=0.12,
               left=0.02, right=0.98, top=0.94, bottom=0.02)
 
 case_dirs = [
-    ("frames_POF_eps00", "POF $\\varepsilon = 0$"),
+    ("frames_POF_eps00", "PoF $\\varepsilon = 0$"),
     ("frames_CVaR_gamma01_alpha001", "CVaR $\\gamma=0.1$"),
     ("frames_No_Control", "No Control"),
 ]

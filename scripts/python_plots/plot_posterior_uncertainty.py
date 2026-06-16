@@ -14,9 +14,12 @@ import shutil
 import argparse
 from pathlib import Path
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_POSTERIOR_JLD2 = os.path.join(
-    PROJECT_ROOT, "data", "posterior", "three_set_posteriro_samples_t1_pof_cvar.jld2"
+PROJECT_ROOT_PATH = Path(__file__).resolve().parents[2]
+os.environ.setdefault("MPLCONFIGDIR", str(PROJECT_ROOT_PATH / ".mplconfig"))
+
+PROJECT_ROOT = str(PROJECT_ROOT_PATH)
+DEFAULT_POSTERIOR_JLD2 = str(
+    PROJECT_ROOT_PATH / "data" / "posterior" / "three_set_posteriro_samples_t1_pof_cvar.jld2"
 )
 
 import h5py
@@ -39,8 +42,8 @@ FRAME_SIZE = (12.8, 6.4)  # 1280 x 640 at dpi=100, divisible by 16
 FIG_DPI = 100
 
 CASES = {
-    "X_post1": r"POF $\varepsilon=0.0$ (CVaR $\gamma=0.0$)",
-    "X_post2": r"POF $\varepsilon=0.01$",
+    "X_post1": r"PoF $\varepsilon=0.0$ (CVaR $\gamma=0.0$)",
+    "X_post2": r"PoF $\varepsilon=0.01$",
     "X_post3": r"CVaR $\gamma=0.1$, $\alpha=0.01$",
 }
 
@@ -369,8 +372,8 @@ def plot_paper_style_summary(
 
     keys = list(CASES.keys())
     col_titles = [
-        r"(a) POF $\varepsilon = 0.0$",
-        r"(b) POF $\varepsilon = 0.01$",
+        r"(a) PoF $\varepsilon = 0.0$",
+        r"(b) PoF $\varepsilon = 0.01$",
         r"(c) CVaR $\gamma = 0.1, \alpha = 0.01$",
     ]
     row_vars = row_vars or ["relative_margin", "pressure_diff", "sat"]

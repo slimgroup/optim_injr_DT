@@ -18,8 +18,12 @@ shell/
 | Task | Command |
 |------|---------|
 | Main optimization array | `sbatch scripts/shell/run/optim_inject_pace.sh` |
+| Step-4 paired posterior optimization | `sbatch scripts/shell/submit/submit_step4_paired_all.sh` |
+| Step-3/4 paired posterior smoke tests | `bash scripts/shell/submit/submit_step3_paired_smoketest.sh` / `bash scripts/shell/submit/submit_step4_paired_smoketest.sh` |
 | Bootstrap ECDF pipeline | `sbatch scripts/shell/submit/submit_bootstrap_cdf.sh` |
 | Posterior summary (all steps) | `sbatch scripts/shell/submit/submit_posterior_summary_all_steps_shared.sh` |
+| Full-campaign video forward export | `sbatch scripts/shell/submit/submit_full_campaign_video_forwards.sh` |
+| Full-campaign video rendering | `sbatch scripts/shell/submit/submit_full_campaign_fracture_video.sh` |
 | Threshold sensitivity | `sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity.sh` |
 | Organize flat SLURM logs | `python3 scripts/python_tools/maintenance/organize_logs.py` |
 

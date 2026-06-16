@@ -288,7 +288,7 @@ function format_case_title(case_tag::String)
     if startswith(case_tag, "POF")
         if (m = match(r"eps[_\s]*=\s*([0-9.]+)", case_tag)) !== nothing
             eps_val = m.captures[1]
-            return "POF eps=$(eps_val)"
+            return "PoF eps=$(eps_val)"
         else
             return replace(case_tag, "_" => " ")
         end
@@ -984,4 +984,3 @@ if length(cases_data) > 0
 end
 
 println("\nDone.")
-

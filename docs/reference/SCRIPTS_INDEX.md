@@ -51,6 +51,10 @@ Paths below are relative to `scripts/shell/`.
   Main SLURM job entry point for array optimization runs on PACE.
 - `submit/submit_all.sh`
   Broad batch submission helper.
+- `submit/submit_step4_paired_all.sh`
+  Current full step-4 paired-posterior optimization submitter for the three representative risk cases.
+- `submit/submit_step3_paired_smoketest.sh`, `submit/submit_step4_paired_smoketest.sh`
+  Small paired-posterior smoke-test submitters for checking posterior source, permeability index, and case-level `inj_start`.
 - `run/run_bootstrap_cdf.sh`
   Run the bootstrap CDF plotting pipeline on a compute node or interactive allocation.
 - `submit/submit_bootstrap_cdf.sh`
@@ -61,6 +65,8 @@ Paths below are relative to `scripts/shell/`.
   Threshold-sensitivity submission wrapper that still exists in this tree.
 - `submit/submit_video_generation.sh`
   Batch entry point for video-generation workflows.
+- `submit/submit_posterior_summary_all_steps_shared.sh`
+  Posterior-field mean/std summary plotting for all four monitoring steps. This can be plotting-heavy and should run through Slurm on PACE.
 
 #### Diagnostics and status checks
 
@@ -78,7 +84,7 @@ Paths below are relative to `scripts/shell/`.
 - `retry/rerun_7_missing_cvar_samples_fix.sh`
   Targeted rerun helper for missing CVaR samples.
 - `retry/cancel_duplicate_pof_jobs.sh`
-  Queue cleanup helper for duplicate POF jobs.
+  Queue cleanup helper for duplicate PoF jobs.
 - `maintenance/move_iteration_files_to_scratch.sh`
   File-placement helper for iteration artifacts.
 
@@ -99,13 +105,18 @@ Paths below are relative to `scripts/shell/`.
 - `submit/submit_pof_cases_smart.sh`
 - `submit/submit_pof_sensitivity.sh`
 - `submit/submit_step2_dual_prior_smoketest.sh`
+- `submit/submit_controlled_day728.sh`
+- `submit/submit_no_control_delayed_fracture_sweep.sh`
+- `submit/submit_cvar_day728_sensitivity_sweep.sh`
+- `submit/submit_full_campaign_video_forwards.sh`
+- `submit/submit_full_campaign_fracture_video.sh`
 - `run/optim_inject_cruyff.sh`, `run/optim_inject_cruyff_cpu.sh`, `run/optim_inject_pace_7cases_fix.sh`
   Case-specific or historical workflows kept for reference or reruns.
 
 #### Deprecated gamma-table path
 
 - `submit/submit_gamma_table_generation.sh`
-  Historical helper for a deprecated gamma-table-based POF/CVaR comparison path.
+  Historical helper for a deprecated gamma-table-based PoF/CVaR comparison path.
   Keep for reproducibility only; do not treat as the recommended workflow.
 
 ### Julia plotting entry points
@@ -113,7 +124,7 @@ Paths below are relative to `scripts/shell/`.
 - `scripts/julia_scripts/plotting/bootstrap_ecdf/plot_bootstrap_panels.jl`
   Bootstrap histogram/CDF figures, including part-1 and grid modes.
 - `scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.jl`
-  POF vs CVaR threshold-sensitivity comparison figures.
+  PoF vs CVaR threshold-sensitivity comparison figures.
 - `scripts/julia_scripts/plotting/general/plot_perm_ensemble.jl`
   Julia version of permeability ensemble plotting.
 - `scripts/julia_scripts/plotting/general/plot_fracture_comparison.jl`
@@ -134,16 +145,34 @@ Paths below are relative to `scripts/shell/`.
 
 - `scripts/julia_scripts/data_collection/forward_exports/run_forward_export.jl`
   Produces `plots/paper_figures/forward_sim_data.jld2` for downstream Python figure scripts.
+- `scripts/julia_scripts/data_collection/forward_exports/run_forward_four_steps_base_export.jl`
+  Produces the base four-monitoring-step ground-truth forward export used by paper schedule/risk figures.
+- `scripts/julia_scripts/data_collection/forward_exports/run_controlled_day728_from_day720.jl`
+  Produces day-728 controlled-case states for the real fracture-comparison figure.
+- `scripts/julia_scripts/data_collection/forward_exports/run_no_control_delayed_fracture_sweep.jl`
+  Produces delayed no-control ramp states and the severe-fracture shutdown day used in paper figures.
+- `scripts/julia_scripts/data_collection/forward_exports/run_full_campaign_video_cases.jl`
+  Produces full 1920-day ground-truth forward fields for the three-case campaign video.
 - `scripts/python_plots/plot_3row_comparison.py`
   Three-row paper figure using the forward-export file.
 - `scripts/python_plots/plot_fracture_comparison.py`
   Frame-composition figure from existing forward/video outputs.
 - `scripts/python_plots/plot_fracture_comparison_paper.py`
   Tighter paper-layout version of the fracture comparison figure.
+- `scripts/python_plots/plot_real_fracture_comparison_day408.py`
+  Current real day-728 fracture-comparison figure script. The filename is historical; check `DAY` inside the script before interpreting the output.
+- `scripts/python_plots/plot_injection_schedule_over_four_steps.py`
+  Paper figure for injection schedules and cumulative injected CO2 across four monitoring steps.
+- `scripts/python_plots/plot_pressure_risk_trajectory_over_four_steps.py`
+  Paper figure for maximum normalized pressure load and fractured-cell trajectories across four monitoring steps.
+- `scripts/python_plots/create_full_campaign_fracture_video.py`
+  Full 1920-day three-case fracture-comparison video renderer.
 - `scripts/python_plots/plot_perm_ensemble.py`
   Python paper figure for permeability ensemble statistics.
 - `scripts/shell/submit/submit_forward_and_plot.sh`
   Batch wrapper for forward export plus Python plotting.
+
+For final paper assets and their input data, see `docs/reference/PAPER_FIGURE_MANIFEST.md`.
 
 ## Script Groups By Purpose
 
@@ -152,7 +181,7 @@ Paths below are relative to `scripts/shell/`.
 Subfolders: `submit/`, `run/`, `check/`, `retry/`, `maintenance/`. See `scripts/shell/README.md`.
 
 - Common current entry points:
-  `run/optim_inject_pace.sh`, `submit/submit_all.sh`, `run/run_bootstrap_cdf.sh`, `submit/submit_bootstrap_cdf.sh`, `run/run_plot_threshold_sensitivity.sh`, `submit/submit_threshold_sensitivity.sh`
+  `run/optim_inject_pace.sh`, `submit/submit_all.sh`, `submit/submit_step4_paired_all.sh`, `run/run_bootstrap_cdf.sh`, `submit/submit_bootstrap_cdf.sh`, `run/run_plot_threshold_sensitivity.sh`, `submit/submit_threshold_sensitivity.sh`
 - Diagnostics:
   `check/check_*`, `check/verify_*`, `check/test_ds_verification.sh`
 - Recovery and queue management:
@@ -182,7 +211,7 @@ Subfolders: `posterior_stats/`, `bootstrap_ecdf/`, `videos/`, `legacy_step1/`, `
 - `collect_cvar_only.jl`
   CVaR-only collection helper.
 - `collect_pof_32_injection_rates.jl`
-  POF-only collector for the 1..32 sample workflow.
+  PoF-only collector for the 1..32 sample workflow.
 
 ### `scripts/julia_scripts/analysis/`
 
@@ -197,7 +226,7 @@ Subfolders: `posterior_stats/`, `bootstrap_ecdf/`, `videos/`, `legacy_step1/`, `
 
 - If a workflow writes large outputs, they should land under `data/`, `plots/`, or `logs/`, not in `scripts/`.
 - `archive/` directories are historical reference material. Do not treat them as primary entry points.
-- `scripts/gamma_tables/*.jld2` is a historical artifact from a deprecated POF/CVaR comparison route.
+- `scripts/gamma_tables/*.jld2` is a historical artifact from a deprecated PoF/CVaR comparison route.
   Keep it only for reproducibility until the user explicitly authorizes cleanup.
 - Python bytecode caches under `scripts/**/__pycache__/` are local artifacts and should remain ignored.
 

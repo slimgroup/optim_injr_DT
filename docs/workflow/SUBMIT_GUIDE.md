@@ -62,7 +62,7 @@ scancel -n thresh_sens_128
   - 快速模式：12 小时
   - 完整模式：24 小时
 - **分区**: inferno
-- **账户**: gts-fherrmann9
+- **账户**: <PACE_ACCOUNT>
 
 ## 输出文件
 

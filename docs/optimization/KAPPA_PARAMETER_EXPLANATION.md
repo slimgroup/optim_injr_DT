@@ -55,7 +55,7 @@ d/dx softplus(x; κ) = 1 / (1 + e^(-κx)) = sigmoid(κx)
 
 ## 在优化中的应用
 
-### 1. POF惩罚（Probability of Failure）
+### 1. PoF惩罚（Probability of Failure）
 
 ```julia
 κ_pof = risk.kappa_pof  # 默认 50.0
@@ -161,7 +161,7 @@ julia src/optim_inject.jl \
 ```
 
 这会在plots目录生成 `softplus_demo.png`，展示：
-- POF softplus曲线（κ=50）
+- PoF softplus曲线（κ=50）
 - CVaR softplus曲线（κ=50）
 - 零基线效果（减去softplus(0)）
 
@@ -265,7 +265,7 @@ softplus(0.01; κ=50) - softplus(0; κ=50) ≈ 0.0099 > 0  ✓
 ### Q2: κ_pof和κ_cvar可以设置不同值吗？
 
 **A**: 可以！根据具体需求：
-- 如果POF约束更重要：增大κ_pof
+- 如果PoF约束更重要：增大κ_pof
 - 如果CVaR约束更重要：增大κ_cvar
 - 通常保持相同即可（50.0）
 
@@ -295,7 +295,7 @@ softplus(0.01; κ=50) - softplus(0; κ=50) ≈ 0.0099 > 0  ✓
 ### 代码位置
 
 - 函数定义：`src/optim_inject.jl` 第176-187行
-- POF惩罚：`src/optim_inject.jl` 第540行
+- PoF惩罚：`src/optim_inject.jl` 第540行
 - CVaR惩罚：`src/optim_inject.jl` 第541行
 - CVaR平滑：`src/optim_inject.jl` 第375-376行
 - Demo生成：`src/optim_inject.jl` 第258-273行
@@ -304,7 +304,7 @@ softplus(0.01; κ=50) - softplus(0; κ=50) ≈ 0.0099 > 0  ✓
 
 ```julia
 "--kappa_pof"
-    help = "κ for POF softplus (zero-baseline)"
+    help = "κ for PoF softplus (zero-baseline)"
     arg_type = Float64
     default = 50.0
 

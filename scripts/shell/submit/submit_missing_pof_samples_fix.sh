@@ -36,7 +36,6 @@ submit_one_sample() {
             --error="${ROOT_DIR}/logs/err_${jobname}_%A_%a.txt" \
             --signal=TERM@60 \
             --mail-type=BEGIN,END,FAIL \
-            --mail-user=hli853@gatech.edu \
             --wrap="module purge && module load julia/1.11.3 2>/dev/null || true && \
                     export JULIA_DEPOT_PATH=\$HOME/julia-depot && mkdir -p \$JULIA_DEPOT_PATH && \
                     export PYTHON=/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python && \
@@ -76,4 +75,3 @@ echo "You can check job status with:"
 echo "  squeue -u \$USER"
 echo ""
 echo "Check logs in: ${ROOT_DIR}/logs/"
-

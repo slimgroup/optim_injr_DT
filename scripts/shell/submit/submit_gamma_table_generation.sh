@@ -10,7 +10,7 @@
 #SBATCH --output=logs/gamma_table_gen_%j.txt
 #SBATCH --error=logs/gamma_table_gen_%j.txt
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=hli853@gatech.edu
+##SBATCH --mail-user=YOUR_EMAIL@example.com
 
 # Generate gamma lookup table for threshold sensitivity analysis
 # Estimated runtime: 15-25 minutes (5 thresholds, 1 eps value)

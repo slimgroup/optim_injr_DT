@@ -36,13 +36,13 @@ const CASE_SPECS = [
         case_key = "pof_eps0.01",
         dir = "case=pof_eps0.01__prior=pointwise_median__POF__HARD__eps=0.01__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0",
         slug = "pof_eps0.01_pointwise_median",
-        title = "Step 2 POF (eps=0.01) | pointwise median",
+        title = "Step 2 PoF (eps=0.01) | pointwise median",
     ),
     (
         case_key = "pof_eps0.01",
         dir = "case=pof_eps0.01__prior=paired_posterior_sample__POF__HARD__eps=0.01__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0",
         slug = "pof_eps0.01_paired_posterior",
-        title = "Step 2 POF (eps=0.01) | paired posterior",
+        title = "Step 2 PoF (eps=0.01) | paired posterior",
     ),
     (
         case_key = "cvar_g0.1_a0.01",

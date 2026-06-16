@@ -7,6 +7,8 @@ import csv
 import os
 from pathlib import Path
 
+os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).resolve().parents[2] / ".mplconfig"))
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -29,7 +31,7 @@ N_PERIODS_PER_STEP = 6
 TOTAL_STEPS = 4
 
 CASE_SCHEDULES = {
-    "POF eps = 0.0 (= CVaR γ = 0.0)": [
+    "PoF eps = 0.0 (= CVaR γ = 0.0)": [
         0.00010,
         0.00534,
         0.01058,
@@ -55,7 +57,7 @@ CASE_SCHEDULES = {
         0.07099,
         0.07323,
     ],
-    "POF eps = 0.01": [
+    "PoF eps = 0.01": [
         0.00010,
         0.00914,
         0.01818,
@@ -195,8 +197,8 @@ def main() -> None:
     no_control, frac_day = make_no_control_schedule()
 
     colors = {
-        "POF eps = 0.0 (= CVaR γ = 0.0)": "#0E7490",
-        "POF eps = 0.01": "#D97706",
+        "PoF eps = 0.0 (= CVaR γ = 0.0)": "#0E7490",
+        "PoF eps = 0.01": "#D97706",
         "CVaR γ = 0.1, α = 0.01": "#B91C1C",
         "No control (severe fracture)": "#6B7280",
     }
@@ -282,7 +284,7 @@ def main() -> None:
 
     case_handles = [
         Line2D([0], [0], color=colors[name], linewidth=3.2, label=name)
-        for name in ["POF eps = 0.0 (= CVaR γ = 0.0)", "POF eps = 0.01", "CVaR γ = 0.1, α = 0.01", "No control (severe fracture)"]
+        for name in ["PoF eps = 0.0 (= CVaR γ = 0.0)", "PoF eps = 0.01", "CVaR γ = 0.1, α = 0.01", "No control (severe fracture)"]
     ]
     style_handles = [
         Line2D([0], [0], color="#111827", linewidth=3.0, linestyle="-", label="Injection rate (left axis)"),

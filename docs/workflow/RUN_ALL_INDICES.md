@@ -32,7 +32,7 @@ julia --project=. -t 1 src/optim_inject.jl \
 ```bash
 #!/bin/bash
 #SBATCH --job-name=cvar_all_idx
-#SBATCH --account=gts-fherrmann9
+#SBATCH --account=<PACE_ACCOUNT>
 #SBATCH --array=1-128
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=1

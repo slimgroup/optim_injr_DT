@@ -45,7 +45,7 @@ bash scripts/shell/check/check_ds_verification.sh   # after job completes
 
 GitHub CI runs **unit tests only** (no local geo/state data on the runner).
 
-See also [docs/analysis/COMPUTATIONAL_COST_BREAKDOWN.md](../analysis/COMPUTATIONAL_COST_BREAKDOWN.md).
+See also [docs/analysis/COMPUTATIONAL_COST_BREAKDOWN.md](../docs/analysis/COMPUTATIONAL_COST_BREAKDOWN.md).
 
 ## Adding tests
 

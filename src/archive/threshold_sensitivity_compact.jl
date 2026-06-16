@@ -908,7 +908,7 @@ function main()
         ax.plot(thresholds, final_pof_hard, "s--", linewidth=2, markersize=6, label="Hard")
         ax.set_xlabel("Threshold t (MPa)", fontsize=14)
         ax.set_ylabel("Probability of Failure", fontsize=14)
-        ax.set_title("POF vs Threshold", fontsize=16)
+        ax.set_title("PoF vs Threshold", fontsize=16)
         ax.legend(fontsize=12)
         ax.grid(true, alpha=0.3)
         plt.tight_layout()
@@ -965,4 +965,3 @@ function main()
 end
 
 main()
-

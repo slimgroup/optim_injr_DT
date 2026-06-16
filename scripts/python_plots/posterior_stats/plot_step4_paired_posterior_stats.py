@@ -11,7 +11,7 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO_ROOT = Path("/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT")
+REPO_ROOT = Path(__file__).resolve().parents[3]
 ROOT = REPO_ROOT / "data" / "DT_control" / "exp_name=step4"
 OUTDIR = REPO_ROOT / "plots" / "step4_paired_posterior_stats"
 
@@ -57,7 +57,7 @@ SPECS = (
     CaseSpec(
         "pof_eps0.0",
         "pof_eps0.0",
-        "POF eps=0.0",
+        "PoF eps=0.0",
         "case=pof_eps0.0__prior=paired_posterior_sample__POF__HARD__eps=0.0__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0",
         0.06201,
         "6497599",
@@ -66,7 +66,7 @@ SPECS = (
     CaseSpec(
         "pof_eps0.01",
         "pof_eps0.01",
-        "POF eps=0.01",
+        "PoF eps=0.01",
         "case=pof_eps0.01__prior=paired_posterior_sample__POF__HARD__eps=0.01__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0",
         0.08023,
         "6497601",
@@ -488,17 +488,17 @@ def main() -> None:
         if missing:
             lines.append(f"- {spec.title} no-final candidates: `{', '.join(map(str, missing))}`")
             if spec.key == "pof_eps0.0":
-                lines.append("- All no-final candidates for `POF eps=0.0` hit `first_forward failed even at minimum injection rate 0.0001`, so they are strong infeasible / fracture candidates rather than generic save failures.")
+                lines.append("- All no-final candidates for `PoF eps=0.0` hit `first_forward failed even at minimum injection rate 0.0001`, so they are strong infeasible / fracture candidates rather than generic save failures.")
         else:
             lines.append(f"- {spec.title} no-final candidates: `none`")
 
     lines += [
         "",
-        "Bias note for `POF eps=0.0`:",
-        "- The step-4 histogram / CDF for `POF eps=0.0` is fitted on the `122` feasible completed samples only.",
+        "Bias note for `PoF eps=0.0`:",
+        "- The step-4 histogram / CDF for `PoF eps=0.0` is fitted on the `122` feasible completed samples only.",
         "- Samples `5, 16, 28, 36, 47, 117` are excluded because `first_forward` fails even at the minimum injection rate `0.0001`, so they represent an infeasible / fracture-candidate mass rather than ordinary low-rate completed realizations.",
-        "- This means the reported step-4 `q_k*` for `POF eps=0.0` is a conservative left-tail estimate conditional on feasibility, not an unbiased full-128-sample tail metric.",
-        "- As a result, the left tail for `POF eps=0.0` should be interpreted together with the separate no-final mass, not as a complete all-sample distribution.",
+        "- This means the reported step-4 `q_k*` for `PoF eps=0.0` is a conservative left-tail estimate conditional on feasibility, not an unbiased full-128-sample tail metric.",
+        "- As a result, the left tail for `PoF eps=0.0` should be interpreted together with the separate no-final mass, not as a complete all-sample distribution.",
     ]
 
     plot_grid(results, OUTDIR / "summary_grid_hist_cdf.png")
@@ -524,7 +524,7 @@ def main() -> None:
         if missing:
             log_lines.append(f"- no-final candidates: `{', '.join(map(str, missing))}`")
             if spec.key == "pof_eps0.0":
-                log_lines.append("- These `POF eps=0.0` no-final candidates all failed with `first_forward failed even at minimum injection rate 0.0001`.")
+                log_lines.append("- These `PoF eps=0.0` no-final candidates all failed with `first_forward failed even at minimum injection rate 0.0001`.")
         log_lines.append("")
     if len(log_lines) == 6:
         log_lines += ["All samples currently have `final.jld2` or are still active.", ""]

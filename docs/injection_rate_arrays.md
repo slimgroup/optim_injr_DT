@@ -26,17 +26,17 @@ array = range(inj_start, q_k_star, length=6)   # Julia: 6 points inclusive
 
 **Representative-case note:** this section records the three representative risk cases that are
 carried forward through the later monitoring steps:
-`POF ε=0.0`, `POF ε=0.01`, and `CVaR γ=0.1 α=0.01`.
+`PoF ε=0.0`, `PoF ε=0.01`, and `CVaR γ=0.1 α=0.01`.
 
 ## Injection Rate Arrays
 
-### Case 1: POF ε=0.0 (q_k\* = 0.0263)
+### Case 1: PoF ε=0.0 (q_k\* = 0.0263)
 
 ```
 [0.00010, 0.00534, 0.01058, 0.01582, 0.02106, 0.02630]
 ```
 
-### Case 2: POF ε=0.01 (q_k\* = 0.0453)
+### Case 2: PoF ε=0.01 (q_k\* = 0.0453)
 
 ```
 [0.00010, 0.00914, 0.01818, 0.02722, 0.03626, 0.04530]
@@ -54,8 +54,8 @@ carried forward through the later monitoring steps:
 
 | Case | q_k\* (conservative) | ECDF (median) | Opt (optimistic) |
 |------|---------------------|---------------|-----------------|
-| POF ε=0.0 | 0.0263 | 0.0275 | 0.0315 |
-| POF ε=0.01 | 0.0453 | 0.047 | 0.056 |
+| PoF ε=0.0 | 0.0263 | 0.0275 | 0.0315 |
+| PoF ε=0.01 | 0.0453 | 0.047 | 0.056 |
 | CVaR γ=0.1 α=0.01 | 0.0747 | 0.0764 | 0.0881 |
 
 ## Parameters
@@ -87,11 +87,11 @@ array = range(step1_q_k_star, step2_q_k_star, length=6)   # Julia: 6 points incl
 
 This means the step-2 DT-training arrays start from the already-selected first monitoring step endpoint for the same risk case.
 
-**Case-count note:** `POF eps=0.0` still uses `127` completed samples because sample `113` fractures even at zero injection rate and is intentionally excluded. `POF eps=0.01` and `CVaR gamma=0.1 alpha=0.01` use their full `128` completed samples.
+**Case-count note:** `PoF eps=0.0` still uses `127` completed samples because sample `113` fractures even at zero injection rate and is intentionally excluded. `PoF eps=0.01` and `CVaR gamma=0.1 alpha=0.01` use their full `128` completed samples.
 
 ## Injection Rate Arrays
 
-### Step-2 Case 1: POF ε=0.0
+### Step-2 Case 1: PoF ε=0.0
 
 - step-1 `q_k*`: `0.0263`
 - step-2 `q_k*`: `0.0449` from `127` samples
@@ -100,7 +100,7 @@ This means the step-2 DT-training arrays start from the already-selected first m
 [0.02630, 0.03002, 0.03373, 0.03745, 0.04117, 0.04489]
 ```
 
-### Step-2 Case 2: POF ε=0.01
+### Step-2 Case 2: PoF ε=0.01
 
 - step-1 `q_k*`: `0.0453`
 - step-2 `q_k*`: `0.0732` from `128` samples
@@ -122,8 +122,8 @@ This means the step-2 DT-training arrays start from the already-selected first m
 
 | Case | q_k\* (conservative) | ECDF (median) | Opt (optimistic) |
 |------|---------------------|---------------|-----------------|
-| POF ε=0.0 | 0.0449 | 0.0481 | 0.0502 |
-| POF ε=0.01 | 0.0732 | 0.0763 | 0.0788 |
+| PoF ε=0.0 | 0.0449 | 0.0481 | 0.0502 |
+| PoF ε=0.01 | 0.0732 | 0.0763 | 0.0788 |
 | CVaR γ=0.1 α=0.01 | 0.1153 | 0.1199 | 0.1278 |
 
 ## Parameters
@@ -134,7 +134,7 @@ This means the step-2 DT-training arrays start from the already-selected first m
 - Unit: m³/s
 - Bootstrap: B=5000, 95% CI, seed=42
 - Fracture probability threshold: 1%
-- Number of geological samples used per case: 127 for `POF eps=0.0`, 128 for the other two cases
+- Number of geological samples used per case: 127 for `PoF eps=0.0`, 128 for the other two cases
 
 ---
 
@@ -143,7 +143,7 @@ This means the step-2 DT-training arrays start from the already-selected first m
 ## Source
 
 Values derived from the final step-3 paired posterior statistical analysis
-([summary_grid_hist_cdf.png](/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/plots/step3_paired_posterior_stats/summary_grid_hist_cdf.png)
+([summary_grid_hist_cdf.png](../plots/step3_paired_posterior_stats/summary_grid_hist_cdf.png)
 and the corresponding single-case histogram / CDF figures under
 `plots/step3_paired_posterior_stats/`).
 
@@ -158,13 +158,13 @@ array = range(step2_q_k_star, step3_q_k_star, length=6)   # Julia: 6 points incl
 
 This means the step-3 DT-training arrays start from the already-selected second monitoring step endpoint for the same risk case.
 
-**Case-count note:** step 3 does **not** use all 128 realizations for `POF eps=0.0`. Samples `11`, `43`, `54`, and `117`
+**Case-count note:** step 3 does **not** use all 128 realizations for `PoF eps=0.0`. Samples `11`, `43`, `54`, and `117`
 hit `first_forward failed even at minimum injection rate 0.0001`, so they are treated as strong infeasible / fracture candidates
 and excluded from the histogram / CDF fit. The other two cases use their full `128` completed samples.
 
 ## Injection Rate Arrays
 
-### Step-3 Case 1: POF ε=0.0
+### Step-3 Case 1: PoF ε=0.0
 
 - step-2 `q_k*`: `0.04489`
 - step-3 `q_k*`: `0.06201` from `124` completed samples
@@ -174,7 +174,7 @@ and excluded from the histogram / CDF fit. The other two cases use their full `1
 [0.04489, 0.04831, 0.05174, 0.05516, 0.05859, 0.06201]
 ```
 
-### Step-3 Case 2: POF ε=0.01
+### Step-3 Case 2: PoF ε=0.01
 
 - step-2 `q_k*`: `0.07317`
 - step-3 `q_k*`: `0.08023` from `128` completed samples
@@ -196,8 +196,8 @@ and excluded from the histogram / CDF fit. The other two cases use their full `1
 
 | Case | q_k\* (conservative) | ECDF (median) | Opt (optimistic) |
 |------|---------------------|---------------|-----------------|
-| POF ε=0.0 | 0.06201 | 0.06254 | 0.07187 |
-| POF ε=0.01 | 0.08023 | 0.08088 | 0.10160 |
+| PoF ε=0.0 | 0.06201 | 0.06254 | 0.07187 |
+| PoF ε=0.01 | 0.08023 | 0.08088 | 0.10160 |
 | CVaR γ=0.1 α=0.01 | 0.11866 | 0.11927 | 0.16562 |
 
 ## Parameters
@@ -208,8 +208,8 @@ and excluded from the histogram / CDF fit. The other two cases use their full `1
 - Unit: m³/s
 - Bootstrap: B=5000, 95% CI, seed=42
 - Fracture probability threshold: 1%
-- Number of geological samples used per case: `124` for `POF eps=0.0`, `128` for the other two cases
-- Step-3 infeasible / fracture candidates under `POF eps=0.0`: `11, 43, 54, 117`
+- Number of geological samples used per case: `124` for `PoF eps=0.0`, `128` for the other two cases
+- Step-3 infeasible / fracture candidates under `PoF eps=0.0`: `11, 43, 54, 117`
 
 ---
 
@@ -218,7 +218,7 @@ and excluded from the histogram / CDF fit. The other two cases use their full `1
 ## Source
 
 Values derived from the final step-4 paired posterior statistical analysis
-([summary_grid_hist_cdf.png](/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT/plots/step4_paired_posterior_stats/summary_grid_hist_cdf.png)
+([summary_grid_hist_cdf.png](../plots/step4_paired_posterior_stats/summary_grid_hist_cdf.png)
 and the corresponding single-case histogram / CDF figures under
 `plots/step4_paired_posterior_stats/`).
 
@@ -241,7 +241,7 @@ array = range(step3_q_k_star, step4_q_k_star, length=6)   # Julia: 6 points incl
 This means the step-4 DT-training arrays start from the already-selected third monitoring
 step endpoint for the same risk case.
 
-**Case-count note:** step 4 again does **not** use all 128 realizations for `POF eps=0.0`.
+**Case-count note:** step 4 again does **not** use all 128 realizations for `PoF eps=0.0`.
 Samples `5`, `16`, `28`, `36`, `47`, and `117` hit
 `first_forward failed even at minimum injection rate 0.0001`, so they are treated as strong
 infeasible / fracture candidates and excluded from the histogram / CDF fit. The other two
@@ -249,7 +249,7 @@ cases use their full `128` completed samples.
 
 ## Injection Rate Arrays
 
-### Step-4 Case 1: POF ε=0.0
+### Step-4 Case 1: PoF ε=0.0
 
 - step-3 `q_k*`: `0.06201`
 - step-4 `q_k*`: `0.07323` from `122` completed samples
@@ -259,7 +259,7 @@ cases use their full `128` completed samples.
 [0.06201, 0.06425, 0.06650, 0.06874, 0.07099, 0.07323]
 ```
 
-### Step-4 Case 2: POF ε=0.01
+### Step-4 Case 2: PoF ε=0.01
 
 - step-3 `q_k*`: `0.08023`
 - step-4 `q_k*`: `0.08114` from `128` completed samples
@@ -281,8 +281,8 @@ cases use their full `128` completed samples.
 
 | Case | q_k\* (conservative) | ECDF (median) | Opt (optimistic) |
 |------|---------------------|---------------|-----------------|
-| POF ε=0.0 | 0.07323 | 0.07519 | 0.07912 |
-| POF ε=0.01 | 0.08114 | 0.08396 | 0.10120 |
+| PoF ε=0.0 | 0.07323 | 0.07519 | 0.07912 |
+| PoF ε=0.01 | 0.08114 | 0.08396 | 0.10120 |
 | CVaR γ=0.1 α=0.01 | 0.12022 | 0.12619 | 0.14360 |
 
 ## Parameters
@@ -293,5 +293,5 @@ cases use their full `128` completed samples.
 - Unit: m³/s
 - Bootstrap: B=5000, 95% CI, seed=42
 - Fracture probability threshold: 1%
-- Number of geological samples used per case: `122` for `POF eps=0.0`, `128` for the other two cases
-- Step-4 infeasible / fracture candidates under `POF eps=0.0`: `5, 16, 28, 36, 47, 117`
+- Number of geological samples used per case: `122` for `PoF eps=0.0`, `128` for the other two cases
+- Step-4 infeasible / fracture candidates under `PoF eps=0.0`: `5, 16, 28, 36, 47, 117`

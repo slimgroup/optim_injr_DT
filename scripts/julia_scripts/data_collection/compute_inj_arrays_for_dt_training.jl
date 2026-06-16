@@ -18,7 +18,7 @@ using Distributions
 using JLD2
 
 # Config
-const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "data", "DT_control", "exp_name=step1")))
 const NUM_GRID = 16000
 const CONF_LEVEL = 0.95
 const FRACTURE_PROB_THRESHOLD = 0.01
@@ -428,4 +428,3 @@ end
 println("\n" * "="^60)
 println("Generated markdown file: $output_file")
 println("="^60)
-

@@ -4,7 +4,7 @@
 #   Panel (b): Empirical CDF with 95% Bootstrap CI and zoom-in inset
 #
 # Generates plots for:
-#   - POF eps=0.01
+#   - PoF eps=0.01
 #   - CVaR g=0.05 a=0.05
 
 using Pkg
@@ -262,7 +262,7 @@ function plot_two_panel(data::Vector{Float64}, case_tag::String, case_title::Str
     
     # ---------- Zoom-in inset: BOTTOM-RIGHT corner, shifted LEFT ----------
     # Position: [left, bottom, width, height] in axes fraction
-    inset_b = ax_b.inset_axes([0.38, 0.08, 0.60, 0.48])  # slight right nudge to avoid CDF overlap in POF
+    inset_b = ax_b.inset_axes([0.38, 0.08, 0.60, 0.48])  # slight right nudge to avoid CDF overlap in PoF
     
     # Determine zoom range around the threshold crossing
     zoom_points = filter(!isnothing, [x_conservative, x_ecdf, x_optimistic])
@@ -335,16 +335,16 @@ end
 # ===================== Main =====================
 mkpath(OUTDIR)
 
-# --- Case 1: POF eps=0.01 ---
-println("\n=== Collecting POF eps=0.01 data ===")
+# --- Case 1: PoF eps=0.01 ---
+println("\n=== Collecting PoF eps=0.01 data ===")
 pof_data = collect_data_from_dir(ROOT, "POF__HARD__eps=0.01__")
 println("  Collected $(length(pof_data)) samples")
 
 if length(pof_data) >= 2
-    plot_two_panel(pof_data, "POF_eps0.01", "POF (eps=0.01)",
+    plot_two_panel(pof_data, "POF_eps0.01", "PoF (eps=0.01)",
                   joinpath(OUTDIR, "two_panel_POF_eps0.01.png"))
 else
-    @warn "Not enough POF eps=0.01 data to plot ($(length(pof_data)) samples)"
+    @warn "Not enough PoF eps=0.01 data to plot ($(length(pof_data)) samples)"
 end
 
 # --- Case 2: CVaR g=0.05 a=0.05 ---

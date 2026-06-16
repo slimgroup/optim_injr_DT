@@ -2,7 +2,7 @@
 
 ## 🖥️ 机器配置
 
-- **PACE集群**: `/storage/coda1/p-fherrmann9/0/hli853/optim_injr_DT`
+- **PACE集群**: `/path/to/optim_injr_DT`
   - 用途：运行计算任务、生成数据
   - 特点：有大量本地文件（日志、数据、图片）
 
@@ -165,7 +165,7 @@ cat > ~/git-sync-pace.sh << 'EOF'
 #!/bin/bash
 # PACE机器上的Git同步脚本
 
-cd /storage/coda1/p-fherrmann9/0/hli853/optim_injr_DT
+cd /path/to/optim_injr_DT
 
 echo "=== 拉取最新代码 ==="
 git pull origin main

@@ -12,7 +12,7 @@
 #SBATCH --error=logs/err_%x_%A_%a.txt
 #SBATCH --signal=TERM@60
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=hli853@gatech.edu
+##SBATCH --mail-user=YOUR_EMAIL@example.com
 
 set -euo pipefail
 module purge

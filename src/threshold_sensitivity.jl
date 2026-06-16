@@ -1871,13 +1871,13 @@ function main()
         safesave(joinpath(plot_path, "objective_vs_threshold__sample=$(s).png"), fig)
         close(fig)
 
-        # Plot 3: POF vs threshold
+        # Plot 3: PoF vs threshold
         fig, ax = subplots(figsize=(8, 6))
-        ax.plot(thresholds, final_pof_smooth, "o-", linewidth=2, markersize=8, label="POF (smooth)")
-        ax.plot(thresholds, final_pof_hard, "s--", linewidth=2, markersize=6, label="POF (hard)")
+        ax.plot(thresholds, final_pof_smooth, "o-", linewidth=2, markersize=8, label="PoF (smooth)")
+        ax.plot(thresholds, final_pof_hard, "s--", linewidth=2, markersize=6, label="PoF (hard)")
         ax.set_xlabel("Threshold t (MPa)", fontsize=14)
         ax.set_ylabel("Probability of Failure", fontsize=14)
-        ax.set_title("POF vs Threshold", fontsize=16)
+        ax.set_title("PoF vs Threshold", fontsize=16)
         ax.legend(fontsize=12)
         ax.grid(true, alpha=0.3)
         plt.tight_layout()
@@ -1915,7 +1915,7 @@ function main()
         axes[2,1].plot(thresholds, final_pof_smooth, "o-", linewidth=2, markersize=8, label="Smooth")
         axes[2,1].plot(thresholds, final_pof_hard, "s--", linewidth=1.5, markersize=5, label="Hard")
         axes[2,1].set_xlabel("Threshold t (MPa)", fontsize=12)
-        axes[2,1].set_ylabel("POF", fontsize=12)
+        axes[2,1].set_ylabel("PoF", fontsize=12)
         axes[2,1].set_title("Probability of Failure", fontsize=14)
         axes[2,1].legend(fontsize=10)
         axes[2,1].grid(true, alpha=0.3)
@@ -1937,4 +1937,3 @@ function main()
 end
 
 main()
-

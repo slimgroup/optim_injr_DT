@@ -2,13 +2,13 @@
 
 ## 概述
 
-本文档分析了之前提交的 POF 和 CVaR cases 中 penalty term lambda 的选择。
+本文档分析了之前提交的 PoF 和 CVaR cases 中 penalty term lambda 的选择。
 
 ## Lambda 值总结
 
-### POF Cases
+### PoF Cases
 - **lambda_pof = 8.5e8** (8.5 × 10⁸ = 850,000,000)
-- 使用场景：所有 POF cases（包括 submit_pof_cases_smart.sh）
+- 使用场景：所有 PoF cases（包括 submit_pof_cases_smart.sh）
 - 相关参数：
   - `--pof_as_constraint` (硬约束)
   - `--tau_pof 0.05` (平滑温度)
@@ -24,16 +24,16 @@
 
 ## Lambda 值对比
 
-| 指标 | POF | CVaR | 比例 |
+| 指标 | PoF | CVaR | 比例 |
 |------|-----|------|------|
 | Lambda 值 | 8.5e8 | 3.0e9 | 1:3.53 |
 | 数量级 | 10⁸ | 10⁹ | CVaR 约 3.5 倍 |
 
-**观察**：CVaR 的 lambda 值约为 POF 的 3.5 倍，说明 CVaR 惩罚项需要更强的权重。
+**观察**：CVaR 的 lambda 值约为 PoF 的 3.5 倍，说明 CVaR 惩罚项需要更强的权重。
 
 ## 使用场景
 
-### POF Cases 提交
+### PoF Cases 提交
 - **脚本**: `scripts/shell/submit/submit_pof_cases_smart.sh`
 - **总任务数**: 832 jobs
   - 5 cases (eps=0.0,0.001,0.01,0.02,0.05) × 64 samples (65-128) = 320 jobs
@@ -54,7 +54,7 @@
 
 ### 硬约束 (Hard Constraint)
 所有提交的 cases 都使用了 `--pof_as_constraint` 或 `--cvar_as_constraint`，这意味着：
-- 如果违反约束（POF > ε 或 CVaR > γ），目标函数直接返回 `Inf`
+- 如果违反约束（PoF > ε 或 CVaR > γ），目标函数直接返回 `Inf`
 - Lambda 值主要用于软约束场景，但在硬约束模式下仍作为参考值保留
 
 ### 软约束 (Soft Penalty)
@@ -78,13 +78,13 @@ pen_cvar = risk.use_cvar ? risk.λ_cvar * (softplus(cvar_smooth     - risk.γ; �
 
 ### 为什么 CVaR 的 lambda 更大？
 - CVaR 是条件期望值，通常数值范围可能更大
-- CVaR 的违反可能比 POF 的违反更严重（涉及尾部风险）
+- CVaR 的违反可能比 PoF 的违反更严重（涉及尾部风险）
 - 需要更强的惩罚来确保约束满足
 
 ## 相关文件
 
 ### 提交脚本
-- `scripts/shell/submit/submit_pof_cases_smart.sh` - POF cases 提交
+- `scripts/shell/submit/submit_pof_cases_smart.sh` - PoF cases 提交
 - `scripts/shell/submit/submit_20_cases_samples_65_128_smart.sh` - CVaR cases 提交
 - `scripts/shell/submit/submit_all.sh` - 早期提交脚本（也使用相同 lambda 值）
 
@@ -101,7 +101,7 @@ pen_cvar = risk.use_cvar ? risk.λ_cvar * (softplus(cvar_smooth     - risk.γ; �
 ## 日志文件
 
 提交日志记录了实际的提交情况（位于 `logs/submit/`）：
-- `logs/submit/submit_pof_cases_simple.log`（或历史 `submit_pof_cases.log`）- POF cases 提交日志
+- `logs/submit/submit_pof_cases_simple.log`（或历史 `submit_pof_cases.log`）- PoF cases 提交日志
 - `logs/submit/submit_20_cases_65_128.log` - CVaR cases 提交日志（部分）
 - `logs/submit/submit_20_cases_65_128_continue.log` - CVaR cases 继续提交日志
 

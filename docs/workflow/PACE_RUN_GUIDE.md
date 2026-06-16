@@ -1,24 +1,24 @@
-# PACE 运行指南：POF vs CVaR 对比实验
+# PACE 运行指南：PoF vs CVaR 对比实验
 
-本指南说明如何在 PACE 上运行 POF-only 和 CVaR-only 的阈值敏感度分析，并生成对比图。
+本指南说明如何在 PACE 上运行 PoF-only 和 CVaR-only 的阈值敏感度分析，并生成对比图。
 
 > **状态说明**
-> 本文档里涉及的 gamma-table 生成与复用步骤属于较早期的 POF/CVaR 对比路线。
+> 本文档里涉及的 gamma-table 生成与复用步骤属于较早期的 PoF/CVaR 对比路线。
 > 这些内容目前保留用于复现实验历史结果，不应默认视为当前推荐 workflow。
 
 ## ✅ EPS 和 Gamma 对应关系（已改进）
 
-**确保 POF-only 和 CVaR-only 使用相同的 `eps_pof` 值！**
+**确保 PoF-only 和 CVaR-only 使用相同的 `eps_pof` 值！**
 
-- POF-only: 使用 `eps_pof = 0.01`（目标 POF 阈值）
+- PoF-only: 使用 `eps_pof = 0.01`（目标 PoF 阈值）
 - CVaR-only: 使用 `eps_pof = 0.01`（用于从 gamma table 查找对应的 gamma）
 
-**改进**：Gamma table 生成现在使用**二分搜索**找到使 POF ≈ eps_target 的注入率，然后读取此时的 CVaR 作为 gamma。这确保了更准确的对应关系。
+**改进**：Gamma table 生成现在使用**二分搜索**找到使 PoF ≈ eps_target 的注入率，然后读取此时的 CVaR 作为 gamma。这确保了更准确的对应关系。
 
 **工作流程**：
-1. 生成 gamma table 时，对每个阈值和 eps，找到使 POF ≈ eps 的注入率
+1. 生成 gamma table 时，对每个阈值和 eps，找到使 PoF ≈ eps 的注入率
 2. 读取此时的 CVaR 值作为 gamma
-3. 这样 gamma table 中的 gamma 值就是"当 POF = eps 时，CVaR = gamma"的对应关系
+3. 这样 gamma table 中的 gamma 值就是"当 PoF = eps 时，CVaR = gamma"的对应关系
 
 对应关系说明见上文「EPS 和 Gamma 对应关系」一节（原 `EPS_GAMMA_ALIGNMENT.md` 已合并入本文档）。
 
@@ -36,7 +36,7 @@ sbatch scripts/shell/submit/submit_gamma_table_generation.sh
 或者交互式运行：
 
 ```bash
-salloc -N1 -t 120 --account=gts-fherrmann9 -q inferno
+salloc -N1 -t 120 --account=<PACE_ACCOUNT> -q inferno
 module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0
@@ -50,12 +50,12 @@ julia --project=. src/threshold_sensitivity.jl \
 ```
 
 **注意**：
-- 新方法使用**二分搜索**，会找到使 POF ≈ eps_target 的注入率，确保对应关系
+- 新方法使用**二分搜索**，会找到使 PoF ≈ eps_target 的注入率，确保对应关系
 - 使用**多线程并行处理**，所有阈值同时计算，大幅缩短生成时间（约 3-5 分钟 vs 15-25 分钟）
 
 ## 快速开始
 
-### 步骤 1: 运行 POF-only 优化
+### 步骤 1: 运行 PoF-only 优化
 
 ```bash
 # 提交 5 个 array 任务（每个阈值一个）
@@ -79,7 +79,7 @@ sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_cvar_only.s
 如果想检查现有 gamma table 的准确性：
 
 ```bash
-salloc -N1 -t 30 --account=gts-fherrmann9 -q inferno
+salloc -N1 -t 30 --account=<PACE_ACCOUNT> -q inferno
 module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0
@@ -88,14 +88,14 @@ julia --project=. scripts/julia_scripts/utilities/check_gamma_table.jl \
   scripts/gamma_tables/gamma_table__sample=128__20251125_122949.jld2
 ```
 
-如果看到很多 ⚠️（POF 误差 > 5%），建议重新生成。
+如果看到很多 ⚠️（PoF 误差 > 5%），建议重新生成。
 
 ### 步骤 3: 生成对比图
 
 等两个作业都完成后，在交互式节点上运行：
 
 ```bash
-salloc -N1 -t 60 --account=gts-fherrmann9 -q inferno
+salloc -N1 -t 60 --account=<PACE_ACCOUNT> -q inferno
 module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0
@@ -105,7 +105,7 @@ julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.j
 
 ## 详细说明
 
-### 1. POF-only 运行
+### 1. PoF-only 运行
 
 **脚本**: `scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh`
 
@@ -164,7 +164,7 @@ sbatch scripts/shell/submit/submit_gamma_table_generation.sh
 **方法 2: 交互式运行**
 
 ```bash
-salloc -N1 -t 120 --account=gts-fherrmann9 -q inferno
+salloc -N1 -t 120 --account=<PACE_ACCOUNT> -q inferno
 module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0
@@ -179,13 +179,13 @@ julia --project=. src/threshold_sensitivity.jl \
 
 这会生成 gamma table 并保存到 `data/DT_control/exp_name=step1/threshold_sensitivity/gamma_table__sample=128__*.jld2`
 
-**注意**：新方法使用二分搜索，确保 POF ≈ eps_target，更准确但需要更长时间（约 15-25 分钟）。
+**注意**：新方法使用二分搜索，确保 PoF ≈ eps_target，更准确但需要更长时间（约 15-25 分钟）。
 
 ### 4. 检查作业状态
 
 ```bash
 # 查看队列中的作业
-squeue -u hli853
+squeue -u $USER
 
 # 查看作业输出
 tail -f logs/threshold_sensitivity_POF_<JOBID>.txt
@@ -198,7 +198,7 @@ tail -f logs/threshold_sensitivity_CVaR_<JOBID>.txt
 
 ```bash
 # 申请交互式节点
-salloc -N1 -t 60 --account=gts-fherrmann9 -q inferno
+salloc -N1 -t 60 --account=<PACE_ACCOUNT> -q inferno
 
 # 加载模块并设置环境
 module load julia/1.11.3
@@ -219,7 +219,7 @@ julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.j
 
 对比图应该显示：
 - **CVaR 控制下的注入率更低**（更保守）
-- **POF 控制下的注入率更高**（更激进）
+- **PoF 控制下的注入率更高**（更激进）
 - 两种方法的风险利用率对比
 
 ## 故障排除
@@ -232,10 +232,10 @@ julia --project=. scripts/julia_scripts/plotting/legacy_step1/plot_pof_vs_cvar.j
 
 ### 问题 2: Summary 文件未找到
 
-**错误**: `POF summary not found` 或 `CVaR summary not found`
+**错误**: `PoF summary not found` 或 `CVaR summary not found`
 
 **解决**: 
-1. 检查作业是否完成：`squeue -u hli853`
+1. 检查作业是否完成：`squeue -u $USER`
 2. 检查输出日志：`tail logs/threshold_sensitivity_*.txt`
 3. 确认文件路径：`ls data/DT_control/exp_name=step1/threshold_sensitivity/summary__*.jld2`
 
@@ -258,14 +258,14 @@ julia --project=. src/threshold_sensitivity.jl \
   --gamma_table_generate auto \
   --gamma_table_eps_list 0.01
 
-# 2. 提交 POF-only 作业
+# 2. 提交 PoF-only 作业
 sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_pof_only.sh
 
-# 3. 提交 CVaR-only 作业（等 POF 完成后或并行运行）
+# 3. 提交 CVaR-only 作业（等 PoF 完成后或并行运行）
 sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity_cvar_only.sh
 
 # 4. 等待作业完成，然后生成对比图
-salloc -N1 -t 60 --account=gts-fherrmann9 -q inferno
+salloc -N1 -t 60 --account=<PACE_ACCOUNT> -q inferno
 module load julia/1.11.3
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 export JULIA_PKG_PRECOMPILE_AUTO=0

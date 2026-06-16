@@ -10,7 +10,7 @@ using DrWatson
 using JLD2
 using DataFrames
 
-const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "..", "data", "DT_control", "exp_name=step1")))
 
 # Test collecting data for gamma=0.1, alpha=0.0, 0.01, 0.05
 println("=" ^ 80)
@@ -135,4 +135,3 @@ for alpha in ["0.0", "0.01", "0.05"]
         end
     end
 end
-

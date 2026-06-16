@@ -63,7 +63,7 @@ Iteration k:
 - We don't know if we need to try α₂ until we've evaluated f(x + α₁·p)
 - This is a fundamental limitation of backtracking line search algorithms
 
-### Current Thread Settings (CVaR/POF runs)
+### Current Thread Settings (CVaR/PoF runs)
 
 ```bash
 #SBATCH --cpus-per-task=1      # Single CPU per task
@@ -282,7 +282,7 @@ We've implemented several optimizations to minimize iteration count:
 ```julia
 # Different initial steps based on constraint type
 if risk_opts.pof_as_constraint
-    ex_step_size = 0.15  # Smaller for POF (tighter constraints)
+    ex_step_size = 0.15  # Smaller for PoF (tighter constraints)
 elseif risk_opts.cvar_as_constraint
     ex_step_size = 0.2   # Standard for CVaR
 else
@@ -290,7 +290,7 @@ else
 end
 ```
 
-**Rationale**: POF-constrained optima have ~28% smaller injection rates, so smaller steps are more appropriate.
+**Rationale**: PoF-constrained optima have ~28% smaller injection rates, so smaller steps are more appropriate.
 
 ### 6.2 Step Size Reuse Across Iterations
 - Previous iteration's step size is used as initial guess for next iteration

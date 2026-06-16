@@ -15,7 +15,7 @@ using Statistics
 using Printf
 
 const INJ_START = 0.0001
-const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "data", "DT_control", "exp_name=step1")))
 
 # 读取last nonzero injection rate
 function last_nonzero_inj_rate(inj_rate_arr)
@@ -139,4 +139,3 @@ if nrow(stats_df) > 0
 else
     println("无法进行总结：缺少统计数据")
 end
-

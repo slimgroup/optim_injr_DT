@@ -2,7 +2,10 @@
 """Create the real 1920-day three-case fracture-comparison video."""
 
 import json
+import os
 from pathlib import Path
+
+os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).resolve().parents[2] / ".mplconfig"))
 
 import cmasher
 import colorcet as cc
@@ -24,7 +27,7 @@ DT_DAYS = 8.0
 FPS = 12
 
 CASES = [
-    ("POF_eps001", r"(a) POF $\varepsilon = 0.01$", OUTDIR / "full_campaign_video_POF_eps001.jld2"),
+    ("POF_eps001", r"(a) PoF $\varepsilon = 0.01$", OUTDIR / "full_campaign_video_POF_eps001.jld2"),
     ("CVaR_g01_a001_sensitivity", r"(b) CVaR (Slight Fracture)", OUTDIR / "full_campaign_video_CVaR_g01_a001_sensitivity.jld2"),
     ("No_Control", "(c) No Control (Severe Fracture)", OUTDIR / "full_campaign_video_No_Control.jld2"),
 ]
@@ -121,7 +124,7 @@ def main() -> None:
         "duration_days": 1920,
         "frame_interval_days": DT_DAYS,
         "cases": {
-            "POF eps=0.01": {"rate_multiplier": 1.0, "schedule": "documented optimized schedule"},
+            "PoF eps=0.01": {"rate_multiplier": 1.0, "schedule": "documented optimized schedule"},
             "CVaR gamma=0.1 alpha=0.01 sensitivity": {
                 "rate_multiplier": data["CVaR_g01_a001_sensitivity"]["multiplier"],
                 "schedule": "documented optimized schedule multiplied by 1.22",

@@ -38,7 +38,7 @@
 
 ✅ **需要更细监控的情况**：
 - 如果pressure变化很快，需要捕捉短期波动
-- 如果risk metrics（POF/CVaR）对时间分辨率敏感
+- 如果risk metrics（PoF/CVaR）对时间分辨率敏感
 - 如果需要更精确的pressure violation检测
 
 ❌ **不需要的情况**：

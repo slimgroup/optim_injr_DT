@@ -13,6 +13,20 @@
 /notebooks
 /_research
 
+# Paper-facing figure allowlist. Keep generated research outputs ignored by
+# default, but allow selected manuscript-ready PNGs and their local figure index.
+!/plots/
+/plots/*
+!/plots/paper_figures/
+/plots/paper_figures/*
+!/plots/paper_figures/injection_schedule_over_four_steps.png
+!/plots/paper_figures/pressure_risk_trajectory_over_four_steps.png
+!/plots/paper_figures/fracture_comparison_3x3_four_steps_cvar_sensitivity_1p22x.png
+!/plots/paper_figures/perm_ensemble_statistics.png
+!/plots/paper_figures/statistical/
+!/plots/paper_figures/statistical/*.png
+!/plots/paper_figures/statistical/*.md
+
 # Large binary files and data files
 *.jld2
 # Exception: gamma lookup tables (small, version-controlled)
@@ -32,6 +46,13 @@
 *.bmp
 *.tiff
 *.svg
+
+# Re-allow selected paper-facing PNGs after the generic image ignore above.
+!/plots/paper_figures/injection_schedule_over_four_steps.png
+!/plots/paper_figures/pressure_risk_trajectory_over_four_steps.png
+!/plots/paper_figures/fracture_comparison_3x3_four_steps_cvar_sensitivity_1p22x.png
+!/plots/paper_figures/perm_ensemble_statistics.png
+!/plots/paper_figures/statistical/*.png
 
 # Archive files
 *.zip

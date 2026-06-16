@@ -2,8 +2,11 @@
 
 # Combined scaling script — submits and runs SLURM jobs for various CPU counts
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+
 # Create logs directory if it doesn't exist
-mkdir -p logs
+mkdir -p "${ROOT_DIR}/logs"
 
 # List of CPU counts to test
 # for cpu in 1 2 4 8 16 32
@@ -38,7 +41,7 @@ runtime=\$((end - start))
 
 # Log runtime information
 echo "CPU: ${cpu} Runtime: \${runtime}s"
-echo "CPU: ${cpu} Runtime: \${runtime}s" >> /nethome/hli853/optim_injr_DT/runtime_log.txt
+echo "CPU: ${cpu} Runtime: \${runtime}s" >> "${ROOT_DIR}/logs/runtime_log.txt"
 EOF
 
 done

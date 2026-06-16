@@ -15,11 +15,11 @@
 
 ## 📋 Overview
 
-This project implements a **backtracking line search gradient descent optimization solver** for geological carbon storage. The solver maximizes injected CO₂ integral while incorporating risk penalties through **Probability of Failure (POF)** and **Conditional Value at Risk (CVaR)** metrics.
+This project implements a **backtracking line search gradient descent optimization solver** for geological carbon storage. The solver maximizes injected CO₂ integral while incorporating risk penalties through **Probability of Failure (PoF)** and **Conditional Value at Risk (CVaR)** metrics.
 
 ### Key Features
 
-- 🎯 **Risk-aware optimization** with POF and CVaR constraints
+- 🎯 **Risk-aware optimization** with PoF and CVaR constraints
 - 🔄 **Soft and hard constraint support** for flexible risk management
 - 📊 **Comprehensive visualization** tools for results analysis
 - 🧪 **Extensive test suite** for reliability
@@ -56,7 +56,7 @@ This project implements a **backtracking line search gradient descent optimizati
    julia --project=. test/runtests.jl
    ```
 
-> **Note:** Raw data files are typically not included in git history and may need to be downloaded separately.
+> **Note:** Raw data files and generated result folders are not included in git history. See [DATA_AVAILABILITY.md](DATA_AVAILABILITY.md) for the expected local data layout.
 
 ---
 
@@ -123,8 +123,10 @@ See [test/README.md](test/README.md) for more details.
 ## 📚 Documentation
 
 - **[Documentation Index](docs/README.md)** - Full docs map by topic
+- **[Data Availability](DATA_AVAILABILITY.md)** - Required local datasets and generated artifacts
 - **[Directory Structure](docs/reference/DIRECTORY_STRUCTURE.md)** - Detailed project organization
 - **[Scripts Index](docs/reference/SCRIPTS_INDEX.md)** - Script entry points by purpose
+- **[Paper Figure Manifest](docs/reference/PAPER_FIGURE_MANIFEST.md)** - Paper figures, scripts, and input data
 - **[Optimization Choice Guide](docs/optimization/OPTIMIZATION_CHOICE_GUIDE.md)** - Algorithm selection
 - **[Submit Guide](docs/workflow/SUBMIT_GUIDE.md)** - Job submission guide
 - **[Script Explanation](docs/reference/SCRIPT_EXPLANATION.md)** - Detailed explanation of a specific SLURM script pattern
@@ -139,7 +141,7 @@ See [test/README.md](test/README.md) for more details.
 
 ### `optim_inject.jl`
 Main optimization module supporting:
-- POF/CVaR soft penalties and hard constraints
+- PoF/CVaR soft penalties and hard constraints
 - Zero-baseline penalties
 - Configurable kappa for softplus smoothing
 - Comprehensive logging and visualization
@@ -156,7 +158,7 @@ Vector porosity optimization variant.
 
 The project includes comprehensive tests covering:
 - ✅ Utility functions (softplus, array operations)
-- ✅ Risk metrics (POF, CVaR computations)
+- ✅ Risk metrics (PoF, CVaR computations)
 - ✅ Data I/O operations
 - ✅ Optimization functions
 

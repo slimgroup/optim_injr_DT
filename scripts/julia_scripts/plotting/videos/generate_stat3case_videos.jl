@@ -1,7 +1,7 @@
 #!/usr/bin/env julia
 # Generate videos for 3 control cases using the older statistical-analysis schedules.
 # Cases:
-# 1. POF eps = 0.01
+# 1. PoF eps = 0.01
 # 2. CVaR gamma = 0.1, alpha = 0.01
 # 3. No Control (legacy unconstrained baseline schedule)
 #
@@ -38,7 +38,7 @@ const THRESHOLD = 4.0
 # No-control is kept as the legacy unconstrained reference schedule.
 const CASES = Dict(
     "POF_eps=0.01" => (
-        name = "POF ε = 0.01",
+        name = "PoF ε = 0.01",
         inj_rates = [0.00010, 0.00914, 0.01818, 0.02722, 0.03626, 0.04530],
     ),
     "CVaR_gamma=0.1_alpha=0.01" => (

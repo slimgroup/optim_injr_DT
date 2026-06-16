@@ -32,7 +32,9 @@ echo "Total CVaR jobs in queue (all samples): ${ALL_CVAR}"
 echo ""
 
 # Check submission log progress
-LOG_FILE="/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/submit_65_128.log"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+LOG_FILE="${ROOT_DIR}/submit_65_128.log"
 if [ -f "${LOG_FILE}" ]; then
     echo "=== Submission Log Progress ==="
     LAST_PROGRESS=$(grep "\[PROGRESS\]" "${LOG_FILE}" | tail -1)
@@ -90,4 +92,3 @@ else
     echo "No samples in queue"
 fi
 echo ""
-

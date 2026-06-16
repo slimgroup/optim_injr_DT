@@ -7,11 +7,11 @@
 - `optim_inject_pace_7cases_fix.sh` - 修复版本
 - `optim_inject_cruyff.sh` - Cruyff集群脚本
 - `optim_inject_cruyff_cpu.sh` - Cruyff CPU脚本
-- `submit_pof_cases_smart.sh` - POF cases智能提交（当前使用）
+- `submit_pof_cases_smart.sh` - PoF cases智能提交（当前使用）
 - `submit_20_cases_samples_65_128_smart.sh` - CVaR cases智能提交（当前使用）
 - `submit_11_cases_samples_2_64_smart.sh` - 智能提交脚本
 - `submit_11_cases_samples_1_128.sh` - 提交脚本
-- `submit_pof_sensitivity.sh` - POF敏感性分析
+- `submit_pof_sensitivity.sh` - PoF敏感性分析
 - `submit_threshold_sensitivity.sh` - 阈值敏感性分析
 - `submit_gamma_table_generation.sh` - Gamma表生成
 - `check_7cases_inj_rate.sh` - 检查脚本

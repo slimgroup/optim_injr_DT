@@ -6,7 +6,7 @@ using JLD2
 using Printf
 
 function main()
-    scratch_root = get(ENV, "SCRATCH", "/storage/home/hcoda1/6/$(ENV["USER"])/scratch")
+    scratch_root = get(ENV, "SCRATCH", joinpath(homedir(), "scratch"))
 
     found_file = joinpath(scratch_root,
         "optim_injr_DT/DT_control/exp_name=step1",

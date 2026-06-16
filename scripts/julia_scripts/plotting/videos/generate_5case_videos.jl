@@ -1,9 +1,9 @@
 #!/usr/bin/env julia
 # Generate videos for 5 injection control cases on ground truth permeability
 # Cases:
-# 1. POF eps = 0.0
+# 1. PoF eps = 0.0
 # 2. CVaR gamma = 0.0, alpha = 0.0
-# 3. POF eps = 0.01
+# 3. PoF eps = 0.01
 # 4. CVaR gamma = 0.1, alpha = 0.01
 # 5. No control (constant 0.05 m³/s)
 #
@@ -54,7 +54,7 @@ const INJ_RATE_MULTIPLIER = 3.0
 # Injection rate arrays for 5 cases (from markdown file) - MULTIPLIED BY 3
 const CASES = Dict(
     "POF_eps=0.0" => (
-        name = "POF ε = 0.0",
+        name = "PoF ε = 0.0",
         inj_rates = [0.000100, 0.003468, 0.006836, 0.010204, 0.013572, 0.016940] .* INJ_RATE_MULTIPLIER
     ),
     "CVaR_gamma=0.0_alpha=0.0" => (
@@ -62,7 +62,7 @@ const CASES = Dict(
         inj_rates = [0.000100, 0.002738, 0.005376, 0.008014, 0.010652, 0.013290] .* INJ_RATE_MULTIPLIER
     ),
     "POF_eps=0.01" => (
-        name = "POF ε = 0.01",
+        name = "PoF ε = 0.01",
         inj_rates = [0.000100, 0.004662, 0.009224, 0.013786, 0.018348, 0.022910] .* INJ_RATE_MULTIPLIER
     ),
     "CVaR_gamma=0.1_alpha=0.01" => (

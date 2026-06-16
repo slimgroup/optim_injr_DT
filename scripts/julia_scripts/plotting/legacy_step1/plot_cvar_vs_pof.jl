@@ -181,7 +181,7 @@ function format_case_title(case_tag::String)
         # Extract eps value if present (handle both "POF_eps=0.0" and "POF eps=0.0")
         if (m = match(r"eps[_\s]*=\s*([0-9.]+)", case_tag)) !== nothing
             eps_val = m.captures[1]
-            return "POF eps=$(eps_val)"
+            return "PoF eps=$(eps_val)"
         else
             return replace(case_tag, "_" => " ")
         end
@@ -307,7 +307,7 @@ function plot_cvar_vs_pof_panels(
     
     # Increase figure size slightly and adjust subplot spacing
     fig = PyPlot.figure(figsize=(4.0*ncols, 3.0*nrows))
-    PyPlot.suptitle("CVaR versus POF: Distribution of Optimized Injectivities", 
+    PyPlot.suptitle("CVaR versus PoF: Distribution of Optimized Injectivities",
                     fontsize=FONT_SIZE_SUPTITLE, fontweight="bold", y=0.98)
     
     # Adjust subplot spacing - reduce top margin to bring title closer to plots
@@ -659,4 +659,3 @@ df_cvar_ok_final = df_cvar_ok
 report_missing_samples(df_pof_ok_final, df_cvar_ok_final, pof_cases, cvar_cases)
 
 println("Done.")
-

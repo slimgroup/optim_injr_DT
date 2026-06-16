@@ -8,11 +8,11 @@
 
 ```julia
 # 简单 hinge 函数
-penalty = λ × max(0, POF - ε)
+penalty = λ × max(0, PoF - ε)
 ```
 
 **问题**：
-- ❌ 在 `POF = ε` 处**不可微**（梯度不连续）
+- ❌ 在 `PoF = ε` 处**不可微**（梯度不连续）
 - ❌ 梯度在边界处突然跳跃（从 0 跳到 λ）
 - ❌ 有限差分梯度计算不稳定
 - ❌ 优化器难以收敛
@@ -21,7 +21,7 @@ penalty = λ × max(0, POF - ε)
 
 ```julia
 softplus(x; κ) = (1/κ) × log(1 + exp(κ×x))
-penalty = λ × (softplus(POF - ε) - softplus(0))
+penalty = λ × (softplus(PoF - ε) - softplus(0))
 ```
 
 **优势**：
@@ -38,7 +38,7 @@ Hinge 函数 (max):
 λ |     ┌───────  (在 ε 处不可微)
   |    /
   |   /
-  |__/___________ POF
+  |__/___________ PoF
   0  ε
 
 Softplus 函数:
@@ -46,20 +46,20 @@ Softplus 函数:
 λ |     ╱───────  (平滑过渡，处处可微)
   |    ╱
   |   ╱
-  |__╱___________ POF
+  |__╱___________ PoF
   0  ε
 ```
 
 ### 零基线的作用
 
 ```julia
-penalty = softplus(POF - ε) - softplus(0)
+penalty = softplus(PoF - ε) - softplus(0)
 ```
 
 **目的**：确保满足约束时惩罚 ≈ 0
 
-- `POF ≤ ε`：`POF - ε ≤ 0` → `softplus(负值) ≈ 0` → 惩罚 ≈ 0
-- `POF > ε`：`POF - ε > 0` → `softplus(正值) ≈ POF - ε` → 惩罚 ≈ `POF - ε`
+- `PoF ≤ ε`：`PoF - ε ≤ 0` → `softplus(负值) ≈ 0` → 惩罚 ≈ 0
+- `PoF > ε`：`PoF - ε > 0` → `softplus(正值) ≈ PoF - ε` → 惩罚 ≈ `PoF - ε`
 
 ---
 
@@ -225,13 +225,13 @@ julia src/optim_inject.jl \
 ```
 
 **检查**：
-- 查看最终的 POF 和 CVaR 值
+- 查看最终的 PoF 和 CVaR 值
 - 如果接近阈值，说明 λ 设置合适
 - 如果远小于阈值，可以减小 λ 或增加注入速率
 
 #### 步骤 3: 校准 (eps, gamma)
 ```bash
-# 如果同时使用 POF 和 CVaR，校准 gamma
+# 如果同时使用 PoF 和 CVaR，校准 gamma
 julia src/threshold_sensitivity.jl \
     --idx_num 128 \
     --threshold_min 4.0 --threshold_max 4.0 --threshold_num 1 \
@@ -271,7 +271,7 @@ julia src/optim_inject.jl \
 **A**: 
 1. 检查约束是否合理（`eps`/`gamma` 是否太严格）
 2. 先用软约束找到可行解
-3. 如果软约束下 POF/CVaR 远小于阈值，说明约束太严格
+3. 如果软约束下 PoF/CVaR 远小于阈值，说明约束太严格
 4. 调整 `eps`/`gamma` 或增加 `λ`
 
 ### Q3: 可以同时用硬约束和软约束吗？
@@ -284,7 +284,7 @@ julia src/optim_inject.jl \
 
 **A**: 
 1. 运行软约束优化
-2. 检查最终 POF/CVaR 是否接近阈值
+2. 检查最终 PoF/CVaR 是否接近阈值
 3. 如果接近（在 10% 以内），说明 λ 合适
 4. 用硬约束验证，如果通过，说明软约束有效
 
@@ -314,7 +314,7 @@ julia src/optim_inject.jl \
     --niterations 20
 ```
 
-### 混合使用（POF 硬约束 + CVaR 软约束）
+### 混合使用（PoF 硬约束 + CVaR 软约束）
 
 ```bash
 julia src/optim_inject.jl \

@@ -10,7 +10,7 @@ import h5py
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO_ROOT = Path("/storage/home/hcoda1/6/hli853/r-fherrmann9-0/optim_injr_DT")
+REPO_ROOT = Path(__file__).resolve().parents[3]
 ROOT = REPO_ROOT / "data" / "DT_control" / "exp_name=step2"
 OUTDIR = REPO_ROOT / "plots" / "step2_paired_posterior_stats"
 
@@ -54,14 +54,14 @@ SPECS = (
     CaseSpec(
         "pof_eps0.0",
         "pof_eps0.0",
-        "POF eps=0.0",
+        "PoF eps=0.0",
         "case=pof_eps0.0__prior=paired_posterior_sample__POF__HARD__eps=0.0__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0",
         0.02630,
     ),
     CaseSpec(
         "pof_eps0.01",
         "pof_eps0.01",
-        "POF eps=0.01",
+        "PoF eps=0.01",
         "case=pof_eps0.01__prior=paired_posterior_sample__POF__HARD__eps=0.01__tau=0.05__w=voltime__mode=relative__cvarhinge__kp=50.0__kc=50.0",
         0.04530,
     ),
@@ -361,8 +361,8 @@ def main() -> None:
         "The final endpoint is mathematically redundant with this plotted statistic within each case because the 6th schedule element is a fixed affine transform of that endpoint.",
         "",
         "Sample counts follow the confirmed case-specific rule:",
-        "- `POF eps=0.0`: 127 completed samples",
-        "- `POF eps=0.01`: all 128 completed samples",
+        "- `PoF eps=0.0`: 127 completed samples",
+        "- `PoF eps=0.01`: all 128 completed samples",
         "- `CVaR gamma=0.1, alpha=0.01`: all 128 completed samples",
         "",
         "| Case | samples used | mean | median | std | 1% q | 95% CI for 1% q |",
@@ -392,7 +392,7 @@ def main() -> None:
         *missing_lines,
         "",
         f"- Lower-tail injectivity shifts right from `{results[0][2]:.5f}` to `{results[1][2]:.5f}` to `{results[2][2]:.5f}` at the 1% quantile.",
-        "- `POF eps=0.0` keeps 127 samples because sample 113 fractures even at zero injection rate, while the other two cases use their full 128 completed samples.",
+        "- `PoF eps=0.0` keeps 127 samples because sample 113 fractures even at zero injection rate, while the other two cases use their full 128 completed samples.",
     ]
 
     plot_grid(results, OUTDIR / "summary_grid_hist_cdf.png")

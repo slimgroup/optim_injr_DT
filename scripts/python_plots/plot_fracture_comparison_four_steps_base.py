@@ -19,7 +19,7 @@ DATA_FILE = BASE / "plots" / "paper_figures" / "forward_sim_four_steps_base_data
 OUT_FILE = BASE / "plots" / "paper_figures" / "fracture_comparison_3x3_four_steps_base.png"
 
 PLOT_CASES = [
-    ("POF_eps0", r"(a) POF $\varepsilon = 0$"),
+    ("POF_eps0", r"(a) PoF $\varepsilon = 0$"),
     ("CVaR_g01_a001", r"(b) CVaR $\gamma = 0.1,\ \alpha = 0.01$"),
     ("No_Control", "(c) No Control"),
 ]

@@ -3,7 +3,7 @@
 # Paper figure: Fracture vs Non-Fracture Forward Simulation Comparison
 #
 # Runs forward simulation on ground truth permeability (sample 2000) for:
-#   - POF-controlled case (non-fracture): conservative injection → r > 0 everywhere
+#   - PoF-controlled case (non-fracture): conservative injection → r > 0 everywhere
 #   - CVaR-controlled case (fracture): higher injection → r < 0 in some regions
 #
 # Y-axis shows relative pressure margin: r = (p_frac − p) / p_frac
@@ -66,7 +66,7 @@ const POF_CASE_DIR  = "POF__HARD__eps=0.0__tau=0.05__w=voltime__mode=relative__c
 const CVAR_CASE_DIR = "CVaR__HARD__alpha=0.01__gamma=0.1__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0"
 
 # Labels for the figure
-const POF_LABEL  = "POF  (ε = 0)"
+const POF_LABEL  = "PoF  (ε = 0)"
 const CVAR_LABEL = "CVaR (γ = 0.1, α = 0.01)"
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -180,11 +180,11 @@ function main()
     inj_pof  = collect(range(INJ_START, rate_pof,  n_periods)) .* INJ_RATE_MULTIPLIER
     inj_cvar = collect(range(INJ_START, rate_cvar, n_periods)) .* INJ_RATE_MULTIPLIER
 
-    println("\nPOF  injection rates (×$(INJ_RATE_MULTIPLIER)): ", round.(inj_pof;  digits=6))
+    println("\nPoF  injection rates (×$(INJ_RATE_MULTIPLIER)): ", round.(inj_pof;  digits=6))
     println("CVaR injection rates (×$(INJ_RATE_MULTIPLIER)): ", round.(inj_cvar; digits=6))
 
     # ── Run forward simulations ───────────────────────────────────────────
-    println("\nRunning POF forward simulation...")
+    println("\nRunning PoF forward simulation...")
     sat_pof, pres_pof = run_forward(K_gt, inj_pof)
     println("  $(length(sat_pof)) time steps computed")
 
@@ -203,7 +203,7 @@ function main()
     frac_cvar  = count(r_cvar .< 0)
 
     total_cells = length(r_pof)
-    println("\nPOF  case: min(r) = $(@sprintf("%.4f", min_r_pof)),  fractured cells = $frac_pof / $total_cells")
+    println("\nPoF  case: min(r) = $(@sprintf("%.4f", min_r_pof)),  fractured cells = $frac_pof / $total_cells")
     println("CVaR case: min(r) = $(@sprintf("%.4f", min_r_cvar)),  fractured cells = $frac_cvar / $total_cells")
 
     # ── Create figure ─────────────────────────────────────────────────────
@@ -234,7 +234,7 @@ function main()
 
     total_days = Int(n_periods * DS * DT_PER_STEP)
 
-    # (a) POF: Relative Pressure Margin
+    # (a) PoF: Relative Pressure Margin
     ax = axes[1, 1]
     im1 = ax.imshow(transpose(r_pof), extent=extent, cmap=cmap_margin,
                     vmin=vmin_r, vmax=vmax_r, aspect="auto")
@@ -253,7 +253,7 @@ function main()
             transform=ax.transAxes, fontsize=10, va="bottom",
             bbox=Dict("boxstyle"=>"round", "facecolor"=>"white", "alpha"=>0.8))
 
-    # (c) POF: Saturation
+    # (c) PoF: Saturation
     ax = axes[2, 1]
     im3 = ax.imshow(transpose(sat_pof[end]), vmin=0, vmax=1, extent=extent,
                     cmap=cmasher.rainforest_r, aspect="auto")

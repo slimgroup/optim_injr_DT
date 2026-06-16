@@ -9,7 +9,7 @@ using DrWatson
 
 using JLD2
 
-const ROOT = "/storage/home/hcoda1/6/hli853/p-fherrmann9-0/optim_injr_DT/data/DT_control/exp_name=step1"
+const ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "..", "data", "DT_control", "exp_name=step1")))
 
 # Check what directories match gamma=0.0
 risk_dirs = filter(d ->
@@ -80,4 +80,3 @@ for risk_name in sort(risk_dirs)
         end
     end
 end
-

@@ -279,7 +279,7 @@ function plot_softplus_demo!(plot_path; κ_pof::Float64, κ_cvar::Float64)
     yc = [softplus(x; κ=κ_cvar) - softplus(0.0; κ=κ_cvar) for x in xs]
 
     fig, ax = subplots(figsize=(6,4))
-    ax.plot(xs, yp, label="POF κ=$(κ_pof)")
+    ax.plot(xs, yp, label="PoF κ=$(κ_pof)")
     ax.plot(xs, yc, label="CVaR κ=$(κ_cvar)")
     ax.axvline(0.0; linestyle="--", linewidth=1)
     ax.set_xlabel("violation x (metric - threshold)")
@@ -1053,7 +1053,7 @@ function main()
 
         fig, ax = subplots(figsize=(6,4))
         ax.plot(iters, pen_total_arr, label="total")
-        ax.plot(iters, pen_pof_arr,  label="POF")
+        ax.plot(iters, pen_pof_arr,  label="PoF")
         ax.plot(iters, pen_cvar_arr, label="CVaR")
         ax.legend(); ax.set_xlabel("iteration"); ax.set_ylabel("penalty (abs units)")
         ax.set_title("Penalty components")

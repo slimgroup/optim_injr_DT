@@ -217,7 +217,7 @@ The KDE approach is retained as a **backup for visualization only**.
 
 ## 7. Visualization
 
-For each case (e.g., POF eps=0.01, CVaR gamma=0.05 alpha=0.05), we produce
+For each case (e.g., PoF eps=0.01, CVaR gamma=0.05 alpha=0.05), we produce
 a two-panel figure:
 
 ### Panel (a): Injection Rate Distribution
@@ -239,7 +239,7 @@ a two-panel figure:
 
 ## 8. Example Results
 
-### POF (eps=0.01, hard constraint), n=128 samples
+### PoF (eps=0.01, hard constraint), n=128 samples
 
 | Metric | Value (m3/s) |
 |--------|-------------|

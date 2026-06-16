@@ -123,7 +123,7 @@ function plot_pof_panels(
     n = length(case_list)
     nrows, ncols = grid_rc(n)
     fig = PyPlot.figure(figsize=(3.8*ncols, 2.8*nrows))
-    PyPlot.suptitle("POF: Distribution of Optimized Injectivities", 
+    PyPlot.suptitle("PoF: Distribution of Optimized Injectivities",
                     fontsize=FONT_SIZE_SUPTITLE, fontweight="bold", y=0.98)
 
     for (i, ct) in enumerate(case_list)
