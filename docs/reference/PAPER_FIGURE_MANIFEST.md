@@ -33,10 +33,15 @@ CVAR_SENSITIVITY=1.22 FIGURE_PNG_NAME=fracture_comparison_3x3_four_steps.png pyt
 ```
 
 The CVaR panel matches the fields in the supplied old Figure 1: the saved
-sensitivity simulation used 1.22 times the base CVaR schedule. The old figure
-incorrectly annotated the base rate (0.09906 m3/s) alongside these fields;
-the updated figure labels the actual simulated rate (0.1208532 m3/s).
-The panel is marked as a sensitivity case. The manuscript caption or methods
+sensitivity simulation used 1.22 times the base CVaR schedule. At the author's
+request, the annotation reports the base-schedule rate (0.09906 m3/s) and
+base-schedule cumulative injected mass through day 728 (2.3358150144 Mt),
+with the base-schedule explanation delegated to the manuscript caption at the
+author's request (the in-panel heading has been removed). Field diagnostics
+still refer to the sensitivity simulation (97 exceeding cells); its actual
+rate and cumulative mass are 0.1208532 m3/s and 2.849694317568 Mt.
+The global title is "Comparison Using Ground-Truth Permeability at Day 728".
+The panel title contains only the CVaR risk parameters. The manuscript caption or methods
 must identify this as a 22% increase over the base CVaR schedule, rather than
 the unmodified optimized schedule. No simulation data were edited or rerun.
 PoF and no-control inputs and all color normalization rules are unchanged.

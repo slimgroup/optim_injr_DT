@@ -39,8 +39,7 @@ CASES = [
     ("POF_eps0", r"(a) PoF $\varepsilon = 0$", OUTDIR / "controlled_day728_POF_eps0.jld2"),
     (
         "CVaR_g01_a001",
-        r"(b) CVaR $\gamma = 0.1,\ \alpha = 0.01$"
-        + (" (sensitivity)" if SENSITIVITY != 1.0 else ""),
+        r"(b) CVaR $\gamma = 0.1,\ \alpha = 0.01$",
         OUTDIR / f"cvar_day728_sensitivity_{SENSITIVITY_TAG}x.jld2"
         if SENSITIVITY != 1.0
         else OUTDIR / "controlled_day728_CVaR_g01_a001.jld2",
@@ -81,10 +80,12 @@ def main() -> None:
                 pres = f["pres"][:].T
                 sat = f["sat"][:].T
                 rates = f["rates"][:]
-                display_rates = rates
+                # Report the requested base schedule; field diagnostics retain
+                # the selected simulation. The manuscript caption explains the basis.
+                display_rates = f["base_rates"][:] if key == "CVaR_g01_a001" and SENSITIVITY != 1.0 else rates
         margin = (p_max - pres) / p_max
         dp = (pres - p0) / 1e6
-        fields[key] = (title, margin, dp, sat, rates, display_rates, injected_mt(rates, DAY))
+        fields[key] = (title, margin, dp, sat, rates, display_rates, injected_mt(display_rates, DAY))
         dp_vmax = max(dp_vmax, float(dp.max()))
 
     cmap_margin = mcolors.ListedColormap(
@@ -102,8 +103,7 @@ def main() -> None:
             ax = fig.add_subplot(gs[row, col])
             if row == 0:
                 im = ax.imshow(margin.T, extent=extent, cmap=cmap_margin, vmin=-0.1, vmax=1.0)
-                ax.set_title(title, fontweight="bold", pad=4,
-                             fontsize=14 if key == "CVaR_g01_a001" and SENSITIVITY != 1.0 else 17)
+                ax.set_title(title, fontweight="bold", pad=4, fontsize=17)
                 ax.text(
                     0.03,
                     0.94,
@@ -137,7 +137,7 @@ def main() -> None:
     cb1 = fig.colorbar(row_imgs[1], cax=fig.add_subplot(gs[1, 3]))
     cb1.set_label("MPa")
     fig.colorbar(row_imgs[2], cax=fig.add_subplot(gs[2, 3]))
-    fig.suptitle(f"Ground-Truth Fracture Comparison at Day {DAY:.0f}", fontsize=23, fontweight="bold", y=0.952)
+    fig.suptitle(f"Comparison Using Ground-Truth Permeability at Day {DAY:.0f}", fontsize=23, fontweight="bold", y=0.952)
     fig.subplots_adjust(left=0.075, right=0.965, top=0.89, bottom=0.10)
     fig.savefig(OUTFILE_PNG, dpi=300, bbox_inches="tight", pad_inches=0.04)
     plt.close(fig)
