@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Real ground-truth controlled/no-control comparison at the common severe-fracture day."""
+"""Synthetic held-out ground-truth comparison at the common evaluation day."""
 
 import os
 from pathlib import Path
@@ -21,11 +21,13 @@ BASE = Path(__file__).resolve().parents[2]
 OUTDIR = BASE / "plots" / "paper_figures"
 SENSITIVITY = float(os.environ.get("CVAR_SENSITIVITY", "1.0"))
 SENSITIVITY_TAG = f"{SENSITIVITY:.2f}".replace(".", "p")
-OUTFILE = (
-    OUTDIR / f"fracture_comparison_3x3_four_steps_cvar_sensitivity_{SENSITIVITY_TAG}x.png"
+OUTPUT_STEM = (
+    f"fracture_comparison_3x3_four_steps_cvar_sensitivity_{SENSITIVITY_TAG}x"
     if SENSITIVITY != 1.0
-    else OUTDIR / "fracture_comparison_3x3_four_steps_base.png"
+    else "fracture_comparison_3x3_four_steps"
 )
+# Allow a manuscript filename while keeping the selected experiment explicit.
+OUTFILE_PNG = OUTDIR / os.environ.get("FIGURE_PNG_NAME", f"{OUTPUT_STEM}.png")
 DAY = 728.0
 DT_DAYS = 8.0
 SUBSTEP = int(DAY / DT_DAYS) - 1
@@ -37,12 +39,13 @@ CASES = [
     ("POF_eps0", r"(a) PoF $\varepsilon = 0$", OUTDIR / "controlled_day728_POF_eps0.jld2"),
     (
         "CVaR_g01_a001",
-        r"(b) CVaR $\gamma = 0.1,\ \alpha = 0.01$",
+        r"(b) CVaR $\gamma = 0.1,\ \alpha = 0.01$"
+        + (" (sensitivity)" if SENSITIVITY != 1.0 else ""),
         OUTDIR / f"cvar_day728_sensitivity_{SENSITIVITY_TAG}x.jld2"
         if SENSITIVITY != 1.0
         else OUTDIR / "controlled_day728_CVaR_g01_a001.jld2",
     ),
-    ("No_Control", "(c) No Control (Severe Fracture)", OUTDIR / "no_control_delayed_ramp_10_periods.jld2"),
+    ("No_Control", "(c) No control", OUTDIR / "no_control_delayed_ramp_10_periods.jld2"),
 ]
 
 
@@ -78,7 +81,7 @@ def main() -> None:
                 pres = f["pres"][:].T
                 sat = f["sat"][:].T
                 rates = f["rates"][:]
-                display_rates = f["base_rates"][:] if key == "CVaR_g01_a001" and "base_rates" in f else rates
+                display_rates = rates
         margin = (p_max - pres) / p_max
         dp = (pres - p0) / 1e6
         fields[key] = (title, margin, dp, sat, rates, display_rates, injected_mt(rates, DAY))
@@ -99,13 +102,14 @@ def main() -> None:
             ax = fig.add_subplot(gs[row, col])
             if row == 0:
                 im = ax.imshow(margin.T, extent=extent, cmap=cmap_margin, vmin=-0.1, vmax=1.0)
-                ax.set_title(title, fontweight="bold", pad=4)
+                ax.set_title(title, fontweight="bold", pad=4,
+                             fontsize=14 if key == "CVaR_g01_a001" and SENSITIVITY != 1.0 else 17)
                 ax.text(
                     0.03,
                     0.94,
-                    f"Active rate at day {DAY:.0f}: {rate_at_day(display_rates, DAY):.4f} m$^3$/s\n"
+                    f"Injection rate at day {DAY:.0f}: {rate_at_day(display_rates, DAY):.4f} m$^3$/s\n"
                     f"Injected CO$_2$ through day {DAY:.0f}: {mass:.2f} Mt\n"
-                    f"min(r): {margin.min():.3f}; frac. cells: {(margin < 0).sum():,}",
+                    f"min(r): {margin.min():.3f}; exceeding cells: {(margin < 0).sum():,}",
                     transform=ax.transAxes,
                     fontsize=11,
                     ha="left",
@@ -121,7 +125,7 @@ def main() -> None:
             else:
                 ax.set_xlabel("X [m]")
             if col == 0:
-                ax.set_ylabel(["Safety Margin $r$\nDepth [m]", "Diff. Pressure $(p-p_0)$\nDepth [m]", "CO$_2$ Saturation\nDepth [m]"][row])
+                ax.set_ylabel(["Safety Margin $r$\nDepth [m]", "Pressure increase,\n$p-p_0$ (MPa).\nDepth [m]", "CO$_2$ Saturation\nDepth [m]"][row])
             else:
                 ax.set_yticklabels([])
             row_imgs[row] = im
@@ -129,15 +133,15 @@ def main() -> None:
     cb0 = fig.colorbar(row_imgs[0], cax=fig.add_subplot(gs[0, 3]), extend="min")
     cb0.set_ticks([0, 0.25, 0.5, 0.75, 1])
     cb0.ax.text(0.5, 1.02, "(safe)", transform=cb0.ax.transAxes, ha="center", va="bottom", fontstyle="italic", fontsize=10)
-    cb0.ax.text(0.5, -0.06, "<0 (frac.)", transform=cb0.ax.transAxes, ha="center", va="top", fontstyle="italic", fontsize=10)
+    cb0.ax.text(0.5, -0.06, "<0 (exceeds)", transform=cb0.ax.transAxes, ha="center", va="top", fontstyle="italic", fontsize=10)
     cb1 = fig.colorbar(row_imgs[1], cax=fig.add_subplot(gs[1, 3]))
     cb1.set_label("MPa")
     fig.colorbar(row_imgs[2], cax=fig.add_subplot(gs[2, 3]))
-    fig.suptitle(f"Real Ground-Truth Fracture Comparison at Day {DAY:.0f}", fontsize=23, fontweight="bold", y=0.962)
+    fig.suptitle(f"Ground-Truth Fracture Comparison at Day {DAY:.0f}", fontsize=23, fontweight="bold", y=0.952)
     fig.subplots_adjust(left=0.075, right=0.965, top=0.89, bottom=0.10)
-    fig.savefig(OUTFILE, dpi=300, bbox_inches="tight")
+    fig.savefig(OUTFILE_PNG, dpi=300, bbox_inches="tight", pad_inches=0.04)
     plt.close(fig)
-    print(f"Saved: {OUTFILE}")
+    print(f"Saved: {OUTFILE_PNG}")
 
 
 if __name__ == "__main__":

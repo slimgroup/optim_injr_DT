@@ -20,11 +20,31 @@ not move or delete generated files solely because they appear here.
 |--------|--------|----------------|-------|
 | `plots/paper_figures/injection_schedule_over_four_steps.png` | `scripts/python_plots/plot_injection_schedule_over_four_steps.py` | `docs/injection_rate_arrays.md`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2` | Dual-axis schedule figure. No-control stops after the recorded severe-fracture day. |
 | `plots/paper_figures/pressure_risk_trajectory_over_four_steps.png` | `scripts/python_plots/plot_pressure_risk_trajectory_over_four_steps.py` | `plots/paper_figures/forward_sim_four_steps_base_data.jld2`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2`, additional trajectory files used by the script | Pressure-load and fractured-cell trajectory figure. Check the script for exact plotted cases before manuscript use. |
-| `plots/paper_figures/fracture_comparison_3x3_four_steps_base.png` | `scripts/python_plots/plot_real_fracture_comparison_day408.py` with default setting | `plots/paper_figures/controlled_day728_POF_eps0.jld2`, `plots/paper_figures/controlled_day728_CVaR_g01_a001.jld2`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2` | Script name is historical; current comparison day is controlled by `DAY` in the script. Figure labels use `PoF`; file names may still contain legacy `PoF` keys. |
+| `plots/paper_figures/fracture_comparison_3x3_four_steps.png` | `scripts/python_plots/plot_real_fracture_comparison_day408.py` with the Figure 1 command below | `plots/paper_figures/controlled_day728_POF_eps0.jld2`, `plots/paper_figures/cvar_day728_sensitivity_1p22x.jld2`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2` | CVaR sensitivity result: 97 pressure-exceeding cells, min(r)=-0.0040873, 2.84969 Mt; actual day-728 rate 0.1208532 m3/s. |
 | `plots/paper_figures/fracture_comparison_3x3_four_steps_cvar_sensitivity_1p22x.png` | `scripts/python_plots/plot_real_fracture_comparison_day408.py` with `CVAR_SENSITIVITY=1.22` | `plots/paper_figures/cvar_day728_sensitivity_1p22x.jld2`, controlled/no-control files | Sensitivity comparison. Preserve provenance when using this figure. |
 | `plots/paper_figures/fracture_comparison_three_cases_full_campaign.mp4` | `scripts/python_plots/create_full_campaign_fracture_video.py` | `plots/paper_figures/full_campaign_video_*.jld2` | Full 1920-day campaign video. Metadata lives in `fracture_comparison_three_cases_full_campaign_metadata.json`. |
 | `plots/paper_figures/perm_ensemble_statistics.png` | `scripts/python_plots/plot_perm_ensemble.py` | `data/geo/wise_perm_models_2000_new.jld2` | Permeability ensemble figure. Ground truth is the 2000th permeability slice unless explicitly changed. |
 | `plots/paper_figures/statistical/` | `scripts/julia_scripts/plotting/bootstrap_ecdf/plot_bootstrap_panels.jl` | `data/DT_control/exp_name=step1/**/final.jld2` | Step-1 ECDF/bootstrap statistical figures copied from `plots/DT_control/exp_name=step1/statistical_analysis/ecdf/`. See `FIGURE_INDEX.md` in that folder. |
+
+## Figure 1 reproduction
+
+```bash
+CVAR_SENSITIVITY=1.22 FIGURE_PNG_NAME=fracture_comparison_3x3_four_steps.png python scripts/python_plots/plot_real_fracture_comparison_day408.py
+```
+
+The CVaR panel matches the fields in the supplied old Figure 1: the saved
+sensitivity simulation used 1.22 times the base CVaR schedule. The old figure
+incorrectly annotated the base rate (0.09906 m3/s) alongside these fields;
+the updated figure labels the actual simulated rate (0.1208532 m3/s).
+The panel is marked as a sensitivity case. The manuscript caption or methods
+must identify this as a 22% increase over the base CVaR schedule, rather than
+the unmodified optimized schedule. No simulation data were edited or rerun.
+PoF and no-control inputs and all color normalization rules are unchanged.
+Only PNG is exported; the supplied `_old.png` reference remains untouched.
+
+The default configuration without environment overrides still uses the base
+CVaR data (zero pressure-exceeding cells); use the command above to reproduce
+the committed Figure 1.
 
 ## Forward-Export Scripts
 
