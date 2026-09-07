@@ -23,6 +23,7 @@ These instructions apply to all Codex work in this repository.
 
 Apply these additional rules whenever editing plotting code, especially under `scripts/**/*.py`.
 
+- Generate PNG figures by default. Generate PDF figures only when the user explicitly requests PDF output.
 - Prefer wide, publication-style layouts with subplot proportions close to the intended final figure.
 - Minimize unused whitespace, but never at the cost of overlapping titles, labels, ticks, legends, annotations, or colorbars.
 - Make text as large as possible while still fitting cleanly inside the exported figure.
