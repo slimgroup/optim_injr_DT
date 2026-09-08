@@ -13,6 +13,7 @@ python_plots/
 
 | Task | Script |
 |------|--------|
+| Posterior + Appendix E paper handoff (11 figures) | `export_posterior_appendix_e.py` (Slurm wrapper below) |
 | Step-k paired posterior stats | `posterior_stats/plot_step{k}_paired_posterior_stats.py` |
 | Posterior field mean/std (all steps) | `plot_posterior_summary_all_steps.py` |
 | Forward export + 3-row figure | `../julia_scripts/data_collection/forward_exports/run_forward_export.jl` + `plot_3row_comparison.py` |
@@ -23,6 +24,17 @@ python_plots/
 | Video from frames | `create_videos_from_frames.py` |
 
 Shell wrapper for step-2 stats: `scripts/shell/run/run_step2_paired_posterior_stats.sh`
+
+For the historical paper re-export, use
+`sbatch scripts/shell/submit/submit_posterior_appendix_e_export.sh` from the
+repository root. This creates the canonical
+`plots/paper_figures/posterior/posterior_{mean,std}_step{k}.png` and
+`plots/paper_figures/statistical/injection_rate_hist_ecdf_step{k}.png` exports,
+plus a separate handoff with manuscript-name compatibility copies. It pins
+the historical 5,000-replicate, grid-crossing statistical procedure. The
+existing posterior and step-2/3/4 entry points also accept `--paper-export`;
+their default analysis behavior is unchanged. See
+[the mapping and validation note](../../docs/analysis/POSTERIOR_APPENDIX_E_REEXPORT_2026-09-08.md).
 
 For paper-ready figures, expected input data, and caveats, see
 `docs/reference/PAPER_FIGURE_MANIFEST.md`.

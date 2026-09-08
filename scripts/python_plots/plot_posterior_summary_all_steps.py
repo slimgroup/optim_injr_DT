@@ -132,4 +132,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if "--paper-export" in sys.argv:
+        from export_posterior_appendix_e import main as export_main
+        export_main([arg for arg in sys.argv[1:] if arg != "--paper-export"], family="posterior")
+    else:
+        main()

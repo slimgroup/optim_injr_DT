@@ -532,4 +532,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if "--paper-export" in sys.argv:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from export_posterior_appendix_e import main as export_main
+        export_main([arg for arg in sys.argv[1:] if arg != "--paper-export"], family="statistical", steps=[4])
+    else:
+        main()

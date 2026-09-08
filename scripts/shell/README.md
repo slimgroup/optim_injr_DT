@@ -22,6 +22,7 @@ shell/
 | Step-3/4 paired posterior smoke tests | `bash scripts/shell/submit/submit_step3_paired_smoketest.sh` / `bash scripts/shell/submit/submit_step4_paired_smoketest.sh` |
 | Bootstrap ECDF pipeline | `sbatch scripts/shell/submit/submit_bootstrap_cdf.sh` |
 | Posterior summary (all steps) | `sbatch scripts/shell/submit/submit_posterior_summary_all_steps_shared.sh` |
+| Posterior + Appendix E paper handoff (11 figures, historical rates) | `sbatch scripts/shell/submit/submit_posterior_appendix_e_export.sh` |
 | Full-campaign video forward export | `sbatch scripts/shell/submit/submit_full_campaign_video_forwards.sh` |
 | Full-campaign video rendering | `sbatch scripts/shell/submit/submit_full_campaign_fracture_video.sh` |
 | Threshold sensitivity | `sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity.sh` |

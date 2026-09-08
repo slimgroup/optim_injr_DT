@@ -16,6 +16,18 @@ not move or delete generated files solely because they appear here.
 
 ## Figure Assets
 
+The eight posterior maps and three Appendix E statistical grids now have a
+separate, explicitly historical export workflow:
+`sbatch scripts/shell/submit/submit_posterior_appendix_e_export.sh`.
+The canonical names are `plots/paper_figures/posterior/posterior_mean_step{k}.png`
+and `posterior_std_step{k}.png` for steps 1–4, and
+`plots/paper_figures/statistical/injection_rate_hist_ecdf_step{k}.png` for steps
+2–4. The handoff includes original manuscript-name copies under `paper_compat/`;
+paper QMD paths and all historical source assets remain unchanged. Exact source
+mapping, scientific conventions and consumer audit are documented in
+[the re-export note](../analysis/POSTERIOR_APPENDIX_E_REEXPORT_2026-09-08.md).
+Each generated handoff contains a checksum manifest and numeric validation.
+
 | Output | Script | Primary inputs | Notes |
 |--------|--------|----------------|-------|
 | `plots/paper_figures/injection_schedule_over_four_steps.png` | `scripts/python_plots/plot_injection_schedule_over_four_steps.py` | `docs/injection_rate_arrays.md`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2` | Dual-axis schedule figure. No-control stops after the recorded severe-fracture day. |

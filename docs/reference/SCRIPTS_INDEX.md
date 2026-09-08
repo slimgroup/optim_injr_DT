@@ -143,6 +143,11 @@ Paths below are relative to `scripts/shell/`.
 
 ### Python paper-figure entry points
 
+- `scripts/python_plots/export_posterior_appendix_e.py`: pinned historical
+  export of the 11 posterior / Appendix E paper figures. Submit with
+  `scripts/shell/submit/submit_posterior_appendix_e_export.sh`; produces canonical
+  paths plus byte-identical manuscript-name compatibility copies and provenance.
+
 - `scripts/julia_scripts/data_collection/forward_exports/run_forward_export.jl`
   Produces `plots/paper_figures/forward_sim_data.jld2` for downstream Python figure scripts.
 - `scripts/julia_scripts/data_collection/forward_exports/run_forward_four_steps_base_export.jl`

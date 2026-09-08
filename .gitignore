@@ -54,6 +54,17 @@
 !/plots/paper_figures/perm_ensemble_statistics.png
 !/plots/paper_figures/statistical/*.png
 
+# Canonical posterior / Appendix E exports only; preserve ignored diagnostics.
+!/plots/paper_figures/posterior/
+/plots/paper_figures/posterior/*
+!/plots/paper_figures/posterior/posterior_mean_step[1-4].png
+!/plots/paper_figures/posterior/posterior_std_step[1-4].png
+!/plots/paper_figures/posterior/posterior_mean_step[1-4].pdf
+!/plots/paper_figures/posterior/posterior_std_step[1-4].pdf
+!/plots/paper_figures/posterior/posterior_mean_step[1-4].svg
+!/plots/paper_figures/posterior/posterior_std_step[1-4].svg
+!/plots/paper_figures/statistical/injection_rate_hist_ecdf_step[2-4].svg
+
 # Archive files
 *.zip
 *.tar
