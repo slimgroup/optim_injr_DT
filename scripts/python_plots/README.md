@@ -32,7 +32,11 @@ repository root. This creates the canonical
 `plots/paper_figures/statistical/injection_rate_hist_ecdf_step{k}.png` exports,
 plus a separate handoff with manuscript-name compatibility copies. It pins
 the historical 5,000-replicate, grid-crossing statistical procedure. The
-existing posterior and step-2/3/4 entry points also accept `--paper-export`;
+figures include concise quantity/statistic titles with monitoring index `k`.
+For a title-only replacement, `--reference-handoff` verifies the original
+image region and numerics; `--publish-handoff ... --replace-from-handoff ...`
+backs up and replaces only canonical files matching the previous manifest.
+The existing posterior and step-2/3/4 entry points also accept `--paper-export`;
 their default analysis behavior is unchanged. See
 [the mapping and validation note](../../docs/analysis/POSTERIOR_APPENDIX_E_REEXPORT_2026-09-08.md).
 

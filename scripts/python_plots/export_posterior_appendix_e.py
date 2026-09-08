@@ -3,7 +3,8 @@
 
 Run on a compute node. Original scripts are pinned to BASELINE_COMMIT because
 the active working tree may contain a different statistical selection method.
-No source data, historical assets, or existing canonical exports are replaced.
+No source data or historical assets are replaced. Replacing canonical exports
+requires an explicit, checksum-matched previous handoff and creates backups.
 """
 
 from __future__ import annotations
@@ -37,9 +38,11 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.text import Annotation, Text
 from matplotlib.ticker import FormatStrFormatter, MaxNLocator
+from matplotlib.transforms import Bbox
 import numpy as np
 
 ROW_VARS = ["pressure_diff", "pressure", "sat"]
+TITLE_HEADER_INCHES = 0.5
 CASE_TITLES = [
     r"(a) PoF $\varepsilon=0.0$",
     r"(b) PoF $\varepsilon=0.01$",
@@ -233,11 +236,27 @@ def format_statistical(fig, results, step):
                ncol=3, fontsize=11, frameon=False, columnspacing=2)
 
 
-def layout_check(fig):
+def add_monitoring_title(fig, family, stem, step):
+    """Add a header outside the existing canvas; keep every panel at its size."""
+    if family == "posterior":
+        quantity = "Posterior mean" if stem.startswith("posterior_mean_") else "Posterior standard deviation"
+    else:
+        quantity = "Injection-rate endpoint histogram and ECDF"
+    title = quantity + rf" at monitoring step $k={step}$"
+    width, height = fig.get_size_inches()
+    fig.suptitle(title, x=0.5, y=1 + TITLE_HEADER_INCHES / (2 * height),
+                 fontsize=20, fontweight="bold", va="center")
+    # Expanding only the saved bounding box avoids resizing/repositioning any
+    # existing axes, labels, legends, colorbars, or annotation boxes.
+    return title, Bbox.from_bounds(0, 0, width, height + TITLE_HEADER_INCHES)
+
+
+def layout_check(fig, extra_top_inches=0):
     """Check visible text against the canvas, excluding off-range tick labels."""
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
-    bounds = fig.bbox
+    bounds = Bbox.from_extents(fig.bbox.x0, fig.bbox.y0, fig.bbox.x1,
+                              fig.bbox.y1 + extra_top_inches * fig.dpi)
     problems = []
     unrendered_ticks = set()
     for ax in all_axes(fig):
@@ -261,8 +280,11 @@ def layout_check(fig):
             problems.append(text.get_text())
     if problems:
         raise ValueError(f"Text outside figure canvas: {problems}")
+    if fig._suptitle is not None:
+        title_box = fig._suptitle.get_window_extent(renderer)
+        assert title_box.y0 >= fig.bbox.y1, "Global title overlaps the existing canvas"
     return {"visible_text_within_canvas": True, "tick_labels_do_not_overlap": True,
-            "figsize_inches": list(fig.get_size_inches())}
+            "figsize_inches": list(fig.get_size_inches()), "added_header_inches": extra_top_inches}
 
 
 class Export:
@@ -273,6 +295,9 @@ class Export:
         self.inputs = {}
         self.figures = []
         self.details = {}
+        self.reference = None
+        if args.reference_handoff:
+            self.reference = json.loads((args.reference_handoff / "manifest.json").read_text())
         self.head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, cwd=ROOT).strip()
         source_files = SOURCE_PATHS + [rel(Path(__file__)), "scripts/shell/submit/submit_posterior_appendix_e_export.sh"]
         for source in source_files:
@@ -292,19 +317,36 @@ class Export:
         return load_original(source, name, self.handoff)
 
     def save(self, fig, before, family, stem, step, source_png, paper_basename, datasets, script):
-        layout = layout_check(fig)
+        title, export_bbox = add_monitoring_title(fig, family, stem, step)
+        layout = layout_check(fig, extra_top_inches=TITLE_HEADER_INCHES)
         numeric = verify_numeric_contents(before, fig)
+        canonical_path = f"plots/paper_figures/{family}/{stem}.png"
+        reference = None
+        if self.reference:
+            reference = next(e for e in self.reference["figures"] if e["canonical_export_path"] == canonical_path)
+            old_audit = json.loads((self.args.reference_handoff / reference["numeric_validation"]).read_text())
+            assert numeric == old_audit["numeric_arrays"], f"Numeric content differs from previous export: {stem}"
         self.track(source_png, "preserved original PNG")
         outputs = {}
         for ext in self.args.formats:
             dest = self.handoff / family / f"{stem}.{ext}"
             dest.parent.mkdir(parents=True, exist_ok=True)
             with dest.open("xb") as f:
-                fig.savefig(f, format=ext, dpi=400, facecolor="white",
+                fig.savefig(f, format=ext, dpi=400, facecolor="white", bbox_inches=export_bbox, pad_inches=0,
                             metadata={"Creator": "optim_injr_DT historical paper exporter"} if ext == "pdf" else None)
             outputs[ext] = {"handoff_path": str(dest.relative_to(self.handoff)), "sha256": sha256(dest)}
         plt.close(fig)
         png = self.handoff / family / f"{stem}.png"
+        if reference:
+            from PIL import Image
+            old_png = self.args.reference_handoff / reference["outputs"]["png"]["handoff_path"]
+            assert sha256(old_png) == reference["output_sha256"]
+            with Image.open(old_png) as previous, Image.open(png) as current:
+                assert current.width == previous.width and current.height > previous.height
+                original_region = current.crop((0, current.height - previous.height, current.width, current.height))
+                np.testing.assert_array_equal(np.asarray(previous), np.asarray(original_region),
+                                              err_msg=f"Existing image region changed: {stem}")
+            layout["previous_image_region_pixel_identical"] = True
         compat = self.handoff / "paper_compat" / family / paper_basename
         copy_new(png, compat)
         audit = self.handoff / "validation" / f"{stem}.npz"
@@ -314,7 +356,7 @@ class Export:
         write_json(audit.with_suffix(".json"), {"unchanged": True, "numeric_arrays": numeric, "layout": layout})
         self.figures.append({
             "source_path": rel(source_png), "source_step": step,
-            "canonical_export_path": f"plots/paper_figures/{family}/{stem}.png",
+            "canonical_export_path": canonical_path, "global_title": title,
             "paper_current_path": f"figs/{family}/{paper_basename}",
             "input_dataset": datasets, "generating_script": script,
             "historical_commit": BASELINE_COMMIT,
@@ -426,10 +468,18 @@ class Export:
             assert sha256(ROOT / path) == info["sha256"], f"Input or original asset changed: {path}"
         write_json(self.handoff / "input_checksums.json", self.inputs)
         write_json(self.handoff / "validation" / "scientific_details.json", self.details)
+        if self.reference:
+            previous_details = json.loads((self.args.reference_handoff / "validation" / "scientific_details.json").read_text())
+            # Normalize tuple values and integer dictionary keys in the same
+            # way as the saved JSON before comparing scientific results.
+            for key, detail in json.loads(json.dumps(self.details)).items():
+                assert detail == previous_details[key], f"Scientific results changed: {key}"
         provenance = {"generating_commit": self.head, "historical_commit": BASELINE_COMMIT,
             "generated_at_utc": datetime.now(timezone.utc).isoformat(), "slurm_job_id": os.environ.get("SLURM_JOB_ID"),
             "python": sys.version, "numpy": np.__version__, "matplotlib": matplotlib.__version__, "h5py": h5py.__version__,
             "input_files_unchanged": True, "all_numeric_contents_unchanged": True,
+            "title_policy": "Quantity/statistic and monitoring index k; header added above unchanged panel canvas",
+            "reference_handoff": str(self.args.reference_handoff) if self.reference else None,
             "canonical_files_published_at_render": not self.args.no_publish,
             "later_publication_receipt": "publication_receipt.json", "figures": self.figures}
         write_json(self.handoff / "manifest.json", provenance)
@@ -449,7 +499,9 @@ class Export:
             "- Historical bootstrap: 5,000 replicates, seed 42, 1,500 grid points; no direct-jump migration.",
             "- Input files and all 11 selected original PNGs: checksums unchanged after rendering.",
             "- Compatibility PNGs: byte-identical to their canonical handoff PNGs.",
-            "- Visible text bounds: within figure canvas; no global titles.",
+            "- Concise global titles identify the quantity/statistic and monitoring step k.",
+            "- Titles occupy an added 0.5-inch header above the unchanged panel canvas.",
+            "- Visible text bounds: within the exported canvas; titles do not overlap the existing content.",
             "- PNG: 400 dpi; PDF/SVG (when requested): vector text and plot lines, raster field images.",
             "- Paper QMD and original manuscript image bytes are unavailable in this checkout; mapping uses the supplied paper paths.",
             "", "The strict PoF counts are 127, 124 and 122, with 1, 4 and 6 excluded no-final",
@@ -459,6 +511,10 @@ class Export:
             "is a lower-confidence-curve crossing, not a separate optimized schedule. The",
             "historical boundary crossings do not assert an upper-CDF bound below 1%.",
             "", "Independent visual review is recorded separately after export."]
+        if self.reference:
+            report += ["", "Compared with the supplied previous handoff: numerical snapshots and scientific",
+                       "details are identical. Every pixel in the previous PNG region is unchanged;",
+                       "the only added region is the global-title header."]
         (self.handoff / "VALIDATION.md").write_text("\n".join(report) + "\n")
         if not self.args.no_publish:
             for entry in self.figures:
@@ -470,7 +526,7 @@ class Export:
         print(f"Handoff complete: {self.handoff}", flush=True)
 
 
-def publish_handoff(handoff):
+def publish_handoff(handoff, replace_from_handoff=None):
     """Publish a reviewed handoff using verified byte copies, without re-rendering."""
     handoff = handoff.resolve()
     manifest = json.loads((handoff / "manifest.json").read_text())
@@ -478,20 +534,43 @@ def publish_handoff(handoff):
     for name, digest in checksums.items():
         assert sha256(handoff / name) == digest, f"Handoff changed: {name}"
     targets = []
+    previous_files = {}
+    if replace_from_handoff:
+        previous = json.loads((replace_from_handoff / "manifest.json").read_text())
+        previous_files = {str(Path(e["canonical_export_path"]).with_suffix("." + ext)): info["sha256"]
+                          for e in previous["figures"] for ext, info in e["outputs"].items()}
     for entry in manifest["figures"]:
         for ext, info in entry["outputs"].items():
             target = (ROOT / entry["canonical_export_path"]).with_suffix("." + ext)
             if target.exists():
-                raise FileExistsError(f"Preserving existing canonical export: {target}")
+                if not replace_from_handoff:
+                    raise FileExistsError(f"Preserving existing canonical export: {target}")
+                assert rel(target) in previous_files and sha256(target) == previous_files[rel(target)], target
             targets.append((handoff / info["handoff_path"], target, info["sha256"]))
     receipt = handoff / "publication_receipt.json"
     if receipt.exists():
         raise FileExistsError(receipt)
+    backup = None
+    if replace_from_handoff:
+        backup = ROOT / "plots" / "paper_figures" / (handoff.name + "_previous_canonical")
+        backup.mkdir(exist_ok=False)
+        for _, target, _ in targets:
+            if target.exists():
+                copy_new(target, backup / target.relative_to(ROOT / "plots" / "paper_figures"))
+        write_json(backup / "checksums.json", {rel(target): previous_files[rel(target)]
+                                                for _, target, _ in targets if target.exists()})
     for source, target, digest in targets:
         assert sha256(source) == digest
-        copy_new(source, target)
+        if target.exists():
+            assert backup is not None and sha256(target) == previous_files[rel(target)]
+            with source.open("rb") as src, target.open("wb") as dst:
+                shutil.copyfileobj(src, dst)
+            assert sha256(target) == digest
+        else:
+            copy_new(source, target)
     write_json(receipt, {"published_at_utc": datetime.now(timezone.utc).isoformat(),
                          "canonical_files": {rel(target): digest for _, target, digest in targets},
+                         "previous_canonical_backup": str(backup) if backup else None,
                          "compatibility_pngs_byte_identical": True})
     print(f"Published {len(targets)} canonical files from {handoff}")
 
@@ -506,10 +585,16 @@ def main(argv=None, family="all", steps=None):
                          "_" + os.environ.get("SLURM_JOB_ID", "local")))
     parser.add_argument("--no-publish", action="store_true", help="Create a separate handoff without writing canonical paths")
     parser.add_argument("--publish-handoff", type=Path, help="Publish byte copies from an already validated handoff; no rendering")
+    parser.add_argument("--reference-handoff", type=Path,
+                        help="Verify that the original PNG region and numerics exactly match this previous handoff")
+    parser.add_argument("--replace-from-handoff", type=Path,
+                        help="With --publish-handoff, back up and replace only files matching this previous manifest")
     args = parser.parse_args(argv)
     if args.publish_handoff:
-        publish_handoff(args.publish_handoff)
+        publish_handoff(args.publish_handoff, args.replace_from_handoff)
         return
+    if args.replace_from_handoff:
+        parser.error("--replace-from-handoff requires --publish-handoff")
     if "png" not in args.formats:
         parser.error("PNG is required for the paper compatibility handoff")
     if not os.environ.get("SLURM_JOB_ID"):

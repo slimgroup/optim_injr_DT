@@ -1,5 +1,39 @@
 # Posterior and Appendix E re-export
 
+## Current title requirement (supersedes the original request)
+
+The user explicitly restored global titles after reviewing the first handoff.
+Every canonical export must now identify the quantity/statistic and monitoring
+step using `k`, not `t`: `Posterior mean at monitoring step k=K`,
+`Posterior standard deviation at monitoring step k=K`, or
+`Injection-rate endpoint histogram and ECDF at monitoring step k=K`.
+
+The exporter adds a 0.5-inch title area above the existing figure canvas. It
+does not shrink or move any existing panels, annotations, legends, labels or
+colorbars. All canonical and paper-compatibility basenames stay unchanged.
+The first title-free handoff and archive remain preserved as prior versions;
+the titled handoff supersedes their artwork for paper intake.
+The titled delivery directory is
+`plots/paper_figures/posterior_appendix_e_handoff_titles_20260908_verified/`; its ZIP uses
+the same stem. Canonical figure stems and `paper_compat/` basenames are unchanged.
+
+For this update, render with `--no-publish --reference-handoff OLD_HANDOFF`.
+The exporter requires exact equality of the previous numeric snapshots and
+scientific details, and pixel equality of the entire previous PNG region.
+Publish the reviewed result with `--publish-handoff NEW_HANDOFF
+--replace-from-handoff OLD_HANDOFF`: replacement requires each current file
+to match the previous manifest, and all replaced canonical files are backed up
+first. Default publication still refuses to overwrite existing files.
+
+The titled export completed in Slurm job **13000553**. All 11 PNGs passed exact
+pixel comparison with the earlier handoff in the entire original image region;
+only the 200-pixel (0.5-inch at 400 dpi) title strip was added above it. Numerical
+snapshots and serialized scientific details are identical across the two
+handoffs. PNG/PDF/SVG canonical files and all 11 compatibility PNGs are updated.
+The 33 previous canonical files are preserved in
+`plots/paper_figures/posterior_appendix_e_handoff_titles_20260908_verified_previous_canonical/`.
+`publication_receipt.json` records their backup and the new file hashes.
+
 ## Source mapping verified before editing
 
 Baseline commit: `279108409a3d165ceeed430502c583f9c05e3d3b`.
@@ -129,10 +163,10 @@ working-tree patch accompany it. Numerical validation compares all plotted
 arrays, histogram rectangles, ECDF lines, confidence polygons, image limits,
 colormaps, axes limits and marker coordinates before and after formatting.
 
-## Completed handoff
+## Initial completed handoff (before title restoration)
 
 Slurm job **12992894** completed all 11 figures in 2 min 21 s, using about
-5.8 GB RAM. The final handoff is
+5.8 GB RAM. The initial handoff is
 [`plots/paper_figures/posterior_appendix_e_handoff_20260908_181644_12992894/`](../../plots/paper_figures/posterior_appendix_e_handoff_20260908_181644_12992894/).
 It contains 11 PNGs at 400 dpi, 11 PDFs, 11 SVGs, 11 byte-identical manuscript-name
 PNG copies, and full provenance. `manifest.json`/`manifest.csv` provide the
@@ -156,15 +190,16 @@ checks; all SVGs contain text elements, and inspected PDFs embed TrueType fonts.
 These are preserved historical marker coordinates, not newly selected rates.
 The earlier review job 12991858 stopped at an overly strict check of unrendered
 off-range ticks. Its partial handoff is retained; use only the completed
-12992894 handoff above. No source plots or analysis data were removed.
+12992894 handoff above when referring to the initial title-free export. No
+source plots or analysis data were removed.
 
 ## Import into the paper repository
 
-Transfer `plots/paper_figures/posterior_appendix_e_handoff_20260908_181644_12992894.zip`
+Transfer `plots/paper_figures/posterior_appendix_e_handoff_titles_20260908_verified.zip`
 and its adjacent `.zip.sha256` file to the paper-repository agent. The ZIP is a
 local delivery artifact; Git tracks the canonical artwork and export code.
-The frozen ZIP records the generating baseline and working-tree snapshots from
-the render, which precede the later delivery commit.
+The ZIP records the generating baseline and working-tree snapshots from
+the titled render. Keep the older title-free ZIP as a previous version.
 
 There are 11 distinct figures: four posterior means (steps 1–4), four posterior
 standard deviations (steps 1–4), and three combined histogram/ECDF figures

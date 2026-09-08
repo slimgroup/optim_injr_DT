@@ -27,6 +27,9 @@ paper QMD paths and all historical source assets remain unchanged. Exact source
 mapping, scientific conventions and consumer audit are documented in
 [the re-export note](../analysis/POSTERIOR_APPENDIX_E_REEXPORT_2026-09-08.md).
 Each generated handoff contains a checksum manifest and numeric validation.
+The latest user requirement restores concise global titles identifying the
+quantity/statistic and monitoring step `k`. These titles occupy an added header
+above the unchanged panel canvas; the canonical filenames remain the same.
 
 | Output | Script | Primary inputs | Notes |
 |--------|--------|----------------|-------|
