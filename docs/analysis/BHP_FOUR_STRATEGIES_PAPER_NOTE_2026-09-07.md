@@ -21,7 +21,7 @@ No physically calibrated numerical BHP limit can be selected from the present ex
 
 A defensible operational bound requires formation fracture/stress information and well-component pressure or differential-pressure ratings, with the applicable pressures converted to the same reference depth and pressure convention. That conversion requires hydrostatic/friction information and, for differential ratings, the relevant annulus pressure. See [EPA (2013), §3.3](https://www.epa.gov/sites/default/files/2015-07/documents/epa816r13001.pdf). This source explains the physical distinctions; it does not supply a numerical limit for this synthetic model.
 
-The reservoir-cell risk threshold `p_max[x,z]=p0[z]+4 MPa` is not an independently calibrated BHP bound. Nor is the old diagnostic `BHP_max=19.625 MPa`: its expression reverses the array indices, and it does not constrain the current optimization. Choosing a cap after inspecting the maxima would not establish physical safety. A separately declared synthetic cap can be studied, but must be described as an assumed threshold and a post hoc check, not a limit enforced by the original optimization.
+The prescribed model fracture-pressure bound `p_max[x,z]=p0[z]+4 MPa` is an existing synthetic-experiment assumption, evaluated on reservoir-cell pressures. Its fracture interpretation is explicit in `src/optim_inject.jl:635–638,697–700`; lack of physical calibration does not remove that interpretation. It is not an independently calibrated BHP bound. Nor is the old diagnostic `BHP_max=19.625 MPa`: its expression reverses the array indices, and it does not constrain the current optimization. Choosing a cap after inspecting the maxima would not establish physical safety. Extending the model fracture-pressure bound to specified well-side pressures would require a separate assumption about applicability and matching pressure/depth conventions. No such additional screening was performed here.
 
 ## What the replay differences mean
 
@@ -33,7 +33,9 @@ The 0.266 Pa / 97-cell result belongs to the separate ×1.22 CVaR Figure 1 audit
 
 ## Suggested manuscript text
 
-For the ground-truth permeability realization, the maximum reference-depth bottom-hole pressures were 14.554, 15.013 and 16.149 MPa for the selected PoF (ε=0), PoF (ε=0.01) and CVaR (α=0.01, γ=0.1) schedules, respectively, over 1920 days, compared with 18.262 MPa for no control through its day-728 shutdown. BHP was extracted from the reference node of the eight-node multisegment injector at a depth of 1196.875 m and evaluated at eight-day output intervals. These results constitute a ground-truth BHP diagnostic; no formation- or equipment-calibrated operational BHP limit is specified in the synthetic model.
+To complement the reservoir-pressure fracture-risk assessment, we evaluated the bottom-hole pressure (BHP) response of the selected injection schedules on the ground-truth permeability realization. BHP was extracted at the injector reference depth of 1196.875 m using the simulator's absolute-pressure convention. At eight-day saved outputs, the maximum BHPs over 1920 days were 14.554, 15.013 and 16.149 MPa for PoF (ε=0), PoF (ε=0.01) and CVaR (α=0.01, γ=0.1), respectively; the no-control case reached 18.262 MPa at its day-728 shutdown. The prescribed model fracture-pressure bound, p_max(x,z)=p0(x,z)+4 MPa, is evaluated on reservoir-cell pressures. These BHP results are reported as a posteriori diagnostics because an independently calibrated BHP operating limit is not specified in the synthetic model.
+
+Ready-to-transfer manuscript paragraph, figure caption and integration instructions: `docs/analysis/BHP_PAPER_REPO_HANDOFF_2026-09-07.md`.
 
 ## Artifacts
 
