@@ -30,6 +30,9 @@ Each generated handoff contains a checksum manifest and numeric validation.
 The latest user requirement restores concise global titles identifying the
 quantity/statistic and monitoring step `k`. These titles occupy an added header
 above the unchanged panel canvas; the canonical filenames remain the same.
+The 2026-09-09 revision removes only the histogram quantile-interval shading and
+its legend entry from the three statistical grids. ECDF uncertainty remains
+visible; historical numerics and the eight posterior figures remain unchanged.
 
 | Output | Script | Primary inputs | Notes |
 |--------|--------|----------------|-------|

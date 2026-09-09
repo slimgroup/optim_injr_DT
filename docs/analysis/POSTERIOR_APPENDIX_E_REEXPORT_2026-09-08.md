@@ -1,5 +1,37 @@
 # Posterior and Appendix E re-export
 
+## Current statistical presentation (2026-09-09)
+
+The user requested removal of the purple histogram interval and the legend
+entry `95% bootstrap interval for the 1% quantile` from steps 2–4. The ECDF
+pointwise confidence intervals, all titles, sample-quantile lines and numerical
+annotations remain unchanged. The hidden historical interval coordinates remain
+in the numerical audit; only their visibility changes. Bootstrap settings stay
+at the historical 5,000 replicates and seed 42; this is not a statistical update.
+
+The current complete delivery is
+`plots/paper_figures/posterior_appendix_e_handoff_ecdf_only_20260909/` and its
+same-stem ZIP. The eight posterior figures are byte-identical copies from the
+previous titled delivery. Only the three statistical figures are re-rendered.
+Canonical filenames and all `paper_compat/` basenames are unchanged. The previous
+titled delivery and its ZIP remain preserved.
+
+Reproduce this presentation update on a compute node, using a fresh output path:
+
+```bash
+sbatch scripts/shell/submit/submit_posterior_appendix_e_export.sh \
+  --no-publish \
+  --reference-handoff plots/paper_figures/posterior_appendix_e_handoff_titles_20260908_verified \
+  --reference-change hide-quantile-interval \
+  --reuse-posterior-from-reference \
+  --handoff-dir plots/paper_figures/posterior_appendix_e_handoff_ecdf_only_20260909
+```
+
+The exporter verifies unchanged scientific details and numeric arrays, plus
+identical statistical PNG pixels outside the removed shading and shared legend.
+Publication backs up only changed canonical files and skips byte-identical ones.
+The earlier title-restoration record below describes the previous delivery.
+
 ## Current title requirement (supersedes the original request)
 
 The user explicitly restored global titles after reviewing the first handoff.
@@ -102,7 +134,8 @@ crossings; those changes are preserved but not used for this paper handoff.
 The source labels have distinct meanings, flagged before presentation edits:
 
 - `1% q`: NumPy's interpolated sample 1% quantile. The histogram annotation
-  becomes `1% quantile`; its value and shaded bootstrap quantile interval stay fixed.
+  becomes `1% quantile`; its value stays fixed. The historical shaded bootstrap
+  quantile interval is omitted from the current presentation at the user's request.
 - `ECDF`: first historical grid crossing of the empirical CDF at 1%.
 - `q_k*`: first historical grid crossing of the upper pointwise confidence curve.
 - `Opt.`: first historical grid crossing of the lower pointwise confidence curve;
@@ -195,11 +228,11 @@ source plots or analysis data were removed.
 
 ## Import into the paper repository
 
-Transfer `plots/paper_figures/posterior_appendix_e_handoff_titles_20260908_verified.zip`
+Transfer `plots/paper_figures/posterior_appendix_e_handoff_ecdf_only_20260909.zip`
 and its adjacent `.zip.sha256` file to the paper-repository agent. The ZIP is a
 local delivery artifact; Git tracks the canonical artwork and export code.
 The ZIP records the generating baseline and working-tree snapshots from
-the titled render. Keep the older title-free ZIP as a previous version.
+the current statistical presentation update. Keep the earlier ZIPs as previous versions.
 
 There are 11 distinct figures: four posterior means (steps 1–4), four posterior
 standard deviations (steps 1–4), and three combined histogram/ECDF figures
@@ -218,6 +251,10 @@ For the paper intake:
 3. Keep the active QMD image paths, Quarto IDs and existing captions. The extended
    posterior material belongs to Appendix E; pressure-bound/BHP material remains
    in Appendix D. Do not migrate statistical methods or change numerical rates.
+   If a caption mentions the removed histogram quantile confidence interval,
+   remove only that description; retain the ECDF confidence-interval description.
+   When updating from the previous titled package, only the three statistical
+   PNGs differ; the eight posterior PNGs already match byte-for-byte.
 4. Render the manuscript and inspect these 11 figures at the final publication
    width. Report the replaced paths and checksum verification results, including
    any difference between the supplied mapping and the actual paper checkout.

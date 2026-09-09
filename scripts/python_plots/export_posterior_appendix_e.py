@@ -196,6 +196,12 @@ def format_statistical(fig, results, step):
     for col, result in enumerate(results):
         spec, x, q01, qlo, qhi, grid, ecdf, clo, chi = result
         hist, cdf = fig.axes[col], fig.axes[3 + col]
+        # Retain the historical interval coordinates for numerical auditing,
+        # but omit its shading from the paper presentation at the user's request.
+        spans = list(hist.patches)[len(hist.containers[0].patches):]
+        assert len(spans) == 1, "Expected one historical quantile-interval span"
+        for span in spans:
+            span.set_visible(False)
         qualification = (f"{len(x)} feasible completed; {128-len(x)} excluded" if col == 0
                          else f"{len(x)} completed samples")
         hist.set_title(CASE_TITLES[col] + "\n" + qualification, fontsize=14, fontweight="bold", pad=8)
@@ -227,13 +233,12 @@ def format_statistical(fig, results, step):
             ann.set_position(pos)
     handles = [
         Line2D([], [], color="#1E8449", lw=2, label="Sample 1% quantile"),
-        Patch(facecolor="#D7BDE2", alpha=0.4, label="95% bootstrap interval for the 1% quantile"),
         Line2D([], [], color="#1F618D", lw=2, label="Empirical CDF"),
         Patch(facecolor="#AED6F1", alpha=0.55, label="Pointwise 95% bootstrap confidence interval"),
         Line2D([], [], color="#C0392B", lw=1.2, ls="--", label="1% threshold"),
     ]
     fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, 0.015),
-               ncol=3, fontsize=11, frameon=False, columnspacing=2)
+               ncol=2, fontsize=11, frameon=False, columnspacing=2)
 
 
 def add_monitoring_title(fig, family, stem, step):
@@ -342,11 +347,20 @@ class Export:
             old_png = self.args.reference_handoff / reference["outputs"]["png"]["handoff_path"]
             assert sha256(old_png) == reference["output_sha256"]
             with Image.open(old_png) as previous, Image.open(png) as current:
-                assert current.width == previous.width and current.height > previous.height
-                original_region = current.crop((0, current.height - previous.height, current.width, current.height))
-                np.testing.assert_array_equal(np.asarray(previous), np.asarray(original_region),
-                                              err_msg=f"Existing image region changed: {stem}")
-            layout["previous_image_region_pixel_identical"] = True
+                if self.args.reference_change == "hide-quantile-interval":
+                    assert current.size == previous.size
+                    changed = np.any(np.asarray(previous) != np.asarray(current), axis=2)
+                    if family == "posterior":
+                        assert not np.any(changed), f"Posterior pixels changed: {stem}"
+                        layout["previous_image_region_pixel_identical"] = True
+                    else:
+                        self.verify_removed_shading(fig, changed, stem, layout)
+                else:
+                    assert current.width == previous.width and current.height > previous.height
+                    original_region = current.crop((0, current.height - previous.height, current.width, current.height))
+                    np.testing.assert_array_equal(np.asarray(previous), np.asarray(original_region),
+                                                  err_msg=f"Existing image region changed: {stem}")
+                    layout["previous_image_region_pixel_identical"] = True
         compat = self.handoff / "paper_compat" / family / paper_basename
         copy_new(png, compat)
         audit = self.handoff / "validation" / f"{stem}.npz"
@@ -368,7 +382,35 @@ class Export:
         })
         print(f"Validated and exported {stem}", flush=True)
 
+    @staticmethod
+    def verify_removed_shading(fig, changed, stem, layout):
+        allowed = np.zeros(changed.shape, dtype=bool)
+        height, width = changed.shape
+        scale = width / fig.bbox.width
+        # Only the old purple spans and the shared bottom legend may change.
+        regions = []
+        for ax in fig.axes[:3]:
+            span = list(ax.patches)[len(ax.containers[0].patches):][0]
+            assert not span.get_visible()
+            box = span.get_window_extent(fig.canvas.get_renderer())
+            x0 = max(0, int(np.floor(box.x0 * scale)) - 3)
+            x1 = min(width, int(np.ceil(box.x1 * scale)) + 3)
+            y0 = max(0, height - int(np.ceil(box.y1 * scale)) - 3)
+            y1 = min(height, height - int(np.floor(box.y0 * scale)) + 3)
+            allowed[y0:y1, x0:x1] = True
+            regions.append([x0, y0, x1, y1])
+        legend_top = height - int(np.ceil(fig.bbox.height * scale * 0.12))
+        allowed[legend_top:, :] = True
+        assert not np.any(changed & ~allowed), f"Unexpected pixel changes: {stem}"
+        assert np.any(changed), f"Expected the quantile interval to disappear: {stem}"
+        layout.update({"pixels_outside_removed_shading_and_legend_identical": True,
+                       "removed_interval_regions_pixels": regions,
+                       "histogram_quantile_interval_visible": False})
+
     def posterior(self):
+        if self.args.reuse_posterior_from_reference:
+            self.reuse_posterior()
+            return
         ppu = self.original(SOURCE_PATHS[0], "plot_posterior_uncertainty")
         summary = self.original(SOURCE_PATHS[1], "historical_posterior_summary")
         loaded, datasets, shapes = [], [], {}
@@ -397,6 +439,40 @@ class Export:
                 self.save(fig, before, "posterior", f"posterior_{stat}_step{step}", step,
                           cfg["outdir"] / basename, basename.replace(".png", f"_t{step}.png"), inputs,
                           SOURCE_PATHS[1])
+
+    def reuse_posterior(self):
+        """Copy the eight verified posterior figures without re-rendering them."""
+        previous = self.args.reference_handoff
+        checksums = json.loads((previous / "checksums.json").read_text())
+        previous_inputs = json.loads((previous / "input_checksums.json").read_text())
+        details_path = "validation/scientific_details.json"
+        assert sha256(previous / details_path) == checksums[details_path]
+        self.details["posterior"] = json.loads((previous / details_path).read_text())["posterior"]
+        for source in SOURCE_PATHS[:2]:
+            name = "provenance/original_sources/" + source
+            assert sha256(previous / name) == checksums[name]
+            copy_new(previous / name, self.handoff / name)
+        for old_entry in self.reference["figures"]:
+            if "/posterior/" not in old_entry["canonical_export_path"]:
+                continue
+            if old_entry["source_step"] not in self.args.steps:
+                continue
+            entry = dict(old_entry)
+            assert set(self.args.formats) == set(entry["outputs"]), "Reused posterior formats must match"
+            names = [info["handoff_path"] for info in entry["outputs"].values()]
+            names += [entry["compat_path"], entry["numeric_validation"],
+                      str(Path(entry["numeric_validation"]).with_suffix(".npz"))]
+            for name in names:
+                assert sha256(previous / name) == checksums[name], name
+                copy_new(previous / name, self.handoff / name)
+            paths = {dataset.split("::")[0] for dataset in entry["input_dataset"]}
+            paths.add(entry["source_path"])
+            for name in paths:
+                self.track(ROOT / name, previous_inputs[name]["role"])
+                assert self.inputs[name]["sha256"] == previous_inputs[name]["sha256"], name
+            entry["reused_from_handoff"] = str(previous)
+            self.figures.append(entry)
+            print(f"Reused byte-identical {entry['canonical_export_path']}", flush=True)
 
     def statistical(self):
         queue = subprocess.check_output(["squeue", "--me", "-h", "-o", "%i|%j|%T|%o"], text=True)
@@ -479,6 +555,8 @@ class Export:
             "python": sys.version, "numpy": np.__version__, "matplotlib": matplotlib.__version__, "h5py": h5py.__version__,
             "input_files_unchanged": True, "all_numeric_contents_unchanged": True,
             "title_policy": "Quantity/statistic and monitoring index k; header added above unchanged panel canvas",
+            "histogram_quantile_interval_displayed": False,
+            "presentation_change": "Omit histogram quantile-interval shading and its legend entry; retain ECDF uncertainty",
             "reference_handoff": str(self.args.reference_handoff) if self.reference else None,
             "canonical_files_published_at_render": not self.args.no_publish,
             "later_publication_receipt": "publication_receipt.json", "figures": self.figures}
@@ -495,6 +573,8 @@ class Export:
             "", "- Numeric contents before/after presentation edits: exact equality for every figure.",
             "- Posterior images: means/std arrays, row order, extents, colormaps and shared limits unchanged.",
             "- Statistical plots: histogram rectangles/bin edges, ECDF lines, confidence polygons, quantiles and marker coordinates unchanged.",
+            "- Histogram quantile-interval spans are hidden and their legend entry is omitted; their historical coordinates remain in the numerical audit.",
+            "- ECDF confidence intervals and sample 1% quantile lines/annotations remain visible and unchanged.",
             "- Samplewise rate CSVs agree exactly with the original completed final.jld2 inputs.",
             "- Historical bootstrap: 5,000 replicates, seed 42, 1,500 grid points; no direct-jump migration.",
             "- Input files and all 11 selected original PNGs: checksums unchanged after rendering.",
@@ -512,9 +592,15 @@ class Export:
             "historical boundary crossings do not assert an upper-CDF bound below 1%.",
             "", "Independent visual review is recorded separately after export."]
         if self.reference:
-            report += ["", "Compared with the supplied previous handoff: numerical snapshots and scientific",
-                       "details are identical. Every pixel in the previous PNG region is unchanged;",
-                       "the only added region is the global-title header."]
+            report += ["", "Compared with the supplied previous handoff: numerical snapshots and scientific details are identical."]
+            if self.args.reference_change == "hide-quantile-interval":
+                report += ["Only histogram interval shading and the shared legend change in statistical PNGs;",
+                           "all pixels outside those regions, including every ECDF panel and title, are identical."]
+            else:
+                report += ["Every pixel in the previous PNG region is unchanged; only the global-title header is added."]
+            if self.args.reuse_posterior_from_reference:
+                report += ["The eight posterior figures and their PNG/PDF/SVG and compatibility files are byte-identical copies",
+                           "from the reference handoff; their accompanying numerical audits are inherited unchanged."]
         (self.handoff / "VALIDATION.md").write_text("\n".join(report) + "\n")
         if not self.args.no_publish:
             for entry in self.figures:
@@ -546,6 +632,8 @@ def publish_handoff(handoff, replace_from_handoff=None):
                 if not replace_from_handoff:
                     raise FileExistsError(f"Preserving existing canonical export: {target}")
                 assert rel(target) in previous_files and sha256(target) == previous_files[rel(target)], target
+            if target.exists() and sha256(target) == info["sha256"]:
+                continue  # Already-identical posterior assets need no replacement.
             targets.append((handoff / info["handoff_path"], target, info["sha256"]))
     receipt = handoff / "publication_receipt.json"
     if receipt.exists():
@@ -587,6 +675,10 @@ def main(argv=None, family="all", steps=None):
     parser.add_argument("--publish-handoff", type=Path, help="Publish byte copies from an already validated handoff; no rendering")
     parser.add_argument("--reference-handoff", type=Path,
                         help="Verify that the original PNG region and numerics exactly match this previous handoff")
+    parser.add_argument("--reference-change", choices=["title-header", "hide-quantile-interval"],
+                        default="hide-quantile-interval", help="Expected presentation difference from the reference")
+    parser.add_argument("--reuse-posterior-from-reference", action="store_true",
+                        help="Reuse verified posterior exports byte-for-byte instead of rendering them again")
     parser.add_argument("--replace-from-handoff", type=Path,
                         help="With --publish-handoff, back up and replace only files matching this previous manifest")
     args = parser.parse_args(argv)
@@ -595,6 +687,8 @@ def main(argv=None, family="all", steps=None):
         return
     if args.replace_from_handoff:
         parser.error("--replace-from-handoff requires --publish-handoff")
+    if args.reuse_posterior_from_reference and not args.reference_handoff:
+        parser.error("--reuse-posterior-from-reference requires --reference-handoff")
     if "png" not in args.formats:
         parser.error("PNG is required for the paper compatibility handoff")
     if not os.environ.get("SLURM_JOB_ID"):
