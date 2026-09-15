@@ -1,0 +1,447 @@
+{
+  "media_validation": {
+    "forward_job": {
+      "id": 13209163,
+      "state": "COMPLETED",
+      "elapsed": "00:11:26",
+      "max_rss_KiB": 5270144
+    },
+    "render_and_decode_job": {
+      "id": 13209288,
+      "state": "COMPLETED",
+      "elapsed": "00:10:13",
+      "max_rss_KiB": 3046292
+    },
+    "media": [
+      {
+        "file": "comparison.mp4",
+        "dimensions": [
+          3840,
+          2160
+        ],
+        "duration_seconds": 40,
+        "fps": 30,
+        "decoded_frames": 1200,
+        "codec": "H.264",
+        "pixel_format": "yuv420p",
+        "stream": "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 3840x2160, 1189 kb/s, 30 fps, 30 tbr, 15360 tbn (default)"
+      },
+      {
+        "file": "cvar_alpha001_gamma01.mp4",
+        "dimensions": [
+          1280,
+          2160
+        ],
+        "duration_seconds": 40,
+        "fps": 30,
+        "decoded_frames": 1200,
+        "codec": "H.264",
+        "pixel_format": "yuv420p",
+        "stream": "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 1280x2160, 402 kb/s, 30 fps, 30 tbr, 15360 tbn (default)"
+      },
+      {
+        "file": "no_control.mp4",
+        "dimensions": [
+          1280,
+          2160
+        ],
+        "duration_seconds": 40,
+        "fps": 30,
+        "decoded_frames": 1200,
+        "codec": "H.264",
+        "pixel_format": "yuv420p",
+        "stream": "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 1280x2160, 446 kb/s, 30 fps, 30 tbr, 15360 tbn (default)"
+      },
+      {
+        "file": "pof_eps0.mp4",
+        "dimensions": [
+          1280,
+          2160
+        ],
+        "duration_seconds": 40,
+        "fps": 30,
+        "decoded_frames": 1200,
+        "codec": "H.264",
+        "pixel_format": "yuv420p",
+        "stream": "Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 1280x2160, 309 kb/s, 30 fps, 30 tbr, 15360 tbn (default)"
+      }
+    ],
+    "all_media_checksums_match": true,
+    "png_files_checked": 9,
+    "synchronized_saved_states": 79
+  },
+  "continuation": {
+    "scenario": "No control, continued injection at 0.2 m3/s after the historical ramp",
+    "validation_slurm_job_id": "13209288",
+    "time_audit": {
+      "count": 240,
+      "first_day": 8,
+      "last_day": 1920,
+      "interval_days": 8,
+      "duplicates": [],
+      "missing": [],
+      "historical_prefix_days": 800,
+      "first_new_day": 808
+    },
+    "historical_prefix_pressure_and_saturation": "100/100 states array-equal in float64",
+    "continuation_rate_max_absolute_error_m3_s": 0.0,
+    "historical_actual_rate_availability": "Only historical target rates exported; achieved continuation rates verified independently.",
+    "day728": {
+      "day": 728,
+      "rate_m3_s": 0.2,
+      "mass_Mt": 3.9674880000000003,
+      "exceeding_cells": 6953,
+      "min_r": -0.1072997467733469,
+      "max_pressure_excess_MPa": 1.6497336066402084,
+      "pressure_increase_min_MPa": -0.0029038295309152455,
+      "pressure_increase_max_MPa": 5.649733606640209,
+      "saturation_min": 0.0,
+      "saturation_max": 0.8960558638793831,
+      "cells_below_margin_colorbar": 439,
+      "cells_above_pressure_colorbar": 0,
+      "source": "historical"
+    },
+    "day800": {
+      "day": 800,
+      "rate_m3_s": 0.2,
+      "mass_Mt": 4.8384,
+      "exceeding_cells": 6566,
+      "min_r": -0.08949741388683152,
+      "max_pressure_excess_MPa": 1.3676733008667714,
+      "pressure_increase_min_MPa": -0.0022866701736338436,
+      "pressure_increase_max_MPa": 5.367673300866771,
+      "saturation_min": 0.0,
+      "saturation_max": 0.8968659662552899,
+      "cells_below_margin_colorbar": 0,
+      "cells_above_pressure_colorbar": 0,
+      "source": "historical"
+    },
+    "day1920": {
+      "day": 1920,
+      "rate_m3_s": 0.2,
+      "mass_Mt": 18.38592,
+      "exceeding_cells": 3593,
+      "min_r": -0.02628891104945999,
+      "max_pressure_excess_MPa": 0.3631155838706661,
+      "pressure_increase_min_MPa": -0.0008906115551702679,
+      "pressure_increase_max_MPa": 4.363115583870666,
+      "saturation_min": 0.0,
+      "saturation_max": 0.89863074967834,
+      "cells_below_margin_colorbar": 0,
+      "cells_above_pressure_colorbar": 0,
+      "source": "continuation"
+    },
+    "peaks_all_240_saved_times": {
+      "exceeding_cells": {
+        "value": 6953,
+        "days": [
+          728
+        ]
+      },
+      "max_pressure_excess_MPa": {
+        "value": 1.6497336066402084,
+        "days": [
+          728
+        ]
+      },
+      "min_r": {
+        "value": -0.1072997467733469,
+        "days": [
+          728
+        ]
+      }
+    },
+    "new_continuation_peak_cells": 6538,
+    "interpretation": "Instantaneous pressure-limit exceedance in the unchanged flow model. The model does not predict fracture opening or leakage. No monotonic growth is assumed.",
+    "files": [
+      {
+        "path": "data/forward/no_control_continued_20260914_13209163/no_control_continued.jld2",
+        "sha256": "54aa42d36bfaaf39b5aee1dda2777b048f98c73601db225037588f3c78755325"
+      },
+      {
+        "path": "plots/paper_figures/no_control_delayed_ramp_10_periods.jld2",
+        "sha256": "f7119542ed88cf4e54bd681c2b7843c10a9f4dd17ad5a6ad06565a0b86e101e2"
+      },
+      {
+        "path": "data/forward/no_control_continued_20260914_13209163/diagnostics.csv",
+        "sha256": "5b1ae339b69c4b3bdc5555f38f7d96d2db53eef7fe4f6a42f7c7108cd8c10f7b"
+      }
+    ]
+  },
+  "movie_validation": {
+    "render_slurm_job_id": "13209288",
+    "case_order": [
+      "pof_eps0",
+      "cvar_alpha001_gamma01",
+      "no_control"
+    ],
+    "cvar_sensitivity_multiplier": 1.22,
+    "on_screen_multiplier_label": false,
+    "annotation_rates": "Actual implemented rates and integrated mass; not unscaled base annotations.",
+    "common_days": [
+      8,
+      16,
+      24,
+      32,
+      40,
+      48,
+      56,
+      64,
+      72,
+      80,
+      88,
+      96,
+      104,
+      112,
+      120,
+      128,
+      136,
+      144,
+      152,
+      160,
+      168,
+      176,
+      184,
+      192,
+      200,
+      208,
+      216,
+      224,
+      232,
+      240,
+      248,
+      256,
+      264,
+      272,
+      280,
+      288,
+      296,
+      304,
+      312,
+      320,
+      328,
+      336,
+      344,
+      352,
+      360,
+      368,
+      376,
+      384,
+      392,
+      400,
+      408,
+      416,
+      424,
+      432,
+      440,
+      448,
+      456,
+      464,
+      472,
+      480,
+      560,
+      640,
+      720,
+      728,
+      800,
+      880,
+      960,
+      1040,
+      1120,
+      1200,
+      1280,
+      1360,
+      1440,
+      1520,
+      1600,
+      1680,
+      1760,
+      1840,
+      1920
+    ],
+    "saved_states": 79,
+    "final_day": 1920,
+    "no_control_final_saved_day": 1920,
+    "no_control_continued_injection": true,
+    "no_control_after_stop": "New counterfactual: historical days8:8:800 retained exactly; continued at original planned 0.2 m3/s through1920 in 80-day simulator calls.",
+    "exact_pof_overlap_days": [
+      80,
+      160,
+      240,
+      320,
+      400,
+      480
+    ],
+    "ground_truth": {
+      "file": "data/geo/wise_perm_models_2000_new.jld2",
+      "julia_slice": 2000,
+      "sha256": "fb6b891d72e6dad08ed1338908fb736922913dbfdc09d9b33df64584724c2246"
+    },
+    "grid": {
+      "shape_xyz": [
+        512,
+        1,
+        256
+      ],
+      "cell_m": [
+        6.25,
+        100,
+        6.25
+      ],
+      "display_order": "z,x; depth down",
+      "extent": [
+        0,
+        3193.75,
+        1593.75,
+        0
+      ]
+    },
+    "quantities": {
+      "margin": "(pmax-pres)/pmax",
+      "pressure_increase_MPa": "(pres-p0)/1e6",
+      "saturation": "original saved CO2 saturation",
+      "pmax": "p0+4e6 Pa"
+    },
+    "shared_color_limits": {
+      "margin": [
+        -0.1,
+        1
+      ],
+      "pressure_increase_MPa": [
+        0,
+        5.932220286972219
+      ],
+      "saturation": [
+        0,
+        1
+      ]
+    },
+    "colormaps": {
+      "margin": "Static Reds_r (26 colors) + Blues (230 colors); bin boundary aligned exactly at r=0",
+      "pressure": "colorcet CET_L3_r",
+      "saturation": "cmasher rainforest_r"
+    },
+    "out_of_colorbar_range": {
+      "margin": "Under-range red and lower extension; negative values retained",
+      "pressure": "Fixed static limits with min extension; raw values retained and extrema recorded."
+    },
+    "day728": [
+      {
+        "case": "pof_eps0",
+        "day": 728,
+        "source_day": 728,
+        "rate_m3_s": 0.03745,
+        "mass_Mt": 0.8370190080000001,
+        "min_r": 0.11931598453457,
+        "max_r": 0.9750584615384615,
+        "exceeding_cells": 0,
+        "max_pressure_excess_MPa": 0.0,
+        "dp_min_MPa": -0.003514900436609052,
+        "dp_max_MPa": 2.1655167377809863,
+        "sat_min": 0.0,
+        "sat_max": 0.8681141842145472
+      },
+      {
+        "case": "cvar_alpha001_gamma01",
+        "day": 728,
+        "source_day": 728,
+        "rate_m3_s": 0.1208532,
+        "mass_Mt": 2.8496943175680003,
+        "min_r": -0.004020422764227642,
+        "max_r": 0.9750584615384615,
+        "exceeding_cells": 93,
+        "max_pressure_excess_MPa": 0.061814,
+        "dp_min_MPa": -0.0030125,
+        "dp_max_MPa": 4.061814,
+        "sat_min": 0.0,
+        "sat_max": 0.8941096663475037
+      },
+      {
+        "case": "no_control",
+        "day": 728,
+        "source_day": 728,
+        "rate_m3_s": 0.2,
+        "mass_Mt": 3.9674880000000003,
+        "min_r": -0.1072997467733469,
+        "max_r": 0.9750584615384615,
+        "exceeding_cells": 6953,
+        "max_pressure_excess_MPa": 1.6497336066402084,
+        "dp_min_MPa": -0.0029038295309152455,
+        "dp_max_MPa": 5.649733606640209,
+        "sat_min": 0.0,
+        "sat_max": 0.8960558638793831
+      }
+    ],
+    "cvar_day728_reference": {
+      "static_file": "cvar_day728_sensitivity_1p22x.jld2",
+      "movie_file": "full_campaign_video_CVaR_g01_a001_sensitivity.jld2",
+      "multiplier_both": 1.22,
+      "pressure_max_abs_difference_Pa": 1921.5839884411544,
+      "saturation_max_abs_difference": 0.04527190339874271,
+      "static_exceeding_cells": 97,
+      "movie_exceeding_cells": 93
+    },
+    "movie_sampled_peak_cells": {
+      "pof_eps0": 0,
+      "cvar_alpha001_gamma01": 2285,
+      "no_control": 6953
+    },
+    "global_displayed_extrema": {
+      "margin": [
+        -0.1072997467733469,
+        0.9750584615384615
+      ],
+      "pressure_MPa": [
+        -0.006152097844175994,
+        5.649733606640209
+      ],
+      "saturation": [
+        0.0,
+        0.89863074967834
+      ]
+    },
+    "source_files": [
+      {
+        "path": "plots/paper_figures/forward_sim_four_steps_base_data.jld2",
+        "bytes": 203429825,
+        "sha256": "552c0732b374772829a698bbd00ac3a8745e4e1b28c8c024906092947ebd9ea5"
+      },
+      {
+        "path": "plots/paper_figures/first_step_substeps_POF_eps0.jld2",
+        "bytes": 127929165,
+        "sha256": "236546334921508b96fe4057a05fc7956a89d375d7d3d97e6b1fd318eef7c256"
+      },
+      {
+        "path": "plots/paper_figures/controlled_day728_POF_eps0.jld2",
+        "bytes": 4196411,
+        "sha256": "17b3935607a5a1eed0d94d9276a7b2a98e4ac0ecf9c392cb68429c22fa28a9e9"
+      },
+      {
+        "path": "plots/paper_figures/full_campaign_video_CVaR_g01_a001_sensitivity.jld2",
+        "bytes": 253763186,
+        "sha256": "bceac21612d13f6581541a482b5ca0d7b139b5b8aa255a34401ddc44e105e908"
+      },
+      {
+        "path": "plots/paper_figures/no_control_delayed_ramp_10_periods.jld2",
+        "bytes": 211816604,
+        "sha256": "f7119542ed88cf4e54bd681c2b7843c10a9f4dd17ad5a6ad06565a0b86e101e2"
+      },
+      {
+        "path": "data/forward/no_control_continued_20260914_13209163/no_control_continued.jld2",
+        "bytes": 505431797,
+        "sha256": "54aa42d36bfaaf39b5aee1dda2777b048f98c73601db225037588f3c78755325"
+      },
+      {
+        "path": "plots/paper_figures/cvar_day728_sensitivity_1p22x.jld2",
+        "bytes": 4196646,
+        "sha256": "9e25592b7930e5f2b6cf1bae3bd1b3de6506572b7edd2a16054a758671edf519"
+      }
+    ],
+    "limitations": [
+      "No saved t=0 fields.",
+      "Strict PoF has only 80-day fields after day480 plus day728.",
+      "CVaR time-series and static Figure 1 use different historical simulator-call boundaries.",
+      "Instantaneous cell counts are not fracture/leakage proof or ensemble PoF."
+    ]
+  }
+}

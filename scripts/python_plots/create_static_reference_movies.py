@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render PoF 0, CVaR x1.22 and stopped no-control from historical fields.
+"""Render PoF 0, CVaR x1.22 and no-control from saved simulation fields.
 
 Sensitivity provenance stays in metadata and reports; on-screen policy titles
 remain compact. Existing movies and simulation inputs are never replaced.
@@ -49,9 +49,10 @@ def sha256(path):
 
 
 class HistoricalFields:
-    def __init__(self, end_day):
+    def __init__(self, end_day, no_control_continuation=None):
         self.files, self.refs, self.rates = {}, {k: {} for k in KEYS}, {}
         self.end_day = end_day
+        self.continued = no_control_continuation is not None
         self.base = self.open('forward_sim_four_steps_base_data.jld2')
         self.p0 = self.base['p0'][:].T
         self.pmax = self.base['p_max'][:]
@@ -80,10 +81,24 @@ class HistoricalFields:
         self.rates[KEYS[1]] = cvar['rate_by_substep'][:][::10]
         np.testing.assert_array_equal(cvar['rate_by_substep'][:], np.repeat(self.base['CVaR_g01_a001_rates'][:]*1.22, 10))
         self.add_times(KEYS[1], cvar, 'pres_all', 'sat_all')
-        no_control = self.open('no_control_delayed_ramp_10_periods.jld2')
-        assert float(no_control['dt_days'][()]) == 8
-        self.stop_day = int(no_control['severe_day'][()])
-        assert self.stop_day == 728
+        historical_no_control = self.open('no_control_delayed_ramp_10_periods.jld2')
+        assert float(historical_no_control['dt_days'][()]) == 8
+        assert int(historical_no_control['severe_day'][()]) == 728
+        self.stop_day = 728
+        no_control = historical_no_control
+        if self.continued:
+            no_control = self.open(no_control_continuation.resolve())
+            assert bool(no_control['continued_injection'][()])
+            assert int(no_control['restart_day'][()]) == 800
+            assert int(no_control['final_day'][()]) == 1920
+            assert float(no_control['dt_days'][()]) == 8
+            np.testing.assert_array_equal(no_control['time_days'][:], np.arange(8,1921,8))
+            np.testing.assert_array_equal(no_control['full_rates'][:], historical_no_control['full_rates'][:])
+            assert no_control['pres_all'].shape == no_control['sat_all'].shape == (240,256,512)
+            for variable in ('pres_all','sat_all'):
+                for i in range(100):
+                    np.testing.assert_array_equal(no_control[variable][i], historical_no_control[variable][i])
+            self.stop_day = 1920
         self.rates[KEYS[2]] = no_control['full_rates'][:]
         self.add_times(KEYS[2], no_control, 'pres_all', 'sat_all', until=self.stop_day)
         self.reference = self.open('cvar_day728_sensitivity_1p22x.jld2')
@@ -94,19 +109,25 @@ class HistoricalFields:
             np.testing.assert_array_equal(f['p0'][:].T, self.p0)
             np.testing.assert_array_equal(f['p_max'][:], self.pmax)
         # Match the static reference's pressure limits, including its 5% headroom.
-        static_fields = [exact_pof['pres'][:], self.reference['pres'][:], no_control['pres_all'][90]]
+        static_fields = [exact_pof['pres'][:], self.reference['pres'][:], historical_no_control['pres_all'][90]]
         self.pressure_max = max(float(((p-self.p0)/1e6).max()) for p in static_fields)*1.05
         self.times = [d for d in sorted(set(self.refs[KEYS[0]]) & set(self.refs[KEYS[1]])) if d <= end_day]
         assert self.times[0] == 8 and self.times[-1] == end_day
         assert all(d in self.refs[KEYS[2]] for d in self.times if d <= self.stop_day)
 
     def open(self, name):
-        if name not in self.files:
-            self.files[name] = h5py.File(SOURCE/name, 'r', locking=False)
-        return self.files[name]
+        path = SOURCE/name
+        key = path.name
+        if key not in self.files:
+            self.files[key] = h5py.File(path, 'r', locking=False)
+        else:
+            assert Path(self.files[key].filename).resolve() == path.resolve()
+        return self.files[key]
 
     def add_times(self, key, f, pk, sk, until=1920):
         assert f[pk].shape == f[sk].shape
+        if 'time_days' in f:
+            np.testing.assert_array_equal(f['time_days'][:], np.arange(1,f[pk].shape[0]+1)*8)
         for i in range(f[pk].shape[0]):
             day = (i+1)*8
             if day <= until:
@@ -136,6 +157,7 @@ class HistoricalFields:
                     rate_m3_s=q, mass_Mt=float(volume*700/1e9),
                     min_r=float(r.min()), max_r=float(r.max()),
                     exceeding_cells=int(np.count_nonzero(r<0)),
+                    max_pressure_excess_MPa=max(0.,float(((p-self.pmax)/1e6).max())),
                     dp_min_MPa=float(dp.min()), dp_max_MPa=float(dp.max()),
                     sat_min=float(s.min()), sat_max=float(s.max()))
 
@@ -167,18 +189,23 @@ class HistoricalFields:
                         movie_exceeding_cells=self.metrics[KEYS[1]][728]['exceeding_cells'])
         with h5py.File(BASE/'data/geo/wise_perm_models_2000_new.jld2','r',locking=False) as f:
             truth=f['BroadK'][:,:,1999]
+        # Use fixed static-reference limits, with explicit extensions for any
+        # saved values outside those limits. Never normalize individual frames.
+        self.pressure_extend = 'both' if max(r['dp_max_MPa'] for r in rows)>self.pressure_max else 'min'
         result=dict(render_slurm_job_id=os.environ.get('SLURM_JOB_ID'), case_order=KEYS,
                     cvar_sensitivity_multiplier=1.22, on_screen_multiplier_label=False,
                     annotation_rates='Actual implemented rates and integrated mass; not unscaled base annotations.',
                     common_days=self.times, saved_states=len(self.times), final_day=self.end_day,
-                    no_control_final_saved_day=728, no_control_after_stop='If requested, hold day728 with explicit in-panel timestamp; no simulated extension.',
+                    no_control_final_saved_day=self.stop_day,
+                    no_control_continued_injection=self.continued,
+                    no_control_after_stop=('New counterfactual: historical days8:8:800 retained exactly; continued at original planned 0.2 m3/s through1920 in 80-day simulator calls.' if self.continued else 'If requested, hold day728 with explicit in-panel timestamp; no simulated extension.'),
                     exact_pof_overlap_days=self.duplicates,
                     ground_truth=dict(file='data/geo/wise_perm_models_2000_new.jld2',julia_slice=2000,sha256=hashlib.sha256(truth.tobytes()).hexdigest()),
                     grid=dict(shape_xyz=[512,1,256],cell_m=[6.25,100,6.25],display_order='z,x; depth down',extent=EXTENT),
                     quantities=dict(margin='(pmax-pres)/pmax',pressure_increase_MPa='(pres-p0)/1e6',saturation='original saved CO2 saturation',pmax='p0+4e6 Pa'),
                     shared_color_limits=dict(margin=[-.1,1],pressure_increase_MPa=[0,self.pressure_max],saturation=[0,1]),
                     colormaps=dict(margin='Static Reds_r (26 colors) + Blues (230 colors); bin boundary aligned exactly at r=0',pressure='colorcet CET_L3_r',saturation='cmasher rainforest_r'),
-                    out_of_colorbar_range=dict(margin='Under-range red and lower extension; negative values retained',pressure='Under-range uses static white endpoint and lower extension for negative pressure differences; values retained'),
+                    out_of_colorbar_range=dict(margin='Under-range red and lower extension; negative values retained',pressure=f'Fixed static limits with {self.pressure_extend} extension; raw values retained and extrema recorded.'),
                     day728=[self.metrics[k][728] for k in KEYS], cvar_day728_reference=comparison,
                     movie_sampled_peak_cells={k:max(m['exceeding_cells'] for m in self.metrics[k].values()) for k in KEYS},
                     global_displayed_extrema={q:[min(r[lo] for r in rows),max(r[hi] for r in rows)] for q,lo,hi in [('margin','min_r','max_r'),('pressure_MPa','dp_min_MPa','dp_max_MPa'),('saturation','sat_min','sat_max')]},
@@ -207,7 +234,8 @@ def figure(data, day, selected):
     for column,key in enumerate(selected):
         center=left+column*(width+gap)+width/2
         i=KEYS.index(key);m=data.metrics[key][day]
-        fig.text(center,.934,TITLES[i],ha='center',va='center',fontsize=23 if combined else 21,weight='bold')
+        title = 'No control (continued)' if key=='no_control' and data.continued else TITLES[i]
+        fig.text(center,.934,title,ha='center',va='center',fontsize=23 if combined else 21,weight='bold')
         if key=='no_control' and day>data.stop_day:
             # The field timestamp stays visible when the common controlled clock advances.
             fig.text(center,.902,'Ended at day 728 — showing final saved state',ha='center',fontsize=13)
@@ -227,7 +255,7 @@ def figure(data, day, selected):
             ax.plot([1562.5]*2,[1200,1237.5],color='black',linewidth=.9)
     for row,bottom in enumerate(bottoms):
         cax=fig.add_axes([cbar_x,bottom,.010 if combined else .022,height])
-        cb=fig.colorbar(ims[row],cax=cax,extend='min' if row<2 else 'neither',spacing='proportional')
+        cb=fig.colorbar(ims[row],cax=cax,extend=['min',data.pressure_extend,'neither'][row],spacing='proportional')
         cb.ax.tick_params(labelsize=14 if combined else 11)
         cb.ax.set_title(['r [−]','MPa','S [−]'][row],fontsize=14 if combined else 12,pad=9)
         if row==0:
@@ -288,9 +316,10 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--outdir',type=Path,required=True)
     parser.add_argument('--end-day',type=int,choices=[728,1920],default=728)
+    parser.add_argument('--no-control-continuation',type=Path,help='New saved continuation export; validates all 100 historical prefix states before use.')
     parser.add_argument('--preview-only',action='store_true')
     args=parser.parse_args();args.outdir.mkdir(parents=True,exist_ok=False)
-    data=HistoricalFields(args.end_day);result=data.audit(args.outdir)
+    data=HistoricalFields(args.end_day,args.no_control_continuation);result=data.audit(args.outdir)
     print(json.dumps(dict(saved_states=len(data.times),day728=result['day728'],reference=result['cvar_day728_reference'])),flush=True)
     render(data,args.outdir,args.preview_only)
     for f in data.files.values():f.close()

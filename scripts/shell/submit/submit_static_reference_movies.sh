@@ -16,7 +16,7 @@ export MPLCONFIGDIR="/tmp/mpl_static_reference_movies_${SLURM_JOB_ID}"
 export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=1
 mkdir -p "$MPLCONFIGDIR"
-# Render saved fields only. Optional --end-day 1920 holds no-control at its
-# explicitly labelled day-728 endpoint; no post-shutdown fields are invented.
+# Render saved fields only. --no-control-continuation PATH uses a separately
+# validated continuation; otherwise --end-day 1920 labels the held day728 state.
 /usr/bin/python3 -u scripts/python_plots/create_static_reference_movies.py \
     --outdir "plots/paper_figures/p1_static_reference_movies_20260914_${SLURM_JOB_ID}" "$@"
