@@ -49,9 +49,11 @@ def sha256(path):
 
 
 class HistoricalFields:
-    def __init__(self, end_day, no_control_continuation=None):
+    def __init__(self, end_day, no_control_continuation=None, seconds=SECONDS, compact_header=False):
         self.files, self.refs, self.rates = {}, {k: {} for k in KEYS}, {}
         self.end_day = end_day
+        self.seconds = seconds
+        self.compact_header = compact_header
         self.continued = no_control_continuation is not None
         self.base = self.open('forward_sim_four_steps_base_data.jld2')
         self.p0 = self.base['p0'][:].T
@@ -193,12 +195,14 @@ class HistoricalFields:
         # saved values outside those limits. Never normalize individual frames.
         self.pressure_extend = 'both' if max(r['dp_max_MPa'] for r in rows)>self.pressure_max else 'min'
         result=dict(render_slurm_job_id=os.environ.get('SLURM_JOB_ID'), case_order=KEYS,
+                    video_seconds=self.seconds, video_fps=FPS, video_frames=FPS*self.seconds,
+                    compact_header=self.compact_header,
                     cvar_sensitivity_multiplier=1.22, on_screen_multiplier_label=False,
                     annotation_rates='Actual implemented rates and integrated mass; not unscaled base annotations.',
                     common_days=self.times, saved_states=len(self.times), final_day=self.end_day,
                     no_control_final_saved_day=self.stop_day,
                     no_control_continued_injection=self.continued,
-                    no_control_after_stop=('New counterfactual: historical days8:8:800 retained exactly; continued at original planned 0.2 m3/s through1920 in 80-day simulator calls.' if self.continued else 'If requested, hold day728 with explicit in-panel timestamp; no simulated extension.'),
+                    no_control_after_stop=('New counterfactual: historical days8:8:800 retained exactly; continued at original planned 0.2 m3/s through1920 in 80-day simulator calls.' if self.continued else 'Hold day728 fields and all their metrics with a visible Day 728 held badge. q_728 is the rate producing that saved state, not continuing injection after the stop. No post-stop simulation is shown.'),
                     exact_pof_overlap_days=self.duplicates,
                     ground_truth=dict(file='data/geo/wise_perm_models_2000_new.jld2',julia_slice=2000,sha256=hashlib.sha256(truth.tobytes()).hexdigest()),
                     grid=dict(shape_xyz=[512,1,256],cell_m=[6.25,100,6.25],display_order='z,x; depth down',extent=EXTENT),
@@ -219,7 +223,17 @@ def figure(data, day, selected):
     n=len(selected);combined=n==3
     plt.rcParams.update({'font.family':'DejaVu Sans','font.size':16,'axes.labelsize':17,'xtick.labelsize':15,'ytick.labelsize':15})
     fig=plt.figure(figsize=(19.2 if combined else 6.4,10.8),dpi=200,facecolor='white')
-    fig.text(.5,.977,f'Day {day:04d}  |  Monitoring step {int(np.ceil(day/480))}',ha='center',va='center',fontsize=24 if combined else 18,weight='bold')
+    clock=f'Day {day:04d}  |  Monitoring step {int(np.ceil(day/480))}'
+    note='Red cells mean pressure-limit exceedance (r < 0).'
+    if data.compact_header:
+        if combined:
+            fig.text(.073,.982,clock,ha='left',va='center',fontsize=21,weight='bold')
+            fig.text(.944,.982,note,ha='right',va='center',fontsize=18)
+        else:
+            fig.text(.5,.984,note,ha='center',va='center',fontsize=11)
+            fig.text(.5,.955,clock,ha='center',va='center',fontsize=17,weight='bold')
+    else:
+        fig.text(.5,.977,clock,ha='center',va='center',fontsize=24 if combined else 18,weight='bold')
     # Same color entries as the static figure, with an exact red/blue sign boundary.
     margin_cmap=ListedColormap(np.vstack([plt.cm.Reds_r(np.linspace(0,.85,26)),plt.cm.Blues(np.linspace(0,1,230))]))
     margin_cmap.set_under(plt.cm.Reds_r(0.))
@@ -230,22 +244,29 @@ def figure(data, day, selected):
     labels=['Relative margin r\nDepth [m]','Pressure increase\nDepth [m]','CO₂ saturation\nDepth [m]']
     left,width,gap,cbar_x=(.073,.275,.012,.944) if combined else (.207,.640,0,.868)
     bottoms=[.620,.350,.080];height=.242
+    if data.compact_header:
+        top,bottom,row_gap=(.895 if combined else .860),.055,.025
+        height=(top-bottom-2*row_gap)/3
+        bottoms=[bottom+2*(height+row_gap),bottom+height+row_gap,bottom]
     ims=[None]*3
     for column,key in enumerate(selected):
         center=left+column*(width+gap)+width/2
         i=KEYS.index(key);m=data.metrics[key][day]
         title = 'No control (continued)' if key=='no_control' and data.continued else TITLES[i]
-        fig.text(center,.934,title,ha='center',va='center',fontsize=23 if combined else 21,weight='bold')
-        if key=='no_control' and day>data.stop_day:
-            # The field timestamp stays visible when the common controlled clock advances.
-            fig.text(center,.902,'Ended at day 728 — showing final saved state',ha='center',fontsize=13)
-        else:
-            fig.text(center,.900,f"q: {m['rate_m3_s']:.5f} m³/s   |   {m['mass_Mt']:.2f} Mt   |   {m['exceeding_cells']:,} cells",ha='center',fontsize=15 if combined else 12)
+        title_y=(.950 if combined else .922) if data.compact_header else .934
+        metric_y=(.921 if combined else .891) if data.compact_header else .900
+        fig.text(center,title_y,title,ha='center',va='center',fontsize=(22 if combined else 20) if data.compact_header else (23 if combined else 21),weight='bold')
+        held=key=='no_control' and day>data.stop_day
+        rate_label='q₇₂₈' if held else 'q'
+        fig.text(center,metric_y,f"{rate_label}: {m['rate_m3_s']:.5f} m³/s   |   {m['mass_Mt']:.2f} Mt   |   {m['exceeding_cells']:,} cells",ha='center',va='center' if data.compact_header else 'baseline',fontsize=(14 if combined else 11) if data.compact_header else (15 if combined else 12))
         p,s=data.fields(key,day)
         arrays=[(data.pmax-p)/data.pmax,(p-data.p0)/1e6,s]
         for row,bottom in enumerate(bottoms):
             ax=fig.add_axes([left+column*(width+gap),bottom,width,height])
             ims[row]=ax.imshow(arrays[row],extent=EXTENT,origin='upper',interpolation='nearest',aspect='auto',cmap=cmaps[row],norm=norms[row])
+            if row==0 and key=='no_control' and day>=data.stop_day and data.end_day>data.stop_day:
+                ax.text(.98,.96,'Day 728 held',transform=ax.transAxes,ha='right',va='top',fontsize=13 if combined else 12,
+                        bbox=dict(facecolor='white',edgecolor='none',alpha=.9,pad=3))
             ax.set_xticks([0,1000,2000,3000]);ax.set_yticks([0,500,1000,1500])
             if row<2:ax.tick_params(labelbottom=False)
             else:ax.set_xlabel('X [m]',labelpad=2)
@@ -262,7 +283,8 @@ def figure(data, day, selected):
             cb.set_ticks([0,.25,.5,.75,1]);cb.ax.axhline(0,color='0.3',linewidth=.6)
         elif row==1:cb.set_ticks([0,2,4])
         else:cb.set_ticks([0,.2,.4,.6,.8,1])
-    fig.text(.5,.012,'Red cells mean pressure-limit exceedance (r < 0).',ha='center',fontsize=19 if combined else 11)
+    if not data.compact_header:
+        fig.text(.5,.012,note,ha='center',fontsize=19 if combined else 11)
     fig.canvas.draw()
     renderer=fig.canvas.get_renderer()
     from matplotlib.text import Text
@@ -271,21 +293,30 @@ def figure(data, day, selected):
             box=artist.get_window_extent(renderer)
             if box.x0 < -2 or box.y0 < -2 or box.x1 > fig.bbox.width+2 or box.y1 > fig.bbox.height+2:
                 raise ValueError(f'Text outside canvas: {artist.get_text()!r}: {box.bounds}')
+    # Header rows must not collide after reducing whitespace.
+    header_texts=fig.texts if data.compact_header else []
+    for i,a in enumerate(header_texts):
+        for b in header_texts[i+1:]:
+            if a.get_window_extent(renderer).overlaps(b.get_window_extent(renderer)):
+                raise ValueError(f'Overlapping header text: {a.get_text()!r} / {b.get_text()!r}')
     return fig
 
 
 def render(data,out,preview_only=False):
     if preview_only:
-        for stem, selected in [('comparison',KEYS),*[(k,[k]) for k in KEYS]]:
-            fig=figure(data,728,selected);fig.savefig(out/f'{stem}_day728.png',dpi=200);plt.close(fig)
+        for day in sorted({728,data.end_day}):
+            for stem, selected in [('comparison',KEYS),*[(k,[k]) for k in KEYS]]:
+                suffix='day728' if day==728 else 'poster'
+                fig=figure(data,day,selected);fig.savefig(out/f'{stem}_{suffix}.png',dpi=200);plt.close(fig)
         return
     frames=out/'frames';frames.mkdir()
     # Repeat actual stored states; allocate durations using physical time gaps.
     saved=np.asarray(data.times,dtype=float)
     boundaries=np.r_[0,(saved[:-1]+saved[1:])/2,data.end_day]
-    ticks=np.rint(boundaries/data.end_day*FPS*SECONDS).astype(int)
+    total_frames=FPS*data.seconds
+    ticks=np.rint(boundaries/data.end_day*total_frames).astype(int)
     repeats=np.diff(ticks)
-    assert len(repeats)==len(data.times) and repeats.min()>0 and repeats.sum()==1200
+    assert len(repeats)==len(data.times) and repeats.min()>0 and repeats.sum()==total_frames
     timeline=[]
     for index,(day,count) in enumerate(zip(data.times,repeats)):
         for stem,selected in [('comparison',KEYS),*[(k,[k]) for k in KEYS]]:
@@ -318,8 +349,12 @@ def main():
     parser.add_argument('--end-day',type=int,choices=[728,1920],default=728)
     parser.add_argument('--no-control-continuation',type=Path,help='New saved continuation export; validates all 100 historical prefix states before use.')
     parser.add_argument('--preview-only',action='store_true')
-    args=parser.parse_args();args.outdir.mkdir(parents=True,exist_ok=False)
-    data=HistoricalFields(args.end_day,args.no_control_continuation);result=data.audit(args.outdir)
+    parser.add_argument('--seconds',type=int,default=SECONDS)
+    parser.add_argument('--compact-header',action='store_true',help='Move the bottom note into the header and expand the maps.')
+    args=parser.parse_args()
+    if not 10<=args.seconds<=120:parser.error('--seconds must be between 10 and 120')
+    args.outdir.mkdir(parents=True,exist_ok=False)
+    data=HistoricalFields(args.end_day,args.no_control_continuation,args.seconds,args.compact_header);result=data.audit(args.outdir)
     print(json.dumps(dict(saved_states=len(data.times),day728=result['day728'],reference=result['cvar_day728_reference'])),flush=True)
     render(data,args.outdir,args.preview_only)
     for f in data.files.values():f.close()
