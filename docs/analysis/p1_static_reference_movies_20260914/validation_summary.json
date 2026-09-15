@@ -1,0 +1,356 @@
+{
+  "render_job_id": 13208794,
+  "decode_job_id": 13208951,
+  "source_validation": {
+    "render_slurm_job_id": "13208794",
+    "case_order": [
+      "pof_eps0",
+      "cvar_alpha001_gamma01",
+      "no_control"
+    ],
+    "cvar_sensitivity_multiplier": 1.22,
+    "on_screen_multiplier_label": false,
+    "annotation_rates": "Actual implemented rates and integrated mass; not unscaled base annotations.",
+    "common_days": [
+      8,
+      16,
+      24,
+      32,
+      40,
+      48,
+      56,
+      64,
+      72,
+      80,
+      88,
+      96,
+      104,
+      112,
+      120,
+      128,
+      136,
+      144,
+      152,
+      160,
+      168,
+      176,
+      184,
+      192,
+      200,
+      208,
+      216,
+      224,
+      232,
+      240,
+      248,
+      256,
+      264,
+      272,
+      280,
+      288,
+      296,
+      304,
+      312,
+      320,
+      328,
+      336,
+      344,
+      352,
+      360,
+      368,
+      376,
+      384,
+      392,
+      400,
+      408,
+      416,
+      424,
+      432,
+      440,
+      448,
+      456,
+      464,
+      472,
+      480,
+      560,
+      640,
+      720,
+      728
+    ],
+    "saved_states": 64,
+    "final_day": 728,
+    "no_control_final_saved_day": 728,
+    "no_control_after_stop": "If requested, hold day728 with explicit in-panel timestamp; no simulated extension.",
+    "exact_pof_overlap_days": [
+      80,
+      160,
+      240,
+      320,
+      400,
+      480
+    ],
+    "ground_truth": {
+      "file": "data/geo/wise_perm_models_2000_new.jld2",
+      "julia_slice": 2000,
+      "sha256": "fb6b891d72e6dad08ed1338908fb736922913dbfdc09d9b33df64584724c2246"
+    },
+    "grid": {
+      "shape_xyz": [
+        512,
+        1,
+        256
+      ],
+      "cell_m": [
+        6.25,
+        100,
+        6.25
+      ],
+      "display_order": "z,x; depth down",
+      "extent": [
+        0,
+        3193.75,
+        1593.75,
+        0
+      ]
+    },
+    "quantities": {
+      "margin": "(pmax-pres)/pmax",
+      "pressure_increase_MPa": "(pres-p0)/1e6",
+      "saturation": "original saved CO2 saturation",
+      "pmax": "p0+4e6 Pa"
+    },
+    "shared_color_limits": {
+      "margin": [
+        -0.1,
+        1
+      ],
+      "pressure_increase_MPa": [
+        0,
+        5.932220286972219
+      ],
+      "saturation": [
+        0,
+        1
+      ]
+    },
+    "colormaps": {
+      "margin": "Static Reds_r (26 colors) + Blues (230 colors); bin boundary aligned exactly at r=0",
+      "pressure": "colorcet CET_L3_r",
+      "saturation": "cmasher rainforest_r"
+    },
+    "out_of_colorbar_range": {
+      "margin": "Under-range red and lower extension; negative values retained",
+      "pressure": "Under-range uses static white endpoint and lower extension for negative pressure differences; values retained"
+    },
+    "day728": [
+      {
+        "case": "pof_eps0",
+        "day": 728,
+        "source_day": 728,
+        "rate_m3_s": 0.03745,
+        "mass_Mt": 0.8370190080000001,
+        "min_r": 0.11931598453457,
+        "max_r": 0.9750584615384615,
+        "exceeding_cells": 0,
+        "dp_min_MPa": -0.003514900436609052,
+        "dp_max_MPa": 2.1655167377809863,
+        "sat_min": 0.0,
+        "sat_max": 0.8681141842145472
+      },
+      {
+        "case": "cvar_alpha001_gamma01",
+        "day": 728,
+        "source_day": 728,
+        "rate_m3_s": 0.1208532,
+        "mass_Mt": 2.8496943175680003,
+        "min_r": -0.004020422764227642,
+        "max_r": 0.9750584615384615,
+        "exceeding_cells": 93,
+        "dp_min_MPa": -0.0030125,
+        "dp_max_MPa": 4.061814,
+        "sat_min": 0.0,
+        "sat_max": 0.8941096663475037
+      },
+      {
+        "case": "no_control",
+        "day": 728,
+        "source_day": 728,
+        "rate_m3_s": 0.2,
+        "mass_Mt": 3.9674880000000003,
+        "min_r": -0.1072997467733469,
+        "max_r": 0.9750584615384615,
+        "exceeding_cells": 6953,
+        "dp_min_MPa": -0.0029038295309152455,
+        "dp_max_MPa": 5.649733606640209,
+        "sat_min": 0.0,
+        "sat_max": 0.8960558638793831
+      }
+    ],
+    "cvar_day728_reference": {
+      "static_file": "cvar_day728_sensitivity_1p22x.jld2",
+      "movie_file": "full_campaign_video_CVaR_g01_a001_sensitivity.jld2",
+      "multiplier_both": 1.22,
+      "pressure_max_abs_difference_Pa": 1921.5839884411544,
+      "saturation_max_abs_difference": 0.04527190339874271,
+      "static_exceeding_cells": 97,
+      "movie_exceeding_cells": 93
+    },
+    "movie_sampled_peak_cells": {
+      "pof_eps0": 0,
+      "cvar_alpha001_gamma01": 2285,
+      "no_control": 6953
+    },
+    "global_displayed_extrema": {
+      "margin": [
+        -0.1072997467733469,
+        0.9750584615384615
+      ],
+      "pressure_MPa": [
+        -0.006152097844175994,
+        5.649733606640209
+      ],
+      "saturation": [
+        0.0,
+        0.8960740403157991
+      ]
+    },
+    "source_files": [
+      {
+        "path": "plots/paper_figures/forward_sim_four_steps_base_data.jld2",
+        "bytes": 203429825,
+        "sha256": "552c0732b374772829a698bbd00ac3a8745e4e1b28c8c024906092947ebd9ea5"
+      },
+      {
+        "path": "plots/paper_figures/first_step_substeps_POF_eps0.jld2",
+        "bytes": 127929165,
+        "sha256": "236546334921508b96fe4057a05fc7956a89d375d7d3d97e6b1fd318eef7c256"
+      },
+      {
+        "path": "plots/paper_figures/controlled_day728_POF_eps0.jld2",
+        "bytes": 4196411,
+        "sha256": "17b3935607a5a1eed0d94d9276a7b2a98e4ac0ecf9c392cb68429c22fa28a9e9"
+      },
+      {
+        "path": "plots/paper_figures/full_campaign_video_CVaR_g01_a001_sensitivity.jld2",
+        "bytes": 253763186,
+        "sha256": "bceac21612d13f6581541a482b5ca0d7b139b5b8aa255a34401ddc44e105e908"
+      },
+      {
+        "path": "plots/paper_figures/no_control_delayed_ramp_10_periods.jld2",
+        "bytes": 211816604,
+        "sha256": "f7119542ed88cf4e54bd681c2b7843c10a9f4dd17ad5a6ad06565a0b86e101e2"
+      },
+      {
+        "path": "plots/paper_figures/cvar_day728_sensitivity_1p22x.jld2",
+        "bytes": 4196646,
+        "sha256": "9e25592b7930e5f2b6cf1bae3bd1b3de6506572b7edd2a16054a758671edf519"
+      }
+    ],
+    "limitations": [
+      "No saved t=0 fields.",
+      "Strict PoF has only 80-day fields after day480 plus day728.",
+      "CVaR time-series and static Figure 1 use different historical simulator-call boundaries.",
+      "Instantaneous cell counts are not fracture/leakage proof or ensemble PoF."
+    ]
+  },
+  "media": [
+    {
+      "file": "comparison.mp4",
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "dimensions": "3840x2160",
+      "fps": 30,
+      "duration_seconds": 40,
+      "decoded_frames": 1200
+    },
+    {
+      "file": "cvar_alpha001_gamma01.mp4",
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "dimensions": "1280x2160",
+      "fps": 30,
+      "duration_seconds": 40,
+      "decoded_frames": 1200
+    },
+    {
+      "file": "no_control.mp4",
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "dimensions": "1280x2160",
+      "fps": 30,
+      "duration_seconds": 40,
+      "decoded_frames": 1200
+    },
+    {
+      "file": "pof_eps0.mp4",
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "dimensions": "1280x2160",
+      "fps": 30,
+      "duration_seconds": 40,
+      "decoded_frames": 1200
+    }
+  ],
+  "output_checksums": [
+    {
+      "file": "comparison.mp4",
+      "bytes": 3839408,
+      "sha256": "8dbfac4b0ad99e43a0329d07971f72972e57cbb5cbbd9bd4c5a4d3d09149a475"
+    },
+    {
+      "file": "comparison_day728.png",
+      "bytes": 551020,
+      "sha256": "beaa171cea6dc54ae4a1653c227e052003687b3da289178a448a994bc8cadbce"
+    },
+    {
+      "file": "comparison_poster.png",
+      "bytes": 551020,
+      "sha256": "beaa171cea6dc54ae4a1653c227e052003687b3da289178a448a994bc8cadbce"
+    },
+    {
+      "file": "cvar_alpha001_gamma01.mp4",
+      "bytes": 1412252,
+      "sha256": "48339c9ee00f6cb40a3bdc0a83994ef50f518a48033949cc6bb0bdda72f5a074"
+    },
+    {
+      "file": "cvar_alpha001_gamma01_day728.png",
+      "bytes": 266818,
+      "sha256": "dfc831bb03ba3138bba732aadb9715eae0e7994a97d8ef3d980e580a839a653e"
+    },
+    {
+      "file": "cvar_alpha001_gamma01_poster.png",
+      "bytes": 266818,
+      "sha256": "dfc831bb03ba3138bba732aadb9715eae0e7994a97d8ef3d980e580a839a653e"
+    },
+    {
+      "file": "no_control.mp4",
+      "bytes": 1539634,
+      "sha256": "9c14db73b9d1618d517faaa7ee6229ffc762bce46e919a04df254024876d5319"
+    },
+    {
+      "file": "no_control_day728.png",
+      "bytes": 290063,
+      "sha256": "58d36a68ab916ce9bc48b19df50ac5d9faedd6587c6b89b6f8943d4046f94536"
+    },
+    {
+      "file": "no_control_poster.png",
+      "bytes": 290063,
+      "sha256": "58d36a68ab916ce9bc48b19df50ac5d9faedd6587c6b89b6f8943d4046f94536"
+    },
+    {
+      "file": "pof_eps0.mp4",
+      "bytes": 1101393,
+      "sha256": "34c617ed82507e22e2d2d91e311436ed6fcce4516d85900cf4fa35cddd17e000"
+    },
+    {
+      "file": "pof_eps0_day728.png",
+      "bytes": 219383,
+      "sha256": "92fd023a27cda3a1f28968ceaecdea772d9ee7331bf1fff1a74dcb04d73d30a2"
+    },
+    {
+      "file": "pof_eps0_poster.png",
+      "bytes": 219383,
+      "sha256": "92fd023a27cda3a1f28968ceaecdea772d9ee7331bf1fff1a74dcb04d73d30a2"
+    }
+  ]
+}

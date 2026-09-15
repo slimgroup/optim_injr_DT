@@ -1,0 +1,67 @@
+[
+  {
+    "file": "ali_fig3_candidate.jpg",
+    "bytes": 726718,
+    "sha256": "fbd8f7aee97d534e8d65eed707fc861292453ca96c9fa4ba14eadaf71ebc4ad2"
+  },
+  {
+    "file": "bashir_2024_fig1.jpg",
+    "bytes": 354895,
+    "sha256": "913ac5246e04fa17732875239688bb9ae7a6f07e6c46618f6c5a51e353c3dab3"
+  },
+  {
+    "file": "core_thesis.pdf",
+    "bytes": 2682097,
+    "sha256": "d8e6204fc275763682dac708dba8565c989af01e264c6e1eae99423b0e401148"
+  },
+  {
+    "file": "elements_2008_issue.pdf",
+    "bytes": 26954637,
+    "sha256": "54b44bccb053f180f797c43315f1dc2ed3edfcc4c54f0088a0090f1f9bf43558"
+  },
+  {
+    "file": "fan_fig1-000.jpg",
+    "bytes": 227773,
+    "sha256": "4d5a50ec60e011c2448f016aea34592a54f68316ed0af8c9886cb9ce3578f278"
+  },
+  {
+    "file": "fan_hu_cheng_2025.pdf",
+    "bytes": 2744954,
+    "sha256": "45c5101dc6528436b941dd6d98d3f9398a6d97c95184c3a1618b27ac33edcab9"
+  },
+  {
+    "file": "hardt_2025.pdf",
+    "bytes": 1991870,
+    "sha256": "731452684cb6e832584334a0b56ba5cbc73f2da12d5bfe420e249cf0320257c9"
+  },
+  {
+    "file": "hardt_2025_page18.png",
+    "bytes": 472386,
+    "sha256": "6ab69b44db28bb79ad44e3b66208c3396814741c29d2e638892f9def8c70e589"
+  },
+  {
+    "file": "hardt_fig5-000.jpg",
+    "bytes": 156277,
+    "sha256": "f43fb6e6d2c0ee4776ae9ba4af64f0239611b2a04d165a48c1266c494a155b3e"
+  },
+  {
+    "file": "pratama_2024_page20.png",
+    "bytes": 500464,
+    "sha256": "f0f7918da165a80d0f7c376a127377027c10fc8948cfecac8a2d7bebb4cef8ec"
+  },
+  {
+    "file": "pratama_2024_permissions_page110.png",
+    "bytes": 118111,
+    "sha256": "c7aa1594a7228beb71d584506959e016298945f22872c395caa2333738b4813f"
+  },
+  {
+    "file": "pratama_fig1-000.jpg",
+    "bytes": 75484,
+    "sha256": "a142c41387f7229c18916d2cac4f4205098bc3460d22aa7b8c70f8fc621df744"
+  },
+  {
+    "file": "wu_li_2020_fig5.png",
+    "bytes": 241389,
+    "sha256": "2cee007174bbe6cd5d8869a940e37269da15c836d5462d3b7d492e8e5bdae00c"
+  }
+]
