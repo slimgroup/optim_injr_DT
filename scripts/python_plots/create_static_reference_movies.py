@@ -198,6 +198,9 @@ class HistoricalFields:
                     video_seconds=self.seconds, video_fps=FPS, video_frames=FPS*self.seconds,
                     compact_header=self.compact_header,
                     cvar_sensitivity_multiplier=1.22, on_screen_multiplier_label=False,
+                    cvar_scaled_monitoring_steps=[1,2,3,4], cvar_scaled_time_range_days=[0,1920],
+                    sensitivity_application='Historical simulator injection rates scaled by 1.22 over all 24 rate periods; saved pressure and saturation fields are loaded without multiplying field values.',
+                    compact_layout='Centered larger day heading; short Red: r < 0 labels inside the three top-row margin maps.' if self.compact_header else 'Legacy layout',
                     annotation_rates='Actual implemented rates and integrated mass; not unscaled base annotations.',
                     common_days=self.times, saved_states=len(self.times), final_day=self.end_day,
                     no_control_final_saved_day=self.stop_day,
@@ -221,17 +224,13 @@ class HistoricalFields:
 
 def figure(data, day, selected):
     n=len(selected);combined=n==3
-    plt.rcParams.update({'font.family':'DejaVu Sans','font.size':16,'axes.labelsize':17,'xtick.labelsize':15,'ytick.labelsize':15})
+    plt.rcParams.update({'font.family':'DejaVu Sans','font.size':16,'axes.labelsize':18 if data.compact_header else 17,
+                        'xtick.labelsize':16 if data.compact_header else 15,'ytick.labelsize':16 if data.compact_header else 15})
     fig=plt.figure(figsize=(19.2 if combined else 6.4,10.8),dpi=200,facecolor='white')
     clock=f'Day {day:04d}  |  Monitoring step {int(np.ceil(day/480))}'
     note='Red cells mean pressure-limit exceedance (r < 0).'
     if data.compact_header:
-        if combined:
-            fig.text(.073,.982,clock,ha='left',va='center',fontsize=21,weight='bold')
-            fig.text(.944,.982,note,ha='right',va='center',fontsize=18)
-        else:
-            fig.text(.5,.984,note,ha='center',va='center',fontsize=11)
-            fig.text(.5,.955,clock,ha='center',va='center',fontsize=17,weight='bold')
+        fig.text(.5,.979,clock,ha='center',va='center',fontsize=28 if combined else 21,weight='bold')
     else:
         fig.text(.5,.977,clock,ha='center',va='center',fontsize=24 if combined else 18,weight='bold')
     # Same color entries as the static figure, with an exact red/blue sign boundary.
@@ -245,7 +244,7 @@ def figure(data, day, selected):
     left,width,gap,cbar_x=(.073,.275,.012,.944) if combined else (.207,.640,0,.868)
     bottoms=[.620,.350,.080];height=.242
     if data.compact_header:
-        top,bottom,row_gap=(.895 if combined else .860),.055,.025
+        top,bottom,row_gap=.895,.055,.025
         height=(top-bottom-2*row_gap)/3
         bottoms=[bottom+2*(height+row_gap),bottom+height+row_gap,bottom]
     ims=[None]*3
@@ -253,31 +252,34 @@ def figure(data, day, selected):
         center=left+column*(width+gap)+width/2
         i=KEYS.index(key);m=data.metrics[key][day]
         title = 'No control (continued)' if key=='no_control' and data.continued else TITLES[i]
-        title_y=(.950 if combined else .922) if data.compact_header else .934
-        metric_y=(.921 if combined else .891) if data.compact_header else .900
-        fig.text(center,title_y,title,ha='center',va='center',fontsize=(22 if combined else 20) if data.compact_header else (23 if combined else 21),weight='bold')
+        title_y=(.941 if combined else .945) if data.compact_header else .934
+        metric_y=(.912 if combined else .913) if data.compact_header else .900
+        fig.text(center,title_y,title,ha='center',va='center',fontsize=23 if combined else 21,weight='bold')
         held=key=='no_control' and day>data.stop_day
         rate_label='q₇₂₈' if held else 'q'
-        fig.text(center,metric_y,f"{rate_label}: {m['rate_m3_s']:.5f} m³/s   |   {m['mass_Mt']:.2f} Mt   |   {m['exceeding_cells']:,} cells",ha='center',va='center' if data.compact_header else 'baseline',fontsize=(14 if combined else 11) if data.compact_header else (15 if combined else 12))
+        fig.text(center,metric_y,f"{rate_label}: {m['rate_m3_s']:.5f} m³/s   |   {m['mass_Mt']:.2f} Mt   |   {m['exceeding_cells']:,} cells",ha='center',va='center' if data.compact_header else 'baseline',fontsize=15 if combined else 12)
         p,s=data.fields(key,day)
         arrays=[(data.pmax-p)/data.pmax,(p-data.p0)/1e6,s]
         for row,bottom in enumerate(bottoms):
             ax=fig.add_axes([left+column*(width+gap),bottom,width,height])
             ims[row]=ax.imshow(arrays[row],extent=EXTENT,origin='upper',interpolation='nearest',aspect='auto',cmap=cmaps[row],norm=norms[row])
+            if row==0 and data.compact_header:
+                ax.text(.02,.96,'Red: r < 0',transform=ax.transAxes,ha='left',va='top',fontsize=14 if combined else 12,
+                        color='#a50f15',bbox=dict(facecolor='white',edgecolor='none',alpha=.9,pad=3))
             if row==0 and key=='no_control' and day>=data.stop_day and data.end_day>data.stop_day:
-                ax.text(.98,.96,'Day 728 held',transform=ax.transAxes,ha='right',va='top',fontsize=13 if combined else 12,
+                ax.text(.98,.96,'Day 728 held',transform=ax.transAxes,ha='right',va='top',fontsize=14 if combined else 12,
                         bbox=dict(facecolor='white',edgecolor='none',alpha=.9,pad=3))
             ax.set_xticks([0,1000,2000,3000]);ax.set_yticks([0,500,1000,1500])
             if row<2:ax.tick_params(labelbottom=False)
             else:ax.set_xlabel('X [m]',labelpad=2)
-            if column==0:ax.set_ylabel(labels[row],labelpad=5,fontsize=17 if combined else 14)
+            if column==0:ax.set_ylabel(labels[row],labelpad=5,fontsize=(18 if combined else 15) if data.compact_header else (17 if combined else 14))
             else:ax.tick_params(labelleft=False)
             ax.plot([1562.5]*2,[1200,1237.5],color='white',linewidth=2.4)
             ax.plot([1562.5]*2,[1200,1237.5],color='black',linewidth=.9)
     for row,bottom in enumerate(bottoms):
         cax=fig.add_axes([cbar_x,bottom,.010 if combined else .022,height])
         cb=fig.colorbar(ims[row],cax=cax,extend=['min',data.pressure_extend,'neither'][row],spacing='proportional')
-        cb.ax.tick_params(labelsize=14 if combined else 11)
+        cb.ax.tick_params(labelsize=(15 if combined else 12) if data.compact_header else (14 if combined else 11))
         cb.ax.set_title(['r [−]','MPa','S [−]'][row],fontsize=14 if combined else 12,pad=9)
         if row==0:
             cb.set_ticks([0,.25,.5,.75,1]);cb.ax.axhline(0,color='0.3',linewidth=.6)
@@ -350,7 +352,7 @@ def main():
     parser.add_argument('--no-control-continuation',type=Path,help='New saved continuation export; validates all 100 historical prefix states before use.')
     parser.add_argument('--preview-only',action='store_true')
     parser.add_argument('--seconds',type=int,default=SECONDS)
-    parser.add_argument('--compact-header',action='store_true',help='Move the bottom note into the header and expand the maps.')
+    parser.add_argument('--compact-header',action='store_true',help='Use a centered larger heading, short in-map red-cell notes and expanded maps.')
     args=parser.parse_args()
     if not 10<=args.seconds<=120:parser.error('--seconds must be between 10 and 120')
     args.outdir.mkdir(parents=True,exist_ok=False)

@@ -1,0 +1,5 @@
+monitoring_step,start_day,end_day,saved_substeps,multiplier,all_saved_rates_equal_base_times_multiplier,actual_first_rate_m3_s,actual_last_rate_m3_s,incremental_mass_Mt
+1,0,480,60,1.22,True,0.000122,0.091134,1.3245990911999996
+2,480,960,60,1.22,True,0.091134,0.1406538,3.3645053030400005
+3,960,1440,60,1.22,True,0.1406538,0.1447652,4.14285484032
+4,1440,1920,60,1.22,True,0.1447652,0.14666839999999998,4.230216990719999

@@ -1,0 +1,225 @@
+{
+  "slurm_job": "13211190",
+  "elapsed": "00:08:39",
+  "max_rss_kib": 2541156,
+  "media": [
+    {
+      "file": "comparison.mp4",
+      "size": "3840x2160",
+      "seconds": 20,
+      "fps": 30,
+      "frames": 600,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "bytes": 4242802,
+      "sha256": "17bc0929901f6ec8a1cc4712e4d978bd4122ced3e326f5c485ff29a9b8446c24"
+    },
+    {
+      "file": "cvar_alpha001_gamma01.mp4",
+      "size": "1280x2160",
+      "seconds": 20,
+      "fps": 30,
+      "frames": 600,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "bytes": 1680163,
+      "sha256": "7886af4f6c3a0f99dd454f04d5a174777b5a1828e9a40657cdbb460f34664ba7"
+    },
+    {
+      "file": "no_control.mp4",
+      "size": "1280x2160",
+      "seconds": 20,
+      "fps": 30,
+      "frames": 600,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "bytes": 1223058,
+      "sha256": "c4157f082e219483fb367618f38ed6f8a6b665bbc4653990922709f90a34778c"
+    },
+    {
+      "file": "pof_eps0.mp4",
+      "size": "1280x2160",
+      "seconds": 20,
+      "fps": 30,
+      "frames": 600,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "bytes": 1273819,
+      "sha256": "b4b6747b7395a1f76104cb8ec36a28eda6ca6239027512f2bcbc3c38036025ce"
+    }
+  ],
+  "pngs": [
+    {
+      "file": "comparison_day728.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "27dc67befbae3e3d1242e208af69859c75ac47e9b243d5c076bc5c687bad39cb"
+    },
+    {
+      "file": "comparison_poster.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "711a89bee46c8a49d0c747c5dcdaef84b0d2209c5728db79291037fa5b9cf07e"
+    },
+    {
+      "file": "cvar_alpha001_gamma01_day728.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "11e8e29a4c8fac395d24553794970c365f3db1ac71c61649137e33c046053d0f"
+    },
+    {
+      "file": "cvar_alpha001_gamma01_poster.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "4aa2daaef3cf32444cf2777a5376291516eb0c74bd707fee9aaa3c5ff44d23bc"
+    },
+    {
+      "file": "no_control_day728.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "9fa5d179884b234e8ce9c6ee4ab9b19beb3a2112e89868ae13cd3f9d572e19d6"
+    },
+    {
+      "file": "no_control_poster.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "971fe59d6886068ede03fb82b2a6074e128e8dce7946c674d0c6e56ea72f67bb"
+    },
+    {
+      "file": "pof_eps0_day728.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "51def6035ce80fafe6fd4d3195add0b6c47b0d1e7bad8f4e96680b01bf471beb"
+    },
+    {
+      "file": "pof_eps0_poster.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "705b7459f62c47e6c100cda8dca1e431ffaa2d11baf5039da9ff3fe00d6fc809"
+    }
+  ],
+  "checksum_manifest_pass": true,
+  "all_movies_full_decode_pass": true,
+  "saved_times": 79,
+  "held_no_control_pixel_checks": {
+    "comparison": {
+      "frames": 16,
+      "crop_box": [
+        2484,
+        225,
+        3541,
+        2160
+      ],
+      "sha256": "ee87caf56ab48b204076bd0cecbb3eccb631702e71ae103ec45377c65f9b7726",
+      "identical": true
+    },
+    "no_control": {
+      "frames": 16,
+      "crop_box": [
+        0,
+        225,
+        1280,
+        2160
+      ],
+      "sha256": "40c6b977d2bb1c8f26552f26f0c04db41b736619076e7984ae19137bd087e119",
+      "identical": true
+    }
+  },
+  "controlled_fields_change_after_day728": {
+    "pof_eps0": true,
+    "cvar_alpha001_gamma01": true
+  },
+  "preview_pixel_matches": {
+    "comparison_poster.png": true,
+    "no_control_poster.png": true,
+    "cvar_alpha001_gamma01_day728.png": true
+  },
+  "unchanged_data_files": {
+    "saved_time_validation.csv": true,
+    "implemented_rates.csv": true,
+    "playback_timeline.json": true
+  },
+  "unchanged_audit_fields": [
+    "case_order",
+    "common_days",
+    "source_files",
+    "shared_color_limits",
+    "day728",
+    "global_displayed_extrema"
+  ],
+  "export_directory": "plots/paper_figures/p1_peak_hold_movies_20260915_13211190",
+  "cvar_scaled_monitoring_steps": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "cvar_scaled_days": [
+    0,
+    1920
+  ],
+  "cvar_rate_multiplier": 1.22,
+  "cvar_fields_multiplied_during_plotting": false,
+  "cvar_scaling_check": [
+    {
+      "monitoring_step": "1",
+      "start_day": "0",
+      "end_day": "480",
+      "saved_substeps": "60",
+      "multiplier": "1.22",
+      "all_saved_rates_equal_base_times_multiplier": "True",
+      "actual_first_rate_m3_s": "0.000122",
+      "actual_last_rate_m3_s": "0.091134",
+      "incremental_mass_Mt": "1.3245990911999996"
+    },
+    {
+      "monitoring_step": "2",
+      "start_day": "480",
+      "end_day": "960",
+      "saved_substeps": "60",
+      "multiplier": "1.22",
+      "all_saved_rates_equal_base_times_multiplier": "True",
+      "actual_first_rate_m3_s": "0.091134",
+      "actual_last_rate_m3_s": "0.1406538",
+      "incremental_mass_Mt": "3.3645053030400005"
+    },
+    {
+      "monitoring_step": "3",
+      "start_day": "960",
+      "end_day": "1440",
+      "saved_substeps": "60",
+      "multiplier": "1.22",
+      "all_saved_rates_equal_base_times_multiplier": "True",
+      "actual_first_rate_m3_s": "0.1406538",
+      "actual_last_rate_m3_s": "0.1447652",
+      "incremental_mass_Mt": "4.14285484032"
+    },
+    {
+      "monitoring_step": "4",
+      "start_day": "1440",
+      "end_day": "1920",
+      "saved_substeps": "60",
+      "multiplier": "1.22",
+      "all_saved_rates_equal_base_times_multiplier": "True",
+      "actual_first_rate_m3_s": "0.1447652",
+      "actual_last_rate_m3_s": "0.14666839999999998",
+      "incremental_mass_Mt": "4.230216990719999"
+    }
+  ]
+}
