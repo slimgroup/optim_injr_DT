@@ -34,7 +34,7 @@ function main_label_export()
             "confidence" => saved["confidence"],
             "threshold" => saved["threshold"],
             "statistics_recomputed" => false,
-            "rate_formatting" => "unchanged canonical PNG formatting",
+            "rate_formatting" => "four decimal places in annotations; canonical axis ticks unchanged",
             "export_dpi" => 200,
         ); sorted=true)
     end

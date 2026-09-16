@@ -1,0 +1,7 @@
+{
+  "cdf_POF_eps0.01.png": "Parenthesized title; legend above confidence band; four-decimal rates; thin inset cues; no footer.",
+  "grid_cdf_selected_1x3.png": "Updated title and y-axis; all nine rate annotations have four decimals; inset cues retained.",
+  "grid_cdf_4x3.png": "Updated title and y-axes; all 36 rate annotations have four decimals; inset cues retained.",
+  "hist_POF_eps0.01.png": "Parameter suffix parenthesized; quantile formatted to four decimals; Count axis retained.",
+  "grid_histogram_selected_1x3.png": "Reduced blank title/panel spacing; all numerical labels retained; no overlaps or clipping."
+}
