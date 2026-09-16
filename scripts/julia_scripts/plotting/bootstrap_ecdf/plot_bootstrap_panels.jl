@@ -173,6 +173,9 @@ end
 # Rate annotations use four decimals; axis tick formatting remains unchanged.
 plot_rate_label(value) = @sprintf("%.4f", value)
 
+# Translate presentation labels only; case lookup keys and parameter values stay intact.
+greek_case_label(title) = replace(title, "eps" => "ε", "alpha" => "α", "gamma" => "γ")
+
 function plot_single_hist(cr::CaseResult, fname; nbins=NBINS)
     fig = PyPlot.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
@@ -191,8 +194,8 @@ function plot_single_hist(cr::CaseResult, fname; nbins=NBINS)
             bbox=Dict("boxstyle"=>"round,pad=0.3","facecolor"=>"lightyellow","edgecolor"=>"gray","alpha"=>0.9))
     ax.set_xlabel("Injection Rate (m³/s)", fontsize=14)
     ax.set_ylabel("Count", fontsize=14)
-    case_label = cr.title == "PoF (eps=0.01)" ? "PoF eps = 0.01" : cr.title
-    ax.set_title("Injection Rate Distribution ($(case_label))", fontsize=16, fontweight="bold")
+    case_label = cr.title == "PoF (eps=0.01)" ? "PoF ε = 0.01" : greek_case_label(cr.title)
+    ax.set_title("Injection Rate Distribution ($(case_label))", fontsize=20, fontweight="bold")
     ax.tick_params(labelsize=12)
     ax.grid(true, ls="--", lw=0.3, alpha=0.5)
     PyPlot.tight_layout()
@@ -212,8 +215,8 @@ function plot_single_cdf(cr::CaseResult, fname)
         xv !== nothing && ax.plot(xv, THRESH*100, "*", color=col, markersize=ms, zorder=5)
     end
     ax.set_xlabel("Injection Rate (m³/s)", fontsize=14); ax.set_ylabel("Violation probability (%)", fontsize=14)
-    case_label = cr.title == "PoF (eps=0.01)" ? "PoF eps = 0.01" : cr.title
-    ax.set_title("Optimized-endpoint ECDF ($(case_label))", fontsize=16, fontweight="bold")
+    case_label = cr.title == "PoF (eps=0.01)" ? "PoF ε = 0.01" : greek_case_label(cr.title)
+    ax.set_title("Optimized-endpoint ECDF ($(case_label))", fontsize=20, fontweight="bold")
     ax.set_ylim(0,100)
     ax.tick_params(labelsize=12); ax.grid(true, ls="--", lw=0.3, alpha=0.5)
     ins = ax.inset_axes([0.38, 0.12, 0.57, 0.50])
@@ -265,7 +268,7 @@ function plot_single_cdf(cr::CaseResult, fname)
     end
     PyPlot.tight_layout()
     # Keep the plotting area fixed, with the legend and B above the axes.
-    ax.set_title("Optimized-endpoint ECDF ($(case_label))", fontsize=16,
+    ax.set_title("Optimized-endpoint ECDF ($(case_label))", fontsize=20,
                  fontweight="bold", y=1.085)
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=3,
               fontsize=12, frameon=false, borderaxespad=0,
@@ -278,8 +281,8 @@ end
 function plot_grid_histogram(results::Vector{CaseResult}, fname; nbins=NBINS)
     nrows, ncols = 4, 3
     fig, axes = PyPlot.subplots(nrows, ncols, figsize=(15, 14))
-    PyPlot.suptitle("Distribution of Optimized Injectivities: Histogram (M=128)",
-                    fontsize=22, fontweight="bold", y=1.01)
+    PyPlot.suptitle("Distribution of Optimized Injection Rates",
+                    fontsize=26, fontweight="bold", y=0.98)
     PyPlot.subplots_adjust(hspace=0.22, wspace=0.12, top=0.94, bottom=0.05, left=0.06, right=0.98)
     global_xmin = minimum(minimum(cr.data) for cr in results)
     global_xmax = maximum(maximum(cr.data) for cr in results)
@@ -292,17 +295,17 @@ function plot_grid_histogram(results::Vector{CaseResult}, fname; nbins=NBINS)
         ax.hist(cr.data, bins=global_edges, density=false, alpha=0.7, color="#6BAED6",
                 edgecolor="#2171B5", lw=0.5, label="Histogram (M=$(cr.n))", zorder=2)
         ax.axvline(x=cr.q_val, color="#2CA02C", lw=1.8, ls="-",
-                  label="1% quantile: $(round(cr.q_val,digits=4))", zorder=3)
+                  label="1% quantile: $(plot_rate_label(cr.q_val))", zorder=3)
         if cr.x_conservative !== nothing
             ax.axvline(x=cr.x_conservative, color="#D62728", lw=2.5, ls="--",
-                      label="\$q_k^{\\star}\$: $(round(cr.x_conservative,digits=4))", zorder=4)
+                      label="\$q_k^{\\star}\$: $(plot_rate_label(cr.x_conservative))", zorder=4)
         end
         ax.set_xlim(global_xmin - xpad, global_xmax + xpad)
-        ax.set_title("$(cr.title)", fontsize=16, fontweight="bold")
+        ax.set_title(greek_case_label(cr.title), fontsize=16, fontweight="bold")
         ax.tick_params(labelsize=13)
         ax.grid(true, ls="--", lw=0.3, alpha=0.4)
         ax.legend(loc="upper right", fontsize=12, framealpha=0.9)
-        st = "mean=$(round(mean(cr.data),digits=4))  std=$(round(std(cr.data),digits=4))\nmin=$(round(minimum(cr.data),digits=4))  max=$(round(maximum(cr.data),digits=4))"
+        st = "mean=$(plot_rate_label(mean(cr.data)))  std=$(plot_rate_label(std(cr.data)))\nmin=$(plot_rate_label(minimum(cr.data)))  max=$(plot_rate_label(maximum(cr.data)))"
         ax.text(0.97, 0.48, st, transform=ax.transAxes, fontsize=11, va="top", ha="right",
                 bbox=Dict("boxstyle"=>"round,pad=0.3","facecolor"=>"lightyellow","edgecolor"=>"gray","alpha"=>0.9))
         if r == nrows; ax.set_xlabel("Injection Rate (m³/s)", fontsize=15); end
@@ -316,8 +319,8 @@ end
 function plot_grid_cdf(results::Vector{CaseResult}, fname)
     nrows, ncols = 4, 3
     fig, axes = PyPlot.subplots(nrows, ncols, figsize=(15, 13))
-    PyPlot.suptitle("Optimized-endpoint ECDFs\nB = $(B_GRID); Opt. = Optimistic",
-                    fontsize=22, fontweight="bold", y=1.01)
+    PyPlot.suptitle("Optimized-endpoint ECDFs",
+                    fontsize=26, fontweight="bold", y=0.99)
     PyPlot.subplots_adjust(hspace=0.20, wspace=0.12, top=0.94, bottom=0.05, left=0.06, right=0.98)
     global_xmin = minimum(minimum(cr.data) for cr in results)
     global_xmax = maximum(maximum(cr.data) for cr in results)
@@ -341,7 +344,7 @@ function plot_grid_cdf(results::Vector{CaseResult}, fname)
         for (xv, col) in [(cr.x_conservative,"#FF6F00"),(cr.x_ecdf,"#2E7D32"),(cr.x_optimistic,"#1565C0")]
             xv !== nothing && ax.plot(xv, THRESH*100, "*", color=col, ms=8, zorder=5)
         end
-        ax.set_title("$(cr.title)", fontsize=15, fontweight="bold")
+        ax.set_title(greek_case_label(cr.title), fontsize=15, fontweight="bold")
         ax.set_xlim(global_xmin - xpad, global_xmax + xpad)
         ax.set_ylim(0, 100); ax.tick_params(labelsize=13)
         ax.grid(true, ls="--", lw=0.3, alpha=0.4)
@@ -354,7 +357,7 @@ function plot_grid_cdf(results::Vector{CaseResult}, fname)
         afs = 9
         if cr.x_conservative !== nothing
             ins.plot(cr.x_conservative, THRESH*100, "*", color="#FF6F00", ms=10, zorder=5)
-            ins.annotate("\$q_k^{\\star}\$\n$(plot_rate_label(cr.x_conservative))", xy=(cr.x_conservative,THRESH*100),
+            ins.annotate("\$\\mathbf{q}_k^{\\star}\$\n$(plot_rate_label(cr.x_conservative))", xy=(cr.x_conservative,THRESH*100),
                         xytext=(-28,18), textcoords="offset points", fontsize=afs, color="#E65100", fontweight="bold", ha="center",
                         bbox=Dict("boxstyle"=>"round,pad=0.12","facecolor"=>"#FFF3E0","alpha"=>0.9,"edgecolor"=>"#FF6F00"),
                         arrowprops=Dict("arrowstyle"=>"->","color"=>"#FF6F00"))
@@ -380,7 +383,7 @@ function plot_grid_cdf(results::Vector{CaseResult}, fname)
         ax.indicate_inset_zoom(ins, edgecolor="gray", alpha=0.4)
     end
     ax1 = axes[1,1]
-    ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% Bootstrap CI")
+    ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% CI, B=$(B_GRID)")
     ax1.plot([], [], color="#1565C0", lw=1.8, label="Empirical CDF")
     ax1.plot([], [], color="#D62728", lw=1.2, ls="--", label="Target p = 1%")
     ax1.legend(loc="upper left", fontsize=12, framealpha=0.9)
@@ -391,8 +394,8 @@ end
 # ===================== Selected 1×3 Histogram =====================
 function plot_selected_histogram(results::Vector{CaseResult}, fname; nbins=NBINS)
     fig = PyPlot.figure(figsize=(15.5, 5.2))
-    PyPlot.suptitle("Distribution of Optimized Injectivities: Histogram (M=128)",
-                    fontsize=20, fontweight="bold", y=0.975)
+    PyPlot.suptitle("Distribution of Optimized Injection Rates",
+                    fontsize=24, fontweight="bold", y=0.975)
     PyPlot.subplots_adjust(wspace=0.09, top=0.86, bottom=0.15, left=0.06, right=0.98)
     global_xmin = minimum(minimum(cr.data) for cr in results)
     global_xmax = maximum(maximum(cr.data) for cr in results)
@@ -409,7 +412,7 @@ function plot_selected_histogram(results::Vector{CaseResult}, fname; nbins=NBINS
                       label="\$q_k^{\\star}\$: $(plot_rate_label(cr.x_conservative))", zorder=4)
         end
         ax.set_xlim(global_xmin - xpad, global_xmax + xpad)
-        ax.set_title("$(cr.title)", fontsize=15, fontweight="bold")
+        ax.set_title(greek_case_label(cr.title), fontsize=15, fontweight="bold")
         ax.tick_params(labelsize=12)
         ax.grid(true, ls="--", lw=0.3, alpha=0.4)
         ax.legend(loc="upper right", fontsize=11, framealpha=0.9)
@@ -428,8 +431,8 @@ end
 # ===================== Selected 1×3 CDF =====================
 function plot_selected_cdf(results::Vector{CaseResult}, fname)
     fig = PyPlot.figure(figsize=(16, 5.2))
-    PyPlot.suptitle("Optimized-endpoint ECDFs\nB = $(B_GRID); Opt. = Optimistic",
-                    fontsize=20, fontweight="bold", y=1.04)
+    PyPlot.suptitle("Optimized-endpoint ECDFs",
+                    fontsize=24, fontweight="bold", y=0.99)
     PyPlot.subplots_adjust(wspace=0.14, top=0.86, bottom=0.15, left=0.06, right=0.98)
     global_xmin = minimum(minimum(cr.data) for cr in results)
     global_xmax = maximum(maximum(cr.data) for cr in results)
@@ -451,7 +454,7 @@ function plot_selected_cdf(results::Vector{CaseResult}, fname)
         for (xv, col) in [(cr.x_conservative,"#FF6F00"),(cr.x_ecdf,"#2E7D32"),(cr.x_optimistic,"#1565C0")]
             xv !== nothing && ax.plot(xv, THRESH*100, "*", color=col, ms=8, zorder=5)
         end
-        ax.set_title("$(cr.title)", fontsize=14, fontweight="bold")
+        ax.set_title(greek_case_label(cr.title), fontsize=14, fontweight="bold")
         ax.set_xlim(global_xmin - xpad, global_xmax + xpad)
         ax.set_ylim(0, 100)
         ax.tick_params(labelsize=12)
@@ -467,7 +470,7 @@ function plot_selected_cdf(results::Vector{CaseResult}, fname)
         afs = 9
         if cr.x_conservative !== nothing
             ins.plot(cr.x_conservative, THRESH*100, "*", color="#FF6F00", ms=10, zorder=5)
-            ins.annotate("\$q_k^{\\star}\$\n$(plot_rate_label(cr.x_conservative))", xy=(cr.x_conservative,THRESH*100),
+            ins.annotate("\$\\mathbf{q}_k^{\\star}\$\n$(plot_rate_label(cr.x_conservative))", xy=(cr.x_conservative,THRESH*100),
                         xytext=(-28,18), textcoords="offset points", fontsize=afs, color="#E65100", fontweight="bold", ha="center",
                         bbox=Dict("boxstyle"=>"round,pad=0.12","facecolor"=>"#FFF3E0","alpha"=>0.9,"edgecolor"=>"#FF6F00"),
                         arrowprops=Dict("arrowstyle"=>"->","color"=>"#FF6F00"))
@@ -493,7 +496,7 @@ function plot_selected_cdf(results::Vector{CaseResult}, fname)
         ax.indicate_inset_zoom(ins, edgecolor="gray", alpha=0.4)
     end
     ax1 = fig.axes[1]
-    ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% Bootstrap CI")
+    ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% CI, B=$(B_GRID)")
     ax1.plot([], [], color="#1565C0", lw=1.8, label="Empirical CDF")
     ax1.plot([], [], color="#D62728", lw=1.2, ls="--", label="Target p = 1%")
     ax1.legend(loc="upper left", fontsize=11, framealpha=0.9)

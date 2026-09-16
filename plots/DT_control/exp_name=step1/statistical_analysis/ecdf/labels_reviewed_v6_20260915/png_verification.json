@@ -1,0 +1,1311 @@
+[
+  {
+    "filename": "grid_cdf_selected_1x3.png",
+    "source_sha256": "79b439adbafd3a157e0359a3bfeba1d33809ed60b629dceefd73cd7b6700d3d9",
+    "output_sha256": "06fbc1bfe55e4a1c29051bdf609b404301b823af5f839238f4653d6a22f44f92",
+    "text_edits": [
+      {
+        "text": "Optimized-endpoint ECDFs",
+        "box_xyxy": [
+          0,
+          0,
+          3428,
+          90
+        ],
+        "fontsize": 24,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "text": "PoF \u03b5 = 0.0",
+        "box_xyxy": [
+          168,
+          171,
+          1155,
+          223
+        ],
+        "fontsize": 14,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "text": "PoF \u03b5 = 0.01",
+        "box_xyxy": [
+          1295,
+          171,
+          2282,
+          223
+        ],
+        "fontsize": 14,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "text": "CVaR \u03b3 = 0.1, \u03b1 = 0.01",
+        "box_xyxy": [
+          2421,
+          171,
+          3408,
+          223
+        ],
+        "fontsize": 14,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "text": "95% CI, B=10000",
+        "box_xyxy": [
+          287,
+          251,
+          598,
+          300
+        ],
+        "fontsize": 11,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          458,
+          788,
+          575,
+          869
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0263",
+        "box_xyxy": [
+          462,
+          792,
+          571,
+          865
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1698,
+          788,
+          1815,
+          869
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0453",
+        "box_xyxy": [
+          1702,
+          792,
+          1811,
+          865
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          3000,
+          788,
+          3117,
+          869
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0747",
+        "box_xyxy": [
+          3004,
+          792,
+          3113,
+          865
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          550,
+          736,
+          668,
+          808
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0275",
+        "box_xyxy": [
+          554,
+          740,
+          664,
+          804
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1793,
+          736,
+          1911,
+          808
+        ],
+        "operation": "widen annotation box",
+        "pixels_each_side": 10
+      },
+      {
+        "box_xyxy": [
+          1793,
+          736,
+          1911,
+          808
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0470",
+        "box_xyxy": [
+          1797,
+          740,
+          1907,
+          804
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          3096,
+          736,
+          3213,
+          808
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0764",
+        "box_xyxy": [
+          3100,
+          740,
+          3209,
+          804
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          660,
+          797,
+          777,
+          869
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0315",
+        "box_xyxy": [
+          664,
+          801,
+          773,
+          865
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1933,
+          797,
+          2051,
+          869
+        ],
+        "operation": "widen annotation box",
+        "pixels_each_side": 10
+      },
+      {
+        "box_xyxy": [
+          1933,
+          797,
+          2051,
+          869
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0560",
+        "box_xyxy": [
+          1937,
+          801,
+          2047,
+          865
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          3251,
+          797,
+          3369,
+          869
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0881",
+        "box_xyxy": [
+          3255,
+          801,
+          3365,
+          865
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      }
+    ],
+    "changed_pixels_outside_recorded_regions": 0,
+    "removed_header_rows": [
+      90,
+      165
+    ],
+    "statistics_recomputed": false,
+    "dimensions": [
+      3428,
+      1099
+    ],
+    "dpi": [
+      219.9894,
+      219.9894
+    ],
+    "annotation_fontsize": 9,
+    "legend_position": "original upper left; curve-preservation limitation",
+    "bootstrap_resamples": 10000,
+    "marker_and_arrow_positions_unchanged": true
+  },
+  {
+    "filename": "grid_cdf_4x3.png",
+    "source_sha256": "7c29a0d8045b5a72016722b7bdc974d908841e667e3f63d442de3a799652c90f",
+    "output_sha256": "1c4fade1bd1b9a65a3533f105b1eeb325d8c6d71bb2a384d9db7e6dc17c17564",
+    "text_edits": [
+      {
+        "text": "Optimized-endpoint ECDFs",
+        "box_xyxy": [
+          0,
+          0,
+          2937,
+          90
+        ],
+        "fontsize": 26,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "text": "95% CI, B=10000",
+        "box_xyxy": [
+          276,
+          225,
+          587,
+          274
+        ],
+        "fontsize": 12,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          382,
+          514,
+          489,
+          586
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0263",
+        "box_xyxy": [
+          386,
+          518,
+          485,
+          582
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1378,
+          514,
+          1485,
+          586
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0453",
+        "box_xyxy": [
+          1382,
+          518,
+          1481,
+          582
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2413,
+          514,
+          2520,
+          586
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0819",
+        "box_xyxy": [
+          2417,
+          518,
+          2516,
+          582
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          382,
+          1117,
+          489,
+          1190
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0263",
+        "box_xyxy": [
+          386,
+          1121,
+          485,
+          1186
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1336,
+          1117,
+          1443,
+          1190
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0263",
+        "box_xyxy": [
+          1340,
+          1121,
+          1439,
+          1186
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2290,
+          1117,
+          2397,
+          1190
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0263",
+        "box_xyxy": [
+          2294,
+          1121,
+          2393,
+          1186
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          424,
+          1721,
+          531,
+          1794
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0453",
+        "box_xyxy": [
+          428,
+          1725,
+          527,
+          1790
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1443,
+          1721,
+          1550,
+          1794
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0747",
+        "box_xyxy": [
+          1447,
+          1725,
+          1546,
+          1790
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2450,
+          1721,
+          2557,
+          1794
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0987",
+        "box_xyxy": [
+          2454,
+          1725,
+          2553,
+          1790
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          462,
+          2325,
+          569,
+          2397
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.0628",
+        "box_xyxy": [
+          466,
+          2329,
+          565,
+          2393
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1524,
+          2325,
+          1631,
+          2397
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.1115",
+        "box_xyxy": [
+          1528,
+          2329,
+          1627,
+          2393
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2563,
+          2325,
+          2670,
+          2397
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "$\\mathbf{q}_k^{\\star}$\n0.1498",
+        "box_xyxy": [
+          2567,
+          2329,
+          2666,
+          2393
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          462,
+          468,
+          569,
+          531
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0275",
+        "box_xyxy": [
+          466,
+          472,
+          565,
+          527
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1459,
+          468,
+          1566,
+          531
+        ],
+        "operation": "widen annotation box",
+        "pixels_each_side": 9
+      },
+      {
+        "box_xyxy": [
+          1459,
+          468,
+          1566,
+          531
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0470",
+        "box_xyxy": [
+          1463,
+          472,
+          1562,
+          527
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2499,
+          468,
+          2606,
+          531
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0859",
+        "box_xyxy": [
+          2503,
+          472,
+          2602,
+          527
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          462,
+          1072,
+          569,
+          1134
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0275",
+        "box_xyxy": [
+          466,
+          1076,
+          565,
+          1130
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1416,
+          1072,
+          1523,
+          1134
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0275",
+        "box_xyxy": [
+          1420,
+          1076,
+          1519,
+          1130
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2370,
+          1072,
+          2477,
+          1134
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0275",
+        "box_xyxy": [
+          2374,
+          1076,
+          2473,
+          1130
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          503,
+          1676,
+          610,
+          1738
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0462",
+        "box_xyxy": [
+          507,
+          1680,
+          606,
+          1734
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1524,
+          1676,
+          1631,
+          1738
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0764",
+        "box_xyxy": [
+          1528,
+          1680,
+          1627,
+          1734
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2534,
+          1676,
+          2641,
+          1738
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.1016",
+        "box_xyxy": [
+          2538,
+          1680,
+          2637,
+          1734
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          557,
+          2279,
+          664,
+          2342
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.0704",
+        "box_xyxy": [
+          561,
+          2283,
+          660,
+          2338
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1611,
+          2279,
+          1718,
+          2342
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.1158",
+        "box_xyxy": [
+          1615,
+          2283,
+          1714,
+          2338
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2644,
+          2279,
+          2751,
+          2342
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "ECDF\n0.1512",
+        "box_xyxy": [
+          2648,
+          2283,
+          2747,
+          2338
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          549,
+          524,
+          655,
+          586
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0315",
+        "box_xyxy": [
+          553,
+          528,
+          651,
+          582
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1557,
+          524,
+          1664,
+          586
+        ],
+        "operation": "widen annotation box",
+        "pixels_each_side": 9
+      },
+      {
+        "box_xyxy": [
+          1557,
+          524,
+          1664,
+          586
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0560",
+        "box_xyxy": [
+          1561,
+          528,
+          1660,
+          582
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2627,
+          524,
+          2734,
+          586
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.1086",
+        "box_xyxy": [
+          2631,
+          528,
+          2730,
+          582
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          549,
+          1128,
+          655,
+          1190
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0315",
+        "box_xyxy": [
+          553,
+          1132,
+          651,
+          1186
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1503,
+          1128,
+          1609,
+          1190
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0315",
+        "box_xyxy": [
+          1507,
+          1132,
+          1605,
+          1186
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2457,
+          1128,
+          2564,
+          1190
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0315",
+        "box_xyxy": [
+          2461,
+          1132,
+          2560,
+          1186
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          596,
+          1731,
+          703,
+          1793
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0528",
+        "box_xyxy": [
+          600,
+          1735,
+          699,
+          1789
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1628,
+          1731,
+          1735,
+          1793
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0881",
+        "box_xyxy": [
+          1632,
+          1735,
+          1731,
+          1789
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2659,
+          1731,
+          2766,
+          1793
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.1229",
+        "box_xyxy": [
+          2663,
+          1735,
+          2762,
+          1789
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          646,
+          2335,
+          753,
+          2397
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.0755",
+        "box_xyxy": [
+          650,
+          2339,
+          749,
+          2393
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          1726,
+          2335,
+          1833,
+          2397
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.1325",
+        "box_xyxy": [
+          1730,
+          2339,
+          1829,
+          2393
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "box_xyxy": [
+          2797,
+          2335,
+          2904,
+          2397
+        ],
+        "operation": "annotation frame",
+        "fontsize": 9
+      },
+      {
+        "text": "Opt.\n0.1853",
+        "box_xyxy": [
+          2801,
+          2339,
+          2900,
+          2393
+        ],
+        "fontsize": 9,
+        "rotation": 0,
+        "text_fits": true
+      }
+    ],
+    "changed_pixels_outside_recorded_regions": 0,
+    "removed_header_rows": [
+      90,
+      145
+    ],
+    "statistics_recomputed": false,
+    "dimensions": [
+      2937,
+      2583
+    ],
+    "dpi": [
+      199.9996,
+      199.9996
+    ],
+    "annotation_fontsize": 9,
+    "legend_position": "original upper left; curve-preservation limitation",
+    "bootstrap_resamples": 10000,
+    "marker_and_arrow_positions_unchanged": true
+  },
+  {
+    "filename": "hist_POF_eps0.01.png",
+    "source_sha256": "e0cc8125a6f8d8cb73e8ae4c03fa7ae3c04c5ea7761c7549558634bc9b3c3400",
+    "output_sha256": "b0d1cfb6c7ddd0a5b55ab005f9ce52cc25a9296e9e19b101a00d9745de3e6772",
+    "text_edits": [
+      {
+        "text": "Injection Rate Distribution (PoF \u03b5 = 0.01)",
+        "box_xyxy": [
+          110,
+          0,
+          1580,
+          84
+        ],
+        "fontsize": 20,
+        "rotation": 0,
+        "text_fits": true
+      }
+    ],
+    "changed_pixels_outside_recorded_regions": 0,
+    "removed_header_rows": null,
+    "statistics_recomputed": false,
+    "dimensions": [
+      1580,
+      1200
+    ],
+    "dpi": [
+      199.9996,
+      199.9996
+    ],
+    "original_panel_translation_pixels": [
+      0,
+      20
+    ]
+  },
+  {
+    "filename": "grid_histogram_selected_1x3.png",
+    "source_sha256": "5379134ea83b0f6e883ff1002df0db83b3164825dc04a4884ce001b0073d0f12",
+    "output_sha256": "329e8e6c077c9d43eb04e7f3da3e58379cba9693268bf00c37648eb226980a88",
+    "text_edits": [
+      {
+        "text": "Distribution of Optimized Injection Rates",
+        "box_xyxy": [
+          0,
+          0,
+          3304,
+          96
+        ],
+        "fontsize": 24,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "text": "PoF \u03b5 = 0.0",
+        "box_xyxy": [
+          144,
+          98,
+          1134,
+          150
+        ],
+        "fontsize": 15,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "text": "PoF \u03b5 = 0.01",
+        "box_xyxy": [
+          1220,
+          98,
+          2209,
+          150
+        ],
+        "fontsize": 15,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "text": "CVaR \u03b3 = 0.1, \u03b1 = 0.01",
+        "box_xyxy": [
+          2298,
+          98,
+          3288,
+          150
+        ],
+        "fontsize": 15,
+        "rotation": 0,
+        "text_fits": true
+      }
+    ],
+    "changed_pixels_outside_recorded_regions": 0,
+    "removed_header_rows": null,
+    "statistics_recomputed": false,
+    "dimensions": [
+      3304,
+      1101
+    ],
+    "dpi": [
+      219.9894,
+      219.9894
+    ]
+  },
+  {
+    "filename": "grid_histogram_4x3.png",
+    "source_sha256": "f910ccc2cc81271663162b1a34755f6a9eae7ded64122dbde89599e3fc74b96a",
+    "output_sha256": "b56810149a779e09574b6873546e0f140d2e0c897d97644e24976dd6ee31605c",
+    "text_edits": [
+      {
+        "text": "Distribution of Optimized Injection Rates",
+        "box_xyxy": [
+          0,
+          0,
+          2916,
+          90
+        ],
+        "fontsize": 26,
+        "rotation": 0,
+        "text_fits": true
+      },
+      {
+        "text": "mean=0.3978 std=0.1870",
+        "box_xyxy": [
+          2456,
+          2446,
+          2895,
+          2480
+        ],
+        "fontsize": 11,
+        "rotation": 0,
+        "text_fits": true
+      }
+    ],
+    "changed_pixels_outside_recorded_regions": 0,
+    "removed_header_rows": [
+      90,
+      160
+    ],
+    "statistics_recomputed": false,
+    "dimensions": [
+      2916,
+      2762
+    ],
+    "dpi": [
+      199.9996,
+      199.9996
+    ]
+  }
+]

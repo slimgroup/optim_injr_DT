@@ -1,0 +1,8 @@
+{
+  "cdf_POF_eps0.01.png": "20-point title with Greek \u03b5; legend above axes; four-decimal rates and thin inset cues retained; no clipping.",
+  "hist_POF_eps0.01.png": "20-point title with Greek \u03b5; full panel translated down by 20 px; bars, ticks and selected-rate lines retained.",
+  "grid_cdf_selected_1x3.png": "Single-line 24-point title; Greek parameters; uniform 9-point annotations; four-place rates; original legend position with B=10000 as accepted by user.",
+  "grid_cdf_4x3.png": "Single-line 26-point title; uniform 9-point annotations; four-place rates; original legend position with B=10000; shorter header.",
+  "grid_histogram_selected_1x3.png": "Simplified 24-point title; Greek parameters; M=128 kept in legends; Count axis; compact layout retained.",
+  "grid_histogram_4x3.png": "Simplified 26-point title; reduced header whitespace; trailing zero added to std=0.1870; Count axes and all bins/bar shapes retained."
+}

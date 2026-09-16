@@ -1,0 +1,80 @@
+{
+  "cdf_POF_eps0.01.png": {
+    "slide_id": "p1-select",
+    "size": [
+      1600,
+      1284
+    ],
+    "dpi": [
+      199.9996,
+      199.9996
+    ],
+    "sha256": "1740468b464a50511f677e2f6405116c1b70250f30230ba4f9a7b31ca9618b17",
+    "statistics_recomputed": false
+  },
+  "grid_cdf_4x3.png": {
+    "slide_id": "p1b-grid-cdf",
+    "size": [
+      2937,
+      2583
+    ],
+    "dpi": [
+      199.9996,
+      199.9996
+    ],
+    "sha256": "1c4fade1bd1b9a65a3533f105b1eeb325d8c6d71bb2a384d9db7e6dc17c17564",
+    "statistics_recomputed": false
+  },
+  "grid_cdf_selected_1x3.png": {
+    "slide_id": "p1b-selected-cdf",
+    "size": [
+      3428,
+      1099
+    ],
+    "dpi": [
+      219.9894,
+      219.9894
+    ],
+    "sha256": "06fbc1bfe55e4a1c29051bdf609b404301b823af5f839238f4653d6a22f44f92",
+    "statistics_recomputed": false
+  },
+  "grid_histogram_4x3.png": {
+    "slide_id": "p1b-grid-hist",
+    "size": [
+      2916,
+      2762
+    ],
+    "dpi": [
+      199.9996,
+      199.9996
+    ],
+    "sha256": "b56810149a779e09574b6873546e0f140d2e0c897d97644e24976dd6ee31605c",
+    "statistics_recomputed": false
+  },
+  "grid_histogram_selected_1x3.png": {
+    "slide_id": null,
+    "size": [
+      3304,
+      1101
+    ],
+    "dpi": [
+      219.9894,
+      219.9894
+    ],
+    "sha256": "329e8e6c077c9d43eb04e7f3da3e58379cba9693268bf00c37648eb226980a88",
+    "statistics_recomputed": false
+  },
+  "hist_POF_eps0.01.png": {
+    "slide_id": null,
+    "size": [
+      1580,
+      1200
+    ],
+    "dpi": [
+      199.9996,
+      199.9996
+    ],
+    "sha256": "b0d1cfb6c7ddd0a5b55ab005f9ce52cc25a9296e9e19b101a00d9745de3e6772",
+    "statistics_recomputed": false
+  }
+}

@@ -1,0 +1,10 @@
+scope,before,after
+All displayed parameters,eps / alpha / gamma,ε / α / γ
+Grid ECDF subtitle,B = 10000; Opt. = Optimistic,removed
+Grid CI legend,95% Bootstrap CI,"95% CI, B=10000"
+Histogram grid titles,Distribution of Optimized Injectivities: Histogram (M=128),Distribution of Optimized Injection Rates
+Single titles,16 pt,20 pt
+Selected grid titles,20 pt,24 pt
+Full grid titles,22 pt,26 pt
+All grid inset labels and rates,"9 pt, with two numeric labels reduced to 7.25 pt",9 pt throughout; two short boxes widened
+Full histogram last-panel standard deviation,std=0.187,std=0.1870
