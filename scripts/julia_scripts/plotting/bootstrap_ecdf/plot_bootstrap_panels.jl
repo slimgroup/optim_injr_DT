@@ -200,7 +200,7 @@ function plot_single_cdf(cr::CaseResult, fname)
     fig = PyPlot.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
     ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5,
-                   label="95% Bootstrap CI")
+                   label="95% Bootstrap CI (B=$(length(cr.boot_q)))")
     ax.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=2, label="Empirical CDF")
     ax.axhline(y=THRESH*100, color="#D62728", lw=1.5, ls="--", label="Target p = 1%")
     for (xv, col, ms) in [(cr.x_conservative,"#FF6F00",10),(cr.x_ecdf,"#2E7D32",10),(cr.x_optimistic,"#1565C0",10)]
@@ -237,7 +237,7 @@ function plot_single_cdf(cr::CaseResult, fname)
     end
     if cr.x_optimistic !== nothing
         ins.plot(cr.x_optimistic, THRESH*100, "*", color="#1565C0", ms=12, zorder=5)
-        ins.annotate("Optimistic\n$(round(cr.x_optimistic,digits=4))", xy=(cr.x_optimistic,THRESH*100),
+        ins.annotate("Opt.\n$(round(cr.x_optimistic,digits=4))", xy=(cr.x_optimistic,THRESH*100),
                     xytext=(35,18), textcoords="offset points", fontsize=afs, color="#0D47A1", fontweight="bold", ha="center",
                     bbox=Dict("boxstyle"=>"round,pad=0.2","facecolor"=>"#E3F2FD","alpha"=>0.9,"edgecolor"=>"#1565C0"),
                     arrowprops=Dict("arrowstyle"=>"->","color"=>"#1565C0",
@@ -251,28 +251,20 @@ function plot_single_cdf(cr::CaseResult, fname)
     xdmin, xdmax = extrema(cr.data)
     xspan = max(xdmax - xdmin, 1e-12)
     ax.set_xlim(xdmin - 0.05 * xspan, xdmax + 0.05 * xspan)
-    # Show exactly which main-axis region is enlarged in the inset. Both ends
-    # stay inside the fixed axes limits, avoiding unbounded tight-export bounds.
-    zoom_box = matplotlib.patches.Rectangle((zxmin, 0), zxmax-zxmin, zymax,
-                    fill=false, edgecolor="#555555", linewidth=1.3, zorder=4)
-    ax.add_patch(zoom_box)
-    zoom_arrow = matplotlib.patches.ConnectionPatch(
-        xyA=(zxmax, 0), coordsA=ax.transData,
-        xyB=(0.10, 0), coordsB=ins.transAxes,
-        arrowstyle="-|>", mutation_scale=16, linewidth=1.5,
-        color="#555555", shrinkA=2, shrinkB=5, zorder=6)
-    fig.add_artist(zoom_arrow)
+    # Match the selected-grid inset: a faint source rectangle and two
+    # thin corner connectors. Limits are already fixed before adding the cue.
+    _, zoom_connectors = ax.indicate_inset_zoom(ins, edgecolor="gray", alpha=0.4)
+    # Use the two left corners so connectors do not cross the inset x labels.
+    for (idx, connector) in enumerate(zoom_connectors)
+        connector.set_visible(idx <= 2)
+    end
     PyPlot.tight_layout()
-    # Keep the plotting area fixed; put the legend/title above it and B below it.
+    # Keep the plotting area fixed, with the legend and B above the axes.
     ax.set_title("Optimized-endpoint ECDF — $(case_label)", fontsize=16,
                  fontweight="bold", y=1.085)
     ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=3,
               fontsize=12, frameon=false, borderaxespad=0,
               columnspacing=1.3, handletextpad=0.6)
-    fig.text(0.02, -0.015, "Endpoint ECDF uses ≤; strict violation uses <.",
-             ha="left", va="top", fontsize=8.5, color="#444444")
-    fig.text(0.98, -0.015, "Bootstrap resamples: B = $(length(cr.boot_q))",
-             ha="right", va="top", fontsize=10, color="#444444")
     PyPlot.savefig(fname, dpi=200, bbox_inches="tight", pad_inches=0.15); PyPlot.close(fig)
     println("  Saved: $fname")
 end

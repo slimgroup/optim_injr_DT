@@ -9,9 +9,9 @@ The current plotting source is
 `scripts/julia_scripts/plotting/bootstrap_ecdf/plot_bootstrap_panels.jl`.
 Original exports remain in
 `plots/DT_control/exp_name=step1/statistical_analysis/ecdf/`.
-The latest reviewed exports and verification records are in its
-`labels_reviewed_v3_20260915/` subdirectory. The earlier
-`labels_reviewed_20260915/` and `labels_reviewed_v2_20260915/` exports are preserved.
+The latest single-case export is in `labels_reviewed_v4_20260915/`.
+The selected grid, full grid, and histogram remain in `labels_reviewed_v3_20260915/`.
+All earlier exports are preserved.
 
 | Slide ID | Filename | Source function | Export status |
 | --- | --- | --- | --- |
@@ -40,12 +40,14 @@ copies and the separate decimal4 exports are preserved.
   defined so it cannot be confused with optimal. The 95% level remains in the legend.
 - Following the user’s visual feedback, the single-case title is now
   `Optimized-endpoint ECDF — PoF eps = 0.01`. The legend moves above the axes,
-  outside the confidence band; it retains `95% Bootstrap CI`. The bootstrap
-  count moves to a footer: `Bootstrap resamples: B = 10000`. The inset’s
-  `Opt.` becomes `Optimistic` with the same value and marker position.
-- The single-case main plot now outlines the actual inset x/y limits and adds a
-  directed connection to the inset. The three colored rate arrows are stronger.
-  A short footer states `Endpoint ECDF uses ≤; strict violation uses <.`
+  outside the confidence band. The current legend reads
+  `95% Bootstrap CI (B=10000)`; the inset abbreviation is `Opt.` (optimistic).
+  These latest choices follow the user’s request to simplify the single figure.
+- The single-case inset uses the selected-grid style: a faint gray source
+  rectangle and thin corner connectors, routed to the left corners to avoid the
+  inset x labels. The colored rate arrows and their anchors are retained.
+- Both bottom text lines were removed at the user’s request. Mathematical
+  interpretation remains in the accompanying caption/documentation.
 - Histogram titles and rate-selection annotations have no inappropriate
   fracture-probability wording; its y-axis remains `Count`.
 
@@ -83,15 +85,14 @@ it does not collect raw samples, compute statistics, bootstrap, or calculate
 crossings. The original canonical PNG's numerical formatting is retained.
 The script refuses an existing output directory.
 
-The refined single-case PNG is 1600×1358 at 200 DPI. Its plotting area stays
-fixed; the canvas extends to accommodate the external legend, title, and
-bootstrap-count footer. A comparison of the actual Matplotlib objects before
+The refined single-case PNG is 1600×1285 at 200 DPI. Its plotting area stays
+fixed; the title and legend, including the bootstrap count, sit above the axes.
+Removing the footer shortens the canvas. A comparison of the actual Matplotlib objects before
 and after the refinement verifies exact equality of curve arrays,
 confidence-band vertices and path codes, target line, marker coordinates and
 styles, annotation anchors and offsets, and axis limits. No statistics were
 recomputed. Visual inspection confirms the new text fits and the legend no
-longer covers the confidence band. The restored main-to-inset arrow avoids
-tick labels. The histogram is byte-identical to its original. The source
+longer covers the confidence band. The light inset connectors avoid the inset x labels. The histogram is byte-identical to its original. The source
 version isolated for the commit was independently rendered from the same
 cache and has identical numerical plot objects.
 
@@ -109,7 +110,7 @@ from these PNG-only originals.
 
 The short grid inset labels `Opt.` are preserved to avoid changing the small
 annotation boxes; `Opt. = Optimistic` is stated in the header. The single-case
-inset has enough room for the full word. Existing differences between the
+inset now also uses `Opt.`; the abbreviation means optimistic, not optimal. Existing differences between the
 single-case and grid rate values are preserved. The mathematical distinction
 between the ECDF and a strict violation fraction is unchanged and stated in
 the caption accompanying the requested `Violation probability (%)` axis label.
@@ -126,10 +127,22 @@ functions, rate-formatting helpers, and statistical entry points are unchanged.
 
 ## Commit scope
 
-The commit includes only this labeling task, its two export helpers, the
-reviewed v3 exports, and provenance/verification records. The shared Julia
+Commit `6238d0f` contains the labeling task, its two export helpers, reviewed
+v3 exports, and provenance/verification records. The v4 refinement changes
+only the single-case presentation and its supporting records. The shared Julia
 source is staged with the display changes and the definition-only guard needed
 by the cache exporter. Pre-existing working-tree changes to statistics,
 selected-case names, rate formatting, monitoring steps, and other figures are
 preserved outside this commit. No inference, optimization, bootstrap,
 threshold testing, or forward simulation was rerun.
+
+
+## ECDF definition reference
+
+The user confirmed that calculation should stay unchanged. The [official R
+stats ECDF documentation](https://stat.ethz.ch/R-manual/R-patched/library/stats/html/ecdf.html)
+defines the ECDF using observations less than or equal to the evaluation point.
+This was independently checked against the documentation; no separate ChatGPT
+conversation or statistical recalculation was used. The v4 figure removes the
+on-canvas distinction note for a cleaner layout, as requested, while preserving
+the mathematical explanation above.
