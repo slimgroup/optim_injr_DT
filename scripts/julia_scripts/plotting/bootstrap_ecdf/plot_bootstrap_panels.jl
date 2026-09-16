@@ -383,10 +383,10 @@ function plot_grid_cdf(results::Vector{CaseResult}, fname)
         ax.indicate_inset_zoom(ins, edgecolor="gray", alpha=0.4)
     end
     ax1 = axes[1,1]
-    ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% CI, B=$(B_GRID)")
+    ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% Bootstrap CI (B=$(B_GRID))")
     ax1.plot([], [], color="#1565C0", lw=1.8, label="Empirical CDF")
     ax1.plot([], [], color="#D62728", lw=1.2, ls="--", label="Target p = 1%")
-    ax1.legend(loc="upper left", fontsize=12, framealpha=0.9)
+    ax1.legend(loc="upper right", fontsize=12, framealpha=0.9)
     PyPlot.savefig(fname, dpi=200, bbox_inches="tight"); PyPlot.close(fig)
     println("Saved grid CDF: $fname")
 end
@@ -496,10 +496,10 @@ function plot_selected_cdf(results::Vector{CaseResult}, fname)
         ax.indicate_inset_zoom(ins, edgecolor="gray", alpha=0.4)
     end
     ax1 = fig.axes[1]
-    ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% CI, B=$(B_GRID)")
+    ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% Bootstrap CI (B=$(B_GRID))")
     ax1.plot([], [], color="#1565C0", lw=1.8, label="Empirical CDF")
     ax1.plot([], [], color="#D62728", lw=1.2, ls="--", label="Target p = 1%")
-    ax1.legend(loc="upper left", fontsize=11, framealpha=0.9)
+    ax1.legend(loc="upper right", fontsize=11, framealpha=0.9)
     PyPlot.savefig(fname, dpi=220, bbox_inches="tight"); PyPlot.close(fig)
     println("Saved selected CDF: $fname")
 end

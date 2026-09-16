@@ -1,19 +1,21 @@
 # DTControl statistical figure labels
 
-Requested 2026-09-14; refined 2026-09-15. Figures are identified by filename
+Requested 2026-09-14; refined through 2026-09-16. Figures are identified by filename
 and stable slide ID, without page numbers.
 
 ## Reviewed exports
 
-Latest requested figures:
+Latest ECDF grids (`p1b-selected-cdf`, `p1b-grid-cdf`):
+`plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v7_20260916/`.
+The single ECDF and all three histograms remain at v6:
 `plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v6_20260915/`.
 All original PNGs and earlier reviewed versions are preserved.
 
 | Slide ID / asset | Filename | Plotting source function | Export method |
 | --- | --- | --- | --- |
 | `p1-select` | `cdf_POF_eps0.01.png` | `plot_single_cdf` | Render saved numerical objects |
-| `p1b-selected-cdf` | `grid_cdf_selected_1x3.png` | `plot_selected_cdf` | Edit historical PNG text regions |
-| `p1b-grid-cdf` | `grid_cdf_4x3.png` | `plot_grid_cdf` | Edit historical PNG text regions |
+| `p1b-selected-cdf` | `grid_cdf_selected_1x3.png` | `plot_selected_cdf` | Accepted raster recovery and legend relocation from v6 |
+| `p1b-grid-cdf` | `grid_cdf_4x3.png` | `plot_grid_cdf` | Accepted raster recovery and legend relocation from v6 |
 | Single histogram | `hist_POF_eps0.01.png` | `plot_single_hist` | Edit title; translate intact panel |
 | Selected histogram | `grid_histogram_selected_1x3.png` | `plot_selected_histogram` | Edit title and parameter text |
 | `p1b-grid-hist` | `grid_histogram_4x3.png` | `plot_grid_histogram` | Edit title and one statistic label; reduce header spacing |
@@ -39,13 +41,14 @@ Stable filenames retain `eps`; only displayed parameters change to Greek.
 - Displayed `eps`, `alpha`, and `gamma` become `ε`, `α`, and `γ`. Existing
   Greek parameter titles and their numeric precision are preserved. Case
   lookup keys, filenames, and underlying parameters do not change.
-- Grid CI legend: `95% CI, B=10000`. These are the same 95% bootstrap confidence
+- Grid CI legend: `95% Bootstrap CI (B=10000)`. These are the historical 95% bootstrap confidence
   intervals as before. **B remains 10000**, the historical resample count;
   the user's `B=1000` wording does not change the recorded calculation.
-- The user explicitly accepted keeping both ECDF grid legends in their
-  original upper-left locations after being informed that the old translucent
-  legend overlaps an uncached curve. Moving it would require reconstructing
-  the obscured curve. Only legend text changes; the hidden curve is not guessed.
+- Each ECDF grid has one legend in the first panel's upper-right corner.
+  The user approved the v7 previews after being informed that removing the
+  old translucent legend requires image-level recovery, not lossless recovery
+  from numerical plotting objects. The earlier v6 legends stay upper left
+  in the preserved v6 files. See the v7 method and limitation below.
 - Single ECDF legend stays above the axes, outside its confidence band:
   `95% Bootstrap CI (B=10000)`, `Empirical CDF`, `Target p = 1%`.
 - `Opt.` means optimistic. Its definition is omitted from the image at the
@@ -88,6 +91,50 @@ the convention can matter near a 1% target. The user confirmed calculation
 should remain unchanged; no additional ChatGPT consultation is needed.
 
 ## Export and verification
+
+### v7: approved upper-right grid legends
+
+The user approved the displayed previews on 2026-09-16: move the legends to
+the upper right and adopt v7. Each grid retains just one legend, in its first
+subplot. Its three entries are `95% Bootstrap CI (B=10000)`, `Empirical CDF`,
+and `Target p = 1%`. The single-line title remains `Optimized-endpoint ECDFs`;
+there is no on-image optimistic definition.
+
+`relocate_step1_ecdf_legends.py` reads the hash-guarded v6 PNGs and original
+full-grid PNG. The historical paper export at
+`ad0696e:plots/paper_figures/statistical/grid_cdf_selected_1x3.png` explicitly
+labels PoF epsilon=0 as identical to CVaR gamma=0. The script therefore reuses
+the unoccluded second-row, first-column panel to fill the old legend region.
+The full grid uses integer pixel translation. The selected grid registers
+the donor using visible axis tick positions and bicubic affine resampling.
+This is an accepted raster restoration of the obscured region, **not verified
+lossless recovery of its original curve or confidence-band pixels**. No new
+statistical values are calculated, and no numerical cache or sample is read.
+
+The source plotting functions also place their first-panel legends at
+`upper right` with the same text. Those source functions were not executed:
+there is no complete frozen numerical cache for either grid.
+
+Verification checks unchanged dimensions/DPI and pixel identity everywhere
+outside the old/new legend rectangles. Titles, axes, insets, markers, arrows,
+four-decimal rate annotations, and every other panel are unchanged from v6.
+Final exports are also compared against the exact temporary previews approved
+by the user. All original and v6 files remain untouched.
+
+Reproduce into a **new** directory using:
+
+```bash
+python scripts/python_plots/relocate_step1_ecdf_legends.py \
+  plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v6_20260915 \
+  NEW_OUTPUT_DIR --accept-raster-recovery
+```
+
+The v7 directory includes the two PNGs, the interpretive `caption.md`, and
+`legend_relocation_verification.json` recording sources, hashes, registration,
+changed rectangles, and the raster-recovery limitation. The other four assets
+need no further export and remain at v6.
+
+### v6: typography, four decimals, and compact headers
 
 `reexport_p1_select_labels.jl` loads the saved `CaseResult` from
 `data/figure_exports/figures6_7_decimal4_20260910_005149/case_result.jld2` with
@@ -133,7 +180,9 @@ other figures, and monitoring-step workflows stay outside this commit.
 ## Commit scope
 
 Earlier presentation revisions were committed as `6238d0f`, `e984723`, and
-`dee3c8e`. This refinement includes display typography/layout, Greek labels,
-the six new PNGs, the guarded polishing tool, and verification/documentation.
+`dee3c8e`; v6 was committed as `072cdd2`. The v7 refinement includes only two
+grid legend display changes, their accepted PNG exports, the guarded raster
+relocation script, and verification/documentation. Unrelated existing numerical
+and working-tree changes remain outside the commit.
 No bootstrap, inference, optimization, crossing selection, threshold testing,
 or forward simulation was run.

@@ -1,0 +1,5 @@
+The ECDF summarizes optimized endpoints across state-permeability pairs. Assuming that each pair remains feasible below its optimized endpoint, the fraction of strictly lower endpoints estimates the probability of violating the selected PoF or CVaR constraint.
+
+The requested "Violation probability (%)" axis label is an interpretive label for the unchanged optimized-endpoint ECDF. The ECDF counts q_m <= q, whereas a member at q_m = q remains feasible; the strict violation fraction counts q_m < q. The plotted curve is therefore not an exact physical-fracture or constraint-violation probability at endpoint ties. The 95% bootstrap confidence intervals do not claim simultaneous coverage or a certified 1% bound. No crossings or historical selected rates were recomputed.
+
+In the compact grid legend, CI denotes the same 95% bootstrap confidence interval, and B=10000 is the historical number of bootstrap resamples. Opt. denotes optimistic.

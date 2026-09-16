@@ -1,0 +1,104 @@
+{
+  "method": "Explicitly accepted image-level legend relocation",
+  "donor": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/grid_cdf_4x3.png",
+  "donor_sha256": "e0a4a3ab4a40b8c5408a591bad968feab97a3501aaa494626f7c5fde53e8b0a7",
+  "donor_panel": "row 2, column 1: CVaR gamma=0, alpha=0",
+  "historical_identity_reference": "ad0696e:plots/paper_figures/statistical/grid_cdf_selected_1x3.png",
+  "historical_identity_label": "PoF epsilon=0.0 (identical to CVaR gamma=0.0)",
+  "figures": [
+    {
+      "filename": "grid_cdf_4x3.png",
+      "slide_id": "p1b-grid-cdf",
+      "source_sha256": "1c4fade1bd1b9a65a3533f105b1eeb325d8c6d71bb2a384d9db7e6dc17c17564",
+      "output_sha256": "5ed69b91c5055cf1dc52b0db7b85970bc78b27b7b34f86ef265dcf5ca739b50c",
+      "dimensions": [
+        2937,
+        2583
+      ],
+      "dpi": [
+        199.9996,
+        199.9996
+      ],
+      "old_legend_box_xyxy": [
+        171,
+        160,
+        594,
+        324
+      ],
+      "new_legend_box_xyxy": [
+        385,
+        160,
+        992,
+        322
+      ],
+      "legend_labels": [
+        "95% Bootstrap CI (B=10000)",
+        "Empirical CDF",
+        "Target p = 1%"
+      ],
+      "registration": {
+        "method": "integer pixel translation",
+        "donor_box_xyxy": [
+          171,
+          819,
+          594,
+          983
+        ]
+      },
+      "changed_pixels": 30841,
+      "changed_pixels_outside_legend_regions": 0,
+      "insets_annotations_markers_and_titles_pixel_identical": true,
+      "statistics_recomputed": false,
+      "lossless_recovery_of_obscured_original_curve_verified": false,
+      "limitation": "Old legend region reuses historical duplicate-panel raster; not recovered numerical plotting objects."
+    },
+    {
+      "filename": "grid_cdf_selected_1x3.png",
+      "slide_id": "p1b-selected-cdf",
+      "source_sha256": "06fbc1bfe55e4a1c29051bdf609b404301b823af5f839238f4653d6a22f44f92",
+      "output_sha256": "d30d56ec1b58dbad1e64553b31f4b98a6424380424802c6bc4debcc317c7a726",
+      "dimensions": [
+        3428,
+        1099
+      ],
+      "dpi": [
+        219.9894,
+        219.9894
+      ],
+      "old_legend_box_xyxy": [
+        183,
+        166,
+        606,
+        334
+      ],
+      "new_legend_box_xyxy": [
+        525,
+        166,
+        1138,
+        328
+      ],
+      "legend_labels": [
+        "95% Bootstrap CI (B=10000)",
+        "Empirical CDF",
+        "Target p = 1%"
+      ],
+      "registration": {
+        "method": "affine registration from axis ticks; bicubic raster resampling",
+        "output_patch_to_donor_coefficients": [
+          0.6776209807332946,
+          0,
+          172.94265094400407,
+          0,
+          0.6197430934365651,
+          813.6240835239602
+        ]
+      },
+      "changed_pixels": 39819,
+      "changed_pixels_outside_legend_regions": 0,
+      "insets_annotations_markers_and_titles_pixel_identical": true,
+      "statistics_recomputed": false,
+      "lossless_recovery_of_obscured_original_curve_verified": false,
+      "limitation": "Old legend region reuses historical duplicate-panel raster; not recovered numerical plotting objects."
+    }
+  ]
+}

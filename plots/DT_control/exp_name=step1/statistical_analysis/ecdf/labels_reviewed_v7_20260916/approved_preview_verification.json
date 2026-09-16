@@ -1,0 +1,14 @@
+[
+  {
+    "filename": "grid_cdf_4x3.png",
+    "approved_preview_pixel_identical": true,
+    "source_preserved": true,
+    "output_sha256": "5ed69b91c5055cf1dc52b0db7b85970bc78b27b7b34f86ef265dcf5ca739b50c"
+  },
+  {
+    "filename": "grid_cdf_selected_1x3.png",
+    "approved_preview_pixel_identical": true,
+    "source_preserved": true,
+    "output_sha256": "d30d56ec1b58dbad1e64553b31f4b98a6424380424802c6bc4debcc317c7a726"
+  }
+]
