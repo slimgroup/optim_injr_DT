@@ -1,0 +1,204 @@
+{
+  "slurm_job": "13243536",
+  "media": [
+    {
+      "file": "comparison.mp4",
+      "resolution": "3840x2160",
+      "seconds": 20,
+      "fps": 30,
+      "frames": 600,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "bytes": 4239829,
+      "sha256": "d9ee082b72034de998faf7f5fb1d16e0b11bda26620f63ebaf5ede9977eb117f"
+    },
+    {
+      "file": "cvar_alpha001_gamma01.mp4",
+      "resolution": "1280x2160",
+      "seconds": 20,
+      "fps": 30,
+      "frames": 600,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "bytes": 1673523,
+      "sha256": "045f97b019dcf5aea04d3008afdbe84a427d8982b7820bdf676efbf754baf764"
+    },
+    {
+      "file": "no_control.mp4",
+      "resolution": "1280x2160",
+      "seconds": 20,
+      "fps": 30,
+      "frames": 600,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "bytes": 1223058,
+      "sha256": "c4157f082e219483fb367618f38ed6f8a6b665bbc4653990922709f90a34778c"
+    },
+    {
+      "file": "pof_eps0.mp4",
+      "resolution": "1280x2160",
+      "seconds": 20,
+      "fps": 30,
+      "frames": 600,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "bytes": 1273819,
+      "sha256": "b4b6747b7395a1f76104cb8ec36a28eda6ca6239027512f2bcbc3c38036025ce"
+    }
+  ],
+  "pngs": [
+    {
+      "file": "comparison_day728.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "1e9cfebe7cbdad0c54e6f009445fb00ae723f5d61f37f339d0da087eadb89d85",
+      "changed_pixel_box": [
+        1588,
+        169,
+        2327,
+        212
+      ],
+      "all_maps_pixel_identical_to_previous": true
+    },
+    {
+      "file": "comparison_poster.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "sha256": "c3d38a0b0bc5c0d6d8c30b61ead47c957cccf4227e40c017c021db6ef4f7885b",
+      "changed_pixel_box": [
+        1613,
+        169,
+        2327,
+        212
+      ],
+      "all_maps_pixel_identical_to_previous": true
+    },
+    {
+      "file": "cvar_alpha001_gamma01_day728.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "7ebfb0913993617d5dbf0ff194ca9bce3942898bb619f518e555225374066cf5",
+      "changed_pixel_box": [
+        416,
+        171,
+        1009,
+        205
+      ],
+      "all_maps_pixel_identical_to_previous": true
+    },
+    {
+      "file": "cvar_alpha001_gamma01_poster.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "191096c2febc122cd6d51cc5cb3dc35752ff0f1a46ebfee8c60f717b1a41bb1d",
+      "changed_pixel_box": [
+        437,
+        171,
+        1010,
+        205
+      ],
+      "all_maps_pixel_identical_to_previous": true
+    },
+    {
+      "file": "no_control_day728.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "9fa5d179884b234e8ce9c6ee4ab9b19beb3a2112e89868ae13cd3f9d572e19d6",
+      "changed_pixel_box": null,
+      "all_maps_pixel_identical_to_previous": true
+    },
+    {
+      "file": "no_control_poster.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "971fe59d6886068ede03fb82b2a6074e128e8dce7946c674d0c6e56ea72f67bb",
+      "changed_pixel_box": null,
+      "all_maps_pixel_identical_to_previous": true
+    },
+    {
+      "file": "pof_eps0_day728.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "51def6035ce80fafe6fd4d3195add0b6c47b0d1e7bad8f4e96680b01bf471beb",
+      "changed_pixel_box": null,
+      "all_maps_pixel_identical_to_previous": true
+    },
+    {
+      "file": "pof_eps0_poster.png",
+      "size": [
+        1280,
+        2160
+      ],
+      "sha256": "705b7459f62c47e6c100cda8dca1e431ffaa2d11baf5039da9ff3fe00d6fc809",
+      "changed_pixel_box": null,
+      "all_maps_pixel_identical_to_previous": true
+    }
+  ],
+  "all_movies_full_decode_pass": true,
+  "unchanged_files": [
+    "saved_time_validation.csv",
+    "implemented_rates.csv",
+    "playback_timeline.json"
+  ],
+  "unchanged_audit_fields": [
+    "case_order",
+    "common_days",
+    "source_files",
+    "shared_color_limits",
+    "day728",
+    "global_displayed_extrema",
+    "movie_sampled_peak_cells",
+    "ground_truth",
+    "grid"
+  ],
+  "saved_times": 79,
+  "annotation_rows": 237,
+  "independent_decimal_rate_mass_verification": true,
+  "final_annotation_values": [
+    {
+      "case": "pof_eps0",
+      "day": "1920",
+      "source_day": "1920",
+      "annotation_schedule": "implemented",
+      "displayed_rate_m3_s": "0.07323",
+      "displayed_mass_Mt": "4.931200512",
+      "implemented_rate_m3_s": "0.07323",
+      "simulated_mass_Mt": "4.931200512"
+    },
+    {
+      "case": "cvar_alpha001_gamma01",
+      "day": "1920",
+      "source_day": "1920",
+      "annotation_schedule": "base",
+      "displayed_rate_m3_s": "0.12022",
+      "displayed_mass_Mt": "10.706701823999998",
+      "implemented_rate_m3_s": "0.14666839999999998",
+      "simulated_mass_Mt": "13.062176225279998"
+    },
+    {
+      "case": "no_control",
+      "day": "1920",
+      "source_day": "728",
+      "annotation_schedule": "implemented",
+      "displayed_rate_m3_s": "0.2",
+      "displayed_mass_Mt": "3.9674880000000003",
+      "implemented_rate_m3_s": "0.2",
+      "simulated_mass_Mt": "3.9674880000000003"
+    }
+  ],
+  "annotations": "CVaR uses original base schedule for rate and mass labels; its maps and exceeding-cell counts retain the 1.22x simulation."
+}

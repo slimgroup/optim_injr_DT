@@ -49,17 +49,20 @@ def sha256(path):
 
 
 class HistoricalFields:
-    def __init__(self, end_day, no_control_continuation=None, seconds=SECONDS, compact_header=False):
+    def __init__(self, end_day, no_control_continuation=None, seconds=SECONDS, compact_header=False, cvar_annotation_schedule="implemented"):
         self.files, self.refs, self.rates = {}, {k: {} for k in KEYS}, {}
         self.end_day = end_day
         self.seconds = seconds
         self.compact_header = compact_header
+        self.cvar_annotation_schedule = cvar_annotation_schedule
+        assert cvar_annotation_schedule in ("implemented", "base")
         self.continued = no_control_continuation is not None
         self.base = self.open('forward_sim_four_steps_base_data.jld2')
         self.p0 = self.base['p0'][:].T
         self.pmax = self.base['p_max'][:]
         np.testing.assert_array_equal(self.pmax, self.p0+4e6)
         self.rates[KEYS[0]] = self.base['POF_eps0_rates'][:]
+        self.cvar_base_rates = self.base['CVaR_g01_a001_rates'][:]
         first = self.open('first_step_substeps_POF_eps0.jld2')
         assert float(first['dt_days'][()]) == 8
         np.testing.assert_array_equal(first['rates'][:], self.rates[KEYS[0]][:6])
@@ -81,7 +84,7 @@ class HistoricalFields:
         assert float(cvar['cvar_sensitivity_multiplier'][()]) == 1.22
         assert float(cvar['dt_days'][()]) == 8
         self.rates[KEYS[1]] = cvar['rate_by_substep'][:][::10]
-        np.testing.assert_array_equal(cvar['rate_by_substep'][:], np.repeat(self.base['CVaR_g01_a001_rates'][:]*1.22, 10))
+        np.testing.assert_array_equal(cvar['rate_by_substep'][:], np.repeat(self.cvar_base_rates*1.22, 10))
         self.add_times(KEYS[1], cvar, 'pres_all', 'sat_all')
         historical_no_control = self.open('no_control_delayed_ramp_10_periods.jld2')
         assert float(historical_no_control['dt_days'][()]) == 8
@@ -163,6 +166,17 @@ class HistoricalFields:
                     dp_min_MPa=float(dp.min()), dp_max_MPa=float(dp.max()),
                     sat_min=float(s.min()), sat_max=float(s.max()))
 
+    def annotation_metric(self, key, day):
+        """Keep requested base-schedule labels separate from simulation metrics."""
+        m = self.metrics[key][day]
+        if key == KEYS[1] and self.cvar_annotation_schedule == 'base':
+            rates = self.cvar_base_rates
+            source_day = m['source_day']
+            volume = np.sum(rates*np.clip(source_day-np.arange(len(rates))*80, 0, 80))*86400
+            return dict(rate_m3_s=float(rates[int(np.ceil(source_day/80))-1]),
+                        mass_Mt=float(volume*700/1e9))
+        return dict(rate_m3_s=m['rate_m3_s'], mass_Mt=m['mass_Mt'])
+
     def audit(self, out):
         rows=[]
         self.metrics={}
@@ -175,6 +189,16 @@ class HistoricalFields:
                 rows.append(dict(**m, source_file=ref[0], pressure_dataset=ref[1], saturation_dataset=ref[2], python_index=ref[3]))
         with (out/'saved_time_validation.csv').open('x', newline='') as f:
             w=csv.DictWriter(f, fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+        with (out/'annotation_values.csv').open('x', newline='') as f:
+            w = csv.writer(f)
+            w.writerow(['case','day','source_day','annotation_schedule','displayed_rate_m3_s',
+                        'displayed_mass_Mt','implemented_rate_m3_s','simulated_mass_Mt'])
+            for m in rows:
+                key, day = m['case'], m['day']
+                a = self.annotation_metric(key, day)
+                schedule = self.cvar_annotation_schedule if key == KEYS[1] else 'implemented'
+                w.writerow([key,day,m['source_day'],schedule,a['rate_m3_s'],a['mass_Mt'],
+                            m['rate_m3_s'],m['mass_Mt']])
         with (out/'implemented_rates.csv').open('x', newline='') as f:
             w=csv.writer(f);w.writerow(['case','start_day_exclusive','end_day_inclusive','actual_rate_m3_s'])
             for key in KEYS:
@@ -201,7 +225,11 @@ class HistoricalFields:
                     cvar_scaled_monitoring_steps=[1,2,3,4], cvar_scaled_time_range_days=[0,1920],
                     sensitivity_application='Historical simulator injection rates scaled by 1.22 over all 24 rate periods; saved pressure and saturation fields are loaded without multiplying field values.',
                     compact_layout='Centered larger day heading; short Red: r < 0 labels inside the three top-row margin maps.' if self.compact_header else 'Legacy layout',
-                    annotation_rates='Actual implemented rates and integrated mass; not unscaled base annotations.',
+                    cvar_annotation_schedule=self.cvar_annotation_schedule,
+                    annotation_rates=('CVaR rate and cumulative mass labels use the original unscaled CVaR_g01_a001_rates schedule, as requested. Its maps and exceeding-cell counts still use the 1.22x simulation; PoF and no-control annotations remain implemented values.'
+                                      if self.cvar_annotation_schedule == 'base' else 'Actual implemented rates and integrated mass.'),
+                    annotation_values_file='annotation_values.csv',
+                    final_annotation_values={k:self.annotation_metric(k,self.end_day) for k in KEYS},
                     common_days=self.times, saved_states=len(self.times), final_day=self.end_day,
                     no_control_final_saved_day=self.stop_day,
                     no_control_continued_injection=self.continued,
@@ -251,13 +279,14 @@ def figure(data, day, selected):
     for column,key in enumerate(selected):
         center=left+column*(width+gap)+width/2
         i=KEYS.index(key);m=data.metrics[key][day]
+        annotation=data.annotation_metric(key,day)
         title = 'No control (continued)' if key=='no_control' and data.continued else TITLES[i]
         title_y=(.941 if combined else .945) if data.compact_header else .934
         metric_y=(.912 if combined else .913) if data.compact_header else .900
         fig.text(center,title_y,title,ha='center',va='center',fontsize=23 if combined else 21,weight='bold')
         held=key=='no_control' and day>data.stop_day
         rate_label='q₇₂₈' if held else 'q'
-        fig.text(center,metric_y,f"{rate_label}: {m['rate_m3_s']:.5f} m³/s   |   {m['mass_Mt']:.2f} Mt   |   {m['exceeding_cells']:,} cells",ha='center',va='center' if data.compact_header else 'baseline',fontsize=15 if combined else 12)
+        fig.text(center,metric_y,f"{rate_label}: {annotation['rate_m3_s']:.5f} m³/s   |   {annotation['mass_Mt']:.2f} Mt   |   {m['exceeding_cells']:,} cells",ha='center',va='center' if data.compact_header else 'baseline',fontsize=15 if combined else 12)
         p,s=data.fields(key,day)
         arrays=[(data.pmax-p)/data.pmax,(p-data.p0)/1e6,s]
         for row,bottom in enumerate(bottoms):
@@ -353,10 +382,12 @@ def main():
     parser.add_argument('--preview-only',action='store_true')
     parser.add_argument('--seconds',type=int,default=SECONDS)
     parser.add_argument('--compact-header',action='store_true',help='Use a centered larger heading, short in-map red-cell notes and expanded maps.')
+    parser.add_argument('--cvar-annotation-schedule',choices=['implemented','base'],default='implemented',
+                        help='Choose CVaR rate/mass labels only; base reads the original unscaled schedule while maps and cell counts retain the 1.22x simulation. Recorded in the annotation CSV and validation report.')
     args=parser.parse_args()
     if not 10<=args.seconds<=120:parser.error('--seconds must be between 10 and 120')
     args.outdir.mkdir(parents=True,exist_ok=False)
-    data=HistoricalFields(args.end_day,args.no_control_continuation,args.seconds,args.compact_header);result=data.audit(args.outdir)
+    data=HistoricalFields(args.end_day,args.no_control_continuation,args.seconds,args.compact_header,args.cvar_annotation_schedule);result=data.audit(args.outdir)
     print(json.dumps(dict(saved_states=len(data.times),day728=result['day728'],reference=result['cvar_day728_reference'])),flush=True)
     render(data,args.outdir,args.preview_only)
     for f in data.files.values():f.close()
