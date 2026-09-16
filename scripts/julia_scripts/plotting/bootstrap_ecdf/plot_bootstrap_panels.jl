@@ -200,15 +200,16 @@ function plot_single_cdf(cr::CaseResult, fname)
     fig = PyPlot.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
     ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5,
-                   label="95% Bootstrap CI (B=$(length(cr.boot_q)))")
+                   label="95% Bootstrap CI")
     ax.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=2, label="Empirical CDF")
-    ax.axhline(y=THRESH*100, color="#D62728", lw=1.5, ls="--", label="1% Fracture Probability")
+    ax.axhline(y=THRESH*100, color="#D62728", lw=1.5, ls="--", label="Target p = 1%")
     for (xv, col, ms) in [(cr.x_conservative,"#FF6F00",10),(cr.x_ecdf,"#2E7D32",10),(cr.x_optimistic,"#1565C0",10)]
         xv !== nothing && ax.plot(xv, THRESH*100, "*", color=col, markersize=ms, zorder=5)
     end
-    ax.set_xlabel("Injection Rate (m³/s)", fontsize=14); ax.set_ylabel("Fracture Probability (%)", fontsize=14)
-    ax.set_title("$(cr.title) — Empirical CDF with 95% Bootstrap CI", fontsize=16, fontweight="bold")
-    ax.set_ylim(0,100); ax.legend(loc="upper left", fontsize=12, framealpha=0.9)
+    ax.set_xlabel("Injection Rate (m³/s)", fontsize=14); ax.set_ylabel("Violation probability (%)", fontsize=14)
+    case_label = cr.title == "PoF (eps=0.01)" ? "PoF eps = 0.01" : cr.title
+    ax.set_title("Optimized-endpoint ECDF — $(case_label)", fontsize=16, fontweight="bold")
+    ax.set_ylim(0,100)
     ax.tick_params(labelsize=12); ax.grid(true, ls="--", lw=0.3, alpha=0.5)
     ins = ax.inset_axes([0.38, 0.12, 0.57, 0.50])
     ins.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5)
@@ -223,31 +224,55 @@ function plot_single_cdf(cr::CaseResult, fname)
         ins.annotate("\$q_k^{\\star}\$\n$(round(cr.x_conservative,digits=4))", xy=(cr.x_conservative,THRESH*100),
                     xytext=(-35,18), textcoords="offset points", fontsize=afs, color="#E65100", fontweight="bold", ha="center",
                     bbox=Dict("boxstyle"=>"round,pad=0.2","facecolor"=>"#FFF3E0","alpha"=>0.9,"edgecolor"=>"#FF6F00"),
-                    arrowprops=Dict("arrowstyle"=>"->","color"=>"#FF6F00"))
+                    arrowprops=Dict("arrowstyle"=>"->","color"=>"#FF6F00",
+                                     "linewidth"=>1.5,"mutation_scale"=>14,"shrinkB"=>7))
     end
     if cr.x_ecdf !== nothing
         ins.plot(cr.x_ecdf, THRESH*100, "*", color="#2E7D32", ms=12, zorder=5)
         ins.annotate("ECDF\n$(round(cr.x_ecdf,digits=4))", xy=(cr.x_ecdf,THRESH*100),
                     xytext=(0,45), textcoords="offset points", fontsize=afs, color="#1B5E20", fontweight="bold", ha="center",
                     bbox=Dict("boxstyle"=>"round,pad=0.2","facecolor"=>"#E8F5E9","alpha"=>0.9,"edgecolor"=>"#2E7D32"),
-                    arrowprops=Dict("arrowstyle"=>"->","color"=>"#2E7D32"))
+                    arrowprops=Dict("arrowstyle"=>"->","color"=>"#2E7D32",
+                                     "linewidth"=>1.5,"mutation_scale"=>14,"shrinkB"=>7))
     end
     if cr.x_optimistic !== nothing
         ins.plot(cr.x_optimistic, THRESH*100, "*", color="#1565C0", ms=12, zorder=5)
-        ins.annotate("Opt.\n$(round(cr.x_optimistic,digits=4))", xy=(cr.x_optimistic,THRESH*100),
+        ins.annotate("Optimistic\n$(round(cr.x_optimistic,digits=4))", xy=(cr.x_optimistic,THRESH*100),
                     xytext=(35,18), textcoords="offset points", fontsize=afs, color="#0D47A1", fontweight="bold", ha="center",
                     bbox=Dict("boxstyle"=>"round,pad=0.2","facecolor"=>"#E3F2FD","alpha"=>0.9,"edgecolor"=>"#1565C0"),
-                    arrowprops=Dict("arrowstyle"=>"->","color"=>"#1565C0"))
+                    arrowprops=Dict("arrowstyle"=>"->","color"=>"#1565C0",
+                                     "linewidth"=>1.5,"mutation_scale"=>14,"shrinkB"=>7))
     end
     ins.set_xlim(zxmin, zxmax); ins.set_ylim(0, zymax)
     ins.set_title("Left tail zoom (0-$(Int(zymax))%)", fontsize=10)
-    ins.set_xlabel("Injection Rate (m³/s)", fontsize=9); ins.set_ylabel("Frac. Prob. (%)", fontsize=9)
+    ins.set_xlabel("Injection Rate (m³/s)", fontsize=9); ins.set_ylabel("Violation probability (%)", fontsize=9)
     ins.tick_params(labelsize=9); ins.grid(true, ls="--", lw=0.3, alpha=0.4)
     # Main axis limits from data (avoids pathological bbox_inches with indicate_inset_zoom on some backends)
     xdmin, xdmax = extrema(cr.data)
     xspan = max(xdmax - xdmin, 1e-12)
     ax.set_xlim(xdmin - 0.05 * xspan, xdmax + 0.05 * xspan)
+    # Show exactly which main-axis region is enlarged in the inset. Both ends
+    # stay inside the fixed axes limits, avoiding unbounded tight-export bounds.
+    zoom_box = matplotlib.patches.Rectangle((zxmin, 0), zxmax-zxmin, zymax,
+                    fill=false, edgecolor="#555555", linewidth=1.3, zorder=4)
+    ax.add_patch(zoom_box)
+    zoom_arrow = matplotlib.patches.ConnectionPatch(
+        xyA=(zxmax, 0), coordsA=ax.transData,
+        xyB=(0.10, 0), coordsB=ins.transAxes,
+        arrowstyle="-|>", mutation_scale=16, linewidth=1.5,
+        color="#555555", shrinkA=2, shrinkB=5, zorder=6)
+    fig.add_artist(zoom_arrow)
     PyPlot.tight_layout()
+    # Keep the plotting area fixed; put the legend/title above it and B below it.
+    ax.set_title("Optimized-endpoint ECDF — $(case_label)", fontsize=16,
+                 fontweight="bold", y=1.085)
+    ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=3,
+              fontsize=12, frameon=false, borderaxespad=0,
+              columnspacing=1.3, handletextpad=0.6)
+    fig.text(0.02, -0.015, "Endpoint ECDF uses ≤; strict violation uses <.",
+             ha="left", va="top", fontsize=8.5, color="#444444")
+    fig.text(0.98, -0.015, "Bootstrap resamples: B = $(length(cr.boot_q))",
+             ha="right", va="top", fontsize=10, color="#444444")
     PyPlot.savefig(fname, dpi=200, bbox_inches="tight", pad_inches=0.15); PyPlot.close(fig)
     println("  Saved: $fname")
 end
@@ -294,7 +319,7 @@ end
 function plot_grid_cdf(results::Vector{CaseResult}, fname)
     nrows, ncols = 4, 3
     fig, axes = PyPlot.subplots(nrows, ncols, figsize=(15, 13))
-    PyPlot.suptitle("Fracture Probability vs Injectivity: Empirical CDF with Bootstrap CI\n(B=$(B_GRID), $(Int(CONF*100))% CI)",
+    PyPlot.suptitle("Optimized-endpoint ECDFs\nB = $(B_GRID); Opt. = Optimistic",
                     fontsize=22, fontweight="bold", y=1.01)
     PyPlot.subplots_adjust(hspace=0.20, wspace=0.12, top=0.94, bottom=0.05, left=0.06, right=0.98)
     global_xmin = minimum(minimum(cr.data) for cr in results)
@@ -324,7 +349,7 @@ function plot_grid_cdf(results::Vector{CaseResult}, fname)
         ax.set_ylim(0, 100); ax.tick_params(labelsize=13)
         ax.grid(true, ls="--", lw=0.3, alpha=0.4)
         if r == nrows; ax.set_xlabel("Injection Rate (m³/s)", fontsize=14); end
-        if c == 1; ax.set_ylabel("Fracture Prob. (%)", fontsize=14); end
+        if c == 1; ax.set_ylabel("Violation probability (%)", fontsize=12); end
         ins = ax.inset_axes([0.40, 0.10, 0.55, 0.45])
         ins.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5)
         ins.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=1.2)
@@ -360,7 +385,7 @@ function plot_grid_cdf(results::Vector{CaseResult}, fname)
     ax1 = axes[1,1]
     ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% Bootstrap CI")
     ax1.plot([], [], color="#1565C0", lw=1.8, label="Empirical CDF")
-    ax1.plot([], [], color="#D62728", lw=1.2, ls="--", label="1% Fracture Prob.")
+    ax1.plot([], [], color="#D62728", lw=1.2, ls="--", label="Target p = 1%")
     ax1.legend(loc="upper left", fontsize=12, framealpha=0.9)
     PyPlot.savefig(fname, dpi=200, bbox_inches="tight"); PyPlot.close(fig)
     println("Saved grid CDF: $fname")
@@ -406,7 +431,7 @@ end
 # ===================== Selected 1×3 CDF =====================
 function plot_selected_cdf(results::Vector{CaseResult}, fname)
     fig = PyPlot.figure(figsize=(16, 5.2))
-    PyPlot.suptitle("Fracture Probability vs Injectivity: Empirical CDF with Bootstrap CI\n(B=$(B_GRID), $(Int(CONF*100))% CI)",
+    PyPlot.suptitle("Optimized-endpoint ECDFs\nB = $(B_GRID); Opt. = Optimistic",
                     fontsize=20, fontweight="bold", y=1.04)
     PyPlot.subplots_adjust(wspace=0.14, top=0.86, bottom=0.15, left=0.06, right=0.98)
     global_xmin = minimum(minimum(cr.data) for cr in results)
@@ -436,7 +461,7 @@ function plot_selected_cdf(results::Vector{CaseResult}, fname)
         ax.grid(true, ls="--", lw=0.3, alpha=0.4)
         ax.set_xlabel("Injection Rate (m³/s)", fontsize=14)
         if idx == 1
-            ax.set_ylabel("Fracture Prob. (%)", fontsize=14)
+            ax.set_ylabel("Violation probability (%)", fontsize=14)
         end
         ins = ax.inset_axes([0.40, 0.10, 0.55, 0.45])
         ins.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5)
@@ -473,7 +498,7 @@ function plot_selected_cdf(results::Vector{CaseResult}, fname)
     ax1 = fig.axes[1]
     ax1.fill_between([], [], [], color="#BBDEFB", alpha=0.5, label="95% Bootstrap CI")
     ax1.plot([], [], color="#1565C0", lw=1.8, label="Empirical CDF")
-    ax1.plot([], [], color="#D62728", lw=1.2, ls="--", label="1% Fracture Prob.")
+    ax1.plot([], [], color="#D62728", lw=1.2, ls="--", label="Target p = 1%")
     ax1.legend(loc="upper left", fontsize=11, framealpha=0.9)
     PyPlot.savefig(fname, dpi=220, bbox_inches="tight"); PyPlot.close(fig)
     println("Saved selected CDF: $fname")
@@ -627,7 +652,9 @@ function main()
     println("\n=== All done! ===")
 end
 
-if get(ENV, "BOOTSTRAP_ONLY_INJ6", "") == "1"
+if get(ENV, "BOOTSTRAP_DEFINE_ONLY", "") == "1"
+    # Load plotting functions without collecting data or recomputing statistics.
+elseif get(ENV, "BOOTSTRAP_ONLY_INJ6", "") == "1"
     run_part1b_inj6!()
 elseif get(ENV, "BOOTSTRAP_ONLY_PART1", "") == "1"
     run_part1_only!()

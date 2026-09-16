@@ -1,0 +1,5 @@
+location,before,after
+ECDF y-axes,Optimized-endpoint CDF (%),Violation probability (%)
+single-case inset,missing main-to-inset link,outlined source region and directed zoom connection
+single-case rate arrows,thin arrowheads,stronger arrowheads at unchanged anchors
+single-case footer,,Endpoint ECDF uses ≤; strict violation uses <.
