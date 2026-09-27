@@ -42,14 +42,33 @@
     "slide_id": "p1b-grid-hist",
     "size": [
       2916,
-      2762
+      2776
     ],
     "dpi": [
       199.9996,
       199.9996
     ],
-    "sha256": "b56810149a779e09574b6873546e0f140d2e0c897d97644e24976dd6ee31605c",
-    "statistics_recomputed": false
+    "sha256": "111a75612837576c531501c83821732bf4128e98ea2d2d440e3076babfea61fd",
+    "statistics_recomputed": false,
+    "updated": "2026-09-27",
+    "last_update": "reduce overall-title gap to 18 pixels; preserve all 12 panels at original size",
+    "header_spacing_update": {
+      "added_canvas_height_pixels": 28,
+      "added_canvas_height_inches": 0.14,
+      "previous_dimensions": [
+        2916,
+        2748
+      ],
+      "previous_sha256": "2fd2055a3fdf45d152c1a884c833d7cc21b63a1a2697029343d513f410b6fa75",
+      "suptitle_y_before": 0.98,
+      "suptitle_y_after": 0.99,
+      "original_pixels_exactly_reconstructed_after_undoing_header_separation": true,
+      "panel_rescaling": false,
+      "statistics_recomputed": false,
+      "plot_source_sha256": "dd225be21b313b70db2ac4db62ad4c8e2e46b04d6f699ff673b7459be2369722",
+      "visible_title_gap_pixels": 18,
+      "title_and_panel_pixels_unchanged": true
+    }
   },
   "grid_histogram_selected_1x3.png": {
     "slide_id": null,

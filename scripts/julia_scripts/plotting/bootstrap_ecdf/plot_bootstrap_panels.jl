@@ -281,8 +281,9 @@ end
 function plot_grid_histogram(results::Vector{CaseResult}, fname; nbins=NBINS)
     nrows, ncols = 4, 3
     fig, axes = PyPlot.subplots(nrows, ncols, figsize=(15, 14))
+    # Keep a small title gap in the tight PNG export without resizing panels.
     PyPlot.suptitle("Distribution of Optimized Injection Rates",
-                    fontsize=26, fontweight="bold", y=0.98)
+                    fontsize=26, fontweight="bold", y=0.99)
     PyPlot.subplots_adjust(hspace=0.22, wspace=0.12, top=0.94, bottom=0.05, left=0.06, right=0.98)
     global_xmin = minimum(minimum(cr.data) for cr in results)
     global_xmax = maximum(maximum(cr.data) for cr in results)
