@@ -1,0 +1,1838 @@
+{
+  "statistics": {
+    "ensemble_run": "data/forward_comparisons/joint_perm_day1920_128_20261002",
+    "day": 1920,
+    "response_n": 128,
+    "permeability_n": 128,
+    "unique_permeability_count": 125,
+    "sample_source": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/state/new/Wise128_state_t1_rtm1_broad_NL_SNR28.jld2",
+    "sample_index_key": "idx_t1",
+    "sample_scope": "All 128 first-monitoring-step permeability samples, in original array order",
+    "duplicate_policy": "Retain each original sample position with equal weight, including repeated draws",
+    "members": [
+      {
+        "ensemble_position": 1,
+        "realization_id": 741,
+        "source_member": 1,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/001/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/001/day1920.jld2",
+        "permeability_sha256_f32": "ad76e904402b10809c44cfc7855e9c15ec3ea6ccb64711251ef17c8095114f31",
+        "pressure_sha256_f64": "3a74b12c34858a26a4fc35a56236cd10d2b0880c26a901de64c08ab328442005",
+        "saturation_sha256_f64": "bb43b6b4d0015dd39df803474d3cf02f55538e8398f4b188772504916926adaa"
+      },
+      {
+        "ensemble_position": 2,
+        "realization_id": 1706,
+        "source_member": 2,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/002/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/002/day1920.jld2",
+        "permeability_sha256_f32": "86a81161081ba373bea3ddffff94deca902161dca028efba78447afe18bf80c8",
+        "pressure_sha256_f64": "3585d59e8999006cca53039f2b5d9a4c03afa8234912039e4a8c0c13bb39aae9",
+        "saturation_sha256_f64": "f79168148c7a9582fd49df8c61d755b91443bb076cbae95ada48a72512a23c64"
+      },
+      {
+        "ensemble_position": 3,
+        "realization_id": 834,
+        "source_member": 3,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/003/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/003/day1920.jld2",
+        "permeability_sha256_f32": "debfc3145dadf69b1f49c113e7b22f2642ebc6dfdfef4f49c5e46e3b6b56f261",
+        "pressure_sha256_f64": "121f98b2f10ab574320ef7e92e02136cfaa188400ef6e6c694904b2cfe246d1b",
+        "saturation_sha256_f64": "305d48307ec74065c9363bb846220a8cf1b3d827565977b2149ac8a90e7c6146"
+      },
+      {
+        "ensemble_position": 4,
+        "realization_id": 440,
+        "source_member": 4,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/004/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/004/day1920.jld2",
+        "permeability_sha256_f32": "ad4050af745ef44971cd5134007e71ad5e440d51fa1c834a6a4e0cc1e13b4711",
+        "pressure_sha256_f64": "471e83dce7df48462397aa855ba4972cba7fa945d0824e8168b5b4f152e9d57f",
+        "saturation_sha256_f64": "4a50d96e45b126eb83f9e660b9c00b4dbbdb05d58b756a4bfabb80c48a4e7c3b"
+      },
+      {
+        "ensemble_position": 5,
+        "realization_id": 732,
+        "source_member": 5,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/005/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/005/day1920.jld2",
+        "permeability_sha256_f32": "71686c84f1776d1186cbde787527ffb43121830135e2a5dc8882a96c8dabfdd4",
+        "pressure_sha256_f64": "e4fc689586f5ab8710705ac0895089ceb7b94a0ea3bbf81e499657ea62a28763",
+        "saturation_sha256_f64": "ab5981d0d2fe6f991ecf86fb215550541a49ac0533dcdea109027d6e8a9f9b4e"
+      },
+      {
+        "ensemble_position": 6,
+        "realization_id": 1783,
+        "source_member": 6,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/006/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/006/day1920.jld2",
+        "permeability_sha256_f32": "efc0db552073d6ee1badf81ce2b66a8c8913f57806ff71a30ca06910a4cccf8c",
+        "pressure_sha256_f64": "02fccaa0032f4734e0fc0ba34e5a69a9bb95e60e7b7578294d1e395af5d92889",
+        "saturation_sha256_f64": "a994f9ca8c697d8c4cb075362f6d4f998db24d0da844c54fb5d7d31a4257ae42"
+      },
+      {
+        "ensemble_position": 7,
+        "realization_id": 1844,
+        "source_member": 7,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/007/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/007/day1920.jld2",
+        "permeability_sha256_f32": "b5e88cefdde91e5ebb7bb0d2f8dcc36eac06193c87d325b11f9a8fe56e25e3bb",
+        "pressure_sha256_f64": "42a4bf25c4af561ee5896c528eaad1ffccb28c6c9fb878589795ed60fccecae0",
+        "saturation_sha256_f64": "e0836b8530c9dc180b25db7c538d5b47e4d671f59c189e6d9eceeaf8c73c90b2"
+      },
+      {
+        "ensemble_position": 8,
+        "realization_id": 1173,
+        "source_member": 8,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/008/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/008/day1920.jld2",
+        "permeability_sha256_f32": "7257d9284316420eddadc83f2c765fccf171f72647a79f5a8e26130efc7d9f99",
+        "pressure_sha256_f64": "da8892614f626bd9f4c0a9aac124e6f77174a5339dd71cfb979053b7746dd90e",
+        "saturation_sha256_f64": "feda8e25987599d6449c5a04096b789a14e0894e149d771799328b5dfa2fe10f"
+      },
+      {
+        "ensemble_position": 9,
+        "realization_id": 312,
+        "source_member": 9,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/009/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/009/day1920.jld2",
+        "permeability_sha256_f32": "81d1cc8104f7c6bacaaa6e090c8eb9de8ba234c7c08297823cc050bc05fad489",
+        "pressure_sha256_f64": "c9399705528edfa2660a419d6e54de4db8e1ecf1f3741278d2878943473fa857",
+        "saturation_sha256_f64": "51cd0cbe34726df1a0ff07f4649d6627cf528b6e4dbf38b680c0b4c20c0ec3ca"
+      },
+      {
+        "ensemble_position": 10,
+        "realization_id": 88,
+        "source_member": 10,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/010/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/010/day1920.jld2",
+        "permeability_sha256_f32": "cf748e5b3c66febd5eb5c991af08d2756a736f280ede390f07965a5615a50216",
+        "pressure_sha256_f64": "0ebd677ec3c68cf944422fea57d427e35211d4c05770bda8dad9bc5589f09b3d",
+        "saturation_sha256_f64": "3d490d356252144cca6e5a6c527ec3622a21cd691b7a249379bda235ca0074b3"
+      },
+      {
+        "ensemble_position": 11,
+        "realization_id": 1335,
+        "source_member": 11,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/011/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/011/day1920.jld2",
+        "permeability_sha256_f32": "494d59cf3094746a8024aeac342e35e1c78eb4e3d3083a2924d2326552c32972",
+        "pressure_sha256_f64": "c5f2e9648d0b99dd215fb1804199aeeef11a0f00fa185b0ab60df9f969b3bb27",
+        "saturation_sha256_f64": "eb467c104b7099db9a2c4b2bb4074b6153da6770dc2cc8bb7c5eebff146e6214"
+      },
+      {
+        "ensemble_position": 12,
+        "realization_id": 16,
+        "source_member": 12,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/012/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/012/day1920.jld2",
+        "permeability_sha256_f32": "f9ea7dbf34772f28a04996df1e0d114f58869f883aa7017e961419a0b959d705",
+        "pressure_sha256_f64": "eee63baa4a919c3fdf6ca21be124acf760707fa2f97356db3002cc8c139e3f8d",
+        "saturation_sha256_f64": "d451cae21c5f0f283a3bcb2d5c8efd92b2f962e60056a3c8bc998dc82560b5fb"
+      },
+      {
+        "ensemble_position": 13,
+        "realization_id": 1593,
+        "source_member": 13,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/013/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/013/day1920.jld2",
+        "permeability_sha256_f32": "2b19f6980bf47fc8db08e280c3293552ec9878334078471d863fbfd0ce6c60f7",
+        "pressure_sha256_f64": "2904be3f7b4fc6edf32ec1c723f0303bcd9e6ee4253be129f426db7a0786434e",
+        "saturation_sha256_f64": "13e0f12cc470b8a11af3bcba0eae1693dc9ece6a83121fd56220e5b8cab05f2a"
+      },
+      {
+        "ensemble_position": 14,
+        "realization_id": 510,
+        "source_member": 14,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/014/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/014/day1920.jld2",
+        "permeability_sha256_f32": "aa2a1218e9d931dbf6ae6d2b4b64fb507aa2fad15282c2f285822238f8589727",
+        "pressure_sha256_f64": "9de4be5d29bf7bb0a5735f3e40b103709caa65b54f73dab1858a84e3ccf75d39",
+        "saturation_sha256_f64": "48b90631aa8982253e1f6c031652e52f67709df712e2ade73492a27074e01c44"
+      },
+      {
+        "ensemble_position": 15,
+        "realization_id": 1509,
+        "source_member": 15,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/015/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/015/day1920.jld2",
+        "permeability_sha256_f32": "9345794c3dd3c163552c5e218067e5c642126897a00535e030da4f7f10313b28",
+        "pressure_sha256_f64": "665079f36d58d7b7bfb9f7c84ae159cb86ff86d94f60986893244da67f191efc",
+        "saturation_sha256_f64": "211e355b9329752f7ea567b5ce9a91e61584cff44adad114de64f195baaab631"
+      },
+      {
+        "ensemble_position": 16,
+        "realization_id": 148,
+        "source_member": 16,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/016/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/016/day1920.jld2",
+        "permeability_sha256_f32": "fd13bfcd33f13f5c54a1a824febe2f4157d64681031454fda7ca82d9e9d92f20",
+        "pressure_sha256_f64": "3c7f9f8f17f4dd9a805120f0cd98e08c36b414363f3130c838c7cd28279ac284",
+        "saturation_sha256_f64": "f28e8890fabd616763f4f7c3f95446cfbb2ac06eb61df022ebfa2fbf110d2abf"
+      },
+      {
+        "ensemble_position": 17,
+        "realization_id": 697,
+        "source_member": 17,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/017/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/017/day1920.jld2",
+        "permeability_sha256_f32": "321280f3a369e4bb4b4edd5095f32c518cb0b21532939817cf5d97f0aaa929a9",
+        "pressure_sha256_f64": "8fed5085d3feb93403c2d98e17da01d50885ca16feac96aceb660c6970c58287",
+        "saturation_sha256_f64": "13c4eebc996eeb0f273f25dd98ba2ca93471401988d8d238a21c32c60fe1c625"
+      },
+      {
+        "ensemble_position": 18,
+        "realization_id": 873,
+        "source_member": 18,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/018/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/018/day1920.jld2",
+        "permeability_sha256_f32": "bb3c90a0c0fbf6452f0941cc189297902660ff772e9d43aa6d398f5be7a490d5",
+        "pressure_sha256_f64": "be7afaed134b8726b67df57d06048069948e2fba439e15333bced7a8346a763f",
+        "saturation_sha256_f64": "f7d5bb9a513a746973f782bd977bb23b7ed44a804e557100b3189546d3e1bdb2"
+      },
+      {
+        "ensemble_position": 19,
+        "realization_id": 699,
+        "source_member": 19,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/019/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/019/day1920.jld2",
+        "permeability_sha256_f32": "90b643c25136b05743b46e0968cc078a40e5281ef4ec5bfd06835aca6b2019b9",
+        "pressure_sha256_f64": "a76e6f63e6fa71fa9c0d5a9d304456b02d46cc7c26d8a4aeed5fad9c0622080d",
+        "saturation_sha256_f64": "1101e79901972310fdcd80d8d48036e5df0116722d2c4a2cdcd6f3128eaee4c7"
+      },
+      {
+        "ensemble_position": 20,
+        "realization_id": 549,
+        "source_member": 20,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/020/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/020/day1920.jld2",
+        "permeability_sha256_f32": "c58be1e374edd33db42fa7d3d8a57b0586c0da41c8be3490a683b18f74688884",
+        "pressure_sha256_f64": "1c36eb5d2e73037ffcddddf85bf90f1dbecb92ba549ac106953856bb33d2ea58",
+        "saturation_sha256_f64": "a9dc2192ef2e8a55e5675a84e649e67254c85e67ef8ebd94a113ccd8b3dee1b8"
+      },
+      {
+        "ensemble_position": 21,
+        "realization_id": 133,
+        "source_member": 21,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/021/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/021/day1920.jld2",
+        "permeability_sha256_f32": "75333728a7eca8423b013831023d74137e23287741e8fc761db600372f2a0220",
+        "pressure_sha256_f64": "125da4992a348afe06c691d05728c4f8f4fb69b6bbbb0811e6a629392843f1d9",
+        "saturation_sha256_f64": "d6fd3d357c63f68a01a777dc0b9eba8312eee3c2f7a03e657b2999a7fddd7166"
+      },
+      {
+        "ensemble_position": 22,
+        "realization_id": 1407,
+        "source_member": 22,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/022/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/022/day1920.jld2",
+        "permeability_sha256_f32": "b0231f6e49c1dae07a0bd3de37bf9dec0553a338e8ff2f51615a6f56afab72d3",
+        "pressure_sha256_f64": "0c934c8f595dfe7c7c37ab96382d2d7e19c74a7cddaf64b1c9327f846777000d",
+        "saturation_sha256_f64": "d67bafcc92604104cbf0697f3c526224927841478906741a030252e47d44e24d"
+      },
+      {
+        "ensemble_position": 23,
+        "realization_id": 1867,
+        "source_member": 23,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/023/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/023/day1920.jld2",
+        "permeability_sha256_f32": "ab1710181c25e94d54ce4fe850d4eef6094e7ca190295ce14f179e15012d7519",
+        "pressure_sha256_f64": "52551d88d4d1fe05fd66b192018b6392582b7752a1cebd0839d1d8db95ee8a4d",
+        "saturation_sha256_f64": "dc0df46a5928286c477feede2d252fa6247456d8a5ce33948f394ad4fb856801"
+      },
+      {
+        "ensemble_position": 24,
+        "realization_id": 379,
+        "source_member": 24,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/024/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/024/day1920.jld2",
+        "permeability_sha256_f32": "801889d2d599e69ff7088aa114893365d9501daf5865b6c7c9fbb22d5e8c9e85",
+        "pressure_sha256_f64": "36811756df49673b89eebef8da9796eca5aef3c13f777a911a3ea61c60ec8844",
+        "saturation_sha256_f64": "ab79acb4c15556d788ec67c867cf6ad8e005f571927a8c73fb3ab2ea3e35c71b"
+      },
+      {
+        "ensemble_position": 25,
+        "realization_id": 953,
+        "source_member": 25,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/025/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/025/day1920.jld2",
+        "permeability_sha256_f32": "218da8ca2c54113f795145230e24e6c56d67c691e667fd6bcc7e860d1e48adae",
+        "pressure_sha256_f64": "640132dd9ce09297987f50dc6871ba242e4cea263126d960c0daa96e499e9241",
+        "saturation_sha256_f64": "17f7db36a18dccfe625731d1c8309b860bdde1910ca0c7333523776d718a77b6"
+      },
+      {
+        "ensemble_position": 26,
+        "realization_id": 76,
+        "source_member": 26,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/026/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/026/day1920.jld2",
+        "permeability_sha256_f32": "8adf3e136d4bedb628b5e60fc1ccac5ab9a242626f9f5f96b01f1cc69b1303fb",
+        "pressure_sha256_f64": "5ef9701fb4ad04d73a0d0c23c37ba069e88f01b7be8ab39efa9863e8753ae017",
+        "saturation_sha256_f64": "0cc6886d7afd6568eeb3d1bbfb1adab2d34e64c278f5aba907ad32c351fffad4"
+      },
+      {
+        "ensemble_position": 27,
+        "realization_id": 540,
+        "source_member": 27,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/027/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/027/day1920.jld2",
+        "permeability_sha256_f32": "9aaa8907b5636cc07b33647805a68a3b912b95cda766715c26652a304b93bc90",
+        "pressure_sha256_f64": "eef735ae8218c3c23662fff0011bffda41d75086c7bb2677dcb2c8c804f9ee25",
+        "saturation_sha256_f64": "ba0016dc5277a2aa81e51ab8b86886cfa1a62df0616ce89d5e34f8d8becb02d6"
+      },
+      {
+        "ensemble_position": 28,
+        "realization_id": 1553,
+        "source_member": 28,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/028/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/028/day1920.jld2",
+        "permeability_sha256_f32": "554c017d8f9f2e088e156926e23fb2fb394f4e44a3b83dd77b524f53c62fcf04",
+        "pressure_sha256_f64": "af15216bb793c4ff168912000232eb042bdca50ac914b965016848b839f1c26f",
+        "saturation_sha256_f64": "3245431845b6129b60fd5a2d0ef5d844dbf6cd6f1e6ba136ba3d501433d5e403"
+      },
+      {
+        "ensemble_position": 29,
+        "realization_id": 152,
+        "source_member": 29,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/029/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/029/day1920.jld2",
+        "permeability_sha256_f32": "8413d2d526c34e60af56d9e0a056302c3144059d745f89800c1bf349c9c25253",
+        "pressure_sha256_f64": "9adffeeb9bbd32913821ee5d49fa85f75543cc0d76425e53d1c9bdc03d2a0706",
+        "saturation_sha256_f64": "1b722dcf508863628856a1c32487de37ecbf9b84a5144064fb49270aaa2a5097"
+      },
+      {
+        "ensemble_position": 30,
+        "realization_id": 1266,
+        "source_member": 30,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/030/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/030/day1920.jld2",
+        "permeability_sha256_f32": "aef6cfe6c41ebd1ddd5993d4578c0c351756be50cbd3df51d519377151dcb1f6",
+        "pressure_sha256_f64": "3cd27e8666d55449476a9f47654b33b43d363bb0ff407c505ee187f5d751cd56",
+        "saturation_sha256_f64": "6de3fdc840372dcd9a837d66f5d011a5d5134d074c79d0a117e283690d7380f3"
+      },
+      {
+        "ensemble_position": 31,
+        "realization_id": 957,
+        "source_member": 31,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/031/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/031/day1920.jld2",
+        "permeability_sha256_f32": "c7d87de7b7e6f38ed365a6ba25229926e0221d36fab0968e2060c4cee57fba19",
+        "pressure_sha256_f64": "ef19ba59eee1ac30e618d2a41eda7f5dbf3f00017d498b0b9e3e9818ae2b5bc9",
+        "saturation_sha256_f64": "68c77b58bd06bad59485fe574c79fee8d14d74952a0b7586015d38c66c1cc5e9"
+      },
+      {
+        "ensemble_position": 32,
+        "realization_id": 1111,
+        "source_member": 32,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/032/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/032/day1920.jld2",
+        "permeability_sha256_f32": "b006b182b4d666d7bb56b87fdc1f87782eab32487d087e974917021934e1c779",
+        "pressure_sha256_f64": "7cca35b41476c5f1b37dd1ff53f14dc90d703810bbc06061a6de835bf7ee2faa",
+        "saturation_sha256_f64": "83926d06c547d1b749a017585ea37bfb31b8385ba79e47ac7cc1f74b6e3927a0"
+      },
+      {
+        "ensemble_position": 33,
+        "realization_id": 1474,
+        "source_member": 33,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/033/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/033/day1920.jld2",
+        "permeability_sha256_f32": "ad22408da21daaf8838b3fa30624d12d1913efe19548c0618fd1e6dde4eb4a85",
+        "pressure_sha256_f64": "6b5305dc537b63e508a36258d3157684fe7bc40ae63b9a222178cfd783bc31cc",
+        "saturation_sha256_f64": "db13887c86aae4d541c4c0af2d5a4c3402c57b45b76bbf747879c557211b7688"
+      },
+      {
+        "ensemble_position": 34,
+        "realization_id": 1280,
+        "source_member": 34,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/034/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/034/day1920.jld2",
+        "permeability_sha256_f32": "3be1832ed218e06a602e2e2c2dc9ed4657b06f67ddda2761c92cbb44f026bba9",
+        "pressure_sha256_f64": "d291f2c839645b2701a2c62c1f1b4691cd2ee6545f3536ae402bca72f94fb343",
+        "saturation_sha256_f64": "66fb5ab2bc4f2e6027515bd5ba7d7da139b6d74ae0c3a0ed3a7b50cf9aae8a2e"
+      },
+      {
+        "ensemble_position": 35,
+        "realization_id": 1049,
+        "source_member": 35,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/035/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/035/day1920.jld2",
+        "permeability_sha256_f32": "feec09627f5c092cb74d3db8fe2070d40d48f787422f4ff03119576254a8a9bc",
+        "pressure_sha256_f64": "430fdfdc379c6bc9656ca917d08940ce12d7295f662c9afa59a5040577de9772",
+        "saturation_sha256_f64": "9243edc8f8049a7ee51c2514a1b285559b0215915f66219eee2c092217b7f0c5"
+      },
+      {
+        "ensemble_position": 36,
+        "realization_id": 1035,
+        "source_member": 36,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/036/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/036/day1920.jld2",
+        "permeability_sha256_f32": "75b87c0b2397d04936fd9d7fa727c5e7f23318b76c21647f6aea4fa22cdecb66",
+        "pressure_sha256_f64": "deab7d1723dbaaea33543761a493cbd29eab47c93dc68b1723d13f71174d8dc7",
+        "saturation_sha256_f64": "7ec534631a012fbd3c83439146f3ab559e996e5f9d536de383b805e08012ac10"
+      },
+      {
+        "ensemble_position": 37,
+        "realization_id": 287,
+        "source_member": 37,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/037/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/037/day1920.jld2",
+        "permeability_sha256_f32": "870e08687f5dfd5519ead09970241597c478f12a64f9ad596cdb373a2648fc05",
+        "pressure_sha256_f64": "d922f6a549f46dc0a4cc62df71516d68e8a1d09a101b786480f1e670cd58b617",
+        "saturation_sha256_f64": "136698a3671d63abddec9dbe41ac67cf90611a6bbd5ec8546f715880255ffe27"
+      },
+      {
+        "ensemble_position": 38,
+        "realization_id": 1956,
+        "source_member": 38,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/038/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/038/day1920.jld2",
+        "permeability_sha256_f32": "c3626c25b20903edfd84e253d48241f55146772b1e4363b501e9a86cfc0ec003",
+        "pressure_sha256_f64": "e7cf64e5c81e1eebc0c9df40a1da394031eba85a6ec18be8c9255a7600310ead",
+        "saturation_sha256_f64": "003a189cbc6454f0ae48b51b35dafd95324b881b2c84239dd9192901c4283a05"
+      },
+      {
+        "ensemble_position": 39,
+        "realization_id": 988,
+        "source_member": 39,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/039/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/039/day1920.jld2",
+        "permeability_sha256_f32": "acd0568f5511387be8e112498ab17e25da87543b542dc1904da50b6373f52825",
+        "pressure_sha256_f64": "476e838983016b8a9a0c2038f84ec5a4cc3ce5e16303a48de3d19fc8e65f67b9",
+        "saturation_sha256_f64": "a0de57661de77346f598fa510fbf4e874187dc62f700fc465f472da74e7faf61"
+      },
+      {
+        "ensemble_position": 40,
+        "realization_id": 96,
+        "source_member": 40,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/040/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/040/day1920.jld2",
+        "permeability_sha256_f32": "d28ccb41d9ea431fb36d365f0dae9359494b32bc9e7a8d4ef2089e60924e3aff",
+        "pressure_sha256_f64": "5459244c4b26533de49abea8408bcad3d3b65f68d339c784e3637794da08b4fe",
+        "saturation_sha256_f64": "d3f8f2b126b0d9b388029b06b2676189909f0cee1de50467997a9eadf3d27da9"
+      },
+      {
+        "ensemble_position": 41,
+        "realization_id": 952,
+        "source_member": 41,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/041/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/041/day1920.jld2",
+        "permeability_sha256_f32": "ca69027cd5f939d98d8122ced7978323d0529de5fbaf56977611e22346cd96ff",
+        "pressure_sha256_f64": "fae35e84a9d5e1b0a83e9b4aee0f821e520c6f8b6b716f5122b5585f8b531772",
+        "saturation_sha256_f64": "89d8dafa77a1541535480aec8b4518769fc09e93e7237b89160a21539bdecc77"
+      },
+      {
+        "ensemble_position": 42,
+        "realization_id": 584,
+        "source_member": 42,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/042/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/042/day1920.jld2",
+        "permeability_sha256_f32": "077c6595eb8426b21548ec299444ad5f30862276a5ba937206d7b3f4e10e18a4",
+        "pressure_sha256_f64": "54572656890726f7fc48ae4622bdc41e6e29b1c2d956f3231bff27dab4c8a940",
+        "saturation_sha256_f64": "8b5464cd6e110be8d7aba195dbea0029dd6b95af50a7bb4023546be5014c26da"
+      },
+      {
+        "ensemble_position": 43,
+        "realization_id": 943,
+        "source_member": 43,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/043/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/043/day1920.jld2",
+        "permeability_sha256_f32": "5efd6d8f5e270f01caae1e51559b899f81d682fffa3de4c78118cd436204a649",
+        "pressure_sha256_f64": "68182869083872e3a5e162e75df0d0863c686db5b298de7713eb2d140b3cedf4",
+        "saturation_sha256_f64": "02eebb20f63099b946e3a67340884f8f6d39121a8db520f8651c8d5cc6e2d26f"
+      },
+      {
+        "ensemble_position": 44,
+        "realization_id": 1694,
+        "source_member": 44,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/044/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/044/day1920.jld2",
+        "permeability_sha256_f32": "c3c113bf76b6e31425fc6b2f2ce886ede7b9b0b186d2d8b15431b2278ae10d03",
+        "pressure_sha256_f64": "2d11d75f581ebdecfcade68fd2684836ea540daecc3a758b2c60ab0c4e73dcf2",
+        "saturation_sha256_f64": "f5e2958af19a18c22f1bf14b43d6f971ef466b305a3af1ad82d154d717d6fe26"
+      },
+      {
+        "ensemble_position": 45,
+        "realization_id": 1729,
+        "source_member": 45,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/045/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/045/day1920.jld2",
+        "permeability_sha256_f32": "feeb217519ac72ed7c5119a4ea11fe292dca0b2e9b785e7ed4c045003b3d1262",
+        "pressure_sha256_f64": "2a45f7b1ae4eceb58969617139b1edf00b6c1356539f6fe79e744cd6735f4a2c",
+        "saturation_sha256_f64": "77ab58a6e4b742efb55e4dba09ab0cba8e6abe576fa7e947c58c970e11489eb3"
+      },
+      {
+        "ensemble_position": 46,
+        "realization_id": 67,
+        "source_member": 46,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/046/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/046/day1920.jld2",
+        "permeability_sha256_f32": "73f681b66bdb948d182057a6a1f213c9ffdb94140d2bb751c01a098cea8ecb1b",
+        "pressure_sha256_f64": "3217fe7b4dc6b2ec4d00e647075fb916c9bd0ef39d39b2c7aa2e229f7d6df2f2",
+        "saturation_sha256_f64": "b487f19fd8f3a2505701c792dd999530109e7fe53b946ab63cecb377a96cc62f"
+      },
+      {
+        "ensemble_position": 47,
+        "realization_id": 1326,
+        "source_member": 47,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/047/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/047/day1920.jld2",
+        "permeability_sha256_f32": "9cd529f284d38d3fad3f674b3bcd6f542d90fa2d51c4a5a49d3b69d0d6aa8d25",
+        "pressure_sha256_f64": "a28953da604581c698d3580a9f8a38c201b3ca957867e211cc488cede2635b95",
+        "saturation_sha256_f64": "9dcfbf6fd2ffe77fc610dac4b3253b28c61bc1c14c20919d9908c2f0ffda9896"
+      },
+      {
+        "ensemble_position": 48,
+        "realization_id": 135,
+        "source_member": 48,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/048/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/048/day1920.jld2",
+        "permeability_sha256_f32": "af44c569835bc3d4940c5416603d7771ff52f8a033ad654a191b561ab61a9b7a",
+        "pressure_sha256_f64": "7140d58f314fce8ed39688504d4edcf3949b5b983b43550e25752cac39a4d02a",
+        "saturation_sha256_f64": "f75147d4c501d4492e9018e36be993ac50972fdf7c98cfa874bdc0bd8e7a4919"
+      },
+      {
+        "ensemble_position": 49,
+        "realization_id": 1958,
+        "source_member": 49,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/049/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/049/day1920.jld2",
+        "permeability_sha256_f32": "64d2e6b5adafd0bee15ceadf75f3a63e074c34667e9c4593c951a6eb7ed1bd10",
+        "pressure_sha256_f64": "7aea0094181bc74b10392ed1c90da55968aefae08f63c3cdeb573d731aff6fbc",
+        "saturation_sha256_f64": "0d27935c987b456e6b8e7ea9cbe9bb570b2267917e64528f1d0d608c1d81f707"
+      },
+      {
+        "ensemble_position": 50,
+        "realization_id": 1503,
+        "source_member": 50,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/050/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/050/day1920.jld2",
+        "permeability_sha256_f32": "ebb4ef4394f64677b4f5a85a8e6145ae1068c09cce14f3411029763bb91b2ecf",
+        "pressure_sha256_f64": "7d31c66abc30ddb828bd04677ba5e09c058fe0de284cc5244119673fe3e916bf",
+        "saturation_sha256_f64": "ba960af43452d6a8d3f195dba788aae55cd65b8fecf0943099ef2bf529cd348e"
+      },
+      {
+        "ensemble_position": 51,
+        "realization_id": 1707,
+        "source_member": 51,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/051/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/051/day1920.jld2",
+        "permeability_sha256_f32": "90a5672a9af7c31fe0b7f920cd0a487550eace1d9407184ffef277aaeb37e505",
+        "pressure_sha256_f64": "c6919afe79906db6f3865ab91557b02dc006b567ef37db3bf4cb1396fa8b8861",
+        "saturation_sha256_f64": "ba4ba62a2cea1644bd7696e508e7944393fbc8ca203438a045ccc270dc6340ee"
+      },
+      {
+        "ensemble_position": 52,
+        "realization_id": 1689,
+        "source_member": 52,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/052/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/052/day1920.jld2",
+        "permeability_sha256_f32": "b85bb57a686a513d89cf8ff08a21d6c34ed1dcbaa3f709021f5ea5d39e06a34a",
+        "pressure_sha256_f64": "34c9e6eccf0147f20a5091cc4a442c0988a7a948d19b74eaacbaca0679511fac",
+        "saturation_sha256_f64": "18b1c8af5a986f7a38e35d9e461579f54a20b34fc78c175f38451c2c5c50649a"
+      },
+      {
+        "ensemble_position": 53,
+        "realization_id": 24,
+        "source_member": 53,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/053/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/053/day1920.jld2",
+        "permeability_sha256_f32": "80de99c9a5f88a7e3c752d16d9212e4740e94b9c07b9903c7b58b864af17807d",
+        "pressure_sha256_f64": "1c886f83f90edcdee73d2edc8c6c999aec45ef3ee9020177a7fbf38c6f25ebcb",
+        "saturation_sha256_f64": "d530fe9f8a8973fbdc2f6fe284aa615ede47c3071e9becf80677f8996ad8cb17"
+      },
+      {
+        "ensemble_position": 54,
+        "realization_id": 121,
+        "source_member": 54,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/054/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/054/day1920.jld2",
+        "permeability_sha256_f32": "778e0c70adae28b7544c5024433d0657dfe1a3182938a9bfe9c87d0bf9104c3a",
+        "pressure_sha256_f64": "587fa27864414f7a1d8fe108b4ffb616e27d30c852d7c493bdb1c0147ec59e4a",
+        "saturation_sha256_f64": "49f15a15f6955bc63230b9a1a5f664818531256d859138e9107f45dc7ad09a40"
+      },
+      {
+        "ensemble_position": 55,
+        "realization_id": 335,
+        "source_member": 55,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/055/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/055/day1920.jld2",
+        "permeability_sha256_f32": "3129da0a06620b1d8cad047a26b570eb009c529fc13e573f40dcbc9117958361",
+        "pressure_sha256_f64": "2ad7cf51f8c63c0dcf35ab68ce51a058432ad7d291c1a51d62f44641ca28894f",
+        "saturation_sha256_f64": "4aaa0fca5aef291e72c5e14ad853123a7bf90aa96fd64d4c3a3fecf5a98721d3"
+      },
+      {
+        "ensemble_position": 56,
+        "realization_id": 816,
+        "source_member": 56,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/056/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/056/day1920.jld2",
+        "permeability_sha256_f32": "a75b21a297f94ddb90f6e75bbb2ea0d68ffe51cc087f921a41788036372235bb",
+        "pressure_sha256_f64": "6f5c40134b9bf47a7811185da52e2ce087d5c01e464f02b6dc6e5f13998844bf",
+        "saturation_sha256_f64": "6f940872f705c5f1ddfe7fd971f341f58d70cb8ab024b8ada5207fa3f59532fb"
+      },
+      {
+        "ensemble_position": 57,
+        "realization_id": 1976,
+        "source_member": 57,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/057/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/057/day1920.jld2",
+        "permeability_sha256_f32": "b38584fb8bea9a7e0925da09bc44218928c488d099f4437f3e73da04ae7e400a",
+        "pressure_sha256_f64": "f24cb5f919edf31a6ff42237ac2c6aab99e23d7655015df59e4fe8de5ad75d81",
+        "saturation_sha256_f64": "b090b60c0a112f776543b6cc8964195aed4ca0e2f1e3d3efcbf2098be559a4a6"
+      },
+      {
+        "ensemble_position": 58,
+        "realization_id": 234,
+        "source_member": 58,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/058/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/058/day1920.jld2",
+        "permeability_sha256_f32": "86604602ff9de2b5397763c4477201c356f02e5a4b24297f569ef37900e8eb01",
+        "pressure_sha256_f64": "5438943f877cd0221faa6765913d6be5ed855633849e41cac13d8de004a4eb54",
+        "saturation_sha256_f64": "8311ca7084b9479aea6ec50f72f4bc1925acb35c19acebb2f2bcf02812db74ce"
+      },
+      {
+        "ensemble_position": 59,
+        "realization_id": 71,
+        "source_member": 59,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/059/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/059/day1920.jld2",
+        "permeability_sha256_f32": "36c3da461ef9b41985bc7f84c470a80456e6f8a84b41a72f4a9e57d557b8e87e",
+        "pressure_sha256_f64": "38748d86e02bbef4b6b51265b485910a0c2c5cc1b844729df16b33fc0838118b",
+        "saturation_sha256_f64": "fbc02a4f16975988c5165ac09b87a3abe956af90a474c8a90c351979d4626bd4"
+      },
+      {
+        "ensemble_position": 60,
+        "realization_id": 555,
+        "source_member": 60,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/060/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/060/day1920.jld2",
+        "permeability_sha256_f32": "2bff87ce2b67e72dd569626d018fe81c1526e9f5bbea474ac7c19d23f58fdefc",
+        "pressure_sha256_f64": "83053287e8935ef730de4ea8a729f40fefcfda999b86406dc368673547dc0664",
+        "saturation_sha256_f64": "23e4d2ad3675a88bb75671192dd1fcf0e39b33fe95cd922ea0f247ec44d9ea3a"
+      },
+      {
+        "ensemble_position": 61,
+        "realization_id": 1009,
+        "source_member": 61,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/061/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/061/day1920.jld2",
+        "permeability_sha256_f32": "55b98933228cd8a3fb17efe39852c51e8fcdda0ac63c6d13dfb5c09f436350e1",
+        "pressure_sha256_f64": "63f2576e0abb8d9cf0e4df9ee4cf5231b6114c66feca864e4f8b4ecfaac400ac",
+        "saturation_sha256_f64": "40a51308057ffda0380c01cd666e006431f14c721b7edc69e6c227d01703a803"
+      },
+      {
+        "ensemble_position": 62,
+        "realization_id": 734,
+        "source_member": 62,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/062/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/062/day1920.jld2",
+        "permeability_sha256_f32": "aea40f44d60ea33ad3d988fe8fbd43a01f8d66b495f01dc72951462733d35696",
+        "pressure_sha256_f64": "387640b1aea9c5de55cc871d265670dc33189f6bb138aa9e0f6e808287214930",
+        "saturation_sha256_f64": "6a4bdd6e62c846fcf76c2159e50400f07d469dc0a863d1ee8f405db66f45a193"
+      },
+      {
+        "ensemble_position": 63,
+        "realization_id": 507,
+        "source_member": 63,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/063/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/063/day1920.jld2",
+        "permeability_sha256_f32": "962a154fea37439fa44b2f550a4b7c9659591463c56343b98aaadb94ba7aed4e",
+        "pressure_sha256_f64": "0e6673b53a89ff5312c82dbc9c399977928d81a874251f0c3c42ee5413b2fa8f",
+        "saturation_sha256_f64": "77e42ce16b8d4e1206ab7b193ce66e27335cb170fefbba7bfe8a6aa3c5a90cb3"
+      },
+      {
+        "ensemble_position": 64,
+        "realization_id": 180,
+        "source_member": 64,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/064/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/064/day1920.jld2",
+        "permeability_sha256_f32": "54e7b5ef2e986f300540620d918114873f0277d9fa1a436391955a33b0d4206c",
+        "pressure_sha256_f64": "187c0743b6df4374fc07dbdcf586eb12f5d5b7718fe0a40cb1da780f3229dec2",
+        "saturation_sha256_f64": "a4bf48363c162207b1a8bb5c69b429522b001944cb3ea743055602b36e55503b"
+      },
+      {
+        "ensemble_position": 65,
+        "realization_id": 1786,
+        "source_member": 65,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/065/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/065/day1920.jld2",
+        "permeability_sha256_f32": "9402dce15eda93201bdd091930024aafbab8c8074fd3f1fdb30bfd7a8d1857e3",
+        "pressure_sha256_f64": "b681a5b95a44e08c2b0d7448176d78ffa8eb15594e24ed4bbd23b58a452db1b9",
+        "saturation_sha256_f64": "9467003df7d3de59a867b9c7326a13b855dce92ddb3cab3185a9ce9fc26cfe61"
+      },
+      {
+        "ensemble_position": 66,
+        "realization_id": 949,
+        "source_member": 66,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/066/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/066/day1920.jld2",
+        "permeability_sha256_f32": "92d6ebdbfbe5a1d56e4f4b16ca1ea9334ca9a07256a0a56f766029b21347602d",
+        "pressure_sha256_f64": "2e30ef1939117bbe8dd6207e6306bdfef3f9dca8fb5abdfec6475a0191221c5a",
+        "saturation_sha256_f64": "a3dd499c33f56f3e95081b840032d3941927431acd4c20e6d37748217b872890"
+      },
+      {
+        "ensemble_position": 67,
+        "realization_id": 130,
+        "source_member": 67,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/067/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/067/day1920.jld2",
+        "permeability_sha256_f32": "231c7d5700166885db3ad9d381a3b398c7c44b8da147ebd3eb6c9cd578654f4c",
+        "pressure_sha256_f64": "5599529095cb7eb226c90a9cb02b264b097cca3dd21554c651eb4e1d8ce40332",
+        "saturation_sha256_f64": "081b088ce50d3485e040be8699385533cc87630cfed8aa003619d419a8c79670"
+      },
+      {
+        "ensemble_position": 68,
+        "realization_id": 1466,
+        "source_member": 68,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/068/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/068/day1920.jld2",
+        "permeability_sha256_f32": "a73ec54a5b25d6949864047e0b2c0346e6ef72576ea0bad17af4a1dff57df889",
+        "pressure_sha256_f64": "9ff8585a668ba2f68e76285bae3c34df0529cea061fe2d58e6fa1a5ec4c6042d",
+        "saturation_sha256_f64": "a14aec468e8eab41204a9d097a3d680f6d21f55c2daf334ebcac7a44e6d9fbd5"
+      },
+      {
+        "ensemble_position": 69,
+        "realization_id": 734,
+        "source_member": 62,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": true,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/062/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/062/day1920.jld2",
+        "permeability_sha256_f32": "aea40f44d60ea33ad3d988fe8fbd43a01f8d66b495f01dc72951462733d35696",
+        "pressure_sha256_f64": "387640b1aea9c5de55cc871d265670dc33189f6bb138aa9e0f6e808287214930",
+        "saturation_sha256_f64": "6a4bdd6e62c846fcf76c2159e50400f07d469dc0a863d1ee8f405db66f45a193"
+      },
+      {
+        "ensemble_position": 70,
+        "realization_id": 1220,
+        "source_member": 70,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/070/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/070/day1920.jld2",
+        "permeability_sha256_f32": "96d126c9b6e9289f7b77593ffac4908aaaa104efde3ae6bd9afdb5c437adf350",
+        "pressure_sha256_f64": "ba7b89219f26f64fffaa6269546e2db6af4e4f9b0bf24a8e076ee1fa7461bb1a",
+        "saturation_sha256_f64": "414f379356234945cc3263d3a5fce12c0e35b7ffbd86472c45c57b8901424108"
+      },
+      {
+        "ensemble_position": 71,
+        "realization_id": 177,
+        "source_member": 71,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/071/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/071/day1920.jld2",
+        "permeability_sha256_f32": "e4d25fb30da9784a912bc002103949ff38c68a6be9a5cd55227f6a5cc0c09268",
+        "pressure_sha256_f64": "8be39157508378753d629d15964299ae35fba00178b53c0ce07d623918f91d66",
+        "saturation_sha256_f64": "81c5ce69a71303262a5651090d8bbe6a2e05db37e88f8a3e0423c99823630060"
+      },
+      {
+        "ensemble_position": 72,
+        "realization_id": 1011,
+        "source_member": 83,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": true,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/083/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/083/day1920.jld2",
+        "permeability_sha256_f32": "519f57199ea773354767ffc741c62f647cf3ff1e9c9a69865b81f844fc6eb165",
+        "pressure_sha256_f64": "255d017f84167a9b0c60c2754e81ab5b61c3295c578634ce0fe47750bb88082b",
+        "saturation_sha256_f64": "f79073095afd70012a4945c6717d26f9b10bba27fea1ba269904351ba2dddc77"
+      },
+      {
+        "ensemble_position": 73,
+        "realization_id": 448,
+        "source_member": 73,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/073/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/073/day1920.jld2",
+        "permeability_sha256_f32": "2b51d2e4a754da7b71d33ca5b8c57bee798dad350fbccd4d1380406f63d28cf9",
+        "pressure_sha256_f64": "a08dd41db0025111f5fff8541cd8deb58117627f1392675d5cfa0c73a6b4a1f7",
+        "saturation_sha256_f64": "df579222d4cc2beb8474a1f6c7e4969112d76f012683593a2f7265038c2654bc"
+      },
+      {
+        "ensemble_position": 74,
+        "realization_id": 311,
+        "source_member": 74,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/074/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/074/day1920.jld2",
+        "permeability_sha256_f32": "f7d5c1adaf62b8f6880d7cad489b65d09fdb5e6e4cdbc3a65eb22a06caed420d",
+        "pressure_sha256_f64": "0908eeeffaa759852f240f721dee222af79d3d387a81bd548ceeb5ddac0abb49",
+        "saturation_sha256_f64": "b68d571c076d73a5ce4d3b95cd34aa5615023e01115894f96b888137a7796b41"
+      },
+      {
+        "ensemble_position": 75,
+        "realization_id": 1668,
+        "source_member": 75,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/075/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/075/day1920.jld2",
+        "permeability_sha256_f32": "1da61f791c5423216140a415081bc17b9aacd64c0b62ab06583feb5711758314",
+        "pressure_sha256_f64": "461cde0b9d1f16822746679a9d5f770b51137ae9fb4240e5f5ab412c42276223",
+        "saturation_sha256_f64": "414e54063cf2ea6cad1a4bd5aa1098dae3873e19bcdc4005b84dcf089679b53f"
+      },
+      {
+        "ensemble_position": 76,
+        "realization_id": 171,
+        "source_member": 76,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/076/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/076/day1920.jld2",
+        "permeability_sha256_f32": "6e9e79ac06640a8ecb7ca7b94382927d930a0d20fee30f786f8e65b33831c851",
+        "pressure_sha256_f64": "3042a7f3064f7bbce3126c80214097b21467b6b724ae5ffff3b972ad2e5e4161",
+        "saturation_sha256_f64": "9ecec6df18cd7b4c1a282bdc0c35090809082ff1e45ea3ff1a52ae37a5d84347"
+      },
+      {
+        "ensemble_position": 77,
+        "realization_id": 707,
+        "source_member": 77,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/077/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/077/day1920.jld2",
+        "permeability_sha256_f32": "383c32f8e525e036b4f7c3230a10340fa8083dba58f346ad142ccf3e37dc1fc8",
+        "pressure_sha256_f64": "fdebca974ea2c1a84e0ab9caa03a720c2ce3d38629b9555efe973ba205541109",
+        "saturation_sha256_f64": "38efc08834b1c2a24949cb5fff3b23fe33f28fb03c5f2ec9534753a46172e9d7"
+      },
+      {
+        "ensemble_position": 78,
+        "realization_id": 473,
+        "source_member": 78,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/078/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/078/day1920.jld2",
+        "permeability_sha256_f32": "6757dd46e43cf25f73cf1e771884a81f67661f208bc0941e10b37bc56a8fd396",
+        "pressure_sha256_f64": "49b7934507af9a52c35b62f69b7103563633aa70ca0e85c8e9d0cdcaa4922cd6",
+        "saturation_sha256_f64": "0ca581cd08cf57f92c4dcf063da226aa402d61a6fbbe22a407df9896ee885218"
+      },
+      {
+        "ensemble_position": 79,
+        "realization_id": 1141,
+        "source_member": 79,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/079/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/079/day1920.jld2",
+        "permeability_sha256_f32": "afcb00553ba0ffda3e26311050510bc9722137bf9e573da208320a4f4b53e7d2",
+        "pressure_sha256_f64": "9b1ca88f13a02b892e32081fcc73a6675e77140f793303bc6cfeec140c23aee6",
+        "saturation_sha256_f64": "41adb11c60470e8f67a552e2c5dfdfce1d9c44b8e3ef3d637901b341a4d923a0"
+      },
+      {
+        "ensemble_position": 80,
+        "realization_id": 261,
+        "source_member": 80,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/080/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/080/day1920.jld2",
+        "permeability_sha256_f32": "01eab0499ec58e0a93c303723826a69a37d7ac246aaba6bf91fb4b9fad3cd71a",
+        "pressure_sha256_f64": "f9b2d64265c356f9fbdc787ba5286a042632617eb6f71cbdc6587977d5a6bc3e",
+        "saturation_sha256_f64": "48c8fc2000f83af7199a7a240352c4bf4b57c918bda2047e03c2cff3288dd89e"
+      },
+      {
+        "ensemble_position": 81,
+        "realization_id": 682,
+        "source_member": 81,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/081/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/081/day1920.jld2",
+        "permeability_sha256_f32": "1e4649eb915aa4ffab81490ce7c33af186f5723cf2ed84a7605643bda6fa47b2",
+        "pressure_sha256_f64": "4efb5c35b2120248d22e46d76f3e5cc4d3135e78d5d1c3eaf2fcc1d0a6f54ad5",
+        "saturation_sha256_f64": "6ec374e7ab66cda42eb6adefd5671b2ede1f7306faece7eae552de007cddd82b"
+      },
+      {
+        "ensemble_position": 82,
+        "realization_id": 755,
+        "source_member": 82,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/082/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/082/day1920.jld2",
+        "permeability_sha256_f32": "3471ff08f6b312b1255abb1f07ed4515df7520bcaf595b0c3545b1ac92fca29d",
+        "pressure_sha256_f64": "5d3715c78fce17312ad8f6b07af049d41374f0e466d2f65ef96484d8c5ea432a",
+        "saturation_sha256_f64": "a7e2d9ee4e7210755eee57edd331863d69c2b64965e45ba0dacfe23d170c6fb0"
+      },
+      {
+        "ensemble_position": 83,
+        "realization_id": 1011,
+        "source_member": 83,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/083/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/083/day1920.jld2",
+        "permeability_sha256_f32": "519f57199ea773354767ffc741c62f647cf3ff1e9c9a69865b81f844fc6eb165",
+        "pressure_sha256_f64": "255d017f84167a9b0c60c2754e81ab5b61c3295c578634ce0fe47750bb88082b",
+        "saturation_sha256_f64": "f79073095afd70012a4945c6717d26f9b10bba27fea1ba269904351ba2dddc77"
+      },
+      {
+        "ensemble_position": 84,
+        "realization_id": 524,
+        "source_member": 84,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/084/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/084/day1920.jld2",
+        "permeability_sha256_f32": "36bf6c02a7f70d135c91e92d41f9609054e4660bebe9c7a827d112333153516e",
+        "pressure_sha256_f64": "ff4006065ed3cfd0f506efc515585f84a1022a1ed235502cb7b6292def7252d9",
+        "saturation_sha256_f64": "fa9c2a2dd9d9a71a825a418c1401e943603818432f8f6157e0f825ae66b69342"
+      },
+      {
+        "ensemble_position": 85,
+        "realization_id": 1485,
+        "source_member": 85,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/085/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/085/day1920.jld2",
+        "permeability_sha256_f32": "c4812ac67f937201a2a0024830610b11cdd70f09da135bc832c919459d10f42f",
+        "pressure_sha256_f64": "56a312251e55523f1554c1d710b693b09527fe8cfc54a7cfd0522b034762c5e8",
+        "saturation_sha256_f64": "5d71638e331581a91b690b09b50563e3cd154fdf356d4a32343420cc2df92dc1"
+      },
+      {
+        "ensemble_position": 86,
+        "realization_id": 409,
+        "source_member": 86,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/086/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/086/day1920.jld2",
+        "permeability_sha256_f32": "7cfdb3bb7da011cd934c7ef50eda0b55c7b26babba6489cc7510b93ab2d94696",
+        "pressure_sha256_f64": "f11d21e44001c42c04e6b09e40e962e653a73e75890cc26c51964c7e3f3904c2",
+        "saturation_sha256_f64": "6555d62dc7dfb69d234ba238755738a44cad2623537ae192a0ce6a7fb313ede0"
+      },
+      {
+        "ensemble_position": 87,
+        "realization_id": 1949,
+        "source_member": 87,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/087/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/087/day1920.jld2",
+        "permeability_sha256_f32": "08c6c6939520144a840089f494cb5d5f4224cd82dca161e070a0ce403052ee83",
+        "pressure_sha256_f64": "884b91077200c8f1fc2f8d3d902473425631295ec3f45cb2a086e710d83d8f00",
+        "saturation_sha256_f64": "09d85c4fbb04a27b557ee31f0800fafc8d9a2362ca6486b2c038b057b4c78997"
+      },
+      {
+        "ensemble_position": 88,
+        "realization_id": 1234,
+        "source_member": 88,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/088/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/088/day1920.jld2",
+        "permeability_sha256_f32": "132661a1bdcc9e755113a7a4f3d83fe01430e6cb1210ca7a94aaf320df8ed8bd",
+        "pressure_sha256_f64": "0ed1ea64fd5375a6c9b3bc24752957a10bf5414261ec21d3ed5344dafc59eade",
+        "saturation_sha256_f64": "8585c757dba5afd46a19560dc428c6ae4b285de203c719c468941ba22d7c04d0"
+      },
+      {
+        "ensemble_position": 89,
+        "realization_id": 43,
+        "source_member": 89,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/089/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/089/day1920.jld2",
+        "permeability_sha256_f32": "7d1a34e61f08666513d85d10d9eca2557e89e4d0aa421ef1e50c9d1aa71e13dc",
+        "pressure_sha256_f64": "6005b941f0dfb4648f3eba30f7c64196743b6abad8dc09b979de7640acfbac90",
+        "saturation_sha256_f64": "d38cebbe1a02fcf9a952b961b22b4a11faa1060719f61ef09ba3a9755568f9ce"
+      },
+      {
+        "ensemble_position": 90,
+        "realization_id": 1487,
+        "source_member": 90,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/090/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/090/day1920.jld2",
+        "permeability_sha256_f32": "ce0dd1621a86ec1dc4a19de8c3a71cfe9962929e7696fce05d34bcb904802a89",
+        "pressure_sha256_f64": "0087579bac6407e59b8bf72f9d635dc6dd5a2d97015cb4175bd3f80d405fde61",
+        "saturation_sha256_f64": "038b7e4ea8a7343ff54a966a7ca134d14d3b72e4b45e025a15ef514f15d965fb"
+      },
+      {
+        "ensemble_position": 91,
+        "realization_id": 1787,
+        "source_member": 91,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/091/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/091/day1920.jld2",
+        "permeability_sha256_f32": "77ea4ce2e666d95f1fe4f78d6a1f7dae724bb95cfe4a7d81132f9d71e7192d68",
+        "pressure_sha256_f64": "6ddf1258c204771cc46a985e5bb56bdf7067b9385b1066c2c2d70159a58025f5",
+        "saturation_sha256_f64": "fd3a6a298b54b9360a81e7fa8e3e83940903126794f170f554727b7102ca52d1"
+      },
+      {
+        "ensemble_position": 92,
+        "realization_id": 277,
+        "source_member": 92,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/092/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/092/day1920.jld2",
+        "permeability_sha256_f32": "439b4c80e8d667b48557d85ec43f28fae98f3fce661138ae14af8626d7563daf",
+        "pressure_sha256_f64": "c5c44e9e4c842bf8e229ecaddacb8c85249878c7a3377d5b7788be47150a111d",
+        "saturation_sha256_f64": "1489c0afcccd2d8b9dce503f89f70ab405f885060bd3e1e4bbe2e5127891956b"
+      },
+      {
+        "ensemble_position": 93,
+        "realization_id": 933,
+        "source_member": 93,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/093/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/093/day1920.jld2",
+        "permeability_sha256_f32": "9a368b6ea4adb4bb859ee796894c73a9a63b13ec24f9da14851651dfc3e06de5",
+        "pressure_sha256_f64": "f2f5539e6b5f3df60dedf171122bfa16fecfb1f998e65a3fdeb078a50f2c1371",
+        "saturation_sha256_f64": "424d92cd2b6eca38424233b0b7764945c7601f29c0ea1a7fa5fea5a3fa67cf65"
+      },
+      {
+        "ensemble_position": 94,
+        "realization_id": 538,
+        "source_member": 94,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/094/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/094/day1920.jld2",
+        "permeability_sha256_f32": "9fdd2d8793c86c7279876af079da732be30ac810c5bdb26a6d2fa26b0ddf1c83",
+        "pressure_sha256_f64": "24a84c955603c707fc85e4d05174aa4f91e8cd81d15010901252315b10ef77fa",
+        "saturation_sha256_f64": "cb30b9d1817dcc0f66272c1ee6f2f63abbb71b1b69533cefbfc7134e411ec6fd"
+      },
+      {
+        "ensemble_position": 95,
+        "realization_id": 484,
+        "source_member": 95,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/095/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/095/day1920.jld2",
+        "permeability_sha256_f32": "fd21e9a7f930ce164ba53a4102a1d1730400a5599b61e3cefd97ccf4e9142677",
+        "pressure_sha256_f64": "79584bfba481c5356ad52a1c2bf337b73e9a6f9795abbd5f6b9953c4d286febd",
+        "saturation_sha256_f64": "2bfcaf8fbbb98f563b11395ac219d1d0be1f8329061fd535ee46ef769ab7476f"
+      },
+      {
+        "ensemble_position": 96,
+        "realization_id": 1527,
+        "source_member": 96,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/096/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/096/day1920.jld2",
+        "permeability_sha256_f32": "46c849b32773f2dbda34aeea3f76d5c128949819b16cbeb2ed336d939f8426a6",
+        "pressure_sha256_f64": "94dbb9750ca319ec8ecea1bf51331bae4b0ce50daaecc02f97d5cfef17ecb7bc",
+        "saturation_sha256_f64": "7e5bfe2e557364a44d37a8b07703a3df14940c7dd19ddca39a864c3f44d908bb"
+      },
+      {
+        "ensemble_position": 97,
+        "realization_id": 1724,
+        "source_member": 97,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/097/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/097/day1920.jld2",
+        "permeability_sha256_f32": "9bb71a06c9124a9a165c7393e9340179ef3f32fe4542eca52b2c3b20dfb2549b",
+        "pressure_sha256_f64": "bcdbd94ededbf83f7b706529dd7032b73767098662302f0d61b5aae13e569fdf",
+        "saturation_sha256_f64": "a8e620c3c01a4dcbc126ff2bacdb01f1047f8c4908cb7a5d6c436d9ae9242daa"
+      },
+      {
+        "ensemble_position": 98,
+        "realization_id": 604,
+        "source_member": 98,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/098/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/098/day1920.jld2",
+        "permeability_sha256_f32": "1cddcb6925653bb6ef23928e7e6436845f4f36134a042c99b20b7ae9bb21ef7a",
+        "pressure_sha256_f64": "6f4b95d8a5aeb2d01c629b7639d04796f04f569cb80ca47e7da1edd456fce75b",
+        "saturation_sha256_f64": "8b4398a64191cd2fc1589b6e48f892699d72919590962dc302a1e655970edc50"
+      },
+      {
+        "ensemble_position": 99,
+        "realization_id": 833,
+        "source_member": 99,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/099/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/099/day1920.jld2",
+        "permeability_sha256_f32": "22f8b4a6d5f9f25f61b709918f0a7aea7fd933343edaaee3ae85e2d95c567bac",
+        "pressure_sha256_f64": "277948c5b5f972d9ea4c90188eb6789b02dd5fa8eb5f43df979539231fd8d491",
+        "saturation_sha256_f64": "972f4578a9e21bd2ceefaffa222b3327dfd01067ee9f139f5fb7820cdcacbbbe"
+      },
+      {
+        "ensemble_position": 100,
+        "realization_id": 1675,
+        "source_member": 100,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/100/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/100/day1920.jld2",
+        "permeability_sha256_f32": "26efbdf6300a36ef50816de54628c50ebc179eac5cb379f9b6284bb67d936867",
+        "pressure_sha256_f64": "504b27ab297c5b1a1cec04dbe067566feda66ad5731dde4950af61cb006e53f3",
+        "saturation_sha256_f64": "e7bf3e68b0e25b307135543faa7c39ecb399860d37d84213133628a9804768e4"
+      },
+      {
+        "ensemble_position": 101,
+        "realization_id": 960,
+        "source_member": 101,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/101/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/101/day1920.jld2",
+        "permeability_sha256_f32": "e9ef393088812a8cd304d66183235c5d1d3ebb18d5e6c2ee6b5072b6c2db8177",
+        "pressure_sha256_f64": "c369f15cc1446adbe9992dfd2fd125969078b708f3e347e839130a197a53c140",
+        "saturation_sha256_f64": "327a7644a969554845da20e8763e9e21a751620eab817a443123f131799678b7"
+      },
+      {
+        "ensemble_position": 102,
+        "realization_id": 227,
+        "source_member": 102,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/102/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/102/day1920.jld2",
+        "permeability_sha256_f32": "8dccf1d992b3cda83580ba86c1dab5823f54e734e40059dd132ebb32e2494dfd",
+        "pressure_sha256_f64": "5ae5b89d0b84d5c7d6aa4e4ad07f4034e40cab14c95f620496d4b5ea927d953e",
+        "saturation_sha256_f64": "829511a56dba672d9569fef5558ff55e858fa8ec8a9733d11202aa9de939d313"
+      },
+      {
+        "ensemble_position": 103,
+        "realization_id": 1616,
+        "source_member": 103,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/103/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/103/day1920.jld2",
+        "permeability_sha256_f32": "9fdc484307f782727698217826b1847a749e56583db5b56a409fb78d6c8c5f1b",
+        "pressure_sha256_f64": "24069f321937b362e8944d76d1875950cad36a6099002e9ec1ad2715184c9738",
+        "saturation_sha256_f64": "ddb6349bb3d1e41589e461dbceac8670dff6ef07c5840ff65f549349a66b6475"
+      },
+      {
+        "ensemble_position": 104,
+        "realization_id": 194,
+        "source_member": 104,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/104/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/104/day1920.jld2",
+        "permeability_sha256_f32": "a63b482428420c7cd292aac003184c3377ad2a037a8d7c188c8d3dcea3b0c898",
+        "pressure_sha256_f64": "7aa3ca40ef537e32a03da505a9bf81a5bfacd887f60504f7ffd8b63dc1bfc370",
+        "saturation_sha256_f64": "7695fb47a486f5b381cac18abb2d6957bf7cc602b89c46f40441dd442df86c0c"
+      },
+      {
+        "ensemble_position": 105,
+        "realization_id": 1929,
+        "source_member": 105,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/105/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/105/day1920.jld2",
+        "permeability_sha256_f32": "e007954eb0af12237f5655c86268d03c34184867eee730faae56000279d7331d",
+        "pressure_sha256_f64": "e5047235564a0736ffd8962cfc5b5c94cf61968c6efbb2b06eaf37b4c48cd0a0",
+        "saturation_sha256_f64": "0228f9401a13c7e91ce8c58a8fa1874ef0e739c884ceb53c0a5644ad0456d13c"
+      },
+      {
+        "ensemble_position": 106,
+        "realization_id": 1300,
+        "source_member": 106,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/106/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/106/day1920.jld2",
+        "permeability_sha256_f32": "1b62856725d1dd5ad13ab2c670b41217ede4ce137bd22976c683c9dcb613c6fd",
+        "pressure_sha256_f64": "59aa9b45f8a979961e9f51c1ef2fdb2ea7ec7f11e74d7d2db1b9e10af431901a",
+        "saturation_sha256_f64": "857855e373172293f231d6610a0a9ead6e574c87f4725563d4bd9edbdcc60726"
+      },
+      {
+        "ensemble_position": 107,
+        "realization_id": 974,
+        "source_member": 107,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/107/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/107/day1920.jld2",
+        "permeability_sha256_f32": "8df5ad9b0959c377a1188423314e7d29c4482fc2e8b3ca9de9ada3fedd086b91",
+        "pressure_sha256_f64": "0aab8a9dfffe9687b98818eddbc460470502c60cdef14f5b39c1a9f5e6b8c694",
+        "saturation_sha256_f64": "304cbdcc73355f89c62db6aab144ccadb06c620e10cf00459e184080f4793c7d"
+      },
+      {
+        "ensemble_position": 108,
+        "realization_id": 940,
+        "source_member": 108,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/108/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/108/day1920.jld2",
+        "permeability_sha256_f32": "5159cdb9090c028a0a41ed73d078a20050ff4020eb5451c4029b32476f9fd2d9",
+        "pressure_sha256_f64": "02cf55f004c4dae3f1c9be63cfcc578b506c07e933f3462c653a575cd282a256",
+        "saturation_sha256_f64": "410edaafd6be832f5d5af015d32bf1370c61c521aede281d413a988798d6e222"
+      },
+      {
+        "ensemble_position": 109,
+        "realization_id": 1377,
+        "source_member": 109,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/109/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/109/day1920.jld2",
+        "permeability_sha256_f32": "bef7be5bd42bf1ea139647268abb74d06858f0c6b6c0eb829c59b3e0b4e41d19",
+        "pressure_sha256_f64": "fde4e897bf4e4555e91ae7d0e338376ef6d6d2a6979294d5ec4fcebf7030173e",
+        "saturation_sha256_f64": "8a10ac148cc1f013dd43638c3c7fc064f347de834157ab63a87ce46ffbf8f602"
+      },
+      {
+        "ensemble_position": 110,
+        "realization_id": 1020,
+        "source_member": 110,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/110/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/110/day1920.jld2",
+        "permeability_sha256_f32": "fbfe37cf2a103b085098b87d1c93a152b0806869bcae882dba14b14ffb900359",
+        "pressure_sha256_f64": "cef52c0f94cea143d3a2e127ad9423ef4a03b0deef11c00ff5e59854963c17ff",
+        "saturation_sha256_f64": "4af4bcc0b9881076b80871bb7e5b787bed9e66adc24baf87d6ee5512d2b94f8f"
+      },
+      {
+        "ensemble_position": 111,
+        "realization_id": 485,
+        "source_member": 111,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/111/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/111/day1920.jld2",
+        "permeability_sha256_f32": "4109ede5eab4c5da51cf1e491058b2246d9de4312c51d952d88d2905d747e681",
+        "pressure_sha256_f64": "32f5e57a8f57a4b8a137c30d0238166d4bb87ed0414804d30ca18e6a67930799",
+        "saturation_sha256_f64": "e983c9943867b9adadf629f8b4a850b072da04a487ec22b1ea5978eb74f1788c"
+      },
+      {
+        "ensemble_position": 112,
+        "realization_id": 1666,
+        "source_member": 112,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/112/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/112/day1920.jld2",
+        "permeability_sha256_f32": "e4ccfc7779fb3e7539dea92dbd2aeb719ad977b42cbdbf453c1aefd0971c6459",
+        "pressure_sha256_f64": "6a95b89acc662d2854dcaee0978ecd5c6ede8dd6e6abe63a254c20550d5e3cf7",
+        "saturation_sha256_f64": "f2218ab0857deac9c3a1a8a2c611d912af28d800ea9727cf5c84760e71a34bf4"
+      },
+      {
+        "ensemble_position": 113,
+        "realization_id": 1596,
+        "source_member": 113,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/113/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/113/day1920.jld2",
+        "permeability_sha256_f32": "4adacde14d54dbade2dd22518daf80ea2ca9131d7234dca31d17fad9d28329f8",
+        "pressure_sha256_f64": "bbb97b7d6c34f27ce02d298f71ab67041fb1a63002fe518f8163ea9cb2d7dde1",
+        "saturation_sha256_f64": "6583ecb58584257a7094813c9dcade4f944be30c38ab484caeb84afceffb2057"
+      },
+      {
+        "ensemble_position": 114,
+        "realization_id": 53,
+        "source_member": 114,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/114/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/114/day1920.jld2",
+        "permeability_sha256_f32": "cc7168a36bb094f4c42e4ccb69d50fac7dad52b9d2a893bda5744462859796e3",
+        "pressure_sha256_f64": "a4c5dcb1a457e198181c7ebb763556fb43856deb0e77d526edf1ce0f5e79c6bb",
+        "saturation_sha256_f64": "63b567e553076ba71e1c5c455f18500a5620b9a33dd19c2fac6d2d6f4941ad6a"
+      },
+      {
+        "ensemble_position": 115,
+        "realization_id": 960,
+        "source_member": 101,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": true,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/101/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/101/day1920.jld2",
+        "permeability_sha256_f32": "e9ef393088812a8cd304d66183235c5d1d3ebb18d5e6c2ee6b5072b6c2db8177",
+        "pressure_sha256_f64": "c369f15cc1446adbe9992dfd2fd125969078b708f3e347e839130a197a53c140",
+        "saturation_sha256_f64": "327a7644a969554845da20e8763e9e21a751620eab817a443123f131799678b7"
+      },
+      {
+        "ensemble_position": 116,
+        "realization_id": 222,
+        "source_member": 116,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/116/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/116/day1920.jld2",
+        "permeability_sha256_f32": "367a149464b9c96a9d960e70ec903e92faa684344f7eb3038e855db62359ebfe",
+        "pressure_sha256_f64": "4e279a02509e42732f88f0921997dbb7b99203375f389408238040c8fca8563f",
+        "saturation_sha256_f64": "a8660b958d6f5312e0f6ef1bfd178602189cd44a7f5a745bc0ca7d775e9572b2"
+      },
+      {
+        "ensemble_position": 117,
+        "realization_id": 890,
+        "source_member": 117,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/117/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/117/day1920.jld2",
+        "permeability_sha256_f32": "d62e2262cf9e2fce64d135572ca05bbf1d88312501a99a567668733d3f578263",
+        "pressure_sha256_f64": "f8857cf5ecf0809698398af9c43e9dea42611f50847189e43ac4d7ffcfa99332",
+        "saturation_sha256_f64": "cea4e2cfa4e594dc53e533add2a5b4337a28534987b7af910e39722f6ab4e7b3"
+      },
+      {
+        "ensemble_position": 118,
+        "realization_id": 1114,
+        "source_member": 118,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/118/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/118/day1920.jld2",
+        "permeability_sha256_f32": "67ff14b01036c0b10874a2eba37bccca61f7825a4af66afbcc680e02b3776dc3",
+        "pressure_sha256_f64": "e209d04eee631bf75f66c6ac31dde398f37fc19227344deaa044600ca7f65ddd",
+        "saturation_sha256_f64": "ca53d47740508350c2e1d2e688b8c447482d5d7392d46394dd69e17329de0130"
+      },
+      {
+        "ensemble_position": 119,
+        "realization_id": 1771,
+        "source_member": 119,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/119/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/119/day1920.jld2",
+        "permeability_sha256_f32": "4b391177807390a8b2d9a549a69bf935743d2741645153c193f28f874daf023e",
+        "pressure_sha256_f64": "78ffb2e3a7480745485d8219de9b1ceef3087682d1e0f346cfa3a35f78cd1479",
+        "saturation_sha256_f64": "8f48b1a995963fc7ad1fc4a0d09e4a16191ffef7a9c5ab5e28ed95026ba0bcc4"
+      },
+      {
+        "ensemble_position": 120,
+        "realization_id": 1237,
+        "source_member": 120,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/120/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/120/day1920.jld2",
+        "permeability_sha256_f32": "09eaa71426bb225ae87090c9afca82d355e9a788988e12de14de92ec4bb9d81d",
+        "pressure_sha256_f64": "6d92558a5fbde6774347c17fa3818a343a81dba53a4985280da78efd11ad09cc",
+        "saturation_sha256_f64": "9ce309cec5a71527973def8a4f7ad52506e490b7eee35f7dfb15a9d320c51ee7"
+      },
+      {
+        "ensemble_position": 121,
+        "realization_id": 1395,
+        "source_member": 121,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/121/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/121/day1920.jld2",
+        "permeability_sha256_f32": "9c6810dd7d48243235c0e3cd8616bd5e403c65eb21f897e6c17862377bd3a269",
+        "pressure_sha256_f64": "a3a395096339367f4a7de01101333f91000a85a618e9db3d2a2944201fb5d731",
+        "saturation_sha256_f64": "9114f23b74ab894be6fc6a4ef25e850ef8d5b9ba9842487ad84c635d77bb8de6"
+      },
+      {
+        "ensemble_position": 122,
+        "realization_id": 685,
+        "source_member": 122,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/122/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/122/day1920.jld2",
+        "permeability_sha256_f32": "2c3e28029c28a99584dcd6ff7ebbbe1d63f6bffc6fa6adbac1004cf87a165c3c",
+        "pressure_sha256_f64": "d6c8be58028b04de052c31b1df791a6f1026080e4843f9f038a55e0d6869b0c7",
+        "saturation_sha256_f64": "31a8ac8d50a2d62555580861a5e17cde704f3317e8b8c644885775d233615b27"
+      },
+      {
+        "ensemble_position": 123,
+        "realization_id": 891,
+        "source_member": 123,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/123/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/123/day1920.jld2",
+        "permeability_sha256_f32": "9d5e54c7382d422f563588ee682535433413c9076a9e91c39e6b441fe6552060",
+        "pressure_sha256_f64": "879c01f11b91640042669403ff74f2a60454d263516c21b08618416eee6851ff",
+        "saturation_sha256_f64": "66dad8a1a1389decef9af8dab3a22bfd2030fbe104ad07d7ab389b4a6cf1cf9b"
+      },
+      {
+        "ensemble_position": 124,
+        "realization_id": 1845,
+        "source_member": 124,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/124/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/124/day1920.jld2",
+        "permeability_sha256_f32": "516ecf5770b3bbc83021f6f62c23a146937d51d64ff120bbc394b63fc1c20c50",
+        "pressure_sha256_f64": "883b85b67240da1e9b0b6582f707d4d0840a0e922c0094b0be6c470a3ae531fe",
+        "saturation_sha256_f64": "4d2d1daaba4ba3a754ad9bc8dc97b6391eccbe4aebcfce631e5ca5978c90e31a"
+      },
+      {
+        "ensemble_position": 125,
+        "realization_id": 1799,
+        "source_member": 125,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/125/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/125/day1920.jld2",
+        "permeability_sha256_f32": "8ee29031b4dcd42764bc071ee88931199f1b851ba1cc23cb51cb55becfb3e6f9",
+        "pressure_sha256_f64": "0df8da9aaab5376eeb7babf1954e14b9df2a4e9a44bf255bc33ab2ea352864e5",
+        "saturation_sha256_f64": "bc4f670ccdd238863a5582277dc93f9381cac3c0a2e3c8bcb0f231e291a8693e"
+      },
+      {
+        "ensemble_position": 126,
+        "realization_id": 488,
+        "source_member": 126,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/126/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/126/day1920.jld2",
+        "permeability_sha256_f32": "7a20640ef779f2ddc15e3bd3f6ed541fd741507bb4bb7175461e12d1300480ca",
+        "pressure_sha256_f64": "d6e6a72d8eaf50ebee24dfbd097ce8471b1740f916f505fc9f0bd0b0c1eceb02",
+        "saturation_sha256_f64": "149633bead88bc9ffb5c36de534172e7942c2f9806042feb4d0ab3019fedc0ee"
+      },
+      {
+        "ensemble_position": 127,
+        "realization_id": 1904,
+        "source_member": 127,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/127/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_128_20261002/members/127/day1920.jld2",
+        "permeability_sha256_f32": "f89c14f35620ae62042f45fe640fa84e2215a2d16cac5f4482c5814bf9e2dff6",
+        "pressure_sha256_f64": "b36d52aa456d0a7273e1b5f16ea799e74de78728dcab28130b6fe4919a0f3889",
+        "saturation_sha256_f64": "b254227b3c8dfff23438fa874dd3f339243c6ecac396fccabe3847bd3e17c6c2"
+      },
+      {
+        "ensemble_position": 128,
+        "realization_id": 1542,
+        "source_member": 128,
+        "sample_weight": 0.0078125,
+        "reused_identical_field": false,
+        "inputs": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/128/inputs.jld2",
+        "response": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/forward_comparisons/joint_perm_day1920_64_20260915T062645Z/members/128/day1920.jld2",
+        "permeability_sha256_f32": "68aa937aede36f61edf44c2a29d58e2bbeabe5a5a1440f857d98f7bd2dfcd773",
+        "pressure_sha256_f64": "56d750c2ebc7f8cabcb606bbfed55c7bf43bd9bca9d7833d828fe2b0090ca66b",
+        "saturation_sha256_f64": "e391c81bfbb87181121565157c2ec8349d7adac240c07e7ba75482840fff7276"
+      }
+    ],
+    "population_std_ddof": 0,
+    "permeability_statistics": "Mean and population std of log10(K [mD]); mean displayed on mD log scale",
+    "pressure_difference": "(pressure_pa - identical initial_pressure_pa) / 1e6",
+    "orientation": "All arrays [z,x], shape (256,512); x right, depth positive down",
+    "extent_m": [
+      0,
+      3200,
+      1600,
+      0
+    ],
+    "permeability_library": "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/geo/wise_perm_models_2000_new.jld2",
+    "ground_truth_realization_id": 2000,
+    "truth_permeability_sha256_f32": "fb6b891d72e6dad08ed1338908fb736922913dbfdc09d9b33df64584724c2246",
+    "common_hashes": {
+      "initial_pressure_sha256_f64": "8e8b73991720afddc6c93f12f3cf95be35085d4275972b36917b0a4d26cb6ea7",
+      "initial_saturation_sha256_f64": "693eedb0364b5dc535271a51d23118253615144bc41fa8bd0fcfb88131e1a8a4",
+      "porosity_sha256_f64": "7e1a48200e2c665bb3ecdf0b3bee7d982af79a751161a9a5986557cf2efc3ac9",
+      "p_max_sha256_f64": "49f25b842c9694f74a1b4111075bccc7e8629b75347277f4abb7d003efed0661",
+      "schedule_sha256_f64": "a0d934c7000fb36691d5a1ea6d2c047468e69fb64f2adcf00bc85b7b896943ad"
+    },
+    "rates_m3_s": [
+      0.0001,
+      0.00914,
+      0.01818,
+      0.02722,
+      0.03626,
+      0.0453,
+      0.0453,
+      0.05087,
+      0.05645,
+      0.06203,
+      0.0676,
+      0.07317,
+      0.07317,
+      0.07458,
+      0.07599,
+      0.07741,
+      0.07882,
+      0.08023,
+      0.08023,
+      0.08041,
+      0.08059,
+      0.08078,
+      0.08096,
+      0.08114
+    ],
+    "forward_source_sha256": "9b6261c51b014d518eeb351d753608432a35f8543ca24f387813712a931468c9",
+    "cache_sha256": "a116fa2f192640aeefe4aa6d28adcb6b58772f348cc0002c009dcdf44c95b06f",
+    "prepare_source_sha256": "1a0cee29576b6621d82d2c6053401a50bc060acc3a36e74424fe0b33313ae925",
+    "slurm_job_id": "13819705",
+    "array_ranges": {
+      "log10_k_mean": [
+        -2.877274990081787,
+        3.1516746766865245
+      ],
+      "log10_k_std": [
+        0.0,
+        2.086147570861827
+      ],
+      "dp_mpa_mean": [
+        -0.000696217827532586,
+        2.5845877584656964
+      ],
+      "dp_mpa_std": [
+        0.0,
+        0.5697869908616867
+      ],
+      "saturation_mean": [
+        0.0,
+        0.884826431333502
+      ],
+      "saturation_std": [
+        0.0,
+        0.40684917447979596
+      ],
+      "response_overlay_log10_k": [
+        -2.877274990081787,
+        3.1516746766865245
+      ],
+      "truth_k_md": [
+        0.001326554687693715,
+        1903.833740234375
+      ],
+      "log10_k_truth": [
+        -2.877274990081787,
+        3.2796292304992676
+      ]
+    }
+  },
+  "reference": {
+    "directory": "data/forward_comparisons/joint_perm_ground_truth_day1920_20261002",
+    "realization_id": 2000,
+    "pressure_sha256_f64": "e85eeb950731a48ffc51bd9c046c256eaabc08d8ab7e5540d1cf6babdeb38e0f",
+    "saturation_sha256_f64": "43509700ae3957c3ab5fd2006b4fad52052b6fcf7f8d061903dbb894017f03b6",
+    "slurm_job_id": "13818420",
+    "initial_state_schedule_grid_well_verified_against_ensemble": true
+  },
+  "layout": {
+    "canvas_pixels": [
+      5400,
+      3779
+    ],
+    "dpi": 300,
+    "text_clipping": [],
+    "text_overlaps": [],
+    "physical_aspect": "equal, full cell-edge extent",
+    "map_bounds": [
+      [
+        [
+          0.08444444444444445,
+          0.717989417989418,
+          0.2837037037037037,
+          0.20264550264550263
+        ],
+        [
+          0.3903703703703704,
+          0.717989417989418,
+          0.2837037037037036,
+          0.20264550264550263
+        ],
+        [
+          0.6962962962962963,
+          0.717989417989418,
+          0.2837037037037037,
+          0.20264550264550263
+        ]
+      ],
+      [
+        [
+          0.08444444444444445,
+          0.4161375661375662,
+          0.2837037037037037,
+          0.20264550264550268
+        ],
+        [
+          0.3903703703703704,
+          0.4161375661375662,
+          0.2837037037037036,
+          0.20264550264550268
+        ],
+        [
+          0.6962962962962963,
+          0.4161375661375662,
+          0.2837037037037037,
+          0.20264550264550268
+        ]
+      ],
+      [
+        [
+          0.08444444444444445,
+          0.11428571428571419,
+          0.2837037037037037,
+          0.20264550264550266
+        ],
+        [
+          0.3903703703703704,
+          0.11428571428571421,
+          0.2837037037037036,
+          0.20264550264550257
+        ],
+        [
+          0.6962962962962963,
+          0.11428571428571419,
+          0.2837037037037037,
+          0.20264550264550266
+        ]
+      ]
+    ],
+    "colorbar_bounds": [
+      [
+        0.08444444444444445,
+        0.6671957671957671,
+        0.5896296296296296,
+        0.00952380952380949
+      ],
+      [
+        0.6962962962962963,
+        0.6671957671957671,
+        0.2837037037037037,
+        0.00952380952380949
+      ],
+      [
+        0.08444444444444445,
+        0.36534391534391536,
+        0.5896296296296296,
+        0.009523809523809545
+      ],
+      [
+        0.6962962962962963,
+        0.36534391534391536,
+        0.2837037037037037,
+        0.009523809523809545
+      ],
+      [
+        0.08444444444444445,
+        0.06349206349206335,
+        0.5896296296296296,
+        0.009523809523809518
+      ],
+      [
+        0.6962962962962963,
+        0.06349206349206335,
+        0.2837037037037037,
+        0.009523809523809518
+      ]
+    ],
+    "truth_mean_limits": {
+      "log10_k": [
+        0.0,
+        4.0
+      ],
+      "dp_mpa": [
+        -0.1,
+        4.0
+      ],
+      "saturation": [
+        0.0,
+        1.0
+      ]
+    },
+    "std_limits": {
+      "log10_k": [
+        0.0,
+        2.5
+      ],
+      "dp_mpa": [
+        0.0,
+        0.6000000000000001
+      ],
+      "saturation": [
+        0.0,
+        0.45
+      ]
+    },
+    "overlay_alpha": 0.2,
+    "overlay_truth": "truth log10 permeability",
+    "overlay_mean_and_std": "mean log10 permeability of the same 128 response members"
+  },
+  "cache": "data/forward_comparisons/joint_perm_day1920_128_20261002/ensemble_statistics.npz",
+  "output_sha256": "c5eaf7570bd6e851faef44c5e7e285f8767351ffc48ac6cdc98658c00b3fbad7",
+  "color_limits_reference": "plots/paper_figures/perm_pressure_saturation_ensemble_statistics_64.json",
+  "renderer_sha256": "1a0cee29576b6621d82d2c6053401a50bc060acc3a36e74424fe0b33313ae925",
+  "array_ranges": {
+    "log10_k_mean": [
+      -2.877274990081787,
+      3.1516746766865245
+    ],
+    "log10_k_std": [
+      0.0,
+      2.086147570861827
+    ],
+    "dp_mpa_mean": [
+      -0.000696217827532586,
+      2.5845877584656964
+    ],
+    "dp_mpa_std": [
+      0.0,
+      0.5697869908616867
+    ],
+    "saturation_mean": [
+      0.0,
+      0.884826431333502
+    ],
+    "saturation_std": [
+      0.0,
+      0.40684917447979596
+    ],
+    "response_overlay_log10_k": [
+      -2.877274990081787,
+      3.1516746766865245
+    ],
+    "truth_k_md": [
+      0.001326554687693715,
+      1903.833740234375
+    ],
+    "log10_k_truth": [
+      -2.877274990081787,
+      3.2796292304992676
+    ],
+    "dp_mpa_truth": [
+      -0.0016314812967013568,
+      2.705869889241094
+    ],
+    "saturation_truth": [
+      0.0,
+      0.8940940790983959
+    ]
+  }
+}
