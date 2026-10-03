@@ -1,5 +1,9 @@
 # Posterior relative-margin preview
 
+The user subsequently accepted the focused mean/std option. See
+[the accepted handoff and paper intake instructions](POSTERIOR_RELATIVE_MARGIN_ACCEPTED_2026-10-02.md).
+The following records the original preview comparison.
+
 This is a review export, not a replacement for the accepted paper PNGs in
 `plots/paper_figures/posterior_appendix_e_layout_20261002/`. Statistical rate
 figures are outside this change.
