@@ -20,9 +20,9 @@ new_cases_times = [
     46.0,  # alpha=0.001, gamma=0.05
 ]
 
-println("=== 新跑的11个case的iteration时间 ===")
-println("平均: $(round(mean(new_cases_times), digits=1))分钟/iteration")
-println("范围: $(round(minimum(new_cases_times), digits=1)) - $(round(maximum(new_cases_times), digits=1))分钟/iteration")
+println("=== Iteration times for the 11 newer cases ===")
+println("Mean: $(round(mean(new_cases_times), digits=1)) minutes/iteration")
+println("Range: $(round(minimum(new_cases_times), digits=1)) - $(round(maximum(new_cases_times), digits=1)) minutes/iteration")
 println()
 
 # Old cases: try to read from final.jld2 files
@@ -35,7 +35,7 @@ old_cases_dirs = [
     "data/DT_control/exp_name=step1/CVaR__SOFT__alpha=0.001__gamma=0.05__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0",
 ]
 
-println("=== 查找老的CVaR cases的timing信息 ===")
+println("=== Searching older CVaR cases for timing information ===")
 old_times = Float64[]
 for case_dir in old_cases_dirs
     case_name = basename(case_dir)
@@ -86,19 +86,19 @@ for case_dir in old_cases_dirs
     end
 end
 
-println("\n=== 对比总结 ===")
-println("新cases (11个):")
-println("  平均: $(round(mean(new_cases_times), digits=1))分钟/iteration")
-println("  范围: $(round(minimum(new_cases_times), digits=1)) - $(round(maximum(new_cases_times), digits=1))分钟/iteration")
+println("\n=== Comparison summary ===")
+println("Newer cases (11):")
+println("  Mean: $(round(mean(new_cases_times), digits=1)) minutes/iteration")
+println("  Range: $(round(minimum(new_cases_times), digits=1)) - $(round(maximum(new_cases_times), digits=1)) minutes/iteration")
 println()
-println("老的cases:")
+println("Older cases:")
 if isempty(old_times)
-    println("  无法从final.jld2中提取timing信息")
-    println("  根据之前的经验，老的cases可能是5-6小时/iteration")
-    println("  如果这样，加速比约为: $(round((5.5 * 60) / mean(new_cases_times), digits=1))x")
+    println("  Could not extract timing information from final.jld2")
+    println("  Historical estimate: older cases may have taken 5–6 hours/iteration")
+    println("  Under that assumption, estimated speedup: $(round((5.5 * 60) / mean(new_cases_times), digits=1))x")
 else
-    println("  平均: $(round(mean(old_times), digits=1))分钟/iteration")
-    println("  范围: $(round(minimum(old_times), digits=1)) - $(round(maximum(old_times), digits=1))分钟/iteration")
-    println("  加速比: $(round(mean(old_times) / mean(new_cases_times), digits=1))x")
+    println("  Mean: $(round(mean(old_times), digits=1)) minutes/iteration")
+    println("  Range: $(round(minimum(old_times), digits=1)) - $(round(maximum(old_times), digits=1)) minutes/iteration")
+    println("  Speedup: $(round(mean(old_times) / mean(new_cases_times), digits=1))x")
 end
 

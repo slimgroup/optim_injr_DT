@@ -1,35 +1,35 @@
 #!/bin/bash
-# 检查 ds 验证测试状态（从任意目录运行：会 cd 到仓库根目录）
+# Check ds verification status; resolve the repository root from any directory.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 cd "${ROOT_DIR}" || exit 1
 
-echo "=== ds 验证测试状态检查 ==="
+echo "=== ds verification status check ==="
 echo ""
 
-# 检查运行中的任务
-echo "1. 运行中的任务:"
+# Check running jobs
+echo "1. Running jobs:"
 squeue -u $USER -o "%.10i %.12P %.20j %.8u %.2t %.10M %.6D %R" 2>/dev/null | head -5
 
 echo ""
-echo "2. 输出文件状态:"
+echo "2. Output file status:"
 if [ -f ds_verification_output.txt ]; then
-    echo "  文件存在，大小: $(wc -l < ds_verification_output.txt) 行"
+    echo "  File exists; line count: $(wc -l < ds_verification_output.txt)"
     echo ""
-    echo "  最后 30 行输出:"
+    echo "  Last 30 lines:"
     echo "  ----------------------------------------"
     tail -30 ds_verification_output.txt 2>/dev/null
     echo "  ----------------------------------------"
 else
-    echo "  输出文件尚未创建"
+    echo "  Output file not yet created"
 fi
 
 echo ""
-echo "3. 如果任务已完成，查看完整结果:"
+echo "3. If the job has completed, view all results:"
 echo "  cat ds_verification_output.txt"
 
 echo ""
-echo "4. 如果任务还在运行，实时查看:"
+echo "4. If the job is still running, follow live output:"
 echo "  tail -f ds_verification_output.txt"
 

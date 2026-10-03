@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-03",
+  "authorization": "User explicitly approved groups G and U in the conversation.",
+  "inventory": "docs/reference/deletion_review_20261003.csv",
+  "groups": {
+    "G": 90,
+    "U": 12
+  },
+  "total_bytes": 4682535,
+  "sha256_verified_before_deletion": true,
+  "current_selected_figures_changed": false,
+  "numerical_methods_changed": false,
+  "git_history_rewritten": false
+}

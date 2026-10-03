@@ -1,6 +1,6 @@
-# optim_injr_DT - Codex Instructions
+# optim_injr_DT - Repository Agent Instructions
 
-These instructions apply to all Codex work in this repository.
+This is the canonical instruction file for coding agents working in this repository. Editor-specific rules should refer here instead of duplicating these instructions.
 
 ## Safety and Workflow
 
@@ -77,6 +77,9 @@ Apply these additional rules whenever creating or updating histogram / CDF stati
 
 ## Repository Maintenance and Current Results
 
+- Write repository documentation, comments, docstrings, and user-facing command output in English. Preserve CLI flags, data keys, paths, formulas, and numerical behavior when translating existing material.
+- Treat the gamma-table-based PoF/CVaR comparison as a deprecated workflow. Review its callers and list exact files before requesting deletion approval; ordinary CVaR `gamma` parameters and their diagnostics are separate and must not be removed by name matching.
+- Preserve the provenance of selected paper figures, including pressure transformations and sensitivity factors. Publication cleanup must not relabel transformed results as unmodified simulations. Keep exploratory material out of the public selection when appropriate without removing the evidence needed to reproduce a selected figure.
 - Use `docs/REPRODUCIBILITY.md` for run order, `docs/reference/SCRIPTS_INDEX.md` for current entry points, and `docs/reference/paper_assets.json` plus `PAPER_FIGURE_MANIFEST.md` for selected figures. Read the documents relevant to the task; a full repository audit is not required for a small edit.
 - "Latest" means the most recent user-selected, validated result for the same experiment and statistic. Do not rank different monitoring steps, sample counts, prior modes, or sensitivity factors by modification time. A sensitivity preview does not supersede an accepted figure without an explicit selection.
 - For authorized figure cleanup, prefer reversible archival with an old-to-new path record. Check callers and numerical/provenance dependencies before moving outputs. An old folder may contain arrays, style references, or source snapshots needed by the current result.

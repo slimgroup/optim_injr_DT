@@ -4,6 +4,7 @@
 
 - [Reproduction guide](REPRODUCIBILITY.md): environment, data, and execution order.
 - [Figure manifest](reference/PAPER_FIGURE_MANIFEST.md): selected assets and inputs.
+- [Figure reading notes](figures/README.md): handoff instructions and validation summaries.
 - [Injection-rate arrays](injection_rate_arrays.md): selected case-level controls.
 - [Data availability](../DATA_AVAILABILITY.md): inputs and release limitations.
 - [Selected posterior version](analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md):
@@ -33,6 +34,7 @@
   [machine-local settings](reference/MACHINE_LOCAL.md), and [tests](../test/README.md).
 - [Cleanup record](reference/REPOSITORY_CLEANUP.md): completed changes and
   the completed, checksum-verified artifact cleanup.
+- [Approved legacy deletion](reference/DELETION_REVIEW_2026-10-03.md): exact scope and retained dependencies.
 
 ## Historical material
 

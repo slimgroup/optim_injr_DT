@@ -1,74 +1,24 @@
-# Step Size 说明
+# Simulation time steps and optimization steps
 
-在 `src/optim_inject.jl` 中有两种不同的"步长"概念，容易混淆：
+These are different parameters in `src/optim_inject.jl`.
 
-## 1. 物理仿真时间步长 (Physical Simulation Time Step)
+| Quantity | Parameters | Meaning |
+|---|---|---|
+| Simulation time step | `ds`, `dt_firstblock` | Requested temporal resolution of the reservoir simulation |
+| Optimization step | `ex_step_size`, accepted `stp` | Distance along the projected search direction in the endpoint control variable |
 
-**参数**: `ds` 和 `dt_firstblock`
+The historical example `dt_firstblock = 80/ds` gives ten 8-day steps when
+`ds=10`, or one 80-day step when `ds=1`. Both cover an 80-day block. This does not
+establish equal runtime or accuracy; nonlinear solver convergence and internal
+step handling matter. The earlier “18% runtime difference” was a particular
+reported observation, not a general scaling rule.
 
-**位置**: `build_sim` 函数 (第 411-416 行)
+The recorded backtracking setup is `BackTracking(order=3, iterations=15)`.
+Its initial trial step is 0.15 for PoF hard-constraint cases and 0.2 otherwise.
+Subsequent searches reuse the previous accepted step. The update is
+`inj_rate = proj(inj_rate + stp * p)`.
 
-```julia
-function build_sim(n, d, ϕ, K; h=0.0, ds=10, dt_firstblock=80/ds)
-    model = jutulModel(n, d, ϕ, K1to3(K; kvoverkh=0.36); h=h)
-    Sblk  = jutulModeling(model, dt_firstblock * ones(ds))
-    Trans = KtoTrans(CartesianMesh(model), K1to3(K; kvoverkh=0.36))
-    return (model=model, logTrans=log.(Trans), Sblk=Sblk)
-end
-```
-
-**说明**:
-- `ds`: 控制每个注入周期内的子时间步数（默认 `ds=10`）
-- `dt_firstblock = 80/ds`: 每个子时间步的物理时间长度（天）
-  - 当 `ds=10` 时，`dt_firstblock = 8` 天
-  - 当 `ds=1` 时，`dt_firstblock = 80` 天
-- **总物理时间**: 每个 `Sblk` 调用总是模拟 80 天（`ds * dt_firstblock = ds * (80/ds) = 80`）
-
-**影响**:
-- 控制 reservoir simulation 的时间分辨率
-- 更小的 `ds` 意味着更大的时间步长，但总模拟时间不变
-- 测试表明：`ds` 对总仿真时间影响很小（约 18%），因为小时间步收敛更快
-
-## 2. 优化算法步长 (Optimization Step Size)
-
-**参数**: `ex_step_size`
-
-**位置**: `main` 函数中的优化循环 (第 924-934 行)
-
-```julia
-ls = BackTracking(order=3, iterations=15)
-step_arr = zeros(niterations)
-if risk_opts.pof_as_constraint
-    ex_step_size = 0.15
-elseif risk_opts.cvar_as_constraint
-    ex_step_size = 0.2
-else
-    ex_step_size = 0.2
-end
-```
-
-**说明**:
-- `ex_step_size`: 梯度下降算法中初始的步长（用于 line search）
-- 用于更新注入速率：`inj_rate = proj(inj_rate + step * p)`
-- 根据不同的风险约束模式，使用不同的初始步长：
-  - PoF 约束：`0.15`
-  - CVaR 约束：`0.2`
-  - 其他情况：`0.2`
-
-**影响**:
-- 控制优化算法的收敛速度和稳定性
-- 太小：收敛慢
-- 太大：可能不收敛或震荡
-
-## 总结
-
-| 类型 | 参数 | 作用 | 影响范围 |
-|------|------|------|----------|
-| **物理时间步长** | `ds`, `dt_firstblock` | 控制 reservoir simulation 的时间分辨率 | 仿真精度和数值稳定性 |
-| **优化步长** | `ex_step_size` | 控制梯度下降的步长 | 优化收敛速度和稳定性 |
-
-**关键区别**:
-- `ds` 影响的是**物理仿真**的时间步长
-- `ex_step_size` 影响的是**优化算法**的步长
-- 两者完全独立，互不影响
-
+The parameters have separate meanings, but changing simulation resolution can
+change objective values, gradients, and hence optimization behavior. Consult
+[solver constraint handling](SOLVER_CONSTRAINT_HANDLING.md) before interpreting
+convergence or modifying either setting.

@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-03",
+  "reason": "Centralize reading notes while preserving original handoff paths and file contents through relative links.",
+  "files": [
+    {
+      "original": "plots/paper_figures/posterior_appendix_e_layout_20261002/README.md",
+      "document": "docs/analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md",
+      "relative_link": "../../../docs/analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md",
+      "sha256": "301efaed11615a6a56535c8206e15132dc1110997376fe6459168f30b09155cf"
+    },
+    {
+      "original": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/README.md",
+      "document": "docs/analysis/POSTERIOR_MARGIN_SENSITIVITY_2026-10-02.md",
+      "relative_link": "../../../docs/analysis/POSTERIOR_MARGIN_SENSITIVITY_2026-10-02.md",
+      "sha256": "c6a8c1d1e634ff683203f0a5a0205373e14546493a58494e62fdd2fd4189508e"
+    },
+    {
+      "original": "plots/paper_figures/perm_pressure_saturation_ensemble_statistics_128.txt",
+      "document": "docs/figures/perm_pressure_saturation_ensemble_statistics_128.txt",
+      "relative_link": "../../docs/figures/perm_pressure_saturation_ensemble_statistics_128.txt",
+      "sha256": "79be9eabde63768e8f80eee8bf4f5efa449ba6def0d62dc5786752b9cd1e768c"
+    },
+    {
+      "original": "plots/paper_figures/perm_pressure_saturation_ensemble_statistics_64.txt",
+      "document": "docs/figures/perm_pressure_saturation_ensemble_statistics_64.txt",
+      "relative_link": "../../docs/figures/perm_pressure_saturation_ensemble_statistics_64.txt",
+      "sha256": "aec56411606ec3b8a5f5ac765e02fb88cfd49bc4e094fcf044240baa10eb052e"
+    },
+    {
+      "original": "plots/paper_figures/posterior_appendix_e_layout_20261002/PAPER_REPO_PROMPT.txt",
+      "document": "docs/figures/posterior_appendix_e_layout_20261002/PAPER_REPO_PROMPT.txt",
+      "relative_link": "../../../docs/figures/posterior_appendix_e_layout_20261002/PAPER_REPO_PROMPT.txt",
+      "sha256": "659f34747e49b352a37dc61a9d9e8e166e2a824939569cf0a89b79513cf3007f"
+    },
+    {
+      "original": "plots/paper_figures/posterior_appendix_e_layout_20261002/VALIDATION.md",
+      "document": "docs/figures/posterior_appendix_e_layout_20261002/VALIDATION.md",
+      "relative_link": "../../../docs/figures/posterior_appendix_e_layout_20261002/VALIDATION.md",
+      "sha256": "2d16f2fe60df8826342d58dfed858b65bbaf2ae07ed31bff39b04930360d0ca6"
+    },
+    {
+      "original": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/PAPER_REPO_PROMPT.txt",
+      "document": "docs/figures/posterior_margin_sensitivity_increment_1p13_20261002/PAPER_REPO_PROMPT.txt",
+      "relative_link": "../../../docs/figures/posterior_margin_sensitivity_increment_1p13_20261002/PAPER_REPO_PROMPT.txt",
+      "sha256": "4c889c95a976de4b5f30739ac1e2f10468109f482d6047c43fab916d658ebb0c"
+    },
+    {
+      "original": "plots/paper_figures/statistical/README.md",
+      "document": "docs/figures/statistical/README.md",
+      "relative_link": "../../../docs/figures/statistical/README.md",
+      "sha256": "6b8a8a4f4b11570e3095195e7493ee548a0bbe99a934f3184e04a967aa2b44a9"
+    },
+    {
+      "original": "plots/paper_figures/statistical/FIGURE_INDEX.md",
+      "document": "docs/figures/statistical/FIGURE_INDEX.md",
+      "relative_link": "../../../docs/figures/statistical/FIGURE_INDEX.md",
+      "sha256": "e319e0462b1bce7f6990d519d8b5640a97db75922cea821b2027a2adb9c64eb0"
+    }
+  ]
+}

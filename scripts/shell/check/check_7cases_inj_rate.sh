@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 运行检查7个cases的injection rate脚本
+# Run the injection-rate check for seven recovery cases.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
@@ -9,11 +9,11 @@ cd "${ROOT_DIR}"
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 mkdir -p "$JULIA_DEPOT_PATH"
 
-# 尝试找到julia
+# Try to locate Julia
 if command -v julia &> /dev/null; then
     julia "${JULIA_SCRIPT}"
 else
-    echo "错误: 找不到julia命令"
-    echo "请确保julia在PATH中，或者使用sbatch提交作业"
+    echo "Error: julia command not found"
+    echo "Ensure julia is on PATH, or submit the job with sbatch"
     exit 1
 fi

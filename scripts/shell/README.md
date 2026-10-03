@@ -25,7 +25,6 @@ shell/
 | Posterior + Appendix E paper handoff (11 figures, historical rates) | `sbatch scripts/shell/submit/submit_posterior_appendix_e_export.sh` |
 | Full-campaign video forward export | `sbatch scripts/shell/submit/submit_full_campaign_video_forwards.sh` |
 | Full-campaign video rendering | `sbatch scripts/shell/submit/submit_full_campaign_fracture_video.sh` |
-| Threshold sensitivity | `sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity.sh` |
 | Read-only repository checks | `python3 scripts/python_tools/maintenance/check_repository.py` |
 
 Full index: [docs/reference/SCRIPTS_INDEX.md](../../docs/reference/SCRIPTS_INDEX.md)

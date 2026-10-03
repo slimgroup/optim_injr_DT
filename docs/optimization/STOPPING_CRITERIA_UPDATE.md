@@ -1,106 +1,46 @@
-# 停止条件更新说明
+# Historical stopping-criteria proposal
 
-## 更新内容
+This note records proposed extra stopping checks. In the current
+`src/optim_inject.jl`, the small-gradient and relative-objective-change checks
+are commented out. Their presence in this note does not mean they are active.
+See [the current solver description](SOLVER_CONSTRAINT_HANDLING.md).
 
-在 `src/optim_inject.jl` 中添加了**不冲突的额外停止条件**，保留原有的步长停止条件（95%正确率保证）。
+The proposal checked `gnorm < 1e-5` from iteration 2, and two consecutive relative
+objective changes below `1e-6` from iteration 3:
 
-## 新增停止条件
-
-### 1. 梯度范数检查（第964-967行）
 ```julia
 if j >= 2 && gnorm < 1e-5
-    println("Converged: gradient norm < 1e-5 at iter $j.")
     break
 end
-```
-- **触发条件**：梯度范数 < 1e-5（从第2次迭代开始检查）
-- **原理**：梯度很小说明接近最优点
-- **不冲突**：与步长条件独立，可以提前检测收敛
-
-### 2. 目标函数相对变化检查（第970-981行）
-```julia
 if j >= 3
     obj_prev = obj_arr_niter[j]
     obj_prev2 = obj_arr_niter[j-1]
     rel_change = abs(obj - obj_prev) / max(abs(obj_prev), 1e-10)
     rel_change_2 = abs(obj_prev - obj_prev2) / max(abs(obj_prev2), 1e-10)
-    
     if rel_change < 1e-6 && rel_change_2 < 1e-6
-        println("Converged: objective relative change < 1e-6 for 2 consecutive iterations")
         break
     end
 end
 ```
-- **触发条件**：连续2次迭代，目标函数相对变化 < 1e-6
-- **原理**：目标函数几乎不变说明已收敛
-- **不冲突**：与步长条件独立，可以提前检测收敛
 
-## 保留的原有停止条件
+The existing loop retains the zero-gradient check and relative step criterion:
 
-### 步长停止条件（第1019-1021行）- **95%正确率保证**
 ```julia
+if gnorm == 0.0
+    break
+end
 if stp < (inj_rate + [inj_start])[1] / 2 * 0.05 / 0.95
     break
 end
 ```
-- **保留原因**：这是保证95%正确率的关键条件
-- **作用**：当步长过小时停止，确保优化质量
 
-### 梯度为零检查（第952-955行）
-```julia
-if gnorm == 0.0
-    println("Gradient became zero; stopping at iter $j.")
-    break
-end
-```
-- **保留原因**：梯度为零是明确的收敛信号
+The historical description of this step criterion as a “95% accuracy guarantee”
+was unsupported. None of these checks proves global optimality or a probability
+of correctness. The recorded expectation of stopping after 5–7 iterations,
+saving 3–5 iterations or 20–30% runtime, was a forecast, not a benchmark.
+The original observation concerned ten jobs at iteration 5 with approximately
+40 minutes per iteration; it is not current job status.
 
-## 停止条件优先级
-
-1. **梯度为零**（最严格，立即停止）
-2. **梯度范数 < 1e-5**（从第2次迭代开始）
-3. **目标函数相对变化 < 1e-6（连续2次）**（从第3次迭代开始）
-4. **步长过小**（95%正确率保证，最后检查）
-
-## 预期效果
-
-### 对于当前运行的10个任务
-- **如果已收敛**：新条件会在5-7次迭代时触发，节省3-5次迭代（约2-3小时）
-- **如果未收敛**：继续运行到步长条件触发（保证95%正确率）
-
-### 对于未来任务
-- **平均节省时间**：20-30%（如果大多数case在7次迭代内收敛）
-- **质量保证**：步长条件仍然保留，确保95%正确率
-- **灵活性**：多个停止条件，更早检测收敛
-
-## 关于收敛速度
-
-### 当前观察
-- 所有10个任务都在第5次迭代
-- 每次迭代约40分钟
-- 目标函数值在变化（penalty在减小）
-
-### 评估
-- **收敛速度**：对于PDE约束优化，每次迭代40分钟是合理的
-- **是否太慢**：取决于是否在5-7次迭代内收敛
-  - 如果5-7次收敛 → 速度合理
-  - 如果需要10次 → 可以考虑L-BFGS加速
-
-### 建议
-1. **等待当前任务完成**：观察实际收敛情况
-2. **如果大多数在7次内收敛**：新停止条件会节省时间
-3. **如果都需要10次**：考虑升级到L-BFGS（中期改进）
-
-## 关于Adjoint方法
-
-✅ **理解**：对于复杂PDE系统，adjoint方法实现确实非常复杂
-- 需要推导adjoint方程
-- 需要实现adjoint求解器
-- 需要处理边界条件和约束
-- 对于多物理场耦合系统，复杂度指数增长
-
-**当前策略**：
-- 使用有限差分计算梯度（虽然慢但可靠）
-- 通过停止条件优化来减少迭代次数
-- 未来考虑L-BFGS（不需要adjoint，但能加速收敛）
-
+L-BFGS and adjoint gradients were suggested for future investigation. No solver
+behavior or numerical stopping criteria were changed during documentation
+cleanup.

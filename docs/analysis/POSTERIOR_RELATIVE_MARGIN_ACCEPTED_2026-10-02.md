@@ -74,35 +74,43 @@ Actual regeneration from original JLD2 inputs continues to use
 ## Paper-repository intake prompt
 
 <!-- PAPER_PROMPT_START -->
-请使用 posterior_relative_margin_focused_20261002/ 中的 PNG 更新论文。
+Use the PNGs in posterior_relative_margin_focused_20261002/ to update the paper.
 
-1. 先核对 manifest.json 与 delivery_checksums.json。这次采用已确认的 focused
-   posterior 均值和标准差，共8张，k=1–4；所有图片为400 dpi PNG。
-2. 新的三行顺序为 relative margin、pressure difference、CO2 saturation。
-   将 paper_compat/posterior/ 下的新文件复制到 figs/posterior/：
+1. Verify manifest.json and delivery_checksums.json. This delivery uses the
+   accepted focused posterior mean/std figures: eight images for k=1–4, all
+   400 dpi PNGs.
+2. Row order is relative margin, pressure difference, and CO2 saturation.
+   Copy the new files from paper_compat/posterior/ into figs/posterior/:
    state_mean_relative_margin_pressurediff_sat_all_cases_t{k}.png
    state_std_relative_margin_pressurediff_sat_all_cases_t{k}.png
-   根据 manifest 的 paper_current_path → paper_new_path 更新 QMD 路径，保留
-   原 Quarto ID 和交叉引用；保留旧图片，不要用新行顺序覆盖旧名称的图。
-3. 更新对应均值/std captions 的三行描述。统计量是在每个 reservoir grid cell
-   上沿128个后验样本计算；std 使用总体标准差 ddof=0。
-   relative margin 定义为 r=(p_max-p)/p_max，p_max=pres_Hyd+4 MPa。
-   relative margin 和 saturation 均无量纲，pressure difference 单位为MPa。
-4. 三个case顺序保持 PoF epsilon=0.0、PoF epsilon=0.01、
-   CVaR gamma=0.1 / alpha=0.01；标题使用监测索引k。
-   focused只调整relative-margin色标：均值0.02–0.98，std 0–0.029。
-   各case和监测步骤共用相同色标，没有放大或修改压力数据。
-   均值图暖色只表示裕度较小，不应解释为已经发生压力越限。
-5. 本目录同时附带此前已经确认的6张统计图，文件内容逐字节不变。
-   如果paper已采用最新的1×3 histogram/ECDF，不需要再次改统计图。
-   如尚未采用，复制 paper_compat/statistical/ 下的
-   grid_histogram_selected_1x3_t{k}.png 和 grid_cdf_selected_1x3_t{k}.png，k=2–4，
-   将每步旧合并图引用更新为这两张图，保留相应figure ID/交叉引用。
-6. 历史ECDF仍为B=5000、seed=42；没有改成10000，也没有更新q-star选择算法。
-   Histogram的紫色quantile confidence interval仍已删除。
-   保留strict PoF在k=2/3/4分别127/124/122个可行完成样本及排除1/4/6个的说明；
-   其他rate cases为128。不要把rate子集数量套用到posterior-state maps。
-7. Appendix E采用k=2–4的6张posterior图和6张统计图；k=1的2张posterior图用于主文。
-   Appendix D的pressure-bound/BHP内容保持原安排。最后渲染并检查caption、
-   图片宽度、figure ID和交叉引用。
+   Update QMD paths using the manifest's paper_current_path → paper_new_path
+   mapping. Preserve Quarto IDs, cross references, and old figures; do not
+   overwrite old row-order filenames with this new layout.
+3. Update mean/std captions to describe the three rows. Statistics are computed
+   across 128 posterior samples at each reservoir grid cell, using population
+   standard deviation (ddof=0). Relative margin is r=(p_max-p)/p_max, with
+   p_max=pres_Hyd+4 MPa. Margin and saturation are dimensionless; pressure
+   difference is in MPa.
+4. Keep the case order: PoF epsilon=0.0, PoF epsilon=0.01, and
+   CVaR gamma=0.1 / alpha=0.01. Titles use monitoring index k.
+   The focused variant changes only relative-margin color limits: mean
+   0.02–0.98 and standard deviation 0–0.029, shared across cases and steps.
+   Pressure data are not amplified or modified in this variant. Warm colors
+   indicate smaller margins, not necessarily pressure exceedance.
+5. The six previously accepted statistical figures are included byte for byte.
+   If the paper already uses the separate 1×3 histogram/ECDF figures, leave
+   them as they are. Otherwise copy from paper_compat/statistical/:
+   grid_histogram_selected_1x3_t{k}.png
+   grid_cdf_selected_1x3_t{k}.png
+   for k=2–4, replacing each combined-figure reference with the two panels
+   while preserving figure IDs and cross references.
+6. Historical ECDF settings remain B=5000 and seed=42, not 10000; the q-star
+   selection algorithm is unchanged. The purple histogram quantile confidence
+   interval remains absent. Preserve the strict-PoF sample qualifications:
+   127/124/122 feasible completed rate samples at k=2/3/4, with 1/4/6 excluded.
+   Other rate cases use 128. Do not apply rate-subset counts to posterior maps.
+7. Appendix E uses six posterior and six statistical figures for k=2–4; the
+   two k=1 posterior figures go in the main text. Preserve Appendix D's
+   pressure-bound/BHP content. Render and check captions, widths, IDs, and
+   cross references.
 <!-- PAPER_PROMPT_END -->

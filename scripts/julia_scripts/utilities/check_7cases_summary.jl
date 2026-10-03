@@ -1,5 +1,5 @@
 #!/usr/bin/env julia
-# 总结7个missing samples的数值和失败原因
+# Summarize values and failure context for seven previously missing samples.
 
 using Pkg
 Pkg.activate(".")
@@ -16,7 +16,7 @@ function last_nonzero_inj_rate(inj_rate_arr)
     return idx === nothing ? INJ_START : clean[idx]
 end
 
-# 7个missing samples
+# Seven previously missing samples
 missing_cases = [
     ("gamma=0.01, alpha=0.02, sample=64", "data/DT_control/exp_name=step1/CVaR__HARD__alpha=0.02__gamma=0.01__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0/sample=64/final.jld2"),
     ("gamma=0.01, alpha=0.05, sample=17", "data/DT_control/exp_name=step1/CVaR__HARD__alpha=0.05__gamma=0.01__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0/sample=17/final.jld2"),
@@ -28,7 +28,7 @@ missing_cases = [
 ]
 
 println("=" ^ 80)
-println("7个Missing Samples的具体数值")
+println("Recorded values for seven previously missing samples")
 println("=" ^ 80)
 println()
 
@@ -41,10 +41,10 @@ for (desc, path) in missing_cases
         
         println(desc)
         println(@sprintf("  Last nonzero injection rate: %.6f m³/s", last_nonzero))
-        println(@sprintf("  Averaged rate (与inj_start=%.6f平均): %.6f m³/s", INJ_START, avg_rate))
+        println(@sprintf("  Averaged rate (mean with inj_start=%.6f): %.6f m³/s", INJ_START, avg_rate))
         println()
     else
-        println("⚠️  $desc: final.jld2不存在")
+        println("⚠️  $desc: final.jld2 does not exist")
         println()
     end
 end

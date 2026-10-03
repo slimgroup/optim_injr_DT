@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
-# 为7个cases画injection rate的histogram
-# 参考plot_injr_distributions.jl的逻辑
+# Plot injection-rate histograms for the seven recovery cases.
+# Follow the logic in plot_injr_distributions.jl.
 
 using Pkg
 Pkg.activate(".")
@@ -14,11 +14,11 @@ using Printf
 using Dates
 
 # ===================== Config =====================
-const INJ_START = 0.0001  # 第一个step的injection rate
+const INJ_START = 0.0001  # Injection rate at the first schedule step
 const NBINS = 30
 const USE_LOGX = false
 
-# 7个cases的路径
+# Paths for the seven cases
 cases = [
     ("gamma=0.01, alpha=0.02, sample=64", "data/DT_control/exp_name=step1/CVaR__HARD__alpha=0.02__gamma=0.01__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0/sample=64/final.jld2"),
     ("gamma=0.01, alpha=0.05, sample=17", "data/DT_control/exp_name=step1/CVaR__HARD__alpha=0.05__gamma=0.01__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0/sample=17/final.jld2"),
@@ -29,7 +29,7 @@ cases = [
     ("gamma=0.05, alpha=0.05, sample=64", "data/DT_control/exp_name=step1/CVaR__HARD__alpha=0.05__gamma=0.05__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0/sample=64/final.jld2"),
 ]
 
-# 读取last nonzero injection rate
+# Read the last nonzero injection rate
 function last_nonzero_inj_rate(inj_rate_arr)
     col1 = vec(inj_rate_arr[:, 1])
     clean = filter(x -> isfinite(x) && !isnan(x), col1)
@@ -38,10 +38,10 @@ function last_nonzero_inj_rate(inj_rate_arr)
 end
 
 println("=" ^ 80)
-println("读取7个cases的injection rate数据")
+println("Reading injection-rate data for seven cases")
 println("=" ^ 80)
 
-# 收集数据
+# Collect data
 last_nonzero_rates = Float64[]
 averaged_rates = Float64[]
 case_labels = String[]
@@ -65,7 +65,7 @@ for (desc, path) in cases
 end
 
 if isempty(averaged_rates)
-    error("没有找到任何数据文件")
+    error("No data files found")
 end
 
 # ===================== Plotting =====================

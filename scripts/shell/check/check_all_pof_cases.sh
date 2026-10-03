@@ -5,7 +5,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 
-echo "=== 检查所有POF cases的状态 ==="
+echo "=== Checking all PoF cases ==="
 echo ""
 
 # Function to check if a task is submitted or completed
@@ -64,7 +64,7 @@ MISSING=0
 MISSING_LIST=()
 
 # Group 1: eps=0.0, 0.001, 0.01, 0.02, 0.05 × samples 65-128
-echo "检查 Group 1: eps=0.0,0.001,0.01,0.02,0.05 × samples 65-128..."
+echo "Checking group 1: eps=0.0,0.001,0.01,0.02,0.05 × samples 65–128..."
 for sample in $(seq 65 128); do
   for eps in 0.0 0.001 0.01 0.02 0.05; do
     TAG="DT_POF_eps=${eps}"
@@ -82,7 +82,7 @@ for sample in $(seq 65 128); do
 done
 
 # Group 2: eps=0.002, 0.003, 0.005, 0.03 × samples 33-128
-echo "检查 Group 2: eps=0.002,0.003,0.005,0.03 × samples 33-128..."
+echo "Checking group 2: eps=0.002,0.003,0.005,0.03 × samples 33–128..."
 for sample in $(seq 33 128); do
   for eps in 0.002 0.003 0.005 0.03; do
     TAG="DT_POF_eps=${eps}"
@@ -100,7 +100,7 @@ for sample in $(seq 33 128); do
 done
 
 # Group 3: eps=0.1 × samples 1-128
-echo "检查 Group 3: eps=0.1 × samples 1-128..."
+echo "Checking group 3: eps=0.1 × samples 1–128..."
 for sample in $(seq 1 128); do
   TAG="DT_POF_eps=0.1"
   STATUS=$(check_task "${TAG}" "${sample}")
@@ -117,24 +117,24 @@ done
 
 echo ""
 echo "=========================================="
-echo "统计结果:"
-echo "  总计: $TOTAL 个任务"
-echo "  已完成: $COMPLETED 个"
-echo "  已提交: $SUBMITTED 个"
-echo "  缺失: $MISSING 个"
+echo "Counts:"
+echo "  Total: $TOTAL jobs"
+echo "  Completed: $COMPLETED"
+echo "  Submitted: $SUBMITTED"
+echo "  Missing: $MISSING"
 echo "=========================================="
 
 if [ $MISSING -gt 0 ]; then
   echo ""
-  echo "缺失的任务（前20个）:"
+  echo "Missing jobs (first 20):"
   printf '%s\n' "${MISSING_LIST[@]}" | head -20
   if [ $MISSING -gt 20 ]; then
-    echo "... 还有 $((MISSING - 20)) 个"
+    echo "... and $((MISSING - 20)) more"
   fi
   exit 1
 else
   echo ""
-  echo "✓ 所有任务都已提交或已完成！"
+  echo "✓ All jobs have been submitted or completed"
   exit 0
 fi
 

@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-03",
+  "reason": "User-authorized English translation of tracked handoff reading notes. Filenames, scientific definitions, factors, sample counts, and figure bytes are unchanged.",
+  "base_commit": "b51bceb66df0030cee1c9ffe433a7ce37eb4a82a",
+  "scope": "Only PAPER_REPO_PROMPT.txt entries changed in delivery_checksums.json; archived delivery bundles and original generating-commit records remain untouched.",
+  "files": [
+    {
+      "path": "plots/paper_figures/posterior_appendix_e_layout_20261002/PAPER_REPO_PROMPT.txt",
+      "old_sha256": "983ce624ffb5cd4b299ed995f71def93ec936daa464d94f371fcbffb3b562700",
+      "new_sha256": "659f34747e49b352a37dc61a9d9e8e166e2a824939569cf0a89b79513cf3007f",
+      "checksum_file": "plots/paper_figures/posterior_appendix_e_layout_20261002/delivery_checksums.json",
+      "old_checksum_file_sha256": "43c966f863925417161059d1797d6adedc8937bd3f7827b913ad21317b42a470",
+      "new_checksum_file_sha256": "a69ca756543290b7c5c36cb5d8b3c3e735e28276637cdf6925d79d810cc5ffae"
+    },
+    {
+      "path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/PAPER_REPO_PROMPT.txt",
+      "old_sha256": "a82b00929314ffe75d2c349150c858c204b0d8ab01dbeb02f4757031169ea69e",
+      "new_sha256": "4c889c95a976de4b5f30739ac1e2f10468109f482d6047c43fab916d658ebb0c",
+      "checksum_file": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/delivery_checksums.json",
+      "old_checksum_file_sha256": "3ba774d803c2a38162e397842ea08fc00f59c69e42ffcec20db3cfb796a42006",
+      "new_checksum_file_sha256": "0a057de87c4c8380bcc2263ec84c62f5032306530daffba52283c59fbad317df"
+    }
+  ]
+}

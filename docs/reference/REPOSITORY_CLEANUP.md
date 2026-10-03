@@ -1,9 +1,56 @@
 # Repository cleanup record
 
-Status: source/documentation organization and the approved figure cleanup are
-complete. The user authorized the cleanup, commit, and remote synchronization
-on 2026-10-03. No simulation or plot was rerun; no research data or generated
-image was permanently deleted or replaced.
+Status: the initial organization and the subsequent approved legacy cleanup are
+complete. The user authorized cleanup, commit, and remote synchronization on
+2026-10-03, then approved the exact legacy deletion groups. No simulation or plot
+was rerun. The first phase preserved all outputs; the second deleted only the
+reviewed obsolete workflow and its listed artifacts, as recorded below.
+
+## Second-phase review and completion
+
+- Deleted the explicitly approved G and U groups: 102 files, 4,682,535 bytes.
+  G contains the retired gamma-table/threshold workflow, one table, and 78 old
+  outputs; U contains eight unreferenced archived variants and four completed
+  path-migration scripts. Every file matched its review hash before deletion.
+  See [scope and dependencies](DELETION_REVIEW_2026-10-03.md),
+  [exact paths](deletion_review_20261003.csv), and
+  [execution receipt](deletion_receipt_20261003.json).
+- Consolidated agent rules in `AGENTS.md`, removed the explicitly authorized
+  `CLAUDE.md`, and reduced both Cursor rules to pointers to the canonical file.
+- Standardized tracked natural-language documentation, comments, and terminal
+  messages to English. Preserved filenames, data keys, CLI arguments, and
+  executable behavior. The deletion CSV intentionally retains one original
+  Chinese filename as a historical path identifier.
+- Replaced contradictory old method advice with concise English explanations
+  referring to the current solver description. In particular, nonzero lambda
+  remains active with hard checks; zero-baseline penalties can be negative;
+  the stopping heuristic does not prove 95% accuracy. Old timing forecasts are
+  labeled as estimates. Diagnostic outlier messages no longer imply that a
+  mean ± 2 SD flag alone justifies removing a completed sample.
+- Centralized nine figure reading notes under `docs/`, deduplicating two against
+  existing analysis documents. Relative links preserve all original export
+  paths and byte content. See [the location map](figure_document_locations.json).
+  The two translated paper-intake notes have explicit old/new hashes in
+  [the language revision record](english_handoff_revision_20261003.json);
+  only their entries changed in the delivery checksum files. Original ZIPs and
+  source snapshots remain unchanged local historical records.
+- Preserved all 21 selected PNG hashes, current numerical inputs, prior exports,
+  and the documented 1.13/1.22 sensitivity interpretations. The removed
+  gamma-table calibration is separate from ordinary CVaR gamma parameters.
+
+The second-phase checks cover 24 navigation documents, 61 Python files,
+90 shell scripts, nine document compatibility links, and 21 selected-asset
+hashes. Four isolated submission tests pass. Julia parsing confirms that all
+ten translated Julia sources retain identical executable ASTs and interpolation
+expressions, with only comments and Chinese string literals changed. No Julia
+package installation, simulation, heavy integration test, rendering, or real
+Slurm submission was performed. An independent staged-only export passed the
+repository/asset checks and the four submission tests. Its 400 readable text
+files passed the English-language scan, with the original inventory filename
+retained as noted above. A wider link scan found 119 references to intentionally
+local data, videos, and historical outputs: all still exist locally but are not
+included in the public checkout. Maintained navigation and selected assets pass
+without those files. The following sections retain the first-phase record.
 
 ## Completed organization
 

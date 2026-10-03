@@ -13,14 +13,14 @@ set -euo pipefail
 module purge
 module load julia/1.11.3 2>/dev/null || true
 
-# Fixed environment (使用已存在的 julia-depot 避免重复编译)
+# Fixed environment: reuse the existing julia-depot to avoid duplicate compilation.
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
-# 确保 julia-depot 目录存在
+# Ensure the shared depot exists
 if [ ! -d "$JULIA_DEPOT_PATH" ]; then
     mkdir -p "$JULIA_DEPOT_PATH"
 fi
 export PYTHON=/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python
-# 允许自动预编译（如果包已存在，会使用预编译版本）
+# Allow automatic precompilation; reuse existing compiled packages where available.
 export JULIA_PKG_PRECOMPILE_AUTO=1
 export MPLBACKEND=Agg
 export OPENBLAS_NUM_THREADS=1
@@ -50,7 +50,7 @@ mkdir -p "${LOGS_DIR}" 2>/dev/null || true
 cd "${ROOT_DIR}" || { echo "ERROR: Cannot cd to ${ROOT_DIR}"; exit 1; }
 
 echo "=========================================="
-echo "ds 参数验证测试"
+echo "ds parameter verification test"
 echo "=========================================="
 echo "Job ID: ${SLURM_JOB_ID}"
 echo "Node: $(hostname)"
@@ -64,6 +64,6 @@ julia --project="${ROOT_DIR}" -t 1 "${ROOT_DIR}/${TEST_FILE}"
 
 echo ""
 echo "=========================================="
-echo "完成时间: $(date)"
+echo "Completed at: $(date)"
 echo "=========================================="
 

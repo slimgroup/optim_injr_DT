@@ -1,0 +1,29 @@
+Use the PNGs in this posterior_appendix_e_layout_20261002 delivery.
+
+1. Check manifest.json, VALIDATION.md, and delivery_checksums.json.
+2. Posterior titles are larger and the space below them is tighter. The eight
+   posterior figures retain their original paper filenames. Copy the matching
+   files from paper_compat/posterior/ into figs/posterior/.
+3. For k=2,3,4, the statistical panels are separate 1×3 histogram and ECDF figures:
+   grid_histogram_selected_1x3_t{k}.png
+   grid_cdf_selected_1x3_t{k}.png
+   Copy them from paper_compat/statistical/ into figs/statistical/.
+4. Replace QMD references to summary_grid_hist_cdf_t{k}.png with the two new
+   figures. Use a figure group as appropriate to preserve Quarto IDs and cross
+   references. Do not overwrite an old combined filename with only one panel.
+5. Preserve monitoring-step k, case order, sample-count qualifications, and
+   pointwise bootstrap ECDF confidence-interval descriptions. The purple
+   histogram quantile confidence interval was removed; omit it from captions.
+6. The statistical layout follows the supplied step-1 reference appearance;
+   step-2–4 numerical results were not replaced. These historical ECDFs still
+   use B=5000 and seed=42, not the step-1 reference's B=10000. The q-star
+   selection algorithm was not migrated. Reconcile any manuscript claim of
+   10000 bootstrap replicates separately.
+7. Appendix E uses six posterior and six statistical figures for k=2–4 (12 in
+   total). Two k=1 posterior figures support the earlier main-text request.
+   Preserve the pressure/BHP material assigned to Appendix D.
+8. Back up old manuscript figures, update the copies and references, render the
+   manuscript, and check captions, widths, and cross references.
+
+The delivery contains 14 distinct figures. Canonical and paper_compat copies
+have identical hashes. All figures are 400 dpi PNGs; there are no PDFs or SVGs.

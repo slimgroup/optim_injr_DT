@@ -1,171 +1,30 @@
-# PoF vs CVaR 比较方法
+# Retired PoF/CVaR comparison methods
 
-## 问题：为什么直接比较PoF和CVaR不够直观？
+The gamma-table comparison workflow and its old plots were removed with the
+user's approval on 2026-10-03. See [the deletion record](../reference/DELETION_REVIEW_2026-10-03.md).
+This note retains the methodological reason for retirement; it is not a recipe
+for the current paper comparison.
 
-### 单位/量纲不同
-- **PoF**: 概率（0-1之间，无单位）
-- **CVaR**: 损失的期望值（有单位，这里是压力margin的损失）
+The earlier proposal interpreted `CVaR / PoF > 1` as proof that CVaR was more
+conservative. That interpretation is invalid: PoF measures exceedance weight,
+while CVaR measures tail loss severity. Their ratio is not a general ordering
+of policies or feasible sets. For relative-margin losses both can be
+dimensionless, but they still represent different quantities. With an absolute
+pressure loss, CVaR instead carries the loss units.
 
-### 数值范围不同
-- **PoF**: 通常在0.1-0.3之间
-- **CVaR**: 通常在0.3-0.8之间
-- 直接在同一y轴上比较会掩盖CVaR的保守性
+The old outputs included ratio, relative-change, min-max-normalized, and dual-axis
+plots. Relative changes and normalization can describe trends within a fixed
+experiment, but do not establish one method's conservatism. Dual axes retain
+the original quantities while allowing arbitrary visual scale choices.
 
-### 阈值变化的影响
-- 当threshold变化时，PoF和CVaR都下降
-- 但下降的**相对幅度**和**绝对幅度**不同
-- 需要更好的方法来展示CVaR的保守性
+A recorded observation was that both optimized endpoints stayed near 1.05 over
+a 2–6 MPa threshold sweep. Suggested explanations included weak risk weights,
+solver behavior, or a bound. Those were hypotheses, not established causes;
+the current endpoint optimizer has no explicit injection upper bound.
 
----
-
-## 推荐的比较方法
-
-### 方法1: CVaR/PoF比率 ⭐ **最推荐**
-
-**原理**：
-- 计算 `CVaR / PoF` 比率
-- 如果比率 > 1，说明CVaR比PoF更保守
-- 比率越大，CVaR相对越保守
-
-**优点**：
-- 无量纲，可以直接比较
-- 直观显示"CVaR是PoF的多少倍"
-- 不受阈值变化影响（如果比率稳定）
-
-**图表**：`cvar_pof_ratio_sample=128.png`
-
-**解读**：
-- 如果比率 ≈ 2-3，说明CVaR捕获的风险是PoF的2-3倍
-- 如果比率随阈值变化，说明保守性在不同阈值下不同
-
----
-
-### 方法2: 相对变化率对比
-
-**原理**：
-- 以第一个阈值（2.0 MPa）为基准
-- 计算每个阈值相对于基准的百分比变化
-- 比较PoF和CVaR的相对变化率
-
-**优点**：
-- 显示哪个指标对阈值变化更敏感
-- 可以比较"下降速度"
-
-**图表**：`relative_change_comparison_sample=128.png`
-
-**解读**：
-- 如果CVaR的相对变化更大，说明CVaR对阈值更敏感
-- 这反映了CVaR对极端情况的敏感性
-
----
-
-### 方法3: 标准化比较（0-1 scale）
-
-**原理**：
-- 将PoF和CVaR都标准化到0-1范围
-- `normalized = (value - min) / (max - min)`
-- 在相同尺度上比较趋势
-
-**优点**：
-- 消除了量纲差异
-- 可以比较趋势的相似性
-
-**缺点**：
-- 丢失了绝对数值信息
-- 可能掩盖实际的保守性差异
-
-**图表**：`normalized_comparison_sample=128.png`
-
----
-
-### 方法4: 双Y轴比较
-
-**原理**：
-- 左Y轴：PoF（概率）
-- 右Y轴：CVaR（损失期望）
-- 在同一图上显示，但使用不同的y轴刻度
-
-**优点**：
-- 保留各自的单位和数值
-- 可以同时看到两个指标的趋势
-
-**缺点**：
-- 需要仔细解读，避免误解
-- 不能直接比较数值大小
-
-**图表**：`dual_axis_comparison_sample=128.png`
-
----
-
-## 关于Injection Rate不变的观察
-
-### 观察
-从图表看，PoF优化和CVaR优化的注入速率都保持在约1.05，不随阈值变化。
-
-### 可能的原因
-
-1. **达到上界约束**
-   - 如果优化问题有注入速率的上界（如物理限制）
-   - 最优解可能总是触及上界
-   - 无论使用PoF还是CVaR，都会达到相同的上界
-
-2. **风险惩罚项的影响较小**
-   - 如果目标函数中，风险惩罚项相对于基础目标（CO2注入量）较小
-   - 最优解主要由基础目标决定
-   - 风险度量的选择影响较小
-
-3. **阈值范围不够宽**
-   - 如果阈值变化范围（2.0-6.0 MPa）内，风险水平都相对较低
-   - 可能都在"安全区域"，导致最优策略相似
-
-4. **优化收敛到局部最优**
-   - 如果两个优化都收敛到相同的局部最优
-   - 可能恰好这个最优解对两种风险度量都适用
-
-### 如何验证
-
-检查优化结果：
-```julia
-# 检查是否有上界约束
-# 检查目标函数中风险项的权重
-# 检查梯度是否接近零（是否真的最优）
-```
-
----
-
-## 推荐的展示策略
-
-### 对于论文/报告
-
-1. **主图**：CVaR/PoF比率图
-   - 标题："CVaR/PoF Ratio: Quantifying the Conservativeness of CVaR"
-   - 说明：比率>1表明CVaR更保守，比率越大越保守
-
-2. **辅助图**：相对变化率对比
-   - 标题："Relative Sensitivity: PoF vs CVaR to Threshold Changes"
-   - 说明：CVaR对阈值变化更敏感，反映了对极端情况的关注
-
-3. **补充**：双Y轴图
-   - 如果需要展示原始数值
-
-### 关键信息
-
-- **CVaR比PoF更保守**：通过比率图展示（比率>1）
-- **CVaR对阈值更敏感**：通过相对变化率展示
-- **数值差异**：通过双Y轴图展示
-
----
-
-## 总结
-
-**最佳比较方法**：
-1. ✅ **CVaR/PoF比率** - 最直观，直接量化保守性
-2. ✅ **相对变化率** - 显示敏感性差异
-3. ⚠️ **标准化比较** - 仅用于趋势比较
-4. ⚠️ **双Y轴** - 需要仔细解读
-
-**关于Injection Rate**：
-- 需要检查是否有上界约束
-- 检查风险项在目标函数中的权重
-- 可能需要扩大阈值范围或调整优化参数
-
+Matching a gamma value to PoF at one sampled state does not establish equivalent
+constraints over all candidate schedules or geological realizations. Compare
+selected policies using their actual objectives, thresholds, priors, completed
+samples, and validated forward outcomes. See
+[the current solver description](../optimization/SOLVER_CONSTRAINT_HANDLING.md)
+and [the selected figure manifest](../reference/PAPER_FIGURE_MANIFEST.md).

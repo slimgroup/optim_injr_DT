@@ -1,0 +1,40 @@
+This delivery is a relative-margin sensitivity illustration, not a color-only
+restyling of unmodified posterior data.
+
+1. Check handoff_manifest.json, validation.json, and delivery_checksums.json.
+2. The eight posterior PNGs show means and standard deviations for k=1–4.
+   Rows are relative margin, pressure difference, and CO2 saturation.
+   paper_compat/posterior/ uses distinct sensitivity_increment_1p13 filenames;
+   retain the original posterior figures.
+3. Explain in captions or methods that relative margin alone uses
+   p_used = pHyd + 1.13*(p-pHyd), with p_max = pHyd + 4 MPa.
+   The same factor applies to all three cases, four steps, and all samples.
+   Pressure-difference and saturation rows retain their original values.
+   First-row standard deviations use transformed samples with ddof=0.
+   This is an algebraic pressure-sensitivity illustration; no forward
+   simulation, optimization, or statistical rate selection was rerun.
+4. The red/blue boundary is exactly r=0. Shared mean limits are -0.1 to 1 and
+   shared standard-deviation limits are 0 to 0.032 across cases and steps.
+   Mean-field exceeding cells count grid cells with mean(r_used)<0, not samples
+   or failure probabilities. Counts at k=2 are 0/0/69; all other steps are
+   0/0/0. The 69 cells and the reference single ground-truth field's 97 cells
+   are only a visual scale comparison.
+5. reference_zero_aligned_v2/ corrects the reference color zero. Field arrays
+   and original counts 0/97/6953 are unchanged. Do not use the early tick draft
+   in reference_zero_aligned/. The reference retains its CVaR 1.22 scenario;
+   preserve the scenario and injection-volume explanations in its caption.
+   The posterior 1.13 transformation was not applied to the reference figure.
+6. Original posterior figures and historical histogram/ECDF results, including
+   B=5000 and seed=42, are unchanged. If using these sensitivity figures,
+   update QMD paths from handoff_manifest.json and include the explanations
+   above. The images omit the factor label at the author's request, so the
+   factor must accompany them in the caption or manuscript text.
+
+Suggested caption text:
+The first row shows an illustrative pressure-sensitivity transformation of the posterior samples.
+For relative-margin calculations only, the pressure increment above the hydrostatic reference
+is multiplied by 1.13, using the same factor for all cases and monitoring steps.
+The pressure-difference and saturation rows remain unmodified. Red cells indicate negative
+mean transformed relative margin; annotated counts refer to grid cells of this mean field,
+not ensemble failure probabilities. Standard deviations are computed across the transformed
+relative-margin samples.

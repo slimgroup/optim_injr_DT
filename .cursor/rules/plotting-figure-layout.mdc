@@ -4,14 +4,5 @@ globs: scripts/**/*.py
 alwaysApply: false
 ---
 
-# Plotting Figure Layout
-
-When editing plotting or figure-export scripts:
-
-- Prefer wide, publication-style layouts with subplot proportions close to the intended final figure.
-- Minimize unused whitespace, but never at the cost of overlapping titles, labels, ticks, legends, or colorbars.
-- Make text as large as possible while still fitting cleanly inside the exported figure.
-- Before finalizing a plot, check that titles, subtitles, tick labels, colorbar labels, and annotations do not clip or run outside the canvas.
-- Keep colorbar placement visually aligned with subplot rows or columns when the figure uses repeated panels.
-- Match fonts, spacing, and colorbar styling to nearby paper figures when the user asks for consistency.
-- If a statistic is mathematically redundant in a figure, flag it instead of presenting it as a distinct visual insight.
+Follow the Plotting Figure Layout, Posterior Field Plot Rules, and Statistical
+Analysis Plot Rules sections of [AGENTS.md](../../AGENTS.md).

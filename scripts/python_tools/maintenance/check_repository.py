@@ -23,6 +23,8 @@ NAVIGATION = [
     "docs/reference/SCRIPTS_INDEX.md", "docs/reference/PAPER_FIGURE_MANIFEST.md",
     "docs/reference/REPOSITORY_CLEANUP.md",
     "plots/README.md", "plots/latest/README.md",
+    "plots/paper_figures/README.md", "docs/figures/README.md",
+    "docs/reference/DELETION_REVIEW_2026-10-03.md",
 ]
 
 
@@ -96,12 +98,28 @@ def check_assets(root, verify_files=False):
     return errors, len(seen)
 
 
+def check_figure_documents(root):
+    """Check compatibility links without reading large research artifacts."""
+    records = json.loads((root / "docs/reference/figure_document_locations.json").read_text())
+    errors = []
+    for item in records["files"]:
+        original, document = root / item["original"], root / item["document"]
+        if not original.is_symlink() or original.resolve() != document.resolve():
+            errors.append(f"Figure-document link mismatch: {item['original']}")
+        if not document.is_file():
+            errors.append(f"Missing figure reading note: {item['document']}")
+        elif hashlib.sha256(document.read_bytes()).hexdigest() != item["sha256"]:
+            errors.append(f"Figure reading note differs from relocation record: {item['document']}")
+    return errors
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--paper-assets", action="store_true",
                         help="also verify selected local PNGs against recorded SHA-256 hashes")
     args = parser.parse_args()
     errors = check_links(ROOT)
+    errors.extend(check_figure_documents(ROOT))
     source_errors, n_python, n_shell = check_sources(ROOT)
     errors.extend(source_errors)
     asset_errors, n_assets = check_assets(ROOT, args.paper_assets)

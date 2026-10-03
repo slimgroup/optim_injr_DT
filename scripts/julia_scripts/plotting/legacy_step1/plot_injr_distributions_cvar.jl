@@ -42,7 +42,7 @@ end
 
 # ========== Utility: collect all values for a group of cases, determine unified bins/xlim/ylim ==========
 function collect_group_values(df::DataFrame, case_list::Vector{String}, xmin::Float64, xmax::Float64, nbins::Int)
-    # 返回：Dict(case_tag => Vector{Float64}), global_ymax
+    # Returns: Dict(case_tag => Vector{Float64}), global_ymax
     vals_by_case = Dict{String, Vector{Float64}}()
     global_ymax = 0.0
     

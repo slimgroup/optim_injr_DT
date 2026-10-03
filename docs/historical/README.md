@@ -5,8 +5,8 @@ records preserve provenance and are not the current reproduction instructions.
 Use [the current guide](../REPRODUCIBILITY.md) and
 [selected figure manifest](../reference/PAPER_FIGURE_MANIFEST.md).
 
-- [PoF vs CVaR 比较方法](POF_CVAR_COMPARISON_METHODS.md)
-- [快速开始：PoF vs CVaR 对比实验](QUICK_START.md)
+- [Retired PoF/CVaR comparison methods](POF_CVAR_COMPARISON_METHODS.md)
+- [Retired gamma-table quick start](QUICK_START.md)
 - [BHP results for the four selected strategies](analysis/BHP_FOUR_STRATEGIES_PAPER_NOTE_2026-09-07.md)
 - [BHP and ground-truth audit — 7 September 2026](analysis/BHP_GROUND_TRUTH_AUDIT_2026-09-07.md)
 - [Paper-repository handoff: ground-truth BHP response](analysis/BHP_PAPER_REPO_HANDOFF_2026-09-07.md)
@@ -28,5 +28,5 @@ Use [the current guide](../REPRODUCIBILITY.md) and
 - [Step-1 PoF ε=0.01: 1500-point versus observed-jump rendering](statistics/POF_ECDF_JUMP_COMPARISON_2026-09-16.md)
 - [DTControl statistical figure labels](statistics/STATISTICAL_FIGURE_LABELS_2026-09-15.md)
 - [Step-1 ECDFs on observed jumps — 2026-09-16](statistics/STEP1_ECDF_OBSERVED_JUMPS_2026-09-16.md)
-- [PACE 运行指南：PoF vs CVaR 对比实验](workflow/PACE_RUN_GUIDE.md)
-- [Step-2 实验：进度与日志位置](workflow/STEP2_LOGS_AND_PROGRESS.md)
+- [Retired PACE gamma-table guide](workflow/PACE_RUN_GUIDE.md)
+- [Step-2 progress and log locations](workflow/STEP2_LOGS_AND_PROGRESS.md)

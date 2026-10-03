@@ -47,10 +47,9 @@ Use the [asset registry](paper_assets.json) for explicit PNG paths and checksums
 - `scripts/shell/retry/`: targeted recovery for named historical cases.
 - `scripts/julia_scripts/plotting/legacy_step1/`, `scripts/python_plots/legacy/`,
   `scripts/julia_scripts/archive/`, and `src/archive/`: retained historical code.
-- `scripts/gamma_tables/`: deprecated gamma-table comparison artifact.
-- `scripts/python_tools/maintenance/reorganize_*.py` and `patch_*_paths.py`:
-  old one-time migrations, not routine setup steps. Do not rerun them on the
-  organized repository.
+
+The gamma-table comparison stack and completed one-time path migrations were
+removed with explicit approval; see [the deletion record](DELETION_REVIEW_2026-10-03.md).
 
 Some historical-looking files are active dependencies. In particular, the
 Appendix E exporter, original plotting modules, and archived source commit are

@@ -53,7 +53,7 @@ println("Found CVaR cases: ", cases_cvar)
 
 # ========== Utility: collect all values for a group of cases, determine unified bins/xlim ==========
 function collect_group_values(df::DataFrame, case_list::Vector{String})
-    # 返回：Dict(case_tag => Vector{Float64}), global_xmin, global_xmax
+    # Returns: Dict(case_tag => Vector{Float64}), global_xmin, global_xmax
     vals_by_case = Dict{String, Vector{Float64}}()
     global_min = Inf
     global_max = -Inf

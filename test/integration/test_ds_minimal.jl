@@ -1,36 +1,36 @@
 #!/usr/bin/env julia
-# 最简化的 ds 对比测试：只运行一次完整的 forward reservoir simulation (960天)
-# 不加载不必要的包，避免预编译时间
+# Minimal ds comparison: one full forward reservoir simulation (960 days) per setting.
+# Avoid unnecessary packages and their precompilation cost.
 
-# 确保输出立即刷新
+# Flush output promptly
 flush(stdout)
 flush(stderr)
 
 using Pkg
 Pkg.activate(".")
 
-println("开始加载包...")
+println("Loading packages...")
 flush(stdout)
 
-using DrWatson  # 需要 datadir 函数
-println("  ✓ DrWatson 已加载")
+using DrWatson  # Provides datadir
+println("  ✓ DrWatson loaded")
 flush(stdout)
 
 using JutulDarcyRules
-println("  ✓ JutulDarcyRules 已加载")
+println("  ✓ JutulDarcyRules loaded")
 flush(stdout)
 
 using LinearAlgebra
 using JLD2
 using Random
 using Printf
-println("  ✓ 所有包已加载")
+println("  ✓ All packages loaded")
 flush(stdout)
 
-# 只 include 真正需要的函数（不 include 整个 optim_inject.jl）
-# 直接定义需要的函数，避免加载 PyPlot 等不必要的包
+# Include only required functions, not the full optim_inject.jl entry point.
+# Define the helpers directly to avoid loading unused packages such as PyPlot.
 
-# 从 optim_inject.jl 复制 build_sim 函数
+# Copy of build_sim from optim_inject.jl
 function build_sim(n, d, ϕ, K; h=0.0, ds=10, dt_firstblock=80/ds)
     model = jutulModel(n, d, ϕ, K1to3(K; kvoverkh=0.36); h=h)
     Sblk  = jutulModeling(model, dt_firstblock * ones(ds))
@@ -39,7 +39,7 @@ function build_sim(n, d, ϕ, K; h=0.0, ds=10, dt_firstblock=80/ds)
 end
 
 println("=" ^ 80)
-println("ds 参数对比测试：一次完整的 forward simulation (960天)")
+println("ds comparison: one full forward simulation (960 days) per setting")
 println("=" ^ 80)
 
 # Setup parameters
@@ -51,7 +51,7 @@ h = 0.0
 forward_step = 2
 
 # Load data
-println("\n加载数据...")
+println("\nLoading data...")
 perm_path = datadir("geo/wise_perm_models_2000_new.jld2")
 perm_data = JLD2.load(perm_path)
 BroadK = perm_data["BroadK"]
@@ -87,44 +87,44 @@ inj_y = 191 + argmax(K[250, 191:200]) - 1
 inj_loc_grid = (250, 1, inj_y)
 inj_loc = (inj_loc_grid[1]*d[1], inj_loc_grid[2]*d[2], inj_loc_grid[3]*d[3])
 
-# 固定的注入速率
+# Fixed injection rate
 inj_rate_base = 0.1
 inj_start = 0.0001
 
 println("\n" * "=" ^ 80)
-println("开始测试：一次完整的 forward simulation (960天)")
-println("总时间 = 2 * 6 * 80 = 960 天")
+println("Starting test: one full forward simulation (960 days)")
+println("Total duration = 2 * 6 * 80 = 960 days")
 println("=" ^ 80)
 
-# 测试不同的 ds 值
+# Test different ds settings
 ds_values = [1, 2, 5, 10]
 results = Dict{Int, Dict{String, Any}}()
 
 for ds in ds_values
     println("\n" * "-" ^ 80)
-    println("测试 ds = $ds")
+    println("Testing ds = $ds")
     println("-" ^ 80)
     
-    # 构建模拟器
-    println("  构建模拟器...")
+    # Build the simulator
+    println("  Building simulator...")
     build_start = time()
     sim = build_sim(n, d, ϕ, K; h=h, ds=ds, dt_firstblock=80/ds)
     build_time = time() - build_start
     
-    # 设置注入速率序列
+    # Configure the injection-rate schedule
     inj_rate_final = inj_rate_base
     inj_rate_seq = collect(range(inj_start, inj_rate_final, forward_step * 6))
     inj_len = length(inj_rate_seq)
     
-    println("  配置信息:")
-    println("    - dt_firstblock = $(80/ds) 天")
-    println("    - 每次 Sblk 调用模拟的时间步数 = $ds")
-    println("    - 每次 Sblk 调用模拟的总时间 = $(ds * (80/ds)) 天")
-    println("    - 注入周期数 = $inj_len")
-    println("    - 总模拟时间 = $inj_len × $(ds * (80/ds)) = $(inj_len * ds * (80/ds)) 天")
+    println("  Configuration:")
+    println("    - dt_firstblock = $(80/ds) days")
+    println("    - Time steps per Sblk call = $ds")
+    println("    - Duration per Sblk call = $(ds * (80/ds)) days")
+    println("    - Injection periods = $inj_len")
+    println("    - Total duration = $inj_len × $(ds * (80/ds)) = $(inj_len * ds * (80/ds)) days")
     
-    # 预热运行（可选）
-    println("  预热运行...")
+    # Optional warmup
+    println("  Warming up...")
     try
         f = jutulVWell(inj_rate_seq[1], [(inj_loc[1], inj_loc[2])];
                        startz = [inj_loc[3]], endz = [inj_loc[3] + 6*d[3]])
@@ -132,11 +132,11 @@ for ds in ds_values
         state0[1:n[1]*n[3]] = vec(sat_init)
         _ = sim.Sblk(sim.logTrans, f; state0=state0)
     catch e
-        println("  预热失败: $e")
+        println("  Warmup failed: $e")
     end
     
-    # 正式计时：运行完整的 forward simulation
-    println("  正式计时：运行完整的 forward simulation...")
+    # Time the full forward simulation
+    println("  Timing the full forward simulation...")
     start_time = time()
     
     previous_state = nothing
@@ -154,14 +154,14 @@ for ds in ds_values
             end
             previous_state = states.states[end]
         catch e
-            println("  模拟失败在周期 $i: $e")
+            println("  Simulation failed in period $i: $e")
             break
         end
     end
     
     elapsed = time() - start_time
     
-    # 记录结果
+    # Record results
     total_time_steps = inj_len * ds
     results[ds] = Dict(
         "build_time" => build_time,
@@ -171,18 +171,18 @@ for ds in ds_values
         "inj_periods" => inj_len
     )
     
-    println("  ✓ 完成!")
-    println("  - 构建时间: $(@sprintf("%.2f", build_time)) 秒")
-    println("  - 完整 forward simulation 时间: $(@sprintf("%.2f", elapsed)) 秒")
-    println("  - 总时间步数: $total_time_steps")
-    println("  - 每个时间步平均耗时: $(@sprintf("%.3f", elapsed/total_time_steps)) 秒/步")
+    println("  ✓ Completed")
+    println("  - Build time: $(@sprintf("%.2f", build_time)) seconds")
+    println("  - Full forward simulation: $(@sprintf("%.2f", elapsed)) seconds")
+    println("  - Total time steps: $total_time_steps")
+    println("  - Mean time per step: $(@sprintf("%.3f", elapsed/total_time_steps)) seconds/step")
     
     GC.gc()
 end
 
-# 总结
+# Summarize
 println("\n" * "=" ^ 80)
-println("测试结果总结")
+println("Test results")
 println("=" ^ 80)
 
 if length(results) >= 2
@@ -190,10 +190,10 @@ if length(results) >= 2
     base_ds = ds_list[1]
     base_time = results[base_ds]["simulation_time"]
     
-    println("\n对比结果（一次完整的 forward simulation，960天）:")
+    println("\nComparison (one full 960-day forward simulation):")
     println("-" ^ 80)
     println(@sprintf("  %-6s  %12s  %12s  %12s  %10s  %8s", 
-                     "ds", "仿真时间(秒)", "总时间步数", "秒/步", "注入周期", "相对倍数"))
+                     "ds", "Runtime (s)", "Total steps", "s/step", "Periods", "Ratio"))
     println("-" ^ 80)
     
     for ds in ds_list
@@ -204,7 +204,7 @@ if length(results) >= 2
                          r["time_per_step"], r["inj_periods"], speedup))
     end
     
-    println("\n关键发现:")
+    println("\nFindings:")
     println("-" ^ 80)
     
     if haskey(results, 1) && haskey(results, 10)
@@ -213,34 +213,34 @@ if length(results) >= 2
         time_ratio = r10["simulation_time"] / r1["simulation_time"]
         steps_ratio = r10["total_time_steps"] / r1["total_time_steps"]
         
-        println("  ds=10 相对于 ds=1:")
-        println("    - 仿真时间增加: $(@sprintf("%.2f", time_ratio))x")
-        println("    - 时间步数增加: $(@sprintf("%.2f", steps_ratio))x")
+        println("  ds=10 relative to ds=1:")
+        println("    - Runtime ratio: $(@sprintf("%.2f", time_ratio))x")
+        println("    - Time-step count ratio: $(@sprintf("%.2f", steps_ratio))x")
         
         if time_ratio < steps_ratio
-            println("  ✓ 验证通过：时间增加 ($(@sprintf("%.2f", time_ratio))x) < 时间步数增加 ($(@sprintf("%.2f", steps_ratio))x)")
-            println("  ✓ 这是因为小时间步收敛更快")
+            println("  ✓ Runtime ratio ($(@sprintf("%.2f", time_ratio))x) < time-step ratio ($(@sprintf("%.2f", steps_ratio))x)")
+            println("  Smaller-step solver convergence is a possible explanation; timing alone does not establish the cause")
         else
-            println("  ⚠️  时间增加接近或超过时间步数增加")
+            println("  ⚠️  Runtime ratio is close to or above the time-step ratio")
         end
     end
     
-    println("\n  每个时间步的耗时对比:")
+    println("\n  Time per step:")
     for ds in ds_list
         r = results[ds]
-        println("    ds=$(ds): $(@sprintf("%.3f", r["time_per_step"])) 秒/步")
+        println("    ds=$(ds): $(@sprintf("%.3f", r["time_per_step"])) seconds/step")
     end
     
-    println("\n结论:")
+    println("\nSummary:")
     println("-" ^ 80)
     if haskey(results, 1) && haskey(results, 10)
         time_ratio = results[10]["simulation_time"] / results[1]["simulation_time"]
-        println("  一次完整的 forward simulation (960天):")
-        println("    - ds=10 不会增加 10 倍时间，实际增加约 $(@sprintf("%.1f", time_ratio))x")
+        println("  One full forward simulation (960 days):")
+        println("    - ds=10 runtime ratio (nominal time-step ratio: 10x): $(@sprintf("%.1f", time_ratio))x")
     end
-    println("  推荐保持 ds=10（当前默认值）")
+    println("  ds=10 is the reference setting; runtime alone does not validate time resolution")
 else
-    println("  测试数据不足")
+    println("  Insufficient test data")
 end
 
 println("\n" * "=" ^ 80)

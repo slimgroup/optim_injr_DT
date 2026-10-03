@@ -13,12 +13,12 @@ Run commands from the repository root.
 | `julia_scripts/plotting/` | Bootstrap ECDF, posterior statistics, and other plots |
 | `python_plots/` | Paper rendering and optional presentation/video workflows |
 | `python_tools/analysis/` | Post-processing audits |
-| `python_tools/maintenance/` | Read-only checks and historical migration tools |
-| `gamma_tables/` | Deprecated lookup artifact retained for provenance |
+| `python_tools/maintenance/` | Repository checks, artifact assembly, and maintenance helpers |
 
 Scripts with `#SBATCH` resource directives use `sbatch`; wrappers that invoke
 `sbatch` internally use `bash`. Heavy computation and rendering use compute
 nodes. Store results under `data/`, figures under `plots/`, and logs under `logs/`.
 
-Historical variants stay at their existing paths for compatibility. Old
-`reorganize_*` and `patch_*_paths.py` migrations are not part of installation.
+Historical variants with retained callers stay at their existing paths.
+The deprecated gamma-table workflow and completed one-time path migrations
+were removed after review; see [the deletion record](../docs/reference/DELETION_REVIEW_2026-10-03.md).

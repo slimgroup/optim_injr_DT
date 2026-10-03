@@ -1,5 +1,5 @@
 #!/usr/bin/env julia
-# 读取7个cases的最终injection rate
+# Read final injection rates for the seven recovery cases.
 
 using Pkg
 Pkg.activate(".")
@@ -7,7 +7,7 @@ using JLD2
 using Statistics
 using Printf
 
-# 7个cases的路径
+# Paths for the seven cases
 cases = [
     ("gamma=0.01, alpha=0.02, sample=64", "data/DT_control/exp_name=step1/CVaR__HARD__alpha=0.02__gamma=0.01__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0/sample=64/final.jld2"),
     ("gamma=0.01, alpha=0.05, sample=17", "data/DT_control/exp_name=step1/CVaR__HARD__alpha=0.05__gamma=0.01__w=voltime__mode=relative__cvarsoft__kp=50.0__kc=50.0/sample=17/final.jld2"),
@@ -19,16 +19,16 @@ cases = [
 ]
 
 println("=" ^ 80)
-println("7个cases的injection rate分析 (m³/s)")
+println("Injection-rate analysis for seven cases (m³/s)")
 println("=" ^ 80)
-println("逻辑: 取last nonzero injection rate，然后与inj_start(0.0001)取平均")
+println("Historical diagnostic: average the last nonzero rate with inj_start (0.0001)")
 println("")
 
-const INJ_START = 0.0001  # 第一个step的injection rate
+const INJ_START = 0.0001  # Injection rate at the first schedule step
 
-# 读取last nonzero injection rate（参考collect_all_injection_rates.jl的逻辑）
+# Read the last nonzero rate, following collect_all_injection_rates.jl.
 function last_nonzero_inj_rate(inj_rate_arr)
-    col1 = vec(inj_rate_arr[:, 1])  # 第一列
+    col1 = vec(inj_rate_arr[:, 1])  # First column
     clean = filter(x -> isfinite(x) && !isnan(x), col1)
     idx = findlast(!iszero, clean)
     return idx === nothing ? INJ_START : clean[idx]
@@ -43,10 +43,10 @@ for (desc, path) in cases
         data = JLD2.load(path)
         inj_rate_arr = data["inj_rate_arr"]
         
-        # 取last nonzero injection rate
+        # Take the last nonzero injection rate
         last_nonzero = last_nonzero_inj_rate(inj_rate_arr)
         
-        # 与inj_start取平均
+        # Average with inj_start
         avg_rate = (last_nonzero + INJ_START) / 2.0
         
         push!(inj_rates_last, last_nonzero)
@@ -62,45 +62,45 @@ for (desc, path) in cases
 end
 
 println("=" ^ 80)
-println("统计信息 (Last nonzero rates):")
+println("Statistics (last nonzero rates):")
 if length(inj_rates_last) > 0
-    println(@sprintf("  最小值: %.6f", minimum(inj_rates_last)))
-    println(@sprintf("  最大值: %.6f", maximum(inj_rates_last)))
-    println(@sprintf("  平均值: %.6f", mean(inj_rates_last)))
-    println(@sprintf("  中位数: %.6f", median(inj_rates_last)))
-    println(@sprintf("  标准差: %.6f", std(inj_rates_last)))
+    println(@sprintf("  Minimum: %.6f", minimum(inj_rates_last)))
+    println(@sprintf("  Maximum: %.6f", maximum(inj_rates_last)))
+    println(@sprintf("  Mean: %.6f", mean(inj_rates_last)))
+    println(@sprintf("  Median: %.6f", median(inj_rates_last)))
+    println(@sprintf("  Standard deviation: %.6f", std(inj_rates_last)))
 end
 println("")
-println("统计信息 (Averaged rates with inj_start):")
+println("Statistics (rates averaged with inj_start):")
 if length(inj_rates_avg) > 0
-    println(@sprintf("  最小值: %.6f", minimum(inj_rates_avg)))
-    println(@sprintf("  最大值: %.6f", maximum(inj_rates_avg)))
-    println(@sprintf("  平均值: %.6f", mean(inj_rates_avg)))
-    println(@sprintf("  中位数: %.6f", median(inj_rates_avg)))
-    println(@sprintf("  标准差: %.6f", std(inj_rates_avg)))
+    println(@sprintf("  Minimum: %.6f", minimum(inj_rates_avg)))
+    println(@sprintf("  Maximum: %.6f", maximum(inj_rates_avg)))
+    println(@sprintf("  Mean: %.6f", mean(inj_rates_avg)))
+    println(@sprintf("  Median: %.6f", median(inj_rates_avg)))
+    println(@sprintf("  Standard deviation: %.6f", std(inj_rates_avg)))
 end
 println("=" ^ 80)
 
-# 判断是否在正常范围内
-# 根据代码，inj_start=0.0001, inj_guess=0.25，正常范围应该在0.0001到0.25之间
-println("\n正常范围判断 (基于averaged rates, 参考: inj_start=0.0001, inj_guess=0.25):")
+# Compare with the historical reference interval.
+# inj_start=0.0001 and inj_guess=0.25 define this diagnostic interval, not a solver bound.
+println("\nHistorical reference range (averaged rates; inj_start=0.0001, inj_guess=0.25):")
 println("-" ^ 80)
 normal_min = 0.0001
 normal_max = 0.25
 for (desc, last_rate, avg_rate) in case_info
     if avg_rate < normal_min
-        status = "⚠️  低于最小值"
+        status = "⚠️  Below reference minimum"
     elseif avg_rate > normal_max
-        status = "⚠️  超过最大值"
+        status = "⚠️  Above reference maximum"
     else
-        status = "✓ 正常"
+        status = "✓ Within reference range"
     end
     println(@sprintf("%-50s:", desc))
     println(@sprintf("  Averaged rate: %.6f  %s", avg_rate, status))
 end
 
-# 与同类型其他cases比较（如果有数据的话）
+# Compare with other samples of the same case if data are available.
 println("\n" * "=" ^ 80)
-println("提示: 可以运行 collect_all_injection_rates.jl 来获取所有CVaR cases的统计数据")
+println("Tip: run collect_all_injection_rates.jl for statistics across all CVaR cases")
 println("=" ^ 80)
 

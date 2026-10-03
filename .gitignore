@@ -11,6 +11,7 @@ logs/
 !/plots/latest/
 !/plots/paper_figures/
 /plots/paper_figures/*
+!/plots/paper_figures/README.md
 
 # Large/generated formats (keep output directories local).
 *.jld2
@@ -44,7 +45,6 @@ logs/
 
 # Existing tracked compatibility exports are retained until reviewed.
 # Ignore rules do not untrack existing files or remove files from history.
-!/scripts/gamma_tables/*.jld2
 !/plots/paper_figures/injection_schedule_over_four_steps.png
 !/plots/paper_figures/pressure_risk_trajectory_over_four_steps.png
 !/plots/paper_figures/fracture_comparison_3x3_four_steps.png
