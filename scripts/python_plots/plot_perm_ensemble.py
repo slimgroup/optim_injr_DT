@@ -5,6 +5,7 @@ Shows: (a) Ground truth (sample 2000), (b) Ensemble mean, (c) Ensemble std
 Colorbars consistent with optim_inject.jl
 """
 import os, sys
+import argparse
 import gc
 import numpy as np
 import h5py
@@ -18,6 +19,11 @@ import colorcet as cc
 BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(BASE, "data")
 OUT_DIR = os.path.join(BASE, "plots", "paper_figures")
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--output-dir", default=OUT_DIR, help="Directory for exported figures")
+parser.add_argument("--statistics-only", action="store_true", help="Skip the additional GT-minus-mean figure")
+args = parser.parse_args()
+OUT_DIR = args.output_dir
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # -- Domain ----------------------------------------------------------------
@@ -73,72 +79,88 @@ cmap_perm = cc.cm["rainbow4"]
 plt.rcParams.update({
     "font.size": 16,
     "axes.labelsize": 16,
-    "axes.titlesize": 18,
+    "axes.titlesize": 24,
     "xtick.labelsize": 14,
     "ytick.labelsize": 14,
 })
 
-fig = plt.figure(figsize=(16.0, 5.05))
+# Size the canvas around the equal-aspect maps so surplus height does not
+# become whitespace between the main title and panel titles.
+fig_width = 18.0
+left, right, wspace = 0.055, 0.985, 0.085
+panel_width = fig_width * (right - left) / (3 + 2 * wspace)
+panel_height = panel_width * (extent[2] - extent[3]) / (extent[1] - extent[0])
+bottom_margin, colorbar_height, colorbar_gap, header_height = 0.76, 0.12, 0.55, 0.83
+fig_height = bottom_margin + colorbar_height + colorbar_gap + panel_height + header_height
+fig = plt.figure(figsize=(fig_width, fig_height))
 gs = GridSpec(
     2,
     3,
     figure=fig,
-    height_ratios=[1.0, 0.04],
-    hspace=0.05,
-    wspace=0.10,
+    height_ratios=[panel_height, colorbar_height],
+    hspace=2 * colorbar_gap / (panel_height + colorbar_height),
+    wspace=wspace,
+    left=left,
+    right=right,
+    bottom=bottom_margin / fig_height,
+    top=1 - header_height / fig_height,
 )
 
 vmin_p, vmax_p = 0.0, 4.0
 vmax_std = float(np.ceil(logK_std.max() * 10) / 10)
 
 ax0 = fig.add_subplot(gs[0, 0])
-im0 = ax0.imshow(logK_gt.T, vmin=vmin_p, vmax=vmax_p, extent=extent, cmap=cmap_perm)
-ax0.set_title("(a) Ground Truth", fontsize=18, fontweight="bold", pad=3)
-ax0.set_xlabel("X [m]", fontsize=19, labelpad=2)
-ax0.set_ylabel("Depth [m]", fontsize=19)
+# Keep the original smooth rendering when the larger panels exceed 3x upsampling.
+im0 = ax0.imshow(logK_gt.T, vmin=vmin_p, vmax=vmax_p, extent=extent, cmap=cmap_perm, interpolation="hanning")
+ax0.set_title("(a) Ground Truth", fontsize=24, fontweight="bold", pad=3)
+ax0.set_xlabel("X [m]", fontsize=16, labelpad=2)
+ax0.set_ylabel("Depth [m]", fontsize=16)
 ax0.tick_params(labelsize=14, length=3, pad=2)
 
 ax1 = fig.add_subplot(gs[0, 1], sharey=ax0)
-im1 = ax1.imshow(logK_mean.T, vmin=vmin_p, vmax=vmax_p, extent=extent, cmap=cmap_perm)
-ax1.set_title(f"(b) Ensemble Mean (N={n_models})", fontsize=18, fontweight="bold", pad=3)
-ax1.set_xlabel("X [m]", fontsize=19, labelpad=2)
+im1 = ax1.imshow(logK_mean.T, vmin=vmin_p, vmax=vmax_p, extent=extent, cmap=cmap_perm, interpolation="hanning")
+ax1.set_title(f"(b) Ensemble Mean (N={n_models})", fontsize=24, fontweight="bold", pad=3)
+ax1.set_xlabel("X [m]", fontsize=16, labelpad=2)
 plt.setp(ax1.get_yticklabels(), visible=False)
 ax1.tick_params(labelsize=14, length=3, pad=2)
 
 ax2 = fig.add_subplot(gs[0, 2], sharey=ax0)
-im2 = ax2.imshow(logK_std.T, vmin=0.0, vmax=vmax_std, extent=extent, cmap="cet_CET_L8")
-ax2.set_title("(c) Ensemble Std Dev", fontsize=18, fontweight="bold", pad=3)
-ax2.set_xlabel("X [m]", fontsize=19, labelpad=2)
+im2 = ax2.imshow(logK_std.T, vmin=0.0, vmax=vmax_std, extent=extent, cmap="cet_CET_L8", interpolation="hanning")
+ax2.set_title("(c) Ensemble Std Dev", fontsize=24, fontweight="bold", pad=3)
+ax2.set_xlabel("X [m]", fontsize=16, labelpad=2)
 plt.setp(ax2.get_yticklabels(), visible=False)
 ax2.tick_params(labelsize=14, length=3, pad=2)
 
 cb_gs_left = gs[1, 0:2].subgridspec(1, 1)
 cax_left = fig.add_subplot(cb_gs_left[0, 0])
 clb_left = fig.colorbar(im0, cax=cax_left, orientation="horizontal")
-clb_left.set_ticks(np.log10([1, 10, 1000]))
-clb_left.set_ticklabels(["1", "1e1", "1e3"])
-clb_left.ax.tick_params(labelsize=14, length=2, pad=1)
-clb_left.set_label("Permeability [mD]", fontsize=16, labelpad=3)
+clb_left.set_ticks([0, 1, 2, 3, 4])
+clb_left.set_ticklabels(["1", r"$10^{1}$", r"$10^{2}$", r"$10^{3}$", r"$10^{4}$"])
+clb_left.ax.tick_params(labelsize=17, length=2, pad=1)
+clb_left.set_label("Permeability [mD]", fontsize=20, labelpad=3)
 
 cb_gs_right = gs[1, 2].subgridspec(1, 1)
 cax_right = fig.add_subplot(cb_gs_right[0, 0])
 clb_right = fig.colorbar(im2, cax=cax_right, orientation="horizontal")
 clb_right.set_ticks(np.arange(0.0, vmax_std + 0.001, 0.5))
-clb_right.ax.tick_params(labelsize=14, length=2, pad=1)
-clb_right.set_label("Std. dev. of log10 permeability [-]", fontsize=16, labelpad=3)
+clb_right.ax.tick_params(labelsize=17, length=2, pad=1)
+clb_right.set_label(r"Std. dev. of $\log_{10}$ permeability [-]", fontsize=20, labelpad=3)
 
 fig.suptitle(
     "Permeability Ensemble Statistics",
-    fontsize=27,
+    fontsize=32,
     fontweight="bold",
-    y=0.962,
+    y=1 - 0.04 / fig_height,
 )
-fig.subplots_adjust(left=0.075, right=0.965, top=0.875, bottom=0.12)
 
 fname = os.path.join(OUT_DIR, "perm_ensemble_statistics.png")
-fig.savefig(fname, dpi=300, bbox_inches="tight")
+fig.savefig(fname, dpi=300, bbox_inches="tight", pad_inches=0.02)
 print(f"Saved: {fname}")
 plt.close(fig)
+
+if args.statistics_only:
+    print("Done!")
+    sys.exit(0)
 
 # -- Bonus: GT - Mean difference (tight margins, no tight_layout whitespace) -
 fig2 = plt.figure(figsize=(12, 5.2))

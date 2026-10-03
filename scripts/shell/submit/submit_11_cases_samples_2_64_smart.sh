@@ -8,8 +8,8 @@ set -euo pipefail
 # - Continues until all 693 jobs are submitted
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"  # Project root for logs
-SBATCH_FILE="${SCRIPT_DIR}/optim_inject_pace.sh"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"  # Project root for logs
+SBATCH_FILE="${SCRIPT_DIR}/../run/optim_inject_pace.sh"
 
 if [[ ! -f "${SBATCH_FILE}" ]]; then
   echo "ERROR: Cannot find ${SBATCH_FILE}"
@@ -82,7 +82,7 @@ submit_one_sample() {
   echo "[SUBMIT] ${TAG}  sample=${SAMPLE}" >&2
   # Use explicit array range to override default array=1-32 in optim_inject_pace.sh
   # Capture sbatch output for debugging
-  SBATCH_OUTPUT=$(sbatch --parsable --array="${SAMPLE}-${SAMPLE}" --chdir="${SCRIPT_DIR}/.." \
+  SBATCH_OUTPUT=$(sbatch --parsable --array="${SAMPLE}-${SAMPLE}" --chdir="${ROOT_DIR}" \
     --job-name="${TAG}_s${SAMPLE}" \
     --export=ALL,CASE_TAG="${TAG}",RISK_ARGS="${ARGS}" \
     "${SBATCH_FILE}" 2>&1)

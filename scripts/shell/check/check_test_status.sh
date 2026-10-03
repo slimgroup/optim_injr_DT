@@ -2,7 +2,7 @@
 # 检查测试状态（从任意目录运行：会 cd 到仓库根目录）
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 cd "${ROOT_DIR}" || exit 1
 
 echo "=== 检查 ds 测试任务状态 ==="

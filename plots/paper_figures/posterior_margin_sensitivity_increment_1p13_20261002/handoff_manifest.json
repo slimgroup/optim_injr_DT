@@ -1,0 +1,179 @@
+{
+  "code_commit": "a2b1a75c30717edb86d15859cf3462986eb70157",
+  "posterior_figures": [
+    {
+      "source_path": "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2",
+      "source_step": 1,
+      "input_dataset": [
+        "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2::X_post1",
+        "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2::X_post2",
+        "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2::X_post3",
+        "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2::pres_Hyd"
+      ],
+      "input_sha256": "8fa75ad3793da5d2f7cfc97ec4e0e9f4356fed56567c786e335640cf6f410e50",
+      "canonical_export_path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_mean_relative_margin_sensitivity_increment_1p13000_step1.png",
+      "paper_current_path": "figs/posterior/state_mean_pressurediff_pressure_sat_all_cases_t1.png",
+      "paper_suggested_path": "figs/posterior/state_mean_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t1.png",
+      "paper_compat_path": "paper_compat/posterior/state_mean_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t1.png",
+      "sha256": "66cfbb60ef1849e02304527e0d69c59777b211d8e3f14d34692a43eda3cb97d7",
+      "transformation": "p_used = pres_Hyd + factor * (p - pres_Hyd)",
+      "factor": 1.13
+    },
+    {
+      "source_path": "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2",
+      "source_step": 1,
+      "input_dataset": [
+        "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2::X_post1",
+        "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2::X_post2",
+        "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2::X_post3",
+        "data/posterior/three_set_posteriro_samples_t1_pof_cvar.jld2::pres_Hyd"
+      ],
+      "input_sha256": "8fa75ad3793da5d2f7cfc97ec4e0e9f4356fed56567c786e335640cf6f410e50",
+      "canonical_export_path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_std_relative_margin_sensitivity_increment_1p13000_step1.png",
+      "paper_current_path": "figs/posterior/state_std_pressurediff_pressure_sat_all_cases_t1.png",
+      "paper_suggested_path": "figs/posterior/state_std_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t1.png",
+      "paper_compat_path": "paper_compat/posterior/state_std_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t1.png",
+      "sha256": "787730e8dc9785fd8576b100f12fd60cfa8a5f18d09b4cbe963b62b55da6d9ee",
+      "transformation": "p_used = pres_Hyd + factor * (p - pres_Hyd)",
+      "factor": 1.13
+    },
+    {
+      "source_path": "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2",
+      "source_step": 2,
+      "input_dataset": [
+        "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2::X_post1",
+        "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2::X_post2",
+        "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2::X_post3",
+        "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2::pres_Hyd"
+      ],
+      "input_sha256": "33ce7ef47cf7c09f1b6e454a22f30092d10a8b8a66c61c02a1821cc55e57374f",
+      "canonical_export_path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_mean_relative_margin_sensitivity_increment_1p13000_step2.png",
+      "paper_current_path": "figs/posterior/state_mean_pressurediff_pressure_sat_all_cases_t2.png",
+      "paper_suggested_path": "figs/posterior/state_mean_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t2.png",
+      "paper_compat_path": "paper_compat/posterior/state_mean_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t2.png",
+      "sha256": "e6e7a91c3abc82e2d18afb449062a1dd9d1e3eb7aeb370ecdc70b13b3c394872",
+      "transformation": "p_used = pres_Hyd + factor * (p - pres_Hyd)",
+      "factor": 1.13
+    },
+    {
+      "source_path": "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2",
+      "source_step": 2,
+      "input_dataset": [
+        "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2::X_post1",
+        "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2::X_post2",
+        "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2::X_post3",
+        "data/posterior/three_set_posteriro_samples_t2_pof_cvar.jld2::pres_Hyd"
+      ],
+      "input_sha256": "33ce7ef47cf7c09f1b6e454a22f30092d10a8b8a66c61c02a1821cc55e57374f",
+      "canonical_export_path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_std_relative_margin_sensitivity_increment_1p13000_step2.png",
+      "paper_current_path": "figs/posterior/state_std_pressurediff_pressure_sat_all_cases_t2.png",
+      "paper_suggested_path": "figs/posterior/state_std_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t2.png",
+      "paper_compat_path": "paper_compat/posterior/state_std_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t2.png",
+      "sha256": "f09181c01fa24806b8045f2b65ff5a6d26aa3eb6fc6064315eaa9fa3e72bb4c2",
+      "transformation": "p_used = pres_Hyd + factor * (p - pres_Hyd)",
+      "factor": 1.13
+    },
+    {
+      "source_path": "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2",
+      "source_step": 3,
+      "input_dataset": [
+        "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2::X_post1",
+        "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2::X_post2",
+        "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2::X_post3",
+        "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2::pres_Hyd"
+      ],
+      "input_sha256": "67879b743d99d00fa286b4dfc225d33feadc26244b45da6a957d3a934bf21238",
+      "canonical_export_path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_mean_relative_margin_sensitivity_increment_1p13000_step3.png",
+      "paper_current_path": "figs/posterior/state_mean_pressurediff_pressure_sat_all_cases_t3.png",
+      "paper_suggested_path": "figs/posterior/state_mean_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t3.png",
+      "paper_compat_path": "paper_compat/posterior/state_mean_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t3.png",
+      "sha256": "67802444f48adce1f208e6f5ea13161ea35bf23a5eeb3c8a342d7b301c4d39a3",
+      "transformation": "p_used = pres_Hyd + factor * (p - pres_Hyd)",
+      "factor": 1.13
+    },
+    {
+      "source_path": "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2",
+      "source_step": 3,
+      "input_dataset": [
+        "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2::X_post1",
+        "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2::X_post2",
+        "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2::X_post3",
+        "data/posterior/three_set_posteriro_samples_t3_pof_cvar.jld2::pres_Hyd"
+      ],
+      "input_sha256": "67879b743d99d00fa286b4dfc225d33feadc26244b45da6a957d3a934bf21238",
+      "canonical_export_path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_std_relative_margin_sensitivity_increment_1p13000_step3.png",
+      "paper_current_path": "figs/posterior/state_std_pressurediff_pressure_sat_all_cases_t3.png",
+      "paper_suggested_path": "figs/posterior/state_std_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t3.png",
+      "paper_compat_path": "paper_compat/posterior/state_std_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t3.png",
+      "sha256": "48df462cd58a3f23256c7644a1c0d2be6f81fb843c3cb75d239a661ca68cb5f4",
+      "transformation": "p_used = pres_Hyd + factor * (p - pres_Hyd)",
+      "factor": 1.13
+    },
+    {
+      "source_path": "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2",
+      "source_step": 4,
+      "input_dataset": [
+        "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2::X_post1",
+        "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2::X_post2",
+        "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2::X_post3",
+        "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2::pres_Hyd"
+      ],
+      "input_sha256": "26b2ca2aaecb36183a66f35ea6f07299c0b8585e05492a14cfeb311a70e048a2",
+      "canonical_export_path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_mean_relative_margin_sensitivity_increment_1p13000_step4.png",
+      "paper_current_path": "figs/posterior/state_mean_pressurediff_pressure_sat_all_cases_t4.png",
+      "paper_suggested_path": "figs/posterior/state_mean_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t4.png",
+      "paper_compat_path": "paper_compat/posterior/state_mean_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t4.png",
+      "sha256": "bfcb58897e769452e107a7603725a329cc1e6e803d8731b4ac4bed0cce77724c",
+      "transformation": "p_used = pres_Hyd + factor * (p - pres_Hyd)",
+      "factor": 1.13
+    },
+    {
+      "source_path": "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2",
+      "source_step": 4,
+      "input_dataset": [
+        "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2::X_post1",
+        "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2::X_post2",
+        "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2::X_post3",
+        "data/posterior/three_set_posteriro_samples_t4_pof_cvar.jld2::pres_Hyd"
+      ],
+      "input_sha256": "26b2ca2aaecb36183a66f35ea6f07299c0b8585e05492a14cfeb311a70e048a2",
+      "canonical_export_path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_std_relative_margin_sensitivity_increment_1p13000_step4.png",
+      "paper_current_path": "figs/posterior/state_std_pressurediff_pressure_sat_all_cases_t4.png",
+      "paper_suggested_path": "figs/posterior/state_std_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t4.png",
+      "paper_compat_path": "paper_compat/posterior/state_std_relative_margin_pressurediff_sat_sensitivity_increment_1p13_all_cases_t4.png",
+      "sha256": "949671ea4c3d8407c2e551cbe23719fb73442f249aecb6d0ea32e243de830dde",
+      "transformation": "p_used = pres_Hyd + factor * (p - pres_Hyd)",
+      "factor": 1.13
+    }
+  ],
+  "reference": {
+    "canonical_export_path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/reference_zero_aligned_v2/fracture_comparison_3x3_four_steps_zero_aligned.png",
+    "paper_suggested_path": "figs/fracture_comparison_3x3_four_steps_zero_aligned.png",
+    "paper_compat_path": "paper_compat/reference/fracture_comparison_3x3_four_steps_zero_aligned.png",
+    "source_script": "scripts/python_plots/plot_real_fracture_comparison_day408.py",
+    "source_script_sha256": "56fc8ee19f2025bd8d6b19bde30b3ad672bb58d3cc608917f550391b194c5c8e",
+    "input_sha256": {
+      "plots/paper_figures/controlled_day728_POF_eps0.jld2": "17b3935607a5a1eed0d94d9276a7b2a98e4ac0ecf9c392cb68429c22fa28a9e9",
+      "plots/paper_figures/cvar_day728_sensitivity_1p22x.jld2": "9e25592b7930e5f2b6cf1bae3bd1b3de6506572b7edd2a16054a758671edf519",
+      "plots/paper_figures/no_control_delayed_ramp_10_periods.jld2": "f7119542ed88cf4e54bd681c2b7843c10a9f4dd17ad5a6ad06565a0b86e101e2"
+    },
+    "original_field_arrays_and_limits_unchanged": true,
+    "case_order": [
+      "POF_eps0",
+      "CVaR_g01_a001",
+      "No_Control"
+    ],
+    "exceeding_cells": [
+      0,
+      97,
+      6953
+    ],
+    "existing_reference_CVaR_schedule_multiplier": 1.22,
+    "new_pressure_transformation_applied_to_reference": false,
+    "only_change": "Reference relative-margin red/blue bin boundary aligned at r=0; PNG exported at 400 dpi",
+    "png": "fracture_comparison_3x3_four_steps_zero_aligned.png",
+    "sha256": "3a861d9b132e9a99faa8069c2f29e92f64c03ffd902e7e9c7a079bd1e6515aba",
+    "slurm_job_id": "13820071"
+  },
+  "status": "separate sensitivity preview; original posterior and simulation outputs preserved"
+}

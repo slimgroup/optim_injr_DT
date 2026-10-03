@@ -7,8 +7,8 @@ set -euo pipefail
 #   scripts/shell/submit/submit_pof_sensitivity.sh -s 1-64
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"     # repo root directory
-SBATCH_FILE="${SCRIPT_DIR}/optim_inject_pace.sh"  # pace script in this directory
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"     # repo root directory
+SBATCH_FILE="${SCRIPT_DIR}/../run/optim_inject_pace.sh"  # optimization driver in sibling run/ directory
 
 # Default sample range = 1-32 (consistent with your current optim_inject_pace.sh)
 SAMPLE_RANGE="1-32"

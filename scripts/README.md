@@ -1,48 +1,24 @@
-# scripts/
+# Scripts
 
-Operational scripts for batch jobs, plotting, and analysis. **Do not store large outputs here.**
+Use the [script index](../docs/reference/SCRIPTS_INDEX.md) to choose an entry
+point and [the reproduction guide](../docs/REPRODUCIBILITY.md) for execution order.
+Run commands from the repository root.
 
-## Layout
+| Directory | Role |
+|---|---|
+| `shell/submit/` | Batch-job scripts and submission wrappers |
+| `shell/run/` | Runtime drivers |
+| `shell/check/`, `shell/retry/` | Status checks and targeted recovery |
+| `julia_scripts/data_collection/` | Aggregation and forward exports |
+| `julia_scripts/plotting/` | Bootstrap ECDF, posterior statistics, and other plots |
+| `python_plots/` | Paper rendering and optional presentation/video workflows |
+| `python_tools/analysis/` | Post-processing audits |
+| `python_tools/maintenance/` | Read-only checks and historical migration tools |
+| `gamma_tables/` | Deprecated lookup artifact retained for provenance |
 
-```text
-scripts/
-├── shell/                      # SLURM submit / run / check (primary entry points)
-│   ├── submit/                 # sbatch wrappers
-│   ├── run/                    # bash drivers
-│   ├── check/                  # progress & verification
-│   ├── retry/                  # reruns & queue cleanup
-│   └── maintenance/            # shell-only maintenance helpers
-├── julia_scripts/
-│   ├── plotting/               # Julia figures/videos (posterior_stats, bootstrap_ecdf, …)
-│   ├── data_collection/        # Aggregate injection-rate CSV/JLD2 exports
-│   ├── analysis/               # Post-processing comparisons
-│   ├── utilities/              # Diagnostics, scaling, 7-case checks
-│   └── archive/                # Historical scripts (reference only)
-├── python_plots/               # Python figures (posterior_stats/, paper plots, videos)
-├── python_tools/               # Python maintenance / layout tools
-└── gamma_tables/               # Deprecated gamma-table artifacts
-```
+Scripts with `#SBATCH` resource directives use `sbatch`; wrappers that invoke
+`sbatch` internally use `bash`. Heavy computation and rendering use compute
+nodes. Store results under `data/`, figures under `plots/`, and logs under `logs/`.
 
-## Common entry points
-
-| Task | Script |
-|------|--------|
-| Submit optimization array | `shell/run/optim_inject_pace.sh` |
-| Bootstrap ECDF figures | `shell/submit/submit_bootstrap_cdf.sh` |
-| Step-2 paired posterior stats | `shell/run/run_step2_paired_posterior_stats.sh` |
-| Posterior field plots | `shell/submit/submit_posterior_summary_all_steps_shared.sh` |
-| Video frames → MP4 | `python_plots/create_videos_from_frames.py` |
-| Collect step1 inj rates | `julia_scripts/data_collection/collect_all_injection_rates.jl` |
-
-Full index: `docs/reference/SCRIPTS_INDEX.md`
-
-## Output conventions (after repo layout cleanup)
-
-| Output type | Location |
-|-------------|----------|
-| Optimization results | `data/DT_control/exp_name=step*/` |
-| Collection CSV/JLD2 | `data/.../step1/_aggregates/` |
-| Bootstrap ECDF plots | `plots/DT_control/exp_name=step1/statistical_analysis/ecdf/` |
-| KDE plots (legacy) | `plots/.../statistical_analysis/kde/` |
-| Video runs | `plots/DT_control/videos/{5cases,128perm}/` |
-| SLURM logs | `logs/` (run `python_tools/maintenance/organize_logs.py` to tidy) |
+Historical variants stay at their existing paths for compatibility. Old
+`reorganize_*` and `patch_*_paths.py` migrations are not part of installation.

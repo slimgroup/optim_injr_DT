@@ -1,236 +1,101 @@
 # optim_injr_DT
 
-<div align="center">
+Optimization-based injection-rate control for geological carbon storage.
+Julia implements reservoir simulation and risk-constrained optimization using
+probability of failure (PoF) and conditional value at risk (CVaR). Python and
+Julia scripts analyze four monitoring steps and prepare the paper figures.
 
-**Optimization-based Injection Rate Control for Geological Carbon Storage**
+## Start here
 
-[![Julia](https://img.shields.io/badge/Julia-1.11-blue.svg)](https://julialang.org/)
-[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![CI](https://github.com/haoyunl2/optim_injr_DT/workflows/CI/badge.svg)](https://github.com/haoyunl2/optim_injr_DT/actions)
+- [Current figures](plots/latest/README.md): one place to browse the 21 selected
+  figures without navigating dated exports and preview folders.
+- [Reproduction guide](docs/REPRODUCIBILITY.md): environment, data, and execution order.
+- [Paper figure manifest](docs/reference/PAPER_FIGURE_MANIFEST.md): selected figures,
+  source scripts, and scientific qualifications.
+- [Data availability](DATA_AVAILABILITY.md): required inputs and local outputs.
+- [Injection schedules](docs/injection_rate_arrays.md): case-level controls.
+- [Script index](docs/reference/SCRIPTS_INDEX.md) and [documentation index](docs/README.md).
 
-</div>
+The full experiment requires external simulation inputs and posterior exports.
+A source checkout supports code inspection and data-independent unit tests;
+it does not reproduce the numerical paper results without those inputs.
 
----
+## Environment
 
-## 📋 Overview
-
-This project implements a **backtracking line search gradient descent optimization solver** for geological carbon storage. The solver maximizes injected CO₂ integral while incorporating risk penalties through **Probability of Failure (PoF)** and **Conditional Value at Risk (CVaR)** metrics.
-
-### Key Features
-
-- 🎯 **Risk-aware optimization** with PoF and CVaR constraints
-- 🔄 **Soft and hard constraint support** for flexible risk management
-- 📊 **Comprehensive visualization** tools for results analysis
-- 🧪 **Extensive test suite** for reliability
-- 🚀 **HPC-ready** with SLURM job submission scripts
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Julia 1.11+** ([Download](https://julialang.org/downloads/))
-- **Python 3.12+** (for PyCall/PyPlot dependencies)
-- **DrWatson** package (for project management)
-
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/haoyunl2/optim_injr_DT.git
-   cd optim_injr_DT
-   ```
-
-2. **Set up Julia environment:**
-   ```julia
-   julia> using Pkg
-   julia> Pkg.add("DrWatson")  # Install globally for quickactivate
-   julia> Pkg.activate(".")
-   julia> Pkg.instantiate()    # Install all dependencies
-   ```
-
-3. **Verify installation:**
-   ```julia
-   julia --project=. test/runtests.jl
-   ```
-
-> **Note:** Raw data files and generated result folders are not included in git history. See [DATA_AVAILABILITY.md](DATA_AVAILABILITY.md) for the expected local data layout.
-
----
-
-## 📁 Project Structure
-
-```
-optim_injr_DT/
-├── src/                    # Core optimization modules
-│   ├── optim_inject.jl    # Main optimization solver
-│   ├── optim_inject_vecporo.jl
-│   └── threshold_sensitivity.jl
-│
-├── scripts/               # Analysis and utility scripts
-│   ├── shell/            # SLURM helpers (submit/, run/, check/, retry/, maintenance/)
-│   └── julia_scripts/    # Julia scripts (organized by function)
-│       ├── plotting/     # Plotting scripts
-│       ├── data_collection/ # Data collection
-│       ├── analysis/     # Analysis scripts
-│       └── utilities/    # Utility scripts
-│
-├── archive/               # Superseded runs, logs, and code (reference only)
-├── docs/                  # Documentation files
-├── data/                  # Experiment data and results
-├── plots/                 # Generated visualizations
-└── test/                  # Test suite
-```
-
-For detailed structure and script entry points, see [docs/reference/DIRECTORY_STRUCTURE.md](docs/reference/DIRECTORY_STRUCTURE.md) and [docs/reference/SCRIPTS_INDEX.md](docs/reference/SCRIPTS_INDEX.md).
-
----
-
-## 💻 Usage
-
-### Running Optimization
-
-Most scripts use DrWatson's `@quickactivate` for automatic project activation:
-
-```julia
-using DrWatson
-@quickactivate "optim_injr_DT"
-```
-
-### Example: Run Optimization
+Run from the repository root. `Project.toml` and `Manifest.toml` record the
+Julia environment (Julia 1.11.3). [requirements.txt](requirements.txt) records
+the direct plotting dependencies observed with Python 3.9.21; it is not a full
+transitive lockfile. Use that Python version to match the observed environment.
 
 ```bash
-julia --project=. src/optim_inject.jl --idx_num 1 --use_pof --lambda_pof 8.5e8
+git clone https://github.com/slimgroup/optim_injr_DT.git
+cd optim_injr_DT
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+export JULIA_DEPOT_PATH="$HOME/julia-depot"
+mkdir -p "$JULIA_DEPOT_PATH"
+export PYTHON="$(command -v python)"
+export MPLBACKEND=Agg
+julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.build("PyCall")'
 ```
 
-### Running Tests
+On PACE, install/precompile Julia packages and run simulations inside a compute
+allocation. Batch wrappers include site-specific account, module, and Python
+settings. See the [PACE guide](docs/workflow/PACE_RUN_GUIDE.md).
+
+## Checks and execution
+
+Lightweight repository checks do not need Julia, data, or a Slurm connection:
+
+```bash
+python3 scripts/python_tools/maintenance/check_repository.py
+python3 -m unittest discover -s test/unit -p 'test_repository*.py'
+```
+
+Run the existing Julia unit suite in the configured environment:
 
 ```bash
 julia --project=. test/runtests.jl
 ```
 
-Or from Julia REPL:
-```julia
-include("test/runtests.jl")
-```
+These tests cover helper functions and mathematical operations. They do not
+validate the full simulation or establish paper-result reproducibility.
+Integration tests are opt-in; see [test/README.md](test/README.md).
 
-See [test/README.md](test/README.md) for more details.
-
----
-
-## 📚 Documentation
-
-- **[Documentation Index](docs/README.md)** - Full docs map by topic
-- **[Data Availability](DATA_AVAILABILITY.md)** - Required local datasets and generated artifacts
-- **[Directory Structure](docs/reference/DIRECTORY_STRUCTURE.md)** - Detailed project organization
-- **[Scripts Index](docs/reference/SCRIPTS_INDEX.md)** - Script entry points by purpose
-- **[Paper Figure Manifest](docs/reference/PAPER_FIGURE_MANIFEST.md)** - Paper figures, scripts, and input data
-- **[Optimization Choice Guide](docs/optimization/OPTIMIZATION_CHOICE_GUIDE.md)** - Algorithm selection
-- **[Submit Guide](docs/workflow/SUBMIT_GUIDE.md)** - Job submission guide
-- **[Script Explanation](docs/reference/SCRIPT_EXPLANATION.md)** - Detailed explanation of a specific SLURM script pattern
-- **[Quick Run Guide](docs/workflow/QUICK_RUN_WITH_RISK.md)** - Quick start with risk parameters
-- **[Machine-local dirs](docs/reference/MACHINE_LOCAL.md)** - `.vscode`, `.mplconfig`, `.julia_depot_*`
-- **[Bootstrap CDF Methodology](docs/statistics/BOOTSTRAP_CDF_METHODOLOGY.md)** - Bootstrap/CDF plotting notes
-- **[Injection Rate Arrays](docs/injection_rate_arrays.md)** - Injection ramp definitions used in plotting/export docs
-
----
-
-## 🔧 Key Modules
-
-### `optim_inject.jl`
-Main optimization module supporting:
-- PoF/CVaR soft penalties and hard constraints
-- Zero-baseline penalties
-- Configurable kappa for softplus smoothing
-- Comprehensive logging and visualization
-
-### `threshold_sensitivity.jl`
-Threshold sensitivity analysis for risk parameter calibration.
-
-### `optim_inject_vecporo.jl`
-Vector porosity optimization variant.
-
----
-
-## 🧪 Testing
-
-The project includes comprehensive tests covering:
-- ✅ Utility functions (softplus, array operations)
-- ✅ Risk metrics (PoF, CVaR computations)
-- ✅ Data I/O operations
-- ✅ Optimization functions
-
-Run all tests:
-```bash
-julia --project=. test/runtests.jl
-```
-
----
-
-## 🖥️ HPC Usage
-
-For cluster environments (e.g., PACE), use the scripts in `scripts/shell/`:
+Submit a small paired-posterior run after restoring the required step-2 inputs:
 
 ```bash
-# Submit batch jobs
-./scripts/shell/submit/submit_all.sh
-
-# Run the bootstrap CDF workflow
-bash scripts/shell/run/run_bootstrap_cdf.sh
+mkdir -p logs
+bash scripts/shell/submit/submit_step3_paired_smoketest.sh \
+  --case pof_eps0.01 --samples 1-2
 ```
 
----
+This command submits jobs; it is not an installation test. Read the
+[reproduction guide](docs/REPRODUCIBILITY.md) before starting a campaign.
 
-## 📦 Dependencies
+## Repository layout
 
-### Core Julia Packages
-- `JutulDarcyRules` - Reservoir simulation
-- `SlimOptim` - Optimization algorithms
-- `DrWatson` - Project management
-- `JLD2` - Data storage
-- `PyCall` / `PyPlot` - Python integration for plotting
+| Directory | Contents |
+|---|---|
+| `src/` | Optimizer, risk cases, prior states, and output paths |
+| `scripts/shell/` | Slurm submission, execution, and progress helpers |
+| `scripts/julia_scripts/` | Forward exports, statistics, and diagnostics |
+| `scripts/python_plots/` | Paper figures, posterior plots, and videos |
+| `scripts/python_tools/` | Analysis and maintenance tools |
+| `test/` | Lightweight checks and opt-in simulation tests |
+| `docs/` | Current methods, workflow guides, and paper provenance |
+| `docs/historical/` | Earlier discussions, presentations, and superseded guides |
+| `data/`, `plots/`, `logs/` | Local inputs/results, figures, and job logs |
+| `archive/` | Preserved historical experiments |
 
-See [Project.toml](Project.toml) for complete dependency list.
+Historical code remains at its existing paths when batch jobs or exporters
+depend on it. Use the script index to choose a current entry point. Earlier
+figure exports are not interchangeable with the selected paper assets.
 
----
+## Citation and license
 
-## 👤 Author
-
-**Haoyun Li**
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
----
-
-## 📝 Citation
-
-If you use this code in your research, please cite:
-
-```bibtex
-@software{optim_injr_DT,
-  author = {Haoyun Li},
-  title = {optim_injr_DT: Optimization-based Injection Rate Control for Geological Carbon Storage},
-  year = {2024},
-  url = {https://github.com/haoyunl2/optim_injr_DT}
-}
-```
-
----
-
-<div align="center">
-
-**Made with ❤️ using Julia**
-
-</div>
+Author: Haoyun Li. Licensed under the [MIT License](LICENSE).
+Use [CITATION.cff](CITATION.cff) for the software citation and record the commit
+used. Paper bibliographic details and a data DOI have not yet been provided
+in this repository; add them when available.

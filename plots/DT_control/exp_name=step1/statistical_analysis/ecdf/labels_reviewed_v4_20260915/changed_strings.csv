@@ -1,6 +1,0 @@
-location,before,after
-inset annotation,Optimistic,Opt.
-legend,95% Bootstrap CI,95% Bootstrap CI (B=10000)
-footer,Endpoint ECDF uses ≤; strict violation uses <.,removed
-footer,Bootstrap resamples: B = 10000,removed
-inset connection,dark directed arrow,thin gray corner connectors

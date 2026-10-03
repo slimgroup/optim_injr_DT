@@ -29,6 +29,16 @@ PERIOD_SECONDS = PERIOD_DAYS * 24 * 60 * 60
 RHO_CO2 = 700.0  # kg / m^3, consistent with other paper plotting scripts
 N_PERIODS_PER_STEP = 6
 TOTAL_STEPS = 4
+EVENT_STAR_AREA = 300.0  # Match the pressure-trajectory figure (points squared).
+
+# Display labels match the companion pressure figure. Keep the schedule keys
+# and CSV labels stable for downstream readers of the existing data export.
+CASE_LABELS = {
+    "PoF eps = 0.0 (= CVaR γ = 0.0)": r"PoF $\varepsilon = 0.0$",
+    "PoF eps = 0.01": r"PoF $\varepsilon = 0.01$",
+    "CVaR γ = 0.1, α = 0.01": r"CVaR $\gamma = 0.1,\ \alpha = 0.01$",
+    "No control (severe fracture)": "No control",
+}
 
 CASE_SCHEDULES = {
     "PoF eps = 0.0 (= CVaR γ = 0.0)": [
@@ -113,7 +123,7 @@ CASE_SCHEDULES = {
 
 
 def make_no_control_schedule() -> tuple[np.ndarray, float]:
-    """Use a real uncontrolled ramp and stop injection at severe fracture."""
+    """Use the saved uncontrolled ramp and severe-pressure-exceedance stop day."""
     rates = np.r_[np.linspace(0.0, 0.2, N_PERIODS_PER_STEP), np.full(N_PERIODS_PER_STEP * (TOTAL_STEPS - 1), 0.2)]
     frac_day = np.nan
     if NO_CONTROL_SEVERE_DATA.exists():
@@ -192,10 +202,8 @@ def write_csv(path: Path, schedules: dict[str, np.ndarray], no_control: np.ndarr
         writer.writerows(rows)
 
 
-def main() -> None:
-    schedules = {k: np.asarray(v, dtype=float) for k, v in CASE_SCHEDULES.items()}
-    no_control, frac_day = make_no_control_schedule()
-
+def draw_figure(schedules, no_control, frac_day):
+    """Render the saved schedules with the companion pressure figure's layout."""
     colors = {
         "PoF eps = 0.0 (= CVaR γ = 0.0)": "#0E7490",
         "PoF eps = 0.01": "#D97706",
@@ -206,28 +214,32 @@ def main() -> None:
     plt.rcParams.update(
         {
             "font.family": "serif",
-            "axes.titlesize": 22,
-            "axes.labelsize": 19,
-            "xtick.labelsize": 16,
-            "ytick.labelsize": 16,
-            "legend.fontsize": 14,
+            "mathtext.fontset": "dejavuserif",
+            "axes.labelsize": 21,
+            "xtick.labelsize": 18,
+            "ytick.labelsize": 18,
+            "legend.fontsize": 15,
         }
     )
 
-    fig, ax = plt.subplots(figsize=(15.2, 8.8))
+    fig, ax = plt.subplots(figsize=(16, 9))
     ax2 = ax.twinx()
+    fig.subplots_adjust(left=0.095, right=0.905, bottom=0.105, top=0.765)
 
     for i in range(1, TOTAL_STEPS):
-        ax.axvline(i * N_PERIODS_PER_STEP * PERIOD_DAYS, color="#D1D5DB", linewidth=1.0, linestyle="--", zorder=0)
+        ax.axvline(i * N_PERIODS_PER_STEP * PERIOD_DAYS, color="#D1D5DB", linewidth=1.1, linestyle="--", zorder=0)
 
     for step_idx, x in enumerate([240, 720, 1200, 1680], start=1):
-        ax.text(x, 0.221, f"Step {step_idx}", ha="center", va="top", fontsize=13.5, color="#4B5563")
+        ax.text(x, 0.979, f"Step {step_idx}", transform=ax.get_xaxis_transform(),
+                ha="center", va="top", fontsize=16.5, color="#4B5563",
+                bbox=dict(facecolor="white", edgecolor="none", pad=1.0))
 
     for case, rates in schedules.items():
         color = colors[case]
         t_rate, y_rate = step_series(rates)
         t_cum, y_cum = line_series(cumulative_mt(rates))
-        ax.step(t_rate, y_rate, where="post", color=color, linewidth=3.0, label=case, zorder=4)
+        ax.step(t_rate, y_rate, where="post", color=color, linewidth=3.0,
+                label=CASE_LABELS[case], zorder=4)
         ax2.plot(t_cum, y_cum, color=color, linewidth=2.2, alpha=0.78, linestyle="--", zorder=2)
 
     no_control_case = "No control (severe fracture)"
@@ -239,7 +251,7 @@ def main() -> None:
         where="post",
         color=colors[no_control_case],
         linewidth=3.2,
-        label=no_control_case,
+        label=CASE_LABELS[no_control_case],
         zorder=4,
     )
     ax2.plot(t_cum, y_cum, color=colors[no_control_case], linewidth=2.2, alpha=0.82, linestyle="--", zorder=2)
@@ -255,9 +267,9 @@ def main() -> None:
             [frac_rate],
             color="#DC2626",
             edgecolor="white",
-            linewidth=1.1,
+            linewidth=0.8,
             marker="*",
-            s=560,
+            s=EVENT_STAR_AREA,
             zorder=6,
         )
         ax2.scatter(
@@ -265,40 +277,42 @@ def main() -> None:
             [frac_mass],
             color="#DC2626",
             edgecolor="white",
-            linewidth=1.1,
+            linewidth=0.8,
             marker="*",
-            s=560,
+            s=EVENT_STAR_AREA,
             zorder=6,
         )
-        ax.axvline(frac_day, color="#DC2626", linewidth=1.2, linestyle=":", alpha=0.9)
+        ax.axvline(frac_day, color="#DC2626", linewidth=1.5, linestyle=":", alpha=0.9, zorder=2)
 
     ax.set_xlim(0, N_PERIODS_PER_STEP * TOTAL_STEPS * PERIOD_DAYS)
     ax.set_ylim(0.0, 0.225)
     ax2.set_ylim(0.0, max(y_cum.max(), max(cumulative_mt(v).max() for v in schedules.values())) * 1.08)
 
-    ax.set_xlabel("Time [days]")
-    ax.set_ylabel("Injection rate [m$^3$/s]")
-    ax2.set_ylabel("Total injected CO$_2$ [Mt]")
+    ax.set_xlabel("Time [days]", labelpad=8)
+    ax.set_ylabel("Injection rate [m$^3$/s]", labelpad=10)
+    ax2.set_ylabel("Total injected CO$_2$ [Mt]", labelpad=12)
 
-    ax.grid(True, axis="y", linestyle="--", linewidth=0.5, alpha=0.4)
+    ax.grid(True, axis="y", linestyle="--", linewidth=0.55, alpha=0.42)
 
     case_handles = [
-        Line2D([0], [0], color=colors[name], linewidth=3.2, label=name)
+        Line2D([0], [0], color=colors[name], linewidth=3.2, label=CASE_LABELS[name])
         for name in ["PoF eps = 0.0 (= CVaR γ = 0.0)", "PoF eps = 0.01", "CVaR γ = 0.1, α = 0.01", "No control (severe fracture)"]
     ]
     style_handles = [
         Line2D([0], [0], color="#111827", linewidth=3.0, linestyle="-", label="Injection rate (left axis)"),
         Line2D([0], [0], color="#111827", linewidth=2.2, linestyle="--", label="Total injected CO$_2$ (right axis)"),
-        Line2D([0], [0], color="#DC2626", marker="*", markersize=19, linewidth=0, label="Severe fracture"),
+        Line2D([0], [0], color="#DC2626", marker="*", markersize=np.sqrt(EVENT_STAR_AREA),
+               markeredgecolor="white", markeredgewidth=0.8, linewidth=0,
+               label=f"Severe pressure exceedance (day {frac_day:.0f})"),
     ]
 
-    legend_cases = fig.legend(
+    fig.legend(
         handles=case_handles,
         loc="upper left",
-        bbox_to_anchor=(0.055, 0.988),
+        bbox_to_anchor=(0.055, 0.99),
         framealpha=0.96,
         title="Cases",
-        title_fontsize=15,
+        title_fontsize=18,
         borderpad=0.45,
         labelspacing=0.35,
         handlelength=2.2,
@@ -309,23 +323,29 @@ def main() -> None:
     fig.legend(
         handles=style_handles,
         loc="upper right",
-        bbox_to_anchor=(0.975, 0.988),
+        bbox_to_anchor=(0.955, 0.99),
         framealpha=0.96,
-        title="Line meaning",
-        title_fontsize=15,
+        title="Line and marker meaning",
+        title_fontsize=18,
         borderpad=0.45,
         labelspacing=0.35,
         handlelength=2.2,
-        ncol=2,
-        columnspacing=0.9,
+        ncol=1,
     )
 
-    fig.suptitle("Injection Schedules and Cumulative CO$_2$ Across Four Monitoring Steps", y=0.855, fontsize=20)
-    fig.tight_layout(rect=[0.02, 0.03, 0.98, 0.87])
+    fig.suptitle("Injection schedules and cumulative CO$_2$ over four monitoring steps",
+                 y=0.815, fontsize=24)
+    return fig, (ax, ax2)
+
+
+def main() -> None:
+    schedules = {k: np.asarray(v, dtype=float) for k, v in CASE_SCHEDULES.items()}
+    no_control, frac_day = make_no_control_schedule()
+    fig, _ = draw_figure(schedules, no_control, frac_day)
 
     png_path = OUTDIR / "injection_schedule_over_four_steps.png"
     csv_path = OUTDIR / "injection_schedule_over_four_steps_data.csv"
-    fig.savefig(png_path, dpi=300, bbox_inches="tight")
+    fig.savefig(png_path, dpi=240, facecolor="white")
     plt.close(fig)
 
     write_csv(csv_path, schedules, no_control, frac_day)

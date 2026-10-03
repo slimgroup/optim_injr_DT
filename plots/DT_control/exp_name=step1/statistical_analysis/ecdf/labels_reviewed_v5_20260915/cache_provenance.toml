@@ -1,8 +1,0 @@
-cache_path = "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/figure_exports/figures6_7_decimal4_20260910_005149/case_result.jld2"
-cache_sha256 = "287210f33be19644c1d87fd13cdb39f672afc345293315e834b690255251ecc3"
-confidence = 0.95
-export_dpi = 200
-rate_formatting = "four decimal places in annotations; canonical axis ticks unchanged"
-slide_id = "p1-select"
-statistics_recomputed = false
-threshold = 0.01

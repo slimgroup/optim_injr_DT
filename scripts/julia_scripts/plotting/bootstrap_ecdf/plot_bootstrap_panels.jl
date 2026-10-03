@@ -21,7 +21,7 @@ const CONF     = 0.95
 const THRESH   = 0.01    # 1% fracture probability
 const NBINS    = 30
 const SEED     = 42
-const ECDF_PTS = 1500    # grid points for ECDF evaluation
+const ECDF_PTS = nothing # compatibility alias; no uniform plotting grid
 const FORWARD_STEP = 2
 const INJ_START    = 0.0001
 
@@ -46,9 +46,9 @@ const GRID = [
 ]
 
 const SELECTED_GRID = [
-    ("PoF ε=0.0", "PoF ε=0.0\n(identical to CVaR γ=0.0)"),
-    ("PoF ε=0.01", "PoF ε=0.01"),
-    ("CVaR γ=0.1 α=0.01", "CVaR γ=0.1 α=0.01"),
+    ("PoF ε=0.0", "PoF eps = 0.0"),
+    ("PoF ε=0.01", "PoF eps = 0.01"),
+    ("CVaR γ=0.1 α=0.01", "CVaR gamma = 0.1, alpha = 0.01"),
 ]
 
 # ===================== Data loading =====================
@@ -108,25 +108,41 @@ function boot_quantile(data, q, B; seed=SEED)
     [quantile(data[rand(rng, 1:n, n)], q) for _ in 1:B]
 end
 
-function boot_ecdf_ci(data, B; conf=CONF, npts=ECDF_PTS, seed=SEED)
+function boot_ecdf_ci_at(data, B, xg; conf=CONF, seed=SEED)
     rng = MersenneTwister(seed); n = length(data)
-    xmin, xmax = extrema(data); margin = 0.05*(xmax-xmin)
-    xg = collect(range(xmin-margin, xmax+margin, length=npts))
-    ecdf_at(sorted, xg) = [searchsortedfirst(sorted, x)-1 for x in xg] ./ length(sorted)
+    ecdf_at(sorted, xg) = [searchsortedlast(sorted, x) for x in xg] ./ length(sorted)
     orig = ecdf_at(sort(data), xg)
-    boot = zeros(B, npts)
+    boot = zeros(B, length(xg))
     for b in 1:B
         boot[b,:] .= ecdf_at(sort(data[rand(rng,1:n,n)]), xg)
     end
     α = 1-conf
-    lo = [quantile(view(boot,:,i), α/2) for i in 1:npts]
-    hi = [quantile(view(boot,:,i), 1-α/2) for i in 1:npts]
+    lo = [quantile(view(boot,:,i), α/2) for i in eachindex(xg)]
+    hi = [quantile(view(boot,:,i), 1-α/2) for i in eachindex(xg)]
     xg, orig, lo, hi
+end
+
+function boot_ecdf_ci(data, B; conf=CONF, npts=ECDF_PTS, seed=SEED)
+    # npts is accepted for existing callers but never subsamples the ECDF.
+    xmin, xmax = extrema(data)
+    margin = xmax > xmin ? 0.05 * (xmax-xmin) : max(abs(xmin) * 0.05, 1e-6)
+    xg = vcat(xmin-margin, sort(unique(data)), xmax+margin)
+    boot_ecdf_ci_at(data, B, xg; conf=conf, seed=seed)
 end
 
 function threshold_crossing(xg, cdf, thr)
     idx = findfirst(v -> v >= thr, cdf)
     idx !== nothing ? xg[idx] : nothing
+end
+
+function bootstrap_jump_crossings(data, B; conf=CONF, threshold=THRESH, seed=SEED)
+    jump_points = sort(unique(data))
+    _, ecdf_v, ci_lo, ci_hi = boot_ecdf_ci_at(data, B, jump_points; conf=conf, seed=seed)
+    (
+        threshold_crossing(jump_points, ci_hi, threshold),
+        threshold_crossing(jump_points, ecdf_v, threshold),
+        threshold_crossing(jump_points, ci_lo, threshold),
+    )
 end
 
 # Struct to hold all precomputed results for one case
@@ -162,21 +178,24 @@ function compute_case(data, title; B=B_SINGLE)
     ci_lo_q = quantile(bq, (1-CONF)/2)
     ci_hi_q = quantile(bq, 1-(1-CONF)/2)
     xg, ev, clo, chi = boot_ecdf_ci(data, B)
-    xcons = threshold_crossing(xg, chi, THRESH)
-    xecdf = threshold_crossing(xg, ev, THRESH)
-    xopt  = threshold_crossing(xg, clo, THRESH)
+    xcons, xecdf, xopt = (threshold_crossing(xg, v, THRESH) for v in (chi, ev, clo))
     CaseResult(title, data, n, q_val, ci_lo_q, ci_hi_q, bq,
                xg, ev, clo, chi, xcons, xecdf, xopt)
 end
 
 # ===================== Single-panel: Histogram =====================
+# Opt in when re-exporting Figures 6--7 from their saved full-precision results.
+# The default preserves formatting for existing callers and other figures.
+single_rate_label(value, legacy_digits, four_decimal_rates) =
+    four_decimal_rates ? @sprintf("%.4f", value) : string(round(value, digits=legacy_digits))
+
 # Rate annotations use four decimals; axis tick formatting remains unchanged.
 plot_rate_label(value) = @sprintf("%.4f", value)
 
 # Translate presentation labels only; case lookup keys and parameter values stay intact.
 greek_case_label(title) = replace(title, "eps" => "ε", "alpha" => "α", "gamma" => "γ")
 
-function plot_single_hist(cr::CaseResult, fname; nbins=NBINS)
+function plot_single_hist(cr::CaseResult, fname; nbins=NBINS, four_decimal_rates=false)
     fig = PyPlot.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
     edges = collect(range(minimum(cr.data), maximum(cr.data), length=nbins+1))
@@ -197,6 +216,7 @@ function plot_single_hist(cr::CaseResult, fname; nbins=NBINS)
     case_label = cr.title == "PoF (eps=0.01)" ? "PoF ε = 0.01" : greek_case_label(cr.title)
     ax.set_title("Injection Rate Distribution ($(case_label))", fontsize=20, fontweight="bold")
     ax.tick_params(labelsize=12)
+    four_decimal_rates && ax.xaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter("%.4f"))
     ax.grid(true, ls="--", lw=0.3, alpha=0.5)
     PyPlot.tight_layout()
     PyPlot.savefig(fname, dpi=200, bbox_inches="tight"); PyPlot.close(fig)
@@ -204,12 +224,12 @@ function plot_single_hist(cr::CaseResult, fname; nbins=NBINS)
 end
 
 # ===================== Single-panel: CDF with zoom inset =====================
-function plot_single_cdf(cr::CaseResult, fname)
+function plot_single_cdf(cr::CaseResult, fname; four_decimal_rates=false)
     fig = PyPlot.figure(figsize=(8, 6))
     ax = fig.add_subplot(111)
-    ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5,
+    ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, step="post", color="#BBDEFB", alpha=0.5,
                    label="95% Bootstrap CI (B=$(length(cr.boot_q)))")
-    ax.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=2, label="Empirical CDF")
+    ax.step(cr.xg, cr.ecdf_v.*100, where="post", color="#1565C0", lw=2, label="Empirical CDF")
     ax.axhline(y=THRESH*100, color="#D62728", lw=1.5, ls="--", label="Target p = 1%")
     for (xv, col, ms) in [(cr.x_conservative,"#FF6F00",10),(cr.x_ecdf,"#2E7D32",10),(cr.x_optimistic,"#1565C0",10)]
         xv !== nothing && ax.plot(xv, THRESH*100, "*", color=col, markersize=ms, zorder=5)
@@ -220,8 +240,8 @@ function plot_single_cdf(cr::CaseResult, fname)
     ax.set_ylim(0,100)
     ax.tick_params(labelsize=12); ax.grid(true, ls="--", lw=0.3, alpha=0.5)
     ins = ax.inset_axes([0.38, 0.12, 0.57, 0.50])
-    ins.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5)
-    ins.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=1.5)
+    ins.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, step="post", color="#BBDEFB", alpha=0.5)
+    ins.step(cr.xg, cr.ecdf_v.*100, where="post", color="#1565C0", lw=1.5)
     ins.axhline(y=THRESH*100, color="#D62728", lw=1, ls="--")
     zpts = filter(!isnothing, [cr.x_conservative, cr.x_ecdf, cr.x_optimistic])
     if !isempty(zpts); zxmin=minimum(zpts)*0.85; zxmax=maximum(zpts)*1.15; else; zxmin=minimum(cr.data); zxmax=zxmin+0.1; end
@@ -255,6 +275,10 @@ function plot_single_cdf(cr::CaseResult, fname)
     ins.set_title("Left tail zoom (0-$(Int(zymax))%)", fontsize=10)
     ins.set_xlabel("Injection Rate (m³/s)", fontsize=9); ins.set_ylabel("Violation probability (%)", fontsize=9)
     ins.tick_params(labelsize=9); ins.grid(true, ls="--", lw=0.3, alpha=0.4)
+    if four_decimal_rates
+        ax.xaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter("%.4f"))
+        ins.xaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter("%.4f"))
+    end
     # Main axis limits from data (avoids pathological bbox_inches with indicate_inset_zoom on some backends)
     xdmin, xdmax = extrema(cr.data)
     xspan = max(xdmax - xdmin, 1e-12)
@@ -339,8 +363,8 @@ function plot_grid_cdf(results::Vector{CaseResult}, fname)
         cr = results[idx]
         r = div(idx-1, ncols) + 1; c = mod(idx-1, ncols) + 1
         ax = axes[r, c]
-        ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5, zorder=1)
-        ax.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=1.8, zorder=2)
+        ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, step="post", color="#BBDEFB", alpha=0.5, zorder=1)
+        ax.step(cr.xg, cr.ecdf_v.*100, where="post", color="#1565C0", lw=1.8, zorder=2)
         ax.axhline(y=THRESH*100, color="#D62728", lw=1.2, ls="--", zorder=3)
         for (xv, col) in [(cr.x_conservative,"#FF6F00"),(cr.x_ecdf,"#2E7D32"),(cr.x_optimistic,"#1565C0")]
             xv !== nothing && ax.plot(xv, THRESH*100, "*", color=col, ms=8, zorder=5)
@@ -352,28 +376,29 @@ function plot_grid_cdf(results::Vector{CaseResult}, fname)
         if r == nrows; ax.set_xlabel("Injection Rate (m³/s)", fontsize=14); end
         if c == 1; ax.set_ylabel("Violation probability (%)", fontsize=12); end
         ins = ax.inset_axes([0.40, 0.10, 0.55, 0.45])
-        ins.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5)
-        ins.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=1.2)
+        ins.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, step="post", color="#BBDEFB", alpha=0.5)
+        ins.step(cr.xg, cr.ecdf_v.*100, where="post", color="#1565C0", lw=1.2)
         ins.axhline(y=THRESH*100, color="#D62728", lw=0.8, ls="--")
+        # Ordered label slots keep boxes and their arrows clear of inset ticks.
         afs = 9
         if cr.x_conservative !== nothing
             ins.plot(cr.x_conservative, THRESH*100, "*", color="#FF6F00", ms=10, zorder=5)
             ins.annotate("\$\\mathbf{q}_k^{\\star}\$\n$(plot_rate_label(cr.x_conservative))", xy=(cr.x_conservative,THRESH*100),
-                        xytext=(-28,18), textcoords="offset points", fontsize=afs, color="#E65100", fontweight="bold", ha="center",
+                        xytext=(0.16, 0.67), textcoords="axes fraction", fontsize=afs, color="#E65100", fontweight="bold", ha="center", va="center",
                         bbox=Dict("boxstyle"=>"round,pad=0.12","facecolor"=>"#FFF3E0","alpha"=>0.9,"edgecolor"=>"#FF6F00"),
                         arrowprops=Dict("arrowstyle"=>"->","color"=>"#FF6F00"))
         end
         if cr.x_ecdf !== nothing
             ins.plot(cr.x_ecdf, THRESH*100, "*", color="#2E7D32", ms=10, zorder=5)
             ins.annotate("ECDF\n$(plot_rate_label(cr.x_ecdf))", xy=(cr.x_ecdf,THRESH*100),
-                        xytext=(0,38), textcoords="offset points", fontsize=afs, color="#1B5E20", fontweight="bold", ha="center",
+                        xytext=(0.50, 0.67), textcoords="axes fraction", fontsize=afs, color="#1B5E20", fontweight="bold", ha="center", va="center",
                         bbox=Dict("boxstyle"=>"round,pad=0.12","facecolor"=>"#E8F5E9","alpha"=>0.9,"edgecolor"=>"#2E7D32"),
                         arrowprops=Dict("arrowstyle"=>"->","color"=>"#2E7D32"))
         end
         if cr.x_optimistic !== nothing
             ins.plot(cr.x_optimistic, THRESH*100, "*", color="#1565C0", ms=10, zorder=5)
             ins.annotate("Opt.\n$(plot_rate_label(cr.x_optimistic))", xy=(cr.x_optimistic,THRESH*100),
-                        xytext=(28,18), textcoords="offset points", fontsize=afs, color="#0D47A1", fontweight="bold", ha="center",
+                        xytext=(0.84, 0.67), textcoords="axes fraction", fontsize=afs, color="#0D47A1", fontweight="bold", ha="center", va="center",
                         bbox=Dict("boxstyle"=>"round,pad=0.12","facecolor"=>"#E3F2FD","alpha"=>0.9,"edgecolor"=>"#1565C0"),
                         arrowprops=Dict("arrowstyle"=>"->","color"=>"#1565C0"))
         end
@@ -449,8 +474,8 @@ function plot_selected_cdf(results::Vector{CaseResult}, fname)
     zymax = THRESH * 100 * 8
     for (idx, cr) in enumerate(results)
         ax = fig.add_subplot(1, 3, idx)
-        ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5, zorder=1)
-        ax.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=1.8, zorder=2)
+        ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, step="post", color="#BBDEFB", alpha=0.5, zorder=1)
+        ax.step(cr.xg, cr.ecdf_v.*100, where="post", color="#1565C0", lw=1.8, zorder=2)
         ax.axhline(y=THRESH*100, color="#D62728", lw=1.2, ls="--", zorder=3)
         for (xv, col) in [(cr.x_conservative,"#FF6F00"),(cr.x_ecdf,"#2E7D32"),(cr.x_optimistic,"#1565C0")]
             xv !== nothing && ax.plot(xv, THRESH*100, "*", color=col, ms=8, zorder=5)
@@ -465,28 +490,29 @@ function plot_selected_cdf(results::Vector{CaseResult}, fname)
             ax.set_ylabel("Violation probability (%)", fontsize=14)
         end
         ins = ax.inset_axes([0.40, 0.10, 0.55, 0.45])
-        ins.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5)
-        ins.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=1.2)
+        ins.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, step="post", color="#BBDEFB", alpha=0.5)
+        ins.step(cr.xg, cr.ecdf_v.*100, where="post", color="#1565C0", lw=1.2)
         ins.axhline(y=THRESH*100, color="#D62728", lw=0.8, ls="--")
+        # Ordered label slots keep boxes and their arrows clear of inset ticks.
         afs = 9
         if cr.x_conservative !== nothing
             ins.plot(cr.x_conservative, THRESH*100, "*", color="#FF6F00", ms=10, zorder=5)
             ins.annotate("\$\\mathbf{q}_k^{\\star}\$\n$(plot_rate_label(cr.x_conservative))", xy=(cr.x_conservative,THRESH*100),
-                        xytext=(-28,18), textcoords="offset points", fontsize=afs, color="#E65100", fontweight="bold", ha="center",
+                        xytext=(0.16, 0.67), textcoords="axes fraction", fontsize=afs, color="#E65100", fontweight="bold", ha="center", va="center",
                         bbox=Dict("boxstyle"=>"round,pad=0.12","facecolor"=>"#FFF3E0","alpha"=>0.9,"edgecolor"=>"#FF6F00"),
                         arrowprops=Dict("arrowstyle"=>"->","color"=>"#FF6F00"))
         end
         if cr.x_ecdf !== nothing
             ins.plot(cr.x_ecdf, THRESH*100, "*", color="#2E7D32", ms=10, zorder=5)
             ins.annotate("ECDF\n$(plot_rate_label(cr.x_ecdf))", xy=(cr.x_ecdf,THRESH*100),
-                        xytext=(0,38), textcoords="offset points", fontsize=afs, color="#1B5E20", fontweight="bold", ha="center",
+                        xytext=(0.50, 0.67), textcoords="axes fraction", fontsize=afs, color="#1B5E20", fontweight="bold", ha="center", va="center",
                         bbox=Dict("boxstyle"=>"round,pad=0.12","facecolor"=>"#E8F5E9","alpha"=>0.9,"edgecolor"=>"#2E7D32"),
                         arrowprops=Dict("arrowstyle"=>"->","color"=>"#2E7D32"))
         end
         if cr.x_optimistic !== nothing
             ins.plot(cr.x_optimistic, THRESH*100, "*", color="#1565C0", ms=10, zorder=5)
             ins.annotate("Opt.\n$(plot_rate_label(cr.x_optimistic))", xy=(cr.x_optimistic,THRESH*100),
-                        xytext=(28,18), textcoords="offset points", fontsize=afs, color="#0D47A1", fontweight="bold", ha="center",
+                        xytext=(0.84, 0.67), textcoords="axes fraction", fontsize=afs, color="#0D47A1", fontweight="bold", ha="center", va="center",
                         bbox=Dict("boxstyle"=>"round,pad=0.12","facecolor"=>"#E3F2FD","alpha"=>0.9,"edgecolor"=>"#1565C0"),
                         arrowprops=Dict("arrowstyle"=>"->","color"=>"#1565C0"))
         end
@@ -525,8 +551,8 @@ function plot_grid_cdf_zoom(results::Vector{CaseResult}, fname)
         cr = results[idx]
         r = div(idx-1, ncols) + 1; c = mod(idx-1, ncols) + 1
         ax = axes[r, c]
-        ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, color="#BBDEFB", alpha=0.5, zorder=1)
-        ax.plot(cr.xg, cr.ecdf_v.*100, color="#1565C0", lw=2, zorder=2)
+        ax.fill_between(cr.xg, cr.ci_lo.*100, cr.ci_hi.*100, step="post", color="#BBDEFB", alpha=0.5, zorder=1)
+        ax.step(cr.xg, cr.ecdf_v.*100, where="post", color="#1565C0", lw=2, zorder=2)
         ax.axhline(y=THRESH*100, color="#D62728", lw=1.2, ls="--", zorder=3)
         afs = 10
         zpts_all = filter(!isnothing, [cr.x_conservative, cr.x_ecdf, cr.x_optimistic])
@@ -609,8 +635,10 @@ function run_part1_only!(; root=ROOT, outdir=OUTDIR)
         println("  Loaded $(length(data)) samples")
         length(data) < 2 && continue
         cr = compute_case(data, label; B=B_SINGLE)
-        plot_single_hist(cr, joinpath(outdir, "hist_$(tag).png"))
-        plot_single_cdf(cr, joinpath(outdir, "cdf_$(tag).png"))
+        # Figures 6--7 use four fixed decimal places; other cases retain their style.
+        four_decimal_rates = tag == "POF_eps0.01"
+        plot_single_hist(cr, joinpath(outdir, "hist_$(tag).png"); four_decimal_rates=four_decimal_rates)
+        plot_single_cdf(cr, joinpath(outdir, "cdf_$(tag).png"); four_decimal_rates=four_decimal_rates)
     end
 end
 

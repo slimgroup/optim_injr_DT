@@ -5,8 +5,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-SBATCH_FILE="${SCRIPT_DIR}/optim_inject_pace.sh"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+SBATCH_FILE="${SCRIPT_DIR}/../run/optim_inject_pace.sh"
 
 if [[ $# -lt 2 ]]; then
   echo "Usage: $0 <CASE_TAG> <SAMPLE>"
@@ -44,7 +44,7 @@ echo ""
 # Submit the job
 echo "Submitting job..."
 JOB_NAME="${CASE_TAG}_s${SAMPLE}"
-SBATCH_OUTPUT=$(sbatch --parsable --array="${SAMPLE}-${SAMPLE}" --chdir="${SCRIPT_DIR}/.." \
+SBATCH_OUTPUT=$(sbatch --parsable --array="${SAMPLE}-${SAMPLE}" --chdir="${ROOT_DIR}" \
   --job-name="${JOB_NAME}" \
   --export=ALL,CASE_TAG="${CASE_TAG}",RISK_ARGS="${RISK_ARGS}" \
   "${SBATCH_FILE}" 2>&1)

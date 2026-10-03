@@ -12,6 +12,18 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 jobs:
+  repository:
+    name: Repository layout and submission interfaces
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check source syntax, navigation, and entry-point paths
+        run: python scripts/python_tools/maintenance/check_repository.py
+      - name: Exercise submitters without contacting Slurm
+        run: python -m unittest discover -s test/unit -p 'test_repository*.py' -v
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}

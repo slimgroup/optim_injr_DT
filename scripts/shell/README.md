@@ -17,8 +17,8 @@ shell/
 
 | Task | Command |
 |------|---------|
-| Main optimization array | `sbatch scripts/shell/run/optim_inject_pace.sh` |
-| Step-4 paired posterior optimization | `sbatch scripts/shell/submit/submit_step4_paired_all.sh` |
+| Configured step-1 optimization sweep | `bash scripts/shell/submit/submit_all.sh` |
+| Step-4 paired posterior optimization | `bash scripts/shell/submit/submit_step4_paired_all.sh` |
 | Step-3/4 paired posterior smoke tests | `bash scripts/shell/submit/submit_step3_paired_smoketest.sh` / `bash scripts/shell/submit/submit_step4_paired_smoketest.sh` |
 | Bootstrap ECDF pipeline | `sbatch scripts/shell/submit/submit_bootstrap_cdf.sh` |
 | Posterior summary (all steps) | `sbatch scripts/shell/submit/submit_posterior_summary_all_steps_shared.sh` |
@@ -26,7 +26,7 @@ shell/
 | Full-campaign video forward export | `sbatch scripts/shell/submit/submit_full_campaign_video_forwards.sh` |
 | Full-campaign video rendering | `sbatch scripts/shell/submit/submit_full_campaign_fracture_video.sh` |
 | Threshold sensitivity | `sbatch --array=1-5 scripts/shell/submit/submit_threshold_sensitivity.sh` |
-| Organize flat SLURM logs | `python3 scripts/python_tools/maintenance/organize_logs.py` |
+| Read-only repository checks | `python3 scripts/python_tools/maintenance/check_repository.py` |
 
 Full index: [docs/reference/SCRIPTS_INDEX.md](../../docs/reference/SCRIPTS_INDEX.md)
 
@@ -35,3 +35,7 @@ Full index: [docs/reference/SCRIPTS_INDEX.md](../../docs/reference/SCRIPTS_INDEX
 - `#SBATCH --output` paths are relative to the directory you were in when you ran `sbatch` — usually the repo root.
 - Historical 7-case reruns use `scripts/shell/run/optim_inject_pace_7cases_fix.sh` → `src/archive/optim_inject_7cases_fix.jl`.
 - Python layout helpers live in `scripts/python_tools/maintenance/`; `scripts/shell/maintenance/` is reserved for shell scripts.
+- The low-level optimization driver requires `CASE_TAG` and `RISK_ARGS`; the
+  submitters supply them. Create `logs/` before submitting on a fresh checkout.
+- Current paper selections and their batch commands are in the
+  [figure manifest](../../docs/reference/PAPER_FIGURE_MANIFEST.md).

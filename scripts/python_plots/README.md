@@ -1,44 +1,25 @@
-# python_plots/
+# Python plotting
 
-Python figure assembly (paper-quality layouts).
+The [paper manifest](../../docs/reference/PAPER_FIGURE_MANIFEST.md) records
+selected outputs. Filenames such as `preview` or `presentation` are stable
+interfaces; use that manifest to determine their current role.
 
-```text
-python_plots/
-├── posterior_stats/   # step 2–4 paired-posterior histogram/CDF grids
-├── legacy/            # older step-1 python helpers moved from julia_scripts/plotting
-└── *.py               # forward comparison, perm ensemble, posterior field summaries
-```
+| Task | Entry point |
+|---|---|
+| Selected 1.13 posterior sensitivity | `preview_posterior_margin_sensitivity.py` |
+| Split step-2–4 histogram / ECDF | `restyle_paper_pngs.py` |
+| New paired-posterior statistical analysis | `posterior_stats/plot_step{k}_paired_posterior_stats.py` |
+| Four-step schedule | `plot_injection_schedule_over_four_steps.py` |
+| Selected pressure trajectory | `plot_pressure_risk_trajectory_presentation.py` |
+| Day-728 comparison | `plot_real_fracture_comparison_day408.py` |
+| Joint permeability statistics | `plot_joint_permeability_statistics.py` |
+| Historical Appendix E numerical export | `export_posterior_appendix_e.py` |
 
-## Common entry points
+The historical exporter and original plotting modules are dependencies of
+newer layouts. Keep their inputs and pinned source commit. Its method uses
+B=5000 and the historical grid crossing; it is not a replacement for current
+statistical selection. See [its source note](../../docs/analysis/POSTERIOR_APPENDIX_E_REEXPORT_2026-09-08.md).
 
-| Task | Script |
-|------|--------|
-| Posterior + Appendix E paper handoff (11 figures) | `export_posterior_appendix_e.py` (Slurm wrapper below) |
-| Step-k paired posterior stats | `posterior_stats/plot_step{k}_paired_posterior_stats.py` |
-| Posterior field mean/std (all steps) | `plot_posterior_summary_all_steps.py` |
-| Forward export + 3-row figure | `../julia_scripts/data_collection/forward_exports/run_forward_export.jl` + `plot_3row_comparison.py` |
-| Four-step injection schedule | `plot_injection_schedule_over_four_steps.py` |
-| Four-step pressure-risk trajectory | `plot_pressure_risk_trajectory_over_four_steps.py` |
-| Real fracture comparison | `plot_real_fracture_comparison_day408.py` |
-| Full-campaign fracture video | `create_full_campaign_fracture_video.py` |
-| Video from frames | `create_videos_from_frames.py` |
-
-Shell wrapper for step-2 stats: `scripts/shell/run/run_step2_paired_posterior_stats.sh`
-
-For the historical paper re-export, use
-`sbatch scripts/shell/submit/submit_posterior_appendix_e_export.sh` from the
-repository root. This creates the canonical
-`plots/paper_figures/posterior/posterior_{mean,std}_step{k}.png` and
-`plots/paper_figures/statistical/injection_rate_hist_ecdf_step{k}.png` exports,
-plus a separate handoff with manuscript-name compatibility copies. It pins
-the historical 5,000-replicate, grid-crossing statistical procedure. The
-figures include concise quantity/statistic titles with monitoring index `k`.
-For a title-only replacement, `--reference-handoff` verifies the original
-image region and numerics; `--publish-handoff ... --replace-from-handoff ...`
-backs up and replaces only canonical files matching the previous manifest.
-The existing posterior and step-2/3/4 entry points also accept `--paper-export`;
-their default analysis behavior is unchanged. See
-[the mapping and validation note](../../docs/analysis/POSTERIOR_APPENDIX_E_REEXPORT_2026-09-08.md).
-
-For paper-ready figures, expected input data, and caveats, see
-`docs/reference/PAPER_FIGURE_MANIFEST.md`.
+Optional `create_*.py` scripts produce presentation videos. Bulk rendering and
+animation run through Slurm. Use new output paths and PNG by default.
+Dependency versions are in [requirements.txt](../../requirements.txt).

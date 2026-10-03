@@ -1,0 +1,27 @@
+本目录是新生成的 relative-margin 敏感性预览，不是原始 posterior 数据的纯配色修改。
+
+1. 核对 handoff_manifest.json、validation.json 和 delivery_checksums.json。
+2. 8张 posterior PNG 为k=1–4的均值/std。三行是relative margin、pressure difference、CO2 saturation。
+   paper_compat/posterior/ 使用带 sensitivity_increment_1p13 的独立文件名；请保留原始后验图片。
+3. Caption或methods中说明：只在计算relative margin时使用
+   p_used = pHyd + 1.13*(p-pHyd)，p_max = pHyd + 4 MPa；三个case、四个步骤和全部样本共用系数。
+   Pressure difference和saturation两行仍使用原始值。第一行std基于变换后的样本，ddof=0。
+   这是代数压力敏感性示例，没有重新运行forward simulation、优化或统计选率。
+4. 红蓝分界严格是r=0，mean色标-0.1到1；std色标0到0.032，各case/步骤共用。
+   Mean-field exceeding cells指mean(r_used)<0的网格数，不是样本数或失效概率。
+   k=2计数依次0/0/69，其余步骤0/0/0。69与参考单次真值场的97只作为视觉尺度对照。
+5. reference_zero_aligned_v2/ 是参考图的零点校正版，场数组和原计数0/97/6953未变；
+   不使用reference_zero_aligned/里的早期刻度草稿。参考图仍保留原有CVaR 1.22倍工况，
+   需保留原图caption中已有的工况及注入量标注解释。posterior的1.13变换未用于参考图。
+6. 原始后验版本、历史histogram/ECDF及其B=5000/seed=42数值均未修改。
+   如果采用本敏感性图，按handoff_manifest中的新路径更新QMD，并明确上述解释。
+   图片内按作者要求不额外写放大系数，说明应在图注或正文随图出现。
+
+Suggested caption text:
+The first row shows an illustrative pressure-sensitivity transformation of the posterior samples.
+For relative-margin calculations only, the pressure increment above the hydrostatic reference
+is multiplied by 1.13, using the same factor for all cases and monitoring steps.
+The pressure-difference and saturation rows remain unmodified. Red cells indicate negative
+mean transformed relative margin; annotated counts refer to grid cells of this mean field,
+not ensemble failure probabilities. Standard deviations are computed across the transformed
+relative-margin samples.

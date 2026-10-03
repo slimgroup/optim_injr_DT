@@ -1,0 +1,138 @@
+[
+  {
+    "saved_stamp": "3b89f2ed843bec2e9e15cb9794479ab417561bca",
+    "count": 27,
+    "git_object_available": true,
+    "source_lines": [
+      "state_path = datadir(\"state/Wise128_state_t\" * string(monitoring_step) * \"_rtm1_broad_NL_SNR28.jld2\")",
+      "inj_y0 = 191 + argmax(K[250, 191:200]) - 1",
+      "Random.seed!(2025 + s - 1)",
+      "value = 0.2 + rand(Float64) * 0.6",
+      "S0[249:251, inj_y0-4] .= value",
+      "S0[246:254, inj_y0-1] .= value",
+      "S0[246:254, inj_y0]   .= value",
+      "S0[246:254, inj_y0+1] .= value",
+      "S0[249:251, inj_y0+4] .= value"
+    ],
+    "dirty_source_not_recoverable": false
+  },
+  {
+    "saved_stamp": "72d3f3dcac9e2c427e4269470f171f0a8907008c",
+    "count": 1,
+    "git_object_available": true,
+    "source_lines": [
+      "state_path = datadir(\"state/Wise128_state_t\" * string(monitoring_step) * \"_rtm1_broad_NL_SNR28.jld2\")",
+      "inj_y0 = 191 + argmax(K[250, 191:200]) - 1",
+      "Random.seed!(2025 + s - 1)",
+      "value = 0.2 + rand(Float64) * 0.6",
+      "S0[249:251, inj_y0-4] .= value",
+      "S0[246:254, inj_y0-1] .= value",
+      "S0[246:254, inj_y0]   .= value",
+      "S0[246:254, inj_y0+1] .= value",
+      "S0[249:251, inj_y0+4] .= value"
+    ],
+    "dirty_source_not_recoverable": false
+  },
+  {
+    "saved_stamp": "7a6f9f11cacc3fcc9d9522df08dd291f6dbd5dc5-dirty",
+    "count": 1,
+    "git_object_available": true,
+    "source_lines": [
+      "state_path = datadir(\"state/Wise128_state_t\" * string(monitoring_step) * \"_rtm1_broad_NL_SNR28.jld2\")",
+      "inj_y0 = 191 + argmax(K[250, 191:200]) - 1",
+      "Random.seed!(2025 + s - 1)",
+      "value = 0.2 + rand(Float64) * 0.6",
+      "S0[249:251, inj_y0-4] .= value",
+      "S0[246:254, inj_y0-1] .= value",
+      "S0[246:254, inj_y0]   .= value",
+      "S0[246:254, inj_y0+1] .= value",
+      "S0[249:251, inj_y0+4] .= value"
+    ],
+    "dirty_source_not_recoverable": true
+  },
+  {
+    "saved_stamp": "9050b91f39dc945ca1cb54b3d6c4de0935b7d2c0",
+    "count": 1,
+    "git_object_available": true,
+    "source_lines": [
+      "state_path = datadir(\"state/Wise128_state_t\" * string(monitoring_step) * \"_rtm1_broad_NL_SNR28.jld2\")",
+      "inj_y0 = 191 + argmax(K[250, 191:200]) - 1",
+      "Random.seed!(2025 + s - 1)",
+      "value = 0.2 + rand(Float64) * 0.6",
+      "S0[249:251, inj_y0-4] .= value",
+      "S0[246:254, inj_y0-1] .= value",
+      "S0[246:254, inj_y0]   .= value",
+      "S0[246:254, inj_y0+1] .= value",
+      "S0[249:251, inj_y0+4] .= value"
+    ],
+    "dirty_source_not_recoverable": false
+  },
+  {
+    "saved_stamp": "73b5ba97635571df95d417afcf8a6781c98dd4f7",
+    "count": 2,
+    "git_object_available": true,
+    "source_lines": [
+      "state_path = datadir(\"state/Wise128_state_t\" * string(monitoring_step) * \"_rtm1_broad_NL_SNR28.jld2\")",
+      "inj_y0 = 191 + argmax(K[250, 191:200]) - 1",
+      "Random.seed!(2025 + s - 1)",
+      "value = 0.2 + rand(Float64) * 0.6",
+      "S0[249:251, inj_y0-4] .= value",
+      "S0[246:254, inj_y0-1] .= value",
+      "S0[246:254, inj_y0]   .= value",
+      "S0[246:254, inj_y0+1] .= value",
+      "S0[249:251, inj_y0+4] .= value"
+    ],
+    "dirty_source_not_recoverable": false
+  },
+  {
+    "saved_stamp": "2a2299081766188d5ebe4e31d8d12c06c30c8abc",
+    "count": 32,
+    "git_object_available": true,
+    "source_lines": [
+      "state_path = datadir(\"state/Wise128_state_t\" * string(monitoring_step) * \"_rtm1_broad_NL_SNR28.jld2\")",
+      "inj_y0 = 191 + argmax(K[250, 191:200]) - 1",
+      "Random.seed!(2025 + s - 1)",
+      "value = 0.2 + rand(Float64) * 0.6",
+      "S0[249:251, inj_y0-4] .= value",
+      "S0[246:254, inj_y0-1] .= value",
+      "S0[246:254, inj_y0]   .= value",
+      "S0[246:254, inj_y0+1] .= value",
+      "S0[249:251, inj_y0+4] .= value"
+    ],
+    "dirty_source_not_recoverable": false
+  },
+  {
+    "saved_stamp": "42030bc3f551244e660c9288ecc58d6cbdea7516",
+    "count": 31,
+    "git_object_available": true,
+    "source_lines": [
+      "state_path = datadir(\"state/Wise128_state_t\" * string(monitoring_step) * \"_rtm1_broad_NL_SNR28.jld2\")",
+      "inj_y0 = 191 + argmax(K[250, 191:200]) - 1",
+      "Random.seed!(2025 + s - 1)",
+      "value = 0.2 + rand(Float64) * 0.6",
+      "S0[249:251, inj_y0-4] .= value",
+      "S0[246:254, inj_y0-1] .= value",
+      "S0[246:254, inj_y0]   .= value",
+      "S0[246:254, inj_y0+1] .= value",
+      "S0[249:251, inj_y0+4] .= value"
+    ],
+    "dirty_source_not_recoverable": false
+  },
+  {
+    "saved_stamp": "6bf9362fe824b09c972ce22935e85ce0eb5aee79",
+    "count": 33,
+    "git_object_available": true,
+    "source_lines": [
+      "state_path = datadir(\"state/Wise128_state_t\" * string(monitoring_step) * \"_rtm1_broad_NL_SNR28.jld2\")",
+      "inj_y0 = 191 + argmax(K[250, 191:200]) - 1",
+      "Random.seed!(2025 + s - 1)",
+      "value = 0.2 + rand(Float64) * 0.6",
+      "S0[249:251, inj_y0-4] .= value",
+      "S0[246:254, inj_y0-1] .= value",
+      "S0[246:254, inj_y0]   .= value",
+      "S0[246:254, inj_y0+1] .= value",
+      "S0[249:251, inj_y0+4] .= value"
+    ],
+    "dirty_source_not_recoverable": false
+  }
+]

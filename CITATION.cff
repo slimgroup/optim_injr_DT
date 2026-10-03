@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "Please cite this software and record the commit used in your analysis."
+type: software
+title: "optim_injr_DT: Optimization-based Injection Rate Control for Geological Carbon Storage"
+authors:
+  - family-names: Li
+    given-names: Haoyun
+repository-code: "https://github.com/slimgroup/optim_injr_DT"
+license: MIT

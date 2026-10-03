@@ -17,7 +17,7 @@ These instructions apply to all Codex work in this repository.
 - Before launching Julia from repository shell or Slurm scripts, set `JULIA_DEPOT_PATH="$HOME/julia-depot"` and create that directory if needed. Install any missing Julia packages into this shared depot instead of silently using `~/.julia`.
 - On PACE, Codex sandboxed `sbatch`, `squeue`, and `scontrol` calls may fail with false Slurm controller connectivity errors. Before concluding that Slurm is down or that a submission script is broken, re-check those commands outside the sandbox.
 - Do not rewrite git history, force push, or create commits unless the user explicitly requests it.
-- At the end of a task that changes files, ask whether the user wants a git commit; if yes, use a detailed commit message that explains why and the main scope.
+- At the end of a task that changes files, ask whether the user wants a git commit only if the conversation has not already authorized it. When authorized, complete the commit with a detailed message explaining why and the main scope. Push only when remote synchronization or pushing is requested.
 
 ## Plotting Figure Layout
 
@@ -74,3 +74,18 @@ Apply these additional rules whenever creating or updating histogram / CDF stati
 - The case-level `inj_start` for monitoring step `k > 1` must come from the user-selected optimal injection-rate array of the previous monitoring step for that same case, as documented in [`docs/injection_rate_arrays.md`](docs/injection_rate_arrays.md). Use the last entry of that previous-step array as the starting rate for the new optimization campaign unless the user explicitly instructs otherwise.
 - Sample-specific optimization outputs from the previous monitoring step may be used for previous-state variables, but not for choosing per-sample `inj_start`.
 - When assigning posterior-based previous states into reservoir simulation inputs, keep saturation and pressure aligned to the same posterior sample and verify grid orientation before use.
+
+## Repository Maintenance and Current Results
+
+- Use `docs/REPRODUCIBILITY.md` for run order, `docs/reference/SCRIPTS_INDEX.md` for current entry points, and `docs/reference/paper_assets.json` plus `PAPER_FIGURE_MANIFEST.md` for selected figures. Read the documents relevant to the task; a full repository audit is not required for a small edit.
+- "Latest" means the most recent user-selected, validated result for the same experiment and statistic. Do not rank different monitoring steps, sample counts, prior modes, or sensitivity factors by modification time. A sensitivity preview does not supersede an accepted figure without an explicit selection.
+- For authorized figure cleanup, prefer reversible archival with an old-to-new path record. Check callers and numerical/provenance dependencies before moving outputs. An old folder may contain arrays, style references, or source snapshots needed by the current result.
+- Keep `plots/latest/` as a concise view of selected figures, using relative links to the original assets. Update the asset registry and links together when the user selects new results; do not refresh checksums merely to hide unexplained changes.
+- Preserve pre-existing staged, unstaged, and untracked research work. Review the actual staged diff before committing; do not use a broad add command that includes ignored data, archived logs, temporary downloads, or caches.
+- When synchronization is requested, inspect the configured remote and branch, fetch first, and compare histories. Preserve remote changes and existing local commits; do not force push or rewrite history. Verify the remote commit and local worktree after pushing.
+
+## Lightweight Verification
+
+- For repository layout, navigation, or shell-path changes, run `python3 scripts/python_tools/maintenance/check_repository.py` and `python3 -m unittest discover -s test/unit -p 'test_repository*.py'`. These tests use disposable files and a stubbed `sbatch`; they may run without another confirmation and do not submit jobs.
+- After changing figure selection or organizing selected outputs, also run `python3 scripts/python_tools/maintenance/check_repository.py --paper-assets`. Validate a staged-only checkout before a broad cleanup commit so ignored local files do not conceal missing release dependencies.
+- Report which checks ran and their limits. Syntax checks and PNG hashes do not validate numerical methods; use the relevant scientific tests for numerical changes, with heavy work on Slurm. Keep temporary test artifacts out of research output directories.

@@ -15,10 +15,10 @@ using Printf
 const ROOT = datadir("DT_control", "exp_name=step2")
 const OUTDIR = plotsdir("step2_prior_comparison_32samples")
 const SAMPLES = 1:32
-const B_BOOT = 5000
+const B_BOOT = 10000
 const CONF_LEVEL = 0.95
 const THRESHOLD = 0.01
-const ECDF_PTS = 1500
+const ECDF_PTS = nothing # compatibility alias; no uniform plotting grid
 const NBINS = 12
 const SEED = 42
 const FORWARD_STEP = 2
@@ -106,34 +106,48 @@ function bootstrap_quantile(data::Vector{Float64}, q::Float64, B::Int; seed::Int
 end
 
 function ecdf_values(sorted::Vector{Float64}, x_grid::Vector{Float64})
-    [searchsortedfirst(sorted, x) - 1 for x in x_grid] ./ length(sorted)
+    [searchsortedlast(sorted, x) for x in x_grid] ./ length(sorted)
 end
 
-function bootstrap_ecdf_ci(data::Vector{Float64}, B::Int; conf::Float64=CONF_LEVEL, npts::Int=ECDF_PTS, seed::Int=SEED)
+function bootstrap_ecdf_ci_at(data::Vector{Float64}, B::Int, x_grid::Vector{Float64}; conf::Float64=CONF_LEVEL, seed::Int=SEED)
     rng = MersenneTwister(seed)
     n = length(data)
-    xmin, xmax = extrema(data)
-    span = xmax - xmin
-    margin = span == 0 ? max(abs(xmin) * 0.05, 1e-6) : 0.05 * span
-    x_grid = collect(range(xmin - margin, xmax + margin, length=npts))
 
     sorted_data = sort(data)
     ecdf_orig = ecdf_values(sorted_data, x_grid)
 
-    boot = zeros(B, npts)
+    boot = zeros(B, length(x_grid))
     for b in 1:B
         boot[b, :] .= ecdf_values(sort(data[rand(rng, 1:n, n)]), x_grid)
     end
 
     alpha = 1 - conf
-    ci_lo = [quantile(view(boot, :, i), alpha / 2) for i in 1:npts]
-    ci_hi = [quantile(view(boot, :, i), 1 - alpha / 2) for i in 1:npts]
+    ci_lo = [quantile(view(boot, :, i), alpha / 2) for i in eachindex(x_grid)]
+    ci_hi = [quantile(view(boot, :, i), 1 - alpha / 2) for i in eachindex(x_grid)]
     return x_grid, ecdf_orig, ci_lo, ci_hi
+end
+
+function bootstrap_ecdf_ci(data::Vector{Float64}, B::Int; conf::Float64=CONF_LEVEL, npts=ECDF_PTS, seed::Int=SEED)
+    xmin, xmax = extrema(data)
+    span = xmax - xmin
+    margin = span == 0 ? max(abs(xmin) * 0.05, 1e-6) : 0.05 * span
+    x_grid = vcat(xmin - margin, sort(unique(data)), xmax + margin)
+    bootstrap_ecdf_ci_at(data, B, x_grid; conf=conf, seed=seed)
 end
 
 function find_threshold_crossing(x_grid, cdf_vals, threshold)
     idx = findfirst(v -> v >= threshold, cdf_vals)
     return idx === nothing ? nothing : x_grid[idx]
+end
+
+function bootstrap_jump_crossings(data::Vector{Float64}, B::Int; conf::Float64=CONF_LEVEL, threshold::Float64=THRESHOLD, seed::Int=SEED)
+    jump_points = sort(unique(data))
+    _, ecdf_orig, ci_lo, ci_hi = bootstrap_ecdf_ci_at(data, B, jump_points; conf=conf, seed=seed)
+    return (
+        find_threshold_crossing(jump_points, ci_hi, threshold),
+        find_threshold_crossing(jump_points, ecdf_orig, threshold),
+        find_threshold_crossing(jump_points, ci_lo, threshold),
+    )
 end
 
 function build_case_stats(data::Vector{Float64})
@@ -142,9 +156,7 @@ function build_case_stats(data::Vector{Float64})
     q_lo = quantile(boot_q, (1 - CONF_LEVEL) / 2)
     q_hi = quantile(boot_q, 1 - (1 - CONF_LEVEL) / 2)
     x_grid, ecdf_orig, ci_lo, ci_hi = bootstrap_ecdf_ci(data, B_BOOT)
-    x_cons = find_threshold_crossing(x_grid, ci_hi, THRESHOLD)
-    x_ecdf = find_threshold_crossing(x_grid, ecdf_orig, THRESHOLD)
-    x_opt = find_threshold_crossing(x_grid, ci_lo, THRESHOLD)
+    x_cons, x_ecdf, x_opt = (find_threshold_crossing(x_grid, v, THRESHOLD) for v in (ci_hi, ecdf_orig, ci_lo))
     return (;
         boot_q, q_val, q_lo, q_hi,
         x_grid, ecdf_orig, ci_lo, ci_hi,
@@ -205,8 +217,8 @@ function plot_cdf(data::Vector{Float64}, stats, title::AbstractString, outfile::
     fig = figure(figsize=(8.6, 5.8))
     ax = fig.add_subplot(111)
 
-    ax.fill_between(stats.x_grid, stats.ci_lo .* 100, stats.ci_hi .* 100, color="#AED6F1", alpha=0.55, label="95% bootstrap CI")
-    ax.plot(stats.x_grid, stats.ecdf_orig .* 100, color="#1F618D", linewidth=2.2, label="Empirical CDF")
+    ax.fill_between(stats.x_grid, stats.ci_lo .* 100, stats.ci_hi .* 100, step="post", color="#AED6F1", alpha=0.55, label="95% bootstrap CI")
+    ax.step(stats.x_grid, stats.ecdf_orig .* 100, where="post", color="#1F618D", linewidth=2.2, label="Empirical CDF")
     ax.axhline(THRESHOLD * 100, color="#C0392B", linewidth=1.5, linestyle="--", label="1% threshold")
 
     marker_specs = [
@@ -229,8 +241,8 @@ function plot_cdf(data::Vector{Float64}, stats, title::AbstractString, outfile::
     ax.legend(loc="upper left", fontsize=9.5, framealpha=0.95)
 
     inset = ax.inset_axes([0.43, 0.10, 0.52, 0.45])
-    inset.fill_between(stats.x_grid, stats.ci_lo .* 100, stats.ci_hi .* 100, color="#AED6F1", alpha=0.55)
-    inset.plot(stats.x_grid, stats.ecdf_orig .* 100, color="#1F618D", linewidth=1.5)
+    inset.fill_between(stats.x_grid, stats.ci_lo .* 100, stats.ci_hi .* 100, step="post", color="#AED6F1", alpha=0.55)
+    inset.step(stats.x_grid, stats.ecdf_orig .* 100, where="post", color="#1F618D", linewidth=1.5)
     inset.axhline(THRESHOLD * 100, color="#C0392B", linewidth=1.0, linestyle="--")
     zoom_points = Float64[x for x in (stats.x_cons, stats.x_ecdf, stats.x_opt) if x !== nothing]
     if !isempty(zoom_points)

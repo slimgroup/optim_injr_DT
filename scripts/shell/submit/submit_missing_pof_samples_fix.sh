@@ -7,7 +7,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 # POF base arguments
 POF_BASE="--use_pof --pof_as_constraint --lambda_pof 8.5e8 --tau_pof 0.05 --kappa_pof 50 --risk_mode relative --weight_mode voltime"

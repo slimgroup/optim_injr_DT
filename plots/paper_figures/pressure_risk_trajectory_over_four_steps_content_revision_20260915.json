@@ -1,0 +1,83 @@
+{
+  "layout": "dual",
+  "original_script": "scripts/python_plots/plot_pressure_risk_trajectory_over_four_steps.py",
+  "source_sha256": {
+    "scripts/python_plots/plot_pressure_risk_trajectory_over_four_steps.py": "8fae32f4c6f1116193542cbe7b4b49d2ae69a2ad7d981f8dfb6b57eb74af221a",
+    "plots/paper_figures/pressure_risk_trajectory_over_four_steps.png": "25ae8fab3f8138d125b207fd8b45bfbb9973c8a9043ab2515123d119d87f6156",
+    "plots/paper_figures/forward_sim_four_steps_base_data.jld2": "552c0732b374772829a698bbd00ac3a8745e4e1b28c8c024906092947ebd9ea5",
+    "plots/paper_figures/pof_eps001_full_campaign_sensitivity_1p65x.jld2": "c2d974aafeb9d680c7876ca6bb04682f196c1037e603dfa3b38180c6c2214207",
+    "plots/paper_figures/full_campaign_video_CVaR_g01_a001_sensitivity.jld2": "bceac21612d13f6581541a482b5ca0d7b139b5b8aa255a34401ddc44e105e908",
+    "plots/paper_figures/no_control_delayed_ramp_10_periods.jld2": "f7119542ed88cf4e54bd681c2b7843c10a9f4dd17ad5a6ad06565a0b86e101e2"
+  },
+  "metrics": {
+    "ratio": "max_ij(p_res[i,j,h] / p_max[i,j])",
+    "count": "sum_ij(1[p_res[i,j,h] > p_max[i,j]])",
+    "relative_margin": "(p_max - p_res) / p_max"
+  },
+  "shutdown": {
+    "day": 728.0,
+    "ratio": 1.107299746773347,
+    "cells": 6953,
+    "first_saved_crossing_1based": 91,
+    "minimum_relative_margin": -0.1072997467733469,
+    "previous_saved_day": 720.0,
+    "previous_minimum_relative_margin": -0.07600260843579872,
+    "margin_threshold": -0.1,
+    "stored_last_day": 800.0
+  },
+  "original_ratio_limits": [
+    0.77,
+    1.146055237910414
+  ],
+  "original_count_limits": [
+    -180,
+    7648.3
+  ],
+  "original_star_axis": "ax_load, data coordinates (severe_day, severe_load)",
+  "new_ratio_limits": [
+    0.77,
+    1.146055237910414
+  ],
+  "new_count_limits": [
+    0.0,
+    8000.0
+  ],
+  "cases": {
+    "POF_eps0": {
+      "sample_count": 25,
+      "first_day": 0.0,
+      "last_day": 1920.0,
+      "peak_cells": 0,
+      "peak_ratio": 0.8995409386280698,
+      "first_peak_count_day": 0.0,
+      "color": "#0E7490"
+    },
+    "POF_eps0p01": {
+      "sample_count": 241,
+      "first_day": 0.0,
+      "last_day": 1920.0,
+      "peak_cells": 8,
+      "peak_ratio": 1.000468207228122,
+      "first_peak_count_day": 408.0,
+      "color": "#D97706"
+    },
+    "CVaR_g01_a001": {
+      "sample_count": 241,
+      "first_day": 0.0,
+      "last_day": 1920.0,
+      "peak_cells": 2285,
+      "peak_ratio": 1.0313824712450501,
+      "first_peak_count_day": 408.0,
+      "color": "#B91C1C"
+    },
+    "No_Control": {
+      "sample_count": 92,
+      "first_day": 0.0,
+      "last_day": 728.0,
+      "peak_cells": 6953,
+      "peak_ratio": 1.107299746773347,
+      "first_peak_count_day": 728.0,
+      "color": "#6B7280"
+    }
+  }
+}

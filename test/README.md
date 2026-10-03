@@ -2,6 +2,23 @@
 
 Julia tests for `optim_injr_DT`, organized by scope.
 
+## Repository and submission checks (no simulation)
+
+```bash
+python3 scripts/python_tools/maintenance/check_repository.py
+python3 -m unittest discover -s test/unit -p 'test_repository*.py'
+```
+
+These checks use only Python's standard library and Bash. The submission tests
+run the real wrappers with a temporary `sbatch` stub and verify repository
+paths, cases, prior modes, and resource arguments. They never contact Slurm.
+The optional `--paper-assets` repository check verifies the 21 selected local
+PNGs against the recorded hashes; those assets are required for that option.
+
+Before Julia commands, set `JULIA_DEPOT_PATH="$HOME/julia-depot"` and create the
+directory if needed. Run integration tests on compute nodes on PACE. The Julia
+unit tests exercise helper/math behavior; they do not reproduce the full paper.
+
 ## Layout
 
 ```text

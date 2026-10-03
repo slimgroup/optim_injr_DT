@@ -1,0 +1,950 @@
+{
+  "status": "sensitivity preview; do not substitute for unmodified posterior results without a caption explaining the transformation",
+  "factor": 1.13,
+  "mode": "increment",
+  "row_order": [
+    "relative_margin",
+    "pressure_diff",
+    "sat"
+  ],
+  "generating_head": "90f5405cc929300dacb75182c1324eccbd712105",
+  "slurm_job_id": "13819997",
+  "figures": [
+    {
+      "path": "posterior_mean_relative_margin_sensitivity_increment_1p13000_step1.png",
+      "source_step": 1,
+      "statistic": "mean",
+      "sha256": "66cfbb60ef1849e02304527e0d69c59777b211d8e3f14d34692a43eda3cb97d7",
+      "pixels": [
+        6400,
+        3388
+      ],
+      "layout": {
+        "text_inside_canvas": true,
+        "ticks_do_not_overlap": true,
+        "axis_labels_clear_of_ticks": true,
+        "annotation_boxes_do_not_overlap": true
+      },
+      "field_checks": [
+        {
+          "row": "relative_margin",
+          "case": 0,
+          "sha256": "04c0f65f01de8af760df32f1024782aac60d9c3af91fd9e26d564b0a2e3fe117",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 1,
+          "sha256": "9d7bef6755052993e61e0ccc60ab844406c41a6fcf10579c57635fdf8c4e7725",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 2,
+          "sha256": "dc2b9a2d8bc286372d81c6c5cf1607575c80a71fe2c37348ffaf9277ce1ce255",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 0,
+          "sha256": "6c67feb103628eb821303dd81fb69268836e94e1bd7c697567d485ab628e0796",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 1,
+          "sha256": "150653930657c83d95c5539e0e01de2be6b3f55067bba254a17cdd3ff1a02084",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 2,
+          "sha256": "2bf88428680a722fb3d819523d6d5310b530719c0e6db0e0866fbd55bf203497",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 0,
+          "sha256": "5a02d0783fdbc6be22f17c299593472d6e6be2a351286e7954478994bbe3046a",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 1,
+          "sha256": "8b1d7aab9ccd91c87140032564391ec62d8af7903c8cd9ea88370fad9f3c4022",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 2,
+          "sha256": "f3e9416b2b48c083e2bce7f64ab21710499c4282e7ed755219ff2d425e25401e",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        }
+      ]
+    },
+    {
+      "path": "posterior_std_relative_margin_sensitivity_increment_1p13000_step1.png",
+      "source_step": 1,
+      "statistic": "std",
+      "sha256": "787730e8dc9785fd8576b100f12fd60cfa8a5f18d09b4cbe963b62b55da6d9ee",
+      "pixels": [
+        6400,
+        3388
+      ],
+      "layout": {
+        "text_inside_canvas": true,
+        "ticks_do_not_overlap": true,
+        "axis_labels_clear_of_ticks": true,
+        "annotation_boxes_do_not_overlap": true
+      },
+      "field_checks": [
+        {
+          "row": "relative_margin",
+          "case": 0,
+          "sha256": "7d3d0d16787324094820861eb8d7bcedfe719f51fc4eee4ea98e44d38c59d851",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 1,
+          "sha256": "8a4739ed5b426c1af94213d1098fe1101424251a004169d66943f018ba0a151c",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 2,
+          "sha256": "354c89b1743a7fdc994d529bed63c2f1b9e6cfa3d1b732d8ef80a8875fb458ab",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 0,
+          "sha256": "6911eb53867d46eb86fabe0e0f6e1e859812b1e08862dfd36763754843a5899e",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 1,
+          "sha256": "5be63f005a06cc55d6fd59fc6889688679c372ba010118ffb6195e5536c307d4",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 2,
+          "sha256": "2410ec98057d8bc32e31efd18b880a700cd432cb793a23b3497a4f26ddd50f2e",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 0,
+          "sha256": "5eeff6f1e80d4c1229d1e767cc9e1705e6a4cd1a4d23b8fecb4511041cc7609d",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 1,
+          "sha256": "d8fac564693f9578dd93dda862a1783de1d6b4430954cad3313ec8758942dbb7",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 2,
+          "sha256": "00c36fad5926357beb9e4503f9a0b92bd68af96498cd52e0971343ac35ac89c6",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        }
+      ]
+    },
+    {
+      "path": "posterior_mean_relative_margin_sensitivity_increment_1p13000_step2.png",
+      "source_step": 2,
+      "statistic": "mean",
+      "sha256": "e6e7a91c3abc82e2d18afb449062a1dd9d1e3eb7aeb370ecdc70b13b3c394872",
+      "pixels": [
+        6400,
+        3388
+      ],
+      "layout": {
+        "text_inside_canvas": true,
+        "ticks_do_not_overlap": true,
+        "axis_labels_clear_of_ticks": true,
+        "annotation_boxes_do_not_overlap": true
+      },
+      "field_checks": [
+        {
+          "row": "relative_margin",
+          "case": 0,
+          "sha256": "b1f780f809a68150bfb26fdbf5bbbbaf8f900c99289c02ba5f951213e0426648",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 1,
+          "sha256": "390fc982df75d90864c67403c862fb497582b5d229b5f0bb5010768c1402273a",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 2,
+          "sha256": "e9e647b37ab5080b25d00f76e4e53304531be63a832992dd89f353782d5ebcbb",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 0,
+          "sha256": "d021b38725bbd0230d0f18e7ebff3f83b0ee81429a0170d897eac9d09b9a6168",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 1,
+          "sha256": "db4d7636e568f67e06f4466416698142dadd42b914f0a473d2cd8650124e30a1",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 2,
+          "sha256": "887ddb980254cbcc7014a6112ca0126341d0ca96effc7f03e8ed6755a855928b",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 0,
+          "sha256": "3a349e95c381e3c8f58f35841fee4efae02f4acca415e76455e786a8f15157c0",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 1,
+          "sha256": "e82c6cbd0aab538c36522c521c9288b7fb47341450fcac3c22d0506e5ef485a1",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 2,
+          "sha256": "71994fe406274eddfec1575f5b112150fe1a0089f1fed099127c1ee2f809f279",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        }
+      ]
+    },
+    {
+      "path": "posterior_std_relative_margin_sensitivity_increment_1p13000_step2.png",
+      "source_step": 2,
+      "statistic": "std",
+      "sha256": "f09181c01fa24806b8045f2b65ff5a6d26aa3eb6fc6064315eaa9fa3e72bb4c2",
+      "pixels": [
+        6400,
+        3388
+      ],
+      "layout": {
+        "text_inside_canvas": true,
+        "ticks_do_not_overlap": true,
+        "axis_labels_clear_of_ticks": true,
+        "annotation_boxes_do_not_overlap": true
+      },
+      "field_checks": [
+        {
+          "row": "relative_margin",
+          "case": 0,
+          "sha256": "bd3db4898b76e0e3237471c2389095993d3f865806b84143d74b5d52405f4cc0",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 1,
+          "sha256": "041745fcdb99ccc48be463bbdefff876db3f6f8879d59a6f59648e1e91c15ae4",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 2,
+          "sha256": "1d504b94c4b2b8505fcbc60954cbb930fecc39882b3179613f045c5cf529a383",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 0,
+          "sha256": "4d27af4299519cf831689151738daa9036dd5258f9166060cc7ea1ac2eafdfb4",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 1,
+          "sha256": "57853ea8fc1d60910b69b5139a30118e5dc60ce1c4f3b4b86266011bb9a95a28",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 2,
+          "sha256": "6272804adc71f211bbee81bb629f4b1dd367d8fbe1710697228c343323cff2e3",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 0,
+          "sha256": "82efd04cf94589951b57d9ff59fedb72c62a0306d16899885d794c738e538b61",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 1,
+          "sha256": "7ee37ec2de3ce289b5539e8a572346d7d94fb00f160a45f73b13c52a19272395",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 2,
+          "sha256": "f632b75346fcf0e5b815e341b0c3d5b53b8c6786a91c1180e2e85a1ee31158fd",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        }
+      ]
+    },
+    {
+      "path": "posterior_mean_relative_margin_sensitivity_increment_1p13000_step3.png",
+      "source_step": 3,
+      "statistic": "mean",
+      "sha256": "67802444f48adce1f208e6f5ea13161ea35bf23a5eeb3c8a342d7b301c4d39a3",
+      "pixels": [
+        6400,
+        3388
+      ],
+      "layout": {
+        "text_inside_canvas": true,
+        "ticks_do_not_overlap": true,
+        "axis_labels_clear_of_ticks": true,
+        "annotation_boxes_do_not_overlap": true
+      },
+      "field_checks": [
+        {
+          "row": "relative_margin",
+          "case": 0,
+          "sha256": "749726d4ee45aa4930d0714e5b2ca8027dfe83038a651d41d1b3abfb91715e63",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 1,
+          "sha256": "341a4e71dd3af3cb7476bfe8d433cfb55370b1437689e2941292b85210cfd0e5",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 2,
+          "sha256": "2400104fd17d1c8e06f5a999181cbb1322c0abf20f6b6ac4d726ca090b83cded",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 0,
+          "sha256": "ca6a4fa677a00195b73e3e4ffcb6ac422197d20a2ae1b6bf97a26a4c63296a3b",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 1,
+          "sha256": "da034cb1da2ea2a1e292de3ebf76d018770677e09306016119ba6160afa040eb",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 2,
+          "sha256": "d05cd48309e76bb7571229c4a8f73b7b1cf62008d257715fdcdc952d91ed054b",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 0,
+          "sha256": "13f281a069b836151dbab24db2e45ecb9eb4543f5ae013b7be673d21d60eea54",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 1,
+          "sha256": "f592c5823ab9639d3708c8b37f239d0ea27c1bba429091c7931004f7f27a4b87",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 2,
+          "sha256": "d384f11da5c769f574e4a1bd53737181477e128ebdd5ce46aeb9fac54cccbff4",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        }
+      ]
+    },
+    {
+      "path": "posterior_std_relative_margin_sensitivity_increment_1p13000_step3.png",
+      "source_step": 3,
+      "statistic": "std",
+      "sha256": "48df462cd58a3f23256c7644a1c0d2be6f81fb843c3cb75d239a661ca68cb5f4",
+      "pixels": [
+        6400,
+        3388
+      ],
+      "layout": {
+        "text_inside_canvas": true,
+        "ticks_do_not_overlap": true,
+        "axis_labels_clear_of_ticks": true,
+        "annotation_boxes_do_not_overlap": true
+      },
+      "field_checks": [
+        {
+          "row": "relative_margin",
+          "case": 0,
+          "sha256": "72f61205016028e053b778df9aab3c7ff755a71ff562fe66a9faea5e3e5ae27b",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 1,
+          "sha256": "cdcb529b6019cf1a2b9628135f217d710ad89a3a1d4c587e8a6d7fd3587dfae8",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 2,
+          "sha256": "15a8eaa47c996b0edde24fd5b5b7d9af781be51d0ef3df099c1b4069d19eb06b",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 0,
+          "sha256": "f7adc4b30197f4c9b29302d0fb5f96ffb5981f54d793502aa5dc58a1d29ac30f",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 1,
+          "sha256": "e0a4207168eee96786937e9ddcde929502be74a08f3a9523280d3b8cb5cdcad9",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 2,
+          "sha256": "8f6ecbd1845cbd74cb6da00054c92b147ce5977e55ef61f9118ea2c277baad97",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 0,
+          "sha256": "036c4970f45261223fb40942c4c5a6bb14f8aacd607e565a9a4a56539706fc03",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 1,
+          "sha256": "0c644761b1ca996f46cac621a1a0e9483a491b019ef3c353b166800b16dd5f09",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 2,
+          "sha256": "20673129ff35af88644c1b0457d3b006816a4f5121cfc73776d0ac0757aea420",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        }
+      ]
+    },
+    {
+      "path": "posterior_mean_relative_margin_sensitivity_increment_1p13000_step4.png",
+      "source_step": 4,
+      "statistic": "mean",
+      "sha256": "bfcb58897e769452e107a7603725a329cc1e6e803d8731b4ac4bed0cce77724c",
+      "pixels": [
+        6400,
+        3388
+      ],
+      "layout": {
+        "text_inside_canvas": true,
+        "ticks_do_not_overlap": true,
+        "axis_labels_clear_of_ticks": true,
+        "annotation_boxes_do_not_overlap": true
+      },
+      "field_checks": [
+        {
+          "row": "relative_margin",
+          "case": 0,
+          "sha256": "3284db88eaa91e144cb5e95ca89cfeb03102a2332af790375047b8e1f6f26b2a",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 1,
+          "sha256": "c8946bcdbca1f7d912a9ae62303ebdb91c697f73a3a7461ff51461c8f68116d7",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 2,
+          "sha256": "1cce1750e1ea3f2785ba63887440f7bae47aaa291cf2795147c65c77a8e41906",
+          "color_limits": [
+            -0.1,
+            1.0
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 0,
+          "sha256": "17cd76ddb44bea3716ccfcfa606039c008e60ce9a7dcdaf7eb947bfbbde84bb3",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 1,
+          "sha256": "805c9ef481a4c79ae229d3472113a91bba1d5de70b29960c18e50a4b724e23eb",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 2,
+          "sha256": "e08445b70386d3480273e3ae38545cc886e9d0152686b606c67c4e5c5b04d0be",
+          "color_limits": [
+            -0.5779579877853394,
+            5.667600154876709
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 0,
+          "sha256": "806479526ae5c298491c167d09e146036ec7d75d3c09946f45b1008663b677d0",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 1,
+          "sha256": "44532c79bc4a17fe9dcaa20fff18df8cb1f93aeefb6f74fa72df50c2f09f67b6",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 7
+        },
+        {
+          "row": "sat",
+          "case": 2,
+          "sha256": "ae23bafd5cc41159614b52eb6f3dcc757ab956d5ace09ded273ee5e2789fca42",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 6
+        }
+      ]
+    },
+    {
+      "path": "posterior_std_relative_margin_sensitivity_increment_1p13000_step4.png",
+      "source_step": 4,
+      "statistic": "std",
+      "sha256": "949671ea4c3d8407c2e551cbe23719fb73442f249aecb6d0ea32e243de830dde",
+      "pixels": [
+        6400,
+        3388
+      ],
+      "layout": {
+        "text_inside_canvas": true,
+        "ticks_do_not_overlap": true,
+        "axis_labels_clear_of_ticks": true,
+        "annotation_boxes_do_not_overlap": true
+      },
+      "field_checks": [
+        {
+          "row": "relative_margin",
+          "case": 0,
+          "sha256": "423a3f191b6f322a26b6ce15d60e9ac3afd5d36f2e095df27c492635441d086f",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 1,
+          "sha256": "b6561beec4651abb23fd78510bde653dfd9eec3b745adf3199601ee71165e5fe",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "relative_margin",
+          "case": 2,
+          "sha256": "f7b47b9d373ac9576363ba43fc63084251b70dee015fd3744955712fd490acf6",
+          "color_limits": [
+            0.0,
+            0.032
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 0,
+          "sha256": "46de4de4213c56445c1b044c7b68bc70f5d725fbaa23ebb5cc25a5c132a44579",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 1,
+          "sha256": "ef4643367e6dbd939d076d983de9688392fa3944b4a7002163b51336df9e543e",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "pressure_diff",
+          "case": 2,
+          "sha256": "072a3e9ec9611ce2fa9935b691082c2654c63d78902a7aca8d141fc1f397ef8c",
+          "color_limits": [
+            0.0,
+            0.46395974904298787
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 0,
+          "sha256": "a3d3852ef06350b99392d985e9d105cca8cd25a7181b4b324bbf47c777f57553",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 1,
+          "sha256": "4b85c6c726862917d09a90db6e23d20c52ed19d972c9e328fbe5d1fd0c62b9f5",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        },
+        {
+          "row": "sat",
+          "case": 2,
+          "sha256": "99e4f97bb961b4dfa5b7ac47c29629c4d95f7e54357047f7ad533a66e31fe026",
+          "color_limits": [
+            0.0,
+            0.9
+          ],
+          "below_color_range": 0,
+          "above_color_range": 0
+        }
+      ]
+    }
+  ]
+}

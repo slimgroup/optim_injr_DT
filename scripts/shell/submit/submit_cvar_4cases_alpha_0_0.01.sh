@@ -9,8 +9,8 @@ set -euo pipefail
 # Total: 4 cases × 128 samples = 512 jobs
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-SBATCH_FILE="${SCRIPT_DIR}/optim_inject_pace.sh"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+SBATCH_FILE="${SCRIPT_DIR}/../run/optim_inject_pace.sh"
 
 if [[ ! -f "${SBATCH_FILE}" ]]; then
   echo "ERROR: Cannot find ${SBATCH_FILE}"

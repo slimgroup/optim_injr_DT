@@ -13,7 +13,7 @@ Keep CLI interfaces stable — SLURM scripts call these directly.
 | `optim_output_paths.jl` | Output path assembly |
 | `threshold_sensitivity.jl` | Threshold / calibration workflow |
 | `utils.jl` | Shared helpers |
-| `optim_inject_7cases_fix.jl` | Historical 7-case fix driver (`archive/`; used by some rerun scripts) |
+| `archive/optim_inject_7cases_fix.jl` | Historical 7-case fix driver (used by some rerun scripts) |
 
 ## archive/
 

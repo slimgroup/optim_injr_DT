@@ -8,6 +8,7 @@ Cold storage for superseded runs, logs, and code — **not** part of the active 
 |------|-------------|
 | `2026-04-07_step3_bad_sample_specific_injstart/` | Step-3 campaign with incorrect per-sample `inj_start`; kept for audit (data, plots, logs). See its `README.md`. |
 | `logs/2025-11-24_backup_logs/` | Former top-level `11-24-2025_backup_logs/` (~646M SLURM backup). Gitignored via `archive/logs/`. |
+| `figure_previews/` | 19 superseded layout-preview folders archived on 2026-10-03; contents verified against the cleanup receipt. Local only. |
 
 ## Conventions
 

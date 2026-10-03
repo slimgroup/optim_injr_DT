@@ -1,5 +1,12 @@
 # Injection Rate Arrays for DT Training
 
+> Historical-input note: the arrays below preserve the rounded, 1,500-point-grid
+> selections actually used to initialize the completed monitoring campaigns.
+> They are not retroactively replaced by the direct ECDF-jump values, because
+> doing so would misstate the inputs that produced the existing results. The
+> corrected statistical `q_k*` values for paper reporting and future selections
+> are listed in [`statistics/ECDF_Q_GRID_AUDIT.md`](statistics/ECDF_Q_GRID_AUDIT.md).
+
 ## Source
 
 Values derived from the first monitoring-step bootstrap CDF analysis
@@ -77,7 +84,8 @@ Values derived from the step-2 paired posterior bootstrap comparison
 (`plots/step2_paired_posterior_stats/summary_grid_hist_cdf.png` and the corresponding single-case CDF figures).
 
 For step 2, the ending rate for each case is again **q_k\***, the conservative bootstrap estimate
-(upper 95% CI band crossing at the 1% fracture probability threshold, B=5000).
+(upper 95% CI band crossing at the 1% fracture probability threshold; the
+historical run used B=5000, while the audited code now uses B=10000).
 
 Each array has **length 6**, linearly spaced from the matching **step-1 q_k\*** to the new **step-2 q_k\***:
 
@@ -132,7 +140,7 @@ This means the step-2 DT-training arrays start from the already-selected first m
 - step-2 array end: step-2 conservative `q_k*`
 - Array length: 6
 - Unit: m³/s
-- Bootstrap: B=5000, 95% CI, seed=42
+- Bootstrap: historical run B=5000; audited code B=10000; 95% CI; seed=42
 - Fracture probability threshold: 1%
 - Number of geological samples used per case: 127 for `PoF eps=0.0`, 128 for the other two cases
 
@@ -148,7 +156,8 @@ and the corresponding single-case histogram / CDF figures under
 `plots/step3_paired_posterior_stats/`).
 
 For step 3, the ending rate for each case is again **q_k\***, the conservative bootstrap estimate
-(upper 95% CI band crossing at the 1% fracture probability threshold, B=5000).
+(upper 95% CI band crossing at the 1% fracture probability threshold; the
+historical run used B=5000, while the audited code now uses B=10000).
 
 Each array has **length 6**, linearly spaced from the matching **step-2 q_k\*** to the new **step-3 q_k\***:
 
@@ -206,7 +215,7 @@ and excluded from the histogram / CDF fit. The other two cases use their full `1
 - step-3 array end: step-3 conservative `q_k*`
 - Array length: 6
 - Unit: m³/s
-- Bootstrap: B=5000, 95% CI, seed=42
+- Bootstrap: historical run B=5000; audited code B=10000; 95% CI; seed=42
 - Fracture probability threshold: 1%
 - Number of geological samples used per case: `124` for `PoF eps=0.0`, `128` for the other two cases
 - Step-3 infeasible / fracture candidates under `PoF eps=0.0`: `11, 43, 54, 117`
@@ -291,7 +300,7 @@ cases use their full `128` completed samples.
 - step-4 array end: step-4 conservative `q_k*`
 - Array length: 6
 - Unit: m³/s
-- Bootstrap: B=5000, 95% CI, seed=42
+- Bootstrap: historical run B=5000; audited code B=10000; 95% CI; seed=42
 - Fracture probability threshold: 1%
 - Number of geological samples used per case: `122` for `PoF eps=0.0`, `128` for the other two cases
 - Step-4 infeasible / fracture candidates under `PoF eps=0.0`: `5, 16, 28, 36, 47, 117`

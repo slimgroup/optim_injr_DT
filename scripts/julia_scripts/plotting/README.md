@@ -19,7 +19,7 @@ Step 2–4 **Python** posterior histogram/CDF grids live under `scripts/python_p
 | Task | Script |
 |------|--------|
 | Bootstrap ECDF | `bootstrap_ecdf/plot_bootstrap_panels.jl` |
-| Step-2 paired posterior stats (Python) | `../python_plots/posterior_stats/plot_step2_paired_posterior_stats.py` |
+| Step-2 paired posterior stats (Python) | `../../python_plots/posterior_stats/plot_step2_paired_posterior_stats.py` |
 | 128-perm video frames | `videos/generate_128samples_video.jl` |
 | Step-1 CVaR inj-rate KDE (legacy) | `legacy_step1/plot_injr_distributions_cvar.jl` |
 | PoF vs CVaR threshold plot | `legacy_step1/plot_pof_vs_cvar.jl` |

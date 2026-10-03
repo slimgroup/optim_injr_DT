@@ -1,0 +1,203 @@
+{
+  "approval_status": "PROPOSED ONLY; do not submit without user approval",
+  "purpose": "Fixed physical time; permeability-only forward comparison, not posterior-state uncertainty",
+  "state_choice_requiring_approval": "Freeze reconstructed first-step ensemble position 1 state and well for every member. This is a new controlled experiment; it is not the original randomized-state ensemble.",
+  "initial_seed": 2025,
+  "initial_saturation_blob_value": 0.3322826642865828,
+  "initial_saturation_sha256_f64": "693eedb0364b5dc535271a51d23118253615144bc41fa8bd0fcfb88131e1a8a4",
+  "initial_pressure_sha256_f64": "8e8b73991720afddc6c93f12f3cf95be35085d4275972b36917b0a4d26cb6ea7",
+  "p_max_sha256_f64": "49f25b842c9694f74a1b4111075bccc7e8629b75347277f4abb7d003efed0661",
+  "porosity_sha256_f64": "7e1a48200e2c665bb3ecdf0b3bee7d982af79a751161a9a5986557cf2efc3ac9",
+  "hash_encoding": "Float64 little endian, z,x C order = Julia x,z column major",
+  "well_grid_indices_julia": [
+    250,
+    1,
+    191
+  ],
+  "well_nominal_start_xyz_m": [
+    1562.5,
+    100,
+    1193.75
+  ],
+  "well_nominal_end_z_m": 1231.25,
+  "grid": [
+    512,
+    1,
+    256
+  ],
+  "cell_size_m": [
+    6.25,
+    100,
+    6.25
+  ],
+  "extent_x_z_m": [
+    0,
+    3200,
+    0,
+    1600
+  ],
+  "depth_positive_down": true,
+  "interior_porosity": 0.25,
+  "boundary_setup": "production pad=true; x sides and bottom porosity 1e8; top overwritten to 0.25 at h=0; no extra cells",
+  "external_boundaries": "no prescribed external source or boundary forces; finite-volume closed external faces, high-storage padding retained",
+  "rho_co2_brine_kg_m3": [
+    700,
+    1000
+  ],
+  "mu_co2_brine_pa_s": [
+    0.0001,
+    0.001
+  ],
+  "compressibility_per_pa": [
+    1e-09,
+    1e-11
+  ],
+  "pvt_reference_pa": 15000000.0,
+  "relative_permeability": "BrooksCorey: exponent [2,2], residual [0.1,0.1], endpoint 1",
+  "kv_over_kh": 0.36,
+  "mD_to_m2": 9.86923266716013e-16,
+  "initial_pressure_pa": "1000*10*(iz*6.25), iz=1:256, h=0; retain inherited initialization",
+  "solver_gravity_m_s2": 9.80665,
+  "schedule_source": "docs/injection_rate_arrays.md, historical Step-1 Case 2, also saved base forward export",
+  "rates_m3_s": [
+    0.0001,
+    0.00914,
+    0.01818,
+    0.02722,
+    0.03626,
+    0.0453
+  ],
+  "period_days": 80,
+  "rate_multiplier": 1,
+  "comparison_day": 480,
+  "requested_output_interval_days": 8,
+  "movie_uses_only_final_output": true,
+  "pressure_limit": "Evaluate p_res[z,x] > p0[z,x]+4e6 for each cell in Pa",
+  "pressure_limit_label": "Pressure-limit exceedance",
+  "subset_rule": "rint(linspace(1,128,32)); positions selected before viewing new forward outcomes",
+  "subset_positions": [
+    1,
+    5,
+    9,
+    13,
+    17,
+    21,
+    26,
+    30,
+    34,
+    38,
+    42,
+    46,
+    50,
+    54,
+    58,
+    62,
+    67,
+    71,
+    75,
+    79,
+    83,
+    87,
+    91,
+    95,
+    99,
+    103,
+    108,
+    112,
+    116,
+    120,
+    124,
+    128
+  ],
+  "subset_realization_ids": [
+    741,
+    732,
+    312,
+    1593,
+    697,
+    133,
+    76,
+    1266,
+    1280,
+    1956,
+    584,
+    67,
+    1503,
+    121,
+    234,
+    734,
+    130,
+    177,
+    1668,
+    1141,
+    1011,
+    1949,
+    1787,
+    484,
+    833,
+    1616,
+    940,
+    1666,
+    222,
+    1237,
+    1845,
+    1542
+  ],
+  "subset_unique_ids": 32,
+  "pilot_positions": [
+    1,
+    62,
+    128
+  ],
+  "pilot_ids": [
+    741,
+    734,
+    1542
+  ],
+  "subset_video_seconds": 24,
+  "seconds_per_member": 0.75,
+  "full_video_seconds": 96,
+  "full_video_members": 128,
+  "full_video_unique_ids": 125,
+  "duplicate_reuse": "Reuse identical completed forward only if K and all fixed-input hashes agree; retain repeated ensemble positions explicitly in the movie provenance.",
+  "export": {
+    "resolution": [
+      1920,
+      1080
+    ],
+    "format": "MP4",
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "fps": 24,
+    "frames_per_member": 18,
+    "poster_format": "PNG",
+    "interpolation_between_members": false
+  },
+  "color_limits": {
+    "permeability_mD": "Fixed positive log limits covering approved selected ensemble, determined before rendering",
+    "pressure_MPa": "Fixed global min/max over all completed approved members, determined after forwards",
+    "co2_saturation": [
+      0,
+      1
+    ]
+  },
+  "job_budget": {
+    "forward_task_cpus": 4,
+    "forward_task_memory_GiB": 16,
+    "forward_task_walltime_hours": 1,
+    "maximum_concurrent_tasks": 4,
+    "pilot_tasks": 3,
+    "pilot_allocated_core_hours_cap": 12,
+    "talk_32_total_allocated_core_hours_cap_including_pilot": 128,
+    "full_125_unique_allocated_core_hours_cap_including_pilot": 500,
+    "render_cpus": 2,
+    "render_memory_GiB": 8,
+    "render_wall_minutes": 15,
+    "render_allocated_core_hours_cap": 0.5,
+    "runtime_evidence": "Ground-truth 1920-day PoF export: Slurm 9820154_0 / 9820157, 26m39s, peak RSS ~3.9GiB; 1920-day replay 12902263_1 / 12902267, 18m02s, ~2.2GiB. Different permeability/state may be much slower. These are allocation caps, not measured ensemble runtimes.",
+    "pilot_gate": "Only continue within the approved total budget after all three pilot forwards reach Day 480 with finite fields and identical fixed-input hashes. On timeout/failure stop and report; do not silently extend allocations or replace members.",
+    "concurrency_wall_envelope_excluding_queue": "32 members: <=9h with separate pilot gate; 125 unique: <=32h; not a runtime prediction",
+    "estimated_endpoint_field_storage": "Float64 p+S: 2MiB/unique member; 64MiB/32, 250MiB/125, excluding inputs/checkpoints/frames"
+  },
+  "proposed_caption": "Permeability-driven variability in reservoir pressure and CO2 saturation at Day 480 under the selected PoF epsilon=0.01 injection schedule. Initial pressure and saturation, injection schedule, well geometry and all other model settings are held fixed. Outlines identify cells above the model pressure limit p0(x,z)+4 MPa. 32 positions selected uniformly from the 128-member first-step ensemble; frames compare realizations, not successive times."
+}

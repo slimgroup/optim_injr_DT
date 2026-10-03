@@ -1,88 +1,47 @@
 # Documentation
 
-Project notes, workflow guides, and methodology writeups. Start here for navigation.
+## Paper and reproduction
 
-## Layout
+- [Reproduction guide](REPRODUCIBILITY.md): environment, data, and execution order.
+- [Figure manifest](reference/PAPER_FIGURE_MANIFEST.md): selected assets and inputs.
+- [Injection-rate arrays](injection_rate_arrays.md): selected case-level controls.
+- [Data availability](../DATA_AVAILABILITY.md): inputs and release limitations.
+- [Selected posterior version](analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md):
+  the 1.13 pressure-increment sensitivity selected on October 3.
+- [Posterior sensitivity method](analysis/POSTERIOR_MARGIN_SENSITIVITY_2026-10-02.md)
+  and [split statistical layout](analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md).
 
-```text
-docs/
-├── README.md
-├── injection_rate_arrays.md   # canonical injection ramps (referenced from src/ and AGENTS.md)
-├── workflow/                  # running and submitting jobs
-├── reference/                 # repo navigation and script index
-├── optimization/              # optimizer, parameters, refactor notes
-├── statistics/                # bootstrap/KDE and figure methodology
-├── analysis/                  # performance, solver, troubleshooting
-└── historical/                # deprecated gamma-table PoF/CVaR workflow
-```
+## Methods
 
-## Documentation Index
+- [Solver constraint handling](optimization/SOLVER_CONSTRAINT_HANDLING.md).
+- [Optimization choices](optimization/OPTIMIZATION_CHOICE_GUIDE.md),
+  [penalty weights](optimization/LAMBDA_SELECTION_GUIDE.md),
+  [smoothing parameter](optimization/KAPPA_PARAMETER_EXPLANATION.md),
+  [step size](optimization/STEP_SIZE_EXPLANATION.md), and
+  [stopping criteria](optimization/STOPPING_CRITERIA_UPDATE.md).
+- [Bootstrap CDF methodology](statistics/BOOTSTRAP_CDF_METHODOLOGY.md) and
+  [CDF-grid audit](statistics/ECDF_Q_GRID_AUDIT.md).
+- [Computational cost](analysis/COMPUTATIONAL_COST_BREAKDOWN.md),
+  [performance](analysis/PERFORMANCE_ANALYSIS.md),
+  [solver analysis](analysis/SOLVER_ANALYSIS.md), and
+  [time stepping](analysis/TIME_STEPPING_ANALYSIS.md).
 
-### Workflow — running and submitting
-- [QUICK_RUN_WITH_RISK.md](workflow/QUICK_RUN_WITH_RISK.md): short run examples with risk parameters
-- [PACE_RUN_GUIDE.md](workflow/PACE_RUN_GUIDE.md): running on the PACE cluster
-- [SUBMIT_GUIDE.md](workflow/SUBMIT_GUIDE.md): submission patterns and batch guidance
-- [RUN_ALL_INDICES.md](workflow/RUN_ALL_INDICES.md): batch-processing walkthrough
-- [MULTI_MACHINE_WORKFLOW.md](workflow/MULTI_MACHINE_WORKFLOW.md): multi-machine workflow notes
-- [STEP2_LOGS_AND_PROGRESS.md](workflow/STEP2_LOGS_AND_PROGRESS.md): step-2 progress and log notes
+## Running and maintaining
 
-### Reference — repository navigation
-- [DIRECTORY_STRUCTURE.md](reference/DIRECTORY_STRUCTURE.md): directory layout and storage conventions
-- [SCRIPTS_INDEX.md](reference/SCRIPTS_INDEX.md): entry-point map for `scripts/`
-- [PAPER_FIGURE_MANIFEST.md](reference/PAPER_FIGURE_MANIFEST.md): paper figure outputs, scripts, input JLD2 files, and caveats
-- [REPO_MAINTENANCE_AUDIT_2026-06-15.md](reference/REPO_MAINTENANCE_AUDIT_2026-06-15.md): current repo audit and safe cleanup priorities
-- [../DATA_AVAILABILITY.md](../DATA_AVAILABILITY.md): required local data bundle and generated artifacts
-- [MACHINE_LOCAL.md](reference/MACHINE_LOCAL.md): `.vscode`, `.mplconfig`, `.julia_depot_*` (not in git)
-- [SCRIPT_EXPLANATION.md](reference/SCRIPT_EXPLANATION.md): detailed SLURM script pattern notes
+- [PACE guide](workflow/PACE_RUN_GUIDE.md) and [script index](reference/SCRIPTS_INDEX.md).
+- [Directory conventions](reference/DIRECTORY_STRUCTURE.md),
+  [machine-local settings](reference/MACHINE_LOCAL.md), and [tests](../test/README.md).
+- [Cleanup record](reference/REPOSITORY_CLEANUP.md): completed changes and
+  the completed, checksum-verified artifact cleanup.
 
-### Optimization — methods and parameters
-- [OPTIMIZATION_CHOICE_GUIDE.md](optimization/OPTIMIZATION_CHOICE_GUIDE.md): optimizer selection and hard vs soft constraints
-- [OPTIM_INJECT_REFACTOR_NOTES.md](optimization/OPTIM_INJECT_REFACTOR_NOTES.md): `optim_inject.jl` refactor plan
-- [KAPPA_PARAMETER_EXPLANATION.md](optimization/KAPPA_PARAMETER_EXPLANATION.md): kappa parameter explanation
-- [LAMBDA_SELECTION_GUIDE.md](optimization/LAMBDA_SELECTION_GUIDE.md): lambda-weight guidance
-- [STEP_SIZE_EXPLANATION.md](optimization/STEP_SIZE_EXPLANATION.md): step-size notes
-- [STOPPING_CRITERIA_UPDATE.md](optimization/STOPPING_CRITERIA_UPDATE.md): stopping-criterion updates
-- [CONTROL_THEORY_ANALYSIS.md](optimization/CONTROL_THEORY_ANALYSIS.md): control-theory interpretation
+## Historical material
 
-### Statistics and plotting
-- [BOOTSTRAP_CDF_METHODOLOGY.md](statistics/BOOTSTRAP_CDF_METHODOLOGY.md): bootstrap CDF methodology
-- [KDE_CI_METHODOLOGY.md](statistics/KDE_CI_METHODOLOGY.md): KDE and confidence-interval notes
-- [injection_rate_arrays.md](injection_rate_arrays.md): documented injection-rate ramps and indexing
-- [PLOT_LAYOUT_DISCUSSION.md](statistics/PLOT_LAYOUT_DISCUSSION.md): figure-layout notes
+[Historical index](historical/README.md) holds dated presentation notes,
+earlier figure revisions, KDE/gamma-table workflows, and maintenance history.
+Their commands and figure choices do not override the current reproduction
+guide or selected figure manifest.
 
-### Analysis — performance and troubleshooting
-- [PERFORMANCE_ANALYSIS.md](analysis/PERFORMANCE_ANALYSIS.md): performance notes
-- [COMPUTATIONAL_COST_BREAKDOWN.md](analysis/COMPUTATIONAL_COST_BREAKDOWN.md): cost breakdown
-- [SOLVER_ANALYSIS.md](analysis/SOLVER_ANALYSIS.md): solver analysis
-- [TIME_STEPPING_ANALYSIS.md](analysis/TIME_STEPPING_ANALYSIS.md): time-stepping notes
-- [MISSING_SAMPLES_ANALYSIS.md](analysis/MISSING_SAMPLES_ANALYSIS.md): missing-sample investigation
-
-### Historical — deprecated workflows
-- [QUICK_START.md](historical/QUICK_START.md): gamma-table quick start (deprecated)
-- [POF_CVAR_COMPARISON_METHODS.md](historical/POF_CVAR_COMPARISON_METHODS.md): PoF/CVaR comparison methods (deprecated)
-
-Gamma-table material under `scripts/gamma_tables/` is retained for reproducibility only.
-
-## Quick Links
-
-- [../README.md](../README.md): project overview
-- [../test/README.md](../test/README.md): test guide
-- [../logs/README.md](../logs/README.md): SLURM log layout
-
-## Suggested Reading Paths
-
-### New to the repo
-1. [QUICK_RUN_WITH_RISK.md](workflow/QUICK_RUN_WITH_RISK.md)
-2. [DIRECTORY_STRUCTURE.md](reference/DIRECTORY_STRUCTURE.md)
-3. [SCRIPTS_INDEX.md](reference/SCRIPTS_INDEX.md)
-
-### Running jobs on PACE
-- [PACE_RUN_GUIDE.md](workflow/PACE_RUN_GUIDE.md)
-- [SUBMIT_GUIDE.md](workflow/SUBMIT_GUIDE.md)
-- [SCRIPTS_INDEX.md](reference/SCRIPTS_INDEX.md)
-
-### Working on paper figures
-- [injection_rate_arrays.md](injection_rate_arrays.md)
-- [PAPER_FIGURE_MANIFEST.md](reference/PAPER_FIGURE_MANIFEST.md)
-- [BOOTSTRAP_CDF_METHODOLOGY.md](statistics/BOOTSTRAP_CDF_METHODOLOGY.md)
-- [PLOT_LAYOUT_DISCUSSION.md](statistics/PLOT_LAYOUT_DISCUSSION.md)
+Two source documents remain in `analysis/` because exporters read them directly:
+[Appendix E export](analysis/POSTERIOR_APPENDIX_E_REEXPORT_2026-09-08.md) and
+[the earlier margin handoff](analysis/POSTERIOR_RELATIVE_MARGIN_ACCEPTED_2026-10-02.md).
+Evidence subdirectories remain at their original paths.

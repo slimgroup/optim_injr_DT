@@ -38,7 +38,7 @@ for sample in "${SAMPLES[@]}"; do
     
     # Check logs (logs are in project root logs/ directory)
     SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-    ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+    ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
     has_logs=$(ls "${ROOT_DIR}/logs"/*${jobname}* 2>/dev/null | wc -l | tr -d ' ' 2>/dev/null || echo 0)
     has_logs=${has_logs:-0}
     

@@ -4,6 +4,33 @@ This manifest records the current paper-facing figure assets, their primary
 generation scripts, and their input data. It is intentionally descriptive: do
 not move or delete generated files solely because they appear here.
 
+## Current selection (2026-10-03)
+
+Use this table before the historical export descriptions below. The exact
+21 PNG paths, producing scripts, selection records, and SHA-256 checksums are
+listed in [paper_assets.json](paper_assets.json). Verify the local selection
+with `python3 scripts/python_tools/maintenance/check_repository.py --paper-assets`.
+
+| Figure group | Current location | Qualification |
+|---|---|---|
+| Eight posterior mean/std maps, k=1–4 | `plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/` | User-selected pressure-increment factor 1.13; 1.145 is a comparison preview |
+| Six split histogram/ECDF panels, k=2–4 | `plots/paper_figures/posterior_appendix_e_layout_20261002/statistical/` | Current 1×3 layout; historical B=5000, seed=42 |
+| Step-1 selected histogram and CDF | `plots/paper_figures/statistical/grid_{histogram,cdf}_selected_1x3.png` | Existing manuscript copies; retain the v6 style-reference inputs |
+| Schedule, trajectory, day-728 comparison, permeability-only map | Named PNGs directly under `plots/paper_figures/`, detailed below | Keep the documented sensitivity provenance |
+| Full joint ensemble | `plots/paper_figures/perm_pressure_saturation_ensemble_statistics_128.png` | Latest full 128-position result; the 64-member source/reference remains a dependency |
+
+The selected posterior transformation is
+`p_used = pres_Hyd + 1.13 * (p - pres_Hyd)`, applied only to relative margin.
+The definition remains `(p_max - p_used) / p_max`, with
+`p_max = pres_Hyd + 4 MPa`. The figures are a documented sensitivity result,
+not the unmodified posterior. See [the selection record](../analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md)
+and [current split layout](../analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md).
+
+The older `posterior/` PNG/PDF/SVGs and combined step-2–4 statistical grids
+described below are historical exports. Their canonical names do not supersede
+the October selection. Historical source caches and original plotting code
+are still required by the newer renderers.
+
 ## Rules Of Thumb
 
 - Keep final paper assets under `plots/paper_figures/`.
@@ -36,8 +63,8 @@ visible; historical numerics and the eight posterior figures remain unchanged.
 
 | Output | Script | Primary inputs | Notes |
 |--------|--------|----------------|-------|
-| `plots/paper_figures/injection_schedule_over_four_steps.png` | `scripts/python_plots/plot_injection_schedule_over_four_steps.py` | `docs/injection_rate_arrays.md`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2` | Dual-axis schedule figure. No-control stops after the recorded severe-fracture day. |
-| `plots/paper_figures/pressure_risk_trajectory_over_four_steps.png` | `scripts/python_plots/plot_pressure_risk_trajectory_over_four_steps.py` | `plots/paper_figures/forward_sim_four_steps_base_data.jld2`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2`, additional trajectory files used by the script | Pressure-load and fractured-cell trajectory figure. Check the script for exact plotted cases before manuscript use. |
+| `plots/paper_figures/injection_schedule_over_four_steps.png` | `scripts/python_plots/plot_injection_schedule_over_four_steps.py` | `docs/injection_rate_arrays.md`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2` | Dual-axis base-schedule figure. No-control injection stops at severe pressure exceedance on day 728. Updated 2026-10-02: layout, fonts, legends and small filled event stars match the pressure figure; existing curves, axis limits and CSV preserved. |
+| `plots/paper_figures/pressure_risk_trajectory_over_four_steps.png` | `scripts/python_plots/plot_pressure_risk_trajectory_presentation.py` | `plots/paper_figures/forward_sim_four_steps_base_data.jld2`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2`, `plots/paper_figures/pof_eps001_full_campaign_sensitivity_1p65x.jld2`, `plots/paper_figures/full_campaign_video_CVaR_g01_a001_sensitivity.jld2` | Maximum pressure-to-limit ratio and instantaneous pressure-exceeding cell counts. Original numerical results preserved: PoF ε=0 base, PoF ε=0.01 ×1.65, CVaR ×1.22, no control through day 728. Updated 2026-10-02: filled red stars with slight tip contact and one Severe pressure exceedance (day 728) legend; layout matches the schedule figure, with v2 axis limits and curves preserved. PNG only; retained v2 export unchanged. |
 | `plots/paper_figures/fracture_comparison_3x3_four_steps.png` | `scripts/python_plots/plot_real_fracture_comparison_day408.py` with the Figure 1 command below | `plots/paper_figures/controlled_day728_POF_eps0.jld2`, `plots/paper_figures/cvar_day728_sensitivity_1p22x.jld2`, `plots/paper_figures/no_control_delayed_ramp_10_periods.jld2` | CVaR sensitivity result: 97 pressure-exceeding cells, min(r)=-0.0040873, 2.84969 Mt; actual day-728 rate 0.1208532 m3/s. |
 | `plots/paper_figures/fracture_comparison_3x3_four_steps_cvar_sensitivity_1p22x.png` | `scripts/python_plots/plot_real_fracture_comparison_day408.py` with `CVAR_SENSITIVITY=1.22` | `plots/paper_figures/cvar_day728_sensitivity_1p22x.jld2`, controlled/no-control files | Sensitivity comparison. Preserve provenance when using this figure. |
 | `plots/paper_figures/fracture_comparison_three_cases_full_campaign.mp4` | `scripts/python_plots/create_full_campaign_fracture_video.py` | `plots/paper_figures/full_campaign_video_*.jld2` | Full 1920-day campaign video. Metadata lives in `fracture_comparison_three_cases_full_campaign_metadata.json`. |

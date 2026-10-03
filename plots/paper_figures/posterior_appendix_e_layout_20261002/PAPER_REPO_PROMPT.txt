@@ -1,0 +1,23 @@
+请使用本次 posterior_appendix_e_layout_20261002 交付包中的 PNG。
+
+1. 核对 manifest.json、VALIDATION.md 和 delivery_checksums.json。
+2. Posterior 主标题已经放大、标题下方空白压紧；8 张后验图保持原 paper 文件名。
+   将 paper_compat/posterior/ 中对应 PNG 复制到 figs/posterior/。
+3. k=2、3、4 的统计图已经拆成每步两张独立的 1×3 图片：
+   grid_histogram_selected_1x3_t{k}.png
+   grid_cdf_selected_1x3_t{k}.png
+   从 paper_compat/statistical/ 复制到 figs/statistical/。
+4. 更新旧 summary_grid_hist_cdf_t{k}.png 的 QMD 引用，使其引用新的两张图。
+   根据论文布局使用 figure group 保留已有 Quarto ID 和交叉引用；不要把单张
+   histogram 或 ECDF 文件覆盖到旧合并图文件名上，造成另一半内容丢失。
+5. 保留 k 标记、case 顺序、样本数限定和 ECDF pointwise bootstrap CI 说明。
+   紫色 histogram quantile confidence interval 已删除，不要再写进 caption。
+6. 新统计图仅参考所给 step-1 图片的外观，未替换 step-2–4 的数值。
+   ECDF 仍为历史 B=5000、seed=42；未采用 step-1 参考图的 B=10000，
+   也未迁移 q-star 选择算法。方法描述若写10000，仍需单独协调。
+7. Appendix E 使用 k=2–4 的6张 posterior图和6张统计图（共12张）；
+   另有2张k=1 posterior图用于之前的主文请求。保留 Appendix D 的压力/BHP材料。
+8. 备份旧图后再替换，渲染论文并核对caption、宽度及交叉引用。
+
+整个交付包有14张不同的图，canonical文件和paper_compat副本校验值相同。
+所有图均为400 dpi PNG，没有PDF或SVG。

@@ -2,7 +2,7 @@
 # 运行检查7个cases的injection rate脚本
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 JULIA_SCRIPT="${ROOT_DIR}/scripts/julia_scripts/utilities/check_7cases_inj_rate.jl"
 
 cd "${ROOT_DIR}"

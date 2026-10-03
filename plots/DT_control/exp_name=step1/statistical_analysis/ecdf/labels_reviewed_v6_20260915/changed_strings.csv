@@ -8,3 +8,11 @@ Selected grid titles,20 pt,24 pt
 Full grid titles,22 pt,26 pt
 All grid inset labels and rates,"9 pt, with two numeric labels reduced to 7.25 pt",9 pt throughout; two short boxes widened
 Full histogram last-panel standard deviation,std=0.187,std=0.1870
+2026-09-16 ECDF method,1500-point grid with ordinary line interpolation,Actual sample jumps; post steps for ECDF and bands
+2026-09-16 grid PoF epsilon=0.01,q*=0.0453; ECDF=0.0470; Opt.=0.0560,q*=0.0451; ECDF=0.0468; Opt.=0.0558
+2026-09-16 ECDF titles,Optimized-endpoint ECDF(s),Step 1 ECDF(s); initial ensemble; n=128; schedule element 6/12
+2026-09-16 user title correction,Step 1 ECDF(s); initial ensemble; n=128; schedule element 6/12,Original Optimized-endpoint ECDF / Optimized-endpoint ECDFs titles restored
+"2026-09-16 histogram grids, PoF epsilon=0.0",q_k*=0.0263,q_k*=0.0262
+"2026-09-16 histogram grids, PoF epsilon=0.01",q_k*=0.0453,q_k*=0.0451
+"2026-09-16 histogram grids, CVaR gamma=0.1 alpha=0.01",q_k*=0.0747,q_k*=0.0742
+"2026-09-16 full histogram, CVaR gamma=0.2 alpha=0.01, formatting only",min=0.1108,min=0.1109 from unchanged full-precision minimum 0.11085

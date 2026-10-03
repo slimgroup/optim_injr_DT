@@ -98,7 +98,7 @@ This gives a **95% confidence interval for the 1% quantile**.
 | Target quantile | 1% (0.01) | Fracture probability threshold |
 | Resampling method | With replacement | Standard nonparametric bootstrap |
 | CI method | Percentile | Simple, transparent, adequate for n=128 |
-| Random seed | 2025 | For reproducibility |
+| Random seed | 42 | For reproducibility and consistency with the plotting scripts |
 
 ### 3.5 Why B = 10,000 Is Sufficient
 
@@ -116,9 +116,10 @@ This gives a **95% confidence interval for the 1% quantile**.
 
 From the bootstrap analysis, we report three injection rate values:
 
-1. **Conservative estimate**: The x-value where the **upper CDF band** crosses 1%.
+1. **Conservative estimate (`q_k*`)**: The first sorted unique observed x-value where the **upper CDF band** crosses 1%.
    Since the upper band rises faster, it crosses 1% at a smaller injection rate.
-   This is the most conservative (safest) choice.
+   This is the most conservative (safest) choice. The crossing is evaluated at
+   observed ECDF jumps, not on the dense plotting grid.
 
 2. **ECDF estimate (point estimate)**: The x-value where the **empirical CDF** crosses 1%.
    This is the standard point estimate.
@@ -141,11 +142,19 @@ The small discrepancy (typically < 0.002 m3/s) provides mutual validation.
 
 ### 4.2 Decision Rule
 
-**For safety-critical decision making, we adopt the conservative bound (CI lower)
-as the recommended maximum safe injection rate.**
+**For safety-critical decision making, `q_k*` is the upper-bootstrap-CDF crossing
+evaluated directly on the sorted unique observed rates.**
 
-This ensures that with 95% confidence, the true 1% fracture probability threshold
-is at least as large as the recommended rate.
+With a discrete ECDF, this is a threshold boundary: the upper band may jump from
+below 1% to above 1% at `q_k*`, rather than equalling 1% there. It should not be
+described as an observed rate whose upper confidence bound remains below 1%.
+
+As of 2026-09-16, both rendering and crossings use the sorted unique observed
+rates. The ECDF and pointwise band are right-continuous (`where="post"`) steps,
+with two boundary points only to display the zero/one plateaus. No 1,500-point
+grid is used. The same computed arrays supply both the curves and crossings. See
+[`ECDF_Q_GRID_AUDIT.md`](ECDF_Q_GRID_AUDIT.md) for the 250- through 6,000-point
+sensitivity audit.
 
 ---
 
@@ -206,7 +215,7 @@ fits parameters, then resamples from the fitted distribution. We avoid this beca
 
 The previous approach computed CDF by integrating a KDE-smoothed PDF.
 Problems documented in detail:
-- Bandwidth sensitivity at the 1% tail (see `docs/statistics/KDE_CI_METHODOLOGY.md`)
+- Bandwidth sensitivity at the 1% tail (see `docs/historical/statistics/KDE_CI_METHODOLOGY.md`)
 - Different kernels produce different results
 - Confidence intervals based on Wald/Wilson/Jeffreys methods applied to
   KDE-derived CDF values mix two sources of uncertainty
@@ -229,39 +238,22 @@ a two-panel figure:
 ### Panel (b): Empirical CDF with Bootstrap CI
 - Full ECDF from 0% to 100% with 95% bootstrap confidence band
 - 1% fracture probability threshold line
+- Dense x-grid used only to draw the ECDF and band
 - Inset zooming into the left tail (0-8%) showing:
-  - Conservative estimate (upper CDF band crossing 1%)
-  - ECDF estimate (ECDF crossing 1%)
-  - Optimistic estimate (lower CDF band crossing 1%)
+  - Conservative estimate (upper CDF band crossing 1% at an observed jump)
+  - ECDF estimate (ECDF crossing 1% at an observed jump)
+  - Optimistic estimate (lower CDF band crossing 1% at an observed jump)
   - Quantile CI shaded region
 
 ---
 
-## 8. Example Results
+## 8. Current Results
 
-### PoF (eps=0.01, hard constraint), n=128 samples
-
-| Metric | Value (m3/s) |
-|--------|-------------|
-| 1% quantile (point estimate) | 0.10617 |
-| 95% CI lower (quantile bootstrap) | 0.09911 |
-| 95% CI upper (quantile bootstrap) | 0.12425 |
-| Conservative (CDF upper band crossing) | 0.09924 |
-| ECDF crossing | 0.10309 |
-| Optimistic (CDF lower band crossing) | 0.12309 |
-| **Recommended safe rate** | **0.09911** |
-
-### CVaR (gamma=0.05, alpha=0.05, hard constraint), n=128 samples
-
-| Metric | Value (m3/s) |
-|--------|-------------|
-| 1% quantile (point estimate) | 0.17834 |
-| 95% CI lower (quantile bootstrap) | 0.16781 |
-| 95% CI upper (quantile bootstrap) | 0.21106 |
-| Conservative (CDF upper band crossing) | 0.16830 |
-| ECDF crossing | 0.17391 |
-| Optimistic (CDF lower band crossing) | 0.21000 |
-| **Recommended safe rate** | **0.16781** |
+The complete current results, including all monitoring steps, all parameter
+cases, and the comparison between the historical 1,500-point selection and the
+direct observed-jump selection, are in
+[`ECDF_Q_GRID_AUDIT.md`](ECDF_Q_GRID_AUDIT.md). The detailed machine-readable
+table is [`ecdf_q_grid_audit.csv`](ecdf_q_grid_audit.csv).
 
 ---
 
@@ -272,9 +264,14 @@ a two-panel figure:
    reflecting genuine uncertainty. This is not a flaw of the method but
    an honest representation of data limitations.
 
-2. **Pointwise (not simultaneous) band**: The CDF band is valid pointwise,
-   not simultaneously across all x. This is acceptable because we only
-   make decisions at the 1% threshold.
+   In the current data, the 95% upper bootstrap band exceeds 1% at the first
+   observed jump, so the direct conservative crossing equals the sample
+   minimum. This should be described as a threshold boundary, not as a rate
+   whose upper confidence bound remains at or below 1%.
+
+2. **Pointwise (not simultaneous) band**: The CDF band is pointwise and does
+   not provide simultaneous coverage across all x. Reported decisions and
+   confidence statements must retain that qualification.
 
 3. **IID assumption**: The bootstrap assumes the 128 samples are independent
    and identically distributed draws from the geological uncertainty.
@@ -299,10 +296,12 @@ a two-panel figure:
 
 ## 11. Code
 
-- Full analysis: `scripts/julia_scripts/analysis/bootstrap_cdf_analysis.jl`
-- Two-panel plots: `scripts/julia_scripts/analysis/plot_bootstrap_two_panels.jl`
+- Step-1 analysis: `scripts/julia_scripts/plotting/bootstrap_ecdf/plot_bootstrap_panels.jl`
+- Step-2 dual-prior comparison: `scripts/julia_scripts/plotting/posterior_stats/plot_step2_dual_prior_stats.jl`
+- Step-2 to step-4 paired analyses: `scripts/python_plots/posterior_stats/plot_step{2,3,4}_paired_posterior_stats.py`
+- Grid audit: `scripts/python_tools/analysis/audit_ecdf_q_grid.py`
 - Previous KDE approach (backup): `scripts/julia_scripts/plotting/bootstrap_ecdf/plot_cdf_ci.jl`
-- Previous KDE methodology: `docs/statistics/KDE_CI_METHODOLOGY.md`
+- Previous KDE methodology: `docs/historical/statistics/KDE_CI_METHODOLOGY.md`
 
 ---
 
@@ -315,5 +314,6 @@ a two-panel figure:
 | CI type | Percentile method | Simple, transparent, adequate for n=128 |
 | Band type | Pointwise | Sufficient for single-threshold decision |
 | B (replicates) | 10,000 | Stable results, standard practice |
-| Decision rule | Conservative (CI lower bound) | Safety-critical application |
+| Decision rule | Upper-CDF-band crossing at a sorted unique observed rate | Grid-independent conservative boundary |
+| Dense ECDF grid | Plotting only | Must not affect selection |
 | KDE role | Visualization only | Too sensitive at tail for decisions |

@@ -17,4 +17,4 @@ cd "${SLURM_SUBMIT_DIR:-$PWD}"
 export MPLCONFIGDIR="/tmp/mplconfig_${SLURM_JOB_ID}"
 mkdir -p "$MPLCONFIGDIR"
 
-python scripts/python_plots/plot_perm_ensemble.py
+python scripts/python_plots/plot_perm_ensemble.py "$@"

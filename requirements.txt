@@ -1,0 +1,11 @@
+# Direct plotting dependencies observed on 2026-10-03 with Python 3.9.21.
+# This is not a complete transitive lockfile or a fresh-install verification.
+# Julia dependencies are recorded separately in Manifest.toml.
+numpy==1.23.5
+matplotlib==3.9.4
+h5py==3.14.0
+Pillow==11.3.0
+colorcet==3.1.0
+cmasher==1.8.0
+imageio==2.37.2
+imageio-ffmpeg==0.6.0

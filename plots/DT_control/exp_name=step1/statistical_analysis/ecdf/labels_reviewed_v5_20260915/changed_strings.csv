@@ -1,9 +1,0 @@
-scope,before,after
-ECDF axes,Fracture Prob. (%),Violation probability (%)
-ECDF target,1% Fracture Prob.,Target p = 1%
-Single ECDF title,Optimized-endpoint ECDF — PoF eps = 0.01,Optimized-endpoint ECDF (PoF eps = 0.01)
-Grid ECDF title,"Fracture Probability vs Injectivity: Empirical CDF with Bootstrap CI (B=10000, 95% CI)",Optimized-endpoint ECDFs; B = 10000; Opt. = Optimistic
-Single histogram title,PoF (eps=0.01) — Injection Rate Distribution,Injection Rate Distribution (PoF eps = 0.01)
-Grid ECDF annotation,0.047,0.0470
-Grid optimistic annotation,0.056,0.0560
-Single histogram quantile,0.04831,0.0483

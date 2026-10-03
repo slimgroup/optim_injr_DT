@@ -1,0 +1,600 @@
+{
+  "approved_date": "2026-10-03",
+  "permanent_deletions": 0,
+  "entries": [
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v1",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v1",
+      "sha256": {}
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v10",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v10",
+      "sha256": {
+        "review_t2.png": "e0a3cf2d3ac3e1e25266375af763b94ff02ca7ccfff3d6949c5746f4c21e2e4f"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v11",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v11",
+      "sha256": {
+        "review_t2.png": "ca81b185bad1332509d32f9ab4218fae38de5661e2a2f411401204e9f9cc779a",
+        "review_t3.png": "e3e08d01d817cac3253d1695cf8898156f5024c50caed772a28e59ea97fd24df",
+        "summary_grid_hist_cdf_t2.png": "37202f7c7f1b7fbe6528de3109f38db033636095ee2e1592fe8058b39700e896",
+        "summary_grid_hist_cdf_t2.svg": "b2f4f73d676fc9542d29078ca26b2eca4fdb2efcb155783b541fdba55b8a89b5",
+        "verification_t2.json": "2c2e29e01d90b0fd832575a87478ef0160ae2b1ce538f53f6d27273e18adc575"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v12",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v12",
+      "sha256": {
+        "review_t2.png": "98eb4e943ed1b0393addb4a4d62159f00ff9fca6670547020692d90e4299006e",
+        "review_t3.png": "70628f9fe2a97125f22ff75126a3fe9424b4b18b091fd29b122111b5db9dbf2d",
+        "review_t4.png": "34aa60daa38f060ef5242eac7dbf8e50e20df3d7c805bec3b385253c0b25484e",
+        "summary_grid_hist_cdf_t2.png": "bd0ea4e646ed625d7dab8c1223c8503685c63f8c928d54a790ffc9f19d7534b4",
+        "summary_grid_hist_cdf_t2.svg": "6b1fe643b773312d5bcbcae4151ff4af1049f7d6c3ba5445d05ea61be5edd299",
+        "summary_grid_hist_cdf_t3.png": "73543e4b80450e71f076f87e5f48b332ba17e1bb28c706b5652c15e44af24794",
+        "summary_grid_hist_cdf_t3.svg": "b0e8b6924bc52f2c14ac78255c9514d889c40c5fabc5ea7423a5f3d77abc9160",
+        "verification_t2.json": "f6842dcbad5a31582fca63b589622f7436d879e34ea6d58481a588150d948b25",
+        "verification_t3.json": "428bfb79489f0627aad99e3f38902829be8f58d3ba9c1dbcc3b4c80e00f481d7"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v2",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v2",
+      "sha256": {
+        "manifest.json": "de4364bb42f76dbf2f4dcb8a404a9c7ae5ff2351ab39e2f1867b4b3a1bb87218",
+        "review_t2.png": "3ac67651dedc43bf7db5ab39499bae775f0fa928adeb9990f8f23ee3cf3b8e8b",
+        "summary_grid_hist_cdf_t2.png": "a6df8c88c96bffcca63f52cf5a0a3be00196129c836764957f4693c15687e4e9",
+        "summary_grid_hist_cdf_t2.svg": "42eb5ec9c934c47e3cc5e66bd23d22a9e24ccd0138ac0c8a76e1983da4c5a4b8",
+        "verification_t2.json": "7bb98ec2d8d28db3be2e0b78769405cc3d4c8311f42e552e088a500b303c2184"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v3",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v3",
+      "sha256": {
+        "review_t2.png": "1ab2829c26b7b15ecedf284ece4acf220490111ad155cb35accb8dd014d86aef"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v4",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v4",
+      "sha256": {
+        "review_t2.png": "b31c82adc6ae2930336ca37a182ccb123d40a0915b20ac7c8d09bb4328887b9a"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v5",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v5",
+      "sha256": {
+        "review_t2.png": "fb597ec3f76c1039078a347eec2dcec774dc41fc6657b8d281dc5513b93e6625"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v6",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v6",
+      "sha256": {
+        "review_t2.png": "2efdf0d0821a4168d526fe18aa75e76407945448cce8b6a058edb71b75c97179"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v7",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v7",
+      "sha256": {
+        "review_t2.png": "38179c30770cd7ea03329b854aba15836049018c959a71ecd83ca5f8422a1456",
+        "review_t3.png": "6aeb2f2747ef8ea2394d5e758b54ce240b549be0c7a5175d24beb2ef6b2cc8d5",
+        "summary_grid_hist_cdf_t2.png": "9a4f2bfcc6d89a949bb6e17e17d7100ad136621ae2157dd26804fec1c6ad721b",
+        "summary_grid_hist_cdf_t2.svg": "2ca1d9e75d90af77c4007922deeb2622ff099f922d55b4b7e30bf4018918e622",
+        "verification_t2.json": "2714081ce2cd122623bdf36a5255d9f5018d9b733a12ef77d6622ab000d88f50"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v8",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v8",
+      "sha256": {
+        "review_t2.png": "99bd2df6a1b333a572f22024224132ae48cdf1985ebec2185acf1cc489b04256"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/statistical_readability_preview_20260927_v9",
+      "destination": "archive/figure_previews/statistical_readability_preview_20260927_v9",
+      "sha256": {
+        "review_t2.png": "098046cc331741348f3b4baf7ac9e9578ab6bc8c485022e9015d14b601b7589f"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/posterior_appendix_e_layout_preview_20261002_v1",
+      "destination": "archive/figure_previews/posterior_appendix_e_layout_preview_20261002_v1",
+      "sha256": {
+        "provenance/original_sources/scripts/python_plots/plot_posterior_uncertainty.py": "e87f22e3aafeb3803d60c1b3de80c63b6a2202cdfdde680c9f52fcf70e1f6318",
+        "provenance/scripts/python_plots/export_posterior_appendix_e.py": "c034a6a45c6206daa71984d4daf2132d7a875ec88a2a8f562b2b2580d63bd3d0",
+        "provenance/scripts/python_plots/restyle_paper_pngs.py": "093cf837cdaee2e8f29444b348997f5620ce049c4f377f7af7474a06c8e4a3c8",
+        "provenance/scripts/shell/submit/submit_paper_png_restyle.sh": "64d667a7e4ac8428b4a858a6a528064d2965c733e0e552ca3d4ed375517d9ac9"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/posterior_appendix_e_layout_preview_20261002_v2",
+      "destination": "archive/figure_previews/posterior_appendix_e_layout_preview_20261002_v2",
+      "sha256": {
+        "paper_compat/posterior/state_mean_pressurediff_pressure_sat_all_cases_t2.png": "fbffe1674d84ec206f6576266235b585c395a076ab04a8d32a3bbaf53a01d61e",
+        "paper_compat/posterior/state_std_pressurediff_pressure_sat_all_cases_t2.png": "e67502b39f30df083e5a15089e22c2071ea792d5f08a153e11661c9050f622ca",
+        "paper_compat/statistical/grid_histogram_selected_1x3_t2.png": "ec30212d2853a204cb8ebd4de39e291d15705011f89337496d8480864b771a30",
+        "posterior/posterior_mean_step2.png": "fbffe1674d84ec206f6576266235b585c395a076ab04a8d32a3bbaf53a01d61e",
+        "posterior/posterior_std_step2.png": "e67502b39f30df083e5a15089e22c2071ea792d5f08a153e11661c9050f622ca",
+        "provenance/original_sources/scripts/python_plots/plot_posterior_uncertainty.py": "e87f22e3aafeb3803d60c1b3de80c63b6a2202cdfdde680c9f52fcf70e1f6318",
+        "provenance/scripts/python_plots/export_posterior_appendix_e.py": "c034a6a45c6206daa71984d4daf2132d7a875ec88a2a8f562b2b2580d63bd3d0",
+        "provenance/scripts/python_plots/restyle_paper_pngs.py": "093cf837cdaee2e8f29444b348997f5620ce049c4f377f7af7474a06c8e4a3c8",
+        "provenance/scripts/shell/submit/submit_paper_png_restyle.sh": "d6a5ab51539299202948995d516b1e4e4a8450ad6e65f5d73b46683fbe378da0",
+        "statistical/injection_rate_histogram_step2.png": "ec30212d2853a204cb8ebd4de39e291d15705011f89337496d8480864b771a30",
+        "validation/injection_rate_histogram_step2.json": "61461e028ad2b5f474caac73c971f6d878ea1716cff0d28b79acaad374eb5e5e",
+        "validation/posterior_mean_step2.json": "6a444c3f319e05b735956e6de1ebc935f19bf1a5d0a34e174a0b81d8f26d20ff",
+        "validation/posterior_std_step2.json": "ef9a2eacfaece62f13dae53451dadaa65bfe9696d42a9ea81a5b578e98372dda"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/posterior_appendix_e_layout_preview_20261002_v3",
+      "destination": "archive/figure_previews/posterior_appendix_e_layout_preview_20261002_v3",
+      "sha256": {
+        "checksums.json": "a11aadf30086e656bfc84f9d1572a4e77b7875b9e75ebb319e134166005448a9",
+        "input_checksums.json": "b7b3c0d977d9979042e217a13a1d59af22d45e204df4d8f85ae5fe78c0dd3520",
+        "manifest.json": "cb65f90ec10b237cb3cb8dda61fefe7cc5c86f3c3fb4928093fe50aada737aec",
+        "paper_compat/statistical/grid_cdf_selected_1x3_t2.png": "fb8f6951e5d7e94b2a73be66e8f99728044919e6e6302fb3b28139103052841e",
+        "paper_compat/statistical/grid_cdf_selected_1x3_t3.png": "3ca429ac4dcf5fcf8fd5c2140eff93fb0f28c4c9a2cb2cb4001f73b7b4109667",
+        "paper_compat/statistical/grid_cdf_selected_1x3_t4.png": "3d10f81bd119ca79df77c8eea7dd15b7845ca73c42820072cd9c908eb0ccddcf",
+        "paper_compat/statistical/grid_histogram_selected_1x3_t2.png": "ec30212d2853a204cb8ebd4de39e291d15705011f89337496d8480864b771a30",
+        "paper_compat/statistical/grid_histogram_selected_1x3_t3.png": "043118f9708af63195d1fbb25571b2a6f34433b2df9d9e0ef08b4ea5614d245f",
+        "paper_compat/statistical/grid_histogram_selected_1x3_t4.png": "e29334282fba2720c2e2574ed9ac3acf947ebb70babc0b6e391e025e759bfbf0",
+        "provenance/original_sources/scripts/python_plots/plot_posterior_uncertainty.py": "e87f22e3aafeb3803d60c1b3de80c63b6a2202cdfdde680c9f52fcf70e1f6318",
+        "provenance/scripts/python_plots/export_posterior_appendix_e.py": "c034a6a45c6206daa71984d4daf2132d7a875ec88a2a8f562b2b2580d63bd3d0",
+        "provenance/scripts/python_plots/restyle_paper_pngs.py": "9e5dfe79433f999c49d63da670134dc5b679ce1d05bc182513b88c8812136791",
+        "provenance/scripts/shell/submit/submit_paper_png_restyle.sh": "d6a5ab51539299202948995d516b1e4e4a8450ad6e65f5d73b46683fbe378da0",
+        "statistical/injection_rate_ecdf_step2.png": "fb8f6951e5d7e94b2a73be66e8f99728044919e6e6302fb3b28139103052841e",
+        "statistical/injection_rate_ecdf_step3.png": "3ca429ac4dcf5fcf8fd5c2140eff93fb0f28c4c9a2cb2cb4001f73b7b4109667",
+        "statistical/injection_rate_ecdf_step4.png": "3d10f81bd119ca79df77c8eea7dd15b7845ca73c42820072cd9c908eb0ccddcf",
+        "statistical/injection_rate_histogram_step2.png": "ec30212d2853a204cb8ebd4de39e291d15705011f89337496d8480864b771a30",
+        "statistical/injection_rate_histogram_step3.png": "043118f9708af63195d1fbb25571b2a6f34433b2df9d9e0ef08b4ea5614d245f",
+        "statistical/injection_rate_histogram_step4.png": "e29334282fba2720c2e2574ed9ac3acf947ebb70babc0b6e391e025e759bfbf0",
+        "validation/injection_rate_ecdf_step2.json": "df1666a293b5e52b162e8c5a6babf16764706f8e281f164632488417d6b5cf6b",
+        "validation/injection_rate_ecdf_step3.json": "f57d20809646308ed13be1288644da6dead35a5677b484ae7b24593d8b8258d0",
+        "validation/injection_rate_ecdf_step4.json": "fb5f9a05df249380913f1c512c0688f34bde8f6c5ee689b354ab2f92a4c58e8f",
+        "validation/injection_rate_histogram_step2.json": "61461e028ad2b5f474caac73c971f6d878ea1716cff0d28b79acaad374eb5e5e",
+        "validation/injection_rate_histogram_step3.json": "2239a66eab94de3c83e40d8d03cbc4d370b50bd1ccc952868f6a0ad408284f0c",
+        "validation/injection_rate_histogram_step4.json": "efab92392be533ecedeff0425090912643dc01dac699e8d82a4196cc0994c1ad",
+        "validation/scientific_details.json": "0686ceae8f94b2a91df26b8d57a594373cf6ef14e476b744dbb27fe251046ac7"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/perm_ensemble_compact_20260907",
+      "destination": "archive/figure_previews/perm_ensemble_compact_20260907",
+      "sha256": {
+        "perm_ensemble_statistics.png": "2dc2aefbf4fefe558977300e991fad04e01200929339d50ebffd41690dd9a572"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/perm_ensemble_tight_20260907",
+      "destination": "archive/figure_previews/perm_ensemble_tight_20260907",
+      "sha256": {
+        "perm_ensemble_statistics.png": "3666cb23274b4da8f67c918c5cddf2c972cabbf2a11813c3cf276a1e946c9053"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/perm_ensemble_typography_20260907",
+      "destination": "archive/figure_previews/perm_ensemble_typography_20260907",
+      "sha256": {
+        "perm_ensemble_statistics.png": "79517f2a08e61674421db61802299ced6feb39ee0d03c8bac4da7144a9c309f0"
+      }
+    },
+    {
+      "action": "archive_directory",
+      "source": "plots/paper_figures/perm_ensemble_typography_20260907_v2",
+      "destination": "archive/figure_previews/perm_ensemble_typography_20260907_v2",
+      "sha256": {
+        "perm_ensemble_statistics.png": "b90bf0e7f227bf5817a8755037f87f7b69299dea7718a6fbbc3b44de5ce7b641"
+      }
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/caption.md",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/caption.md",
+      "sha256": "3b60c1e7a4a75cfb8204fed9d54eb297ed4ac1945a8baa19ea61f73648d017e3"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/cdf_POF_eps0.01.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/cdf_POF_eps0.01.png",
+      "sha256": "30bea85c4779e98ceb1e5a25fec2ddf7ea2d3c3acef57c179a8c6bfb519ddfe8"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/changed_strings.csv",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/changed_strings.csv",
+      "sha256": "a892955b4ba2c02f831b5ea6cfecf4e06ced9f2aa16335c275d55c9103a49ae6"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/grid_cdf_4x3.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/grid_cdf_4x3.png",
+      "sha256": "d8e1e6a5b7a7d2592c5e06b210e24534b556855dc85832dae980e3d51b898630"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/grid_cdf_selected_1x3.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/grid_cdf_selected_1x3.png",
+      "sha256": "54705cfb8acec1ee4479d2cda1e22476ae2c704c78c8a0548869b5b629c17f74"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/grid_histogram_4x3.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/grid_histogram_4x3.png",
+      "sha256": "f910ccc2cc81271663162b1a34755f6a9eae7ded64122dbde89599e3fc74b96a"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/grid_verification.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/grid_verification.json",
+      "sha256": "71dff34a019d7a218c8f29b7d10bc79a6bdca0e0c59cf0544bb5fb403d5dcd84"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/input_checksums.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/input_checksums.json",
+      "sha256": "e7643947e9a0d785993547aa17ca27656e5d9b5549658c4427e421fda1b8629d"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/manifest.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/manifest.json",
+      "sha256": "8f1da0fc02a6babe0a57c634653831f4748e1d6d4ba862c74a9a600f80c3efb4"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/p1-select_cache_provenance.toml",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/p1-select_cache_provenance.toml",
+      "sha256": "d6acb2a46da03e154bf2a626e39e167d177f27b4dbf31b1bcf90914be542eb3a"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/single_numerical_verification.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v3_20260915/single_numerical_verification.json",
+      "sha256": "5866efdb0a0f0bfc07a07940eb6a921dd7b0fa5f5b37ccfb3f7936e4c8664171"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/caption.md",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/caption.md",
+      "sha256": "3b60c1e7a4a75cfb8204fed9d54eb297ed4ac1945a8baa19ea61f73648d017e3"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/cdf_POF_eps0.01.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/cdf_POF_eps0.01.png",
+      "sha256": "f8fa4d1773028a80c75c45424b4465d014e878b77c824d542a4cfb19235899fd"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/changed_strings.csv",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/changed_strings.csv",
+      "sha256": "35a49b6e735fc011b0015eab82d9538facae16bf5ab21bd624bc1982651138d1"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/input_checksums.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/input_checksums.json",
+      "sha256": "855fa338d0a1fbcac8e7c179950f4c24cfc38db012e6b216dfa0ab2a384f16a4"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/manifest.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/manifest.json",
+      "sha256": "7f9a1297bb09d0c65f502859e600121e37d75b3ce4acc512b23a47e124ecc849"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/p1-select_cache_provenance.toml",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/p1-select_cache_provenance.toml",
+      "sha256": "d6acb2a46da03e154bf2a626e39e167d177f27b4dbf31b1bcf90914be542eb3a"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/single_numerical_verification.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v4_20260915/single_numerical_verification.json",
+      "sha256": "5866efdb0a0f0bfc07a07940eb6a921dd7b0fa5f5b37ccfb3f7936e4c8664171"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/cache_provenance.toml",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/cache_provenance.toml",
+      "sha256": "50899641ea2fc0aa85d3e2c5a12faba660733c1a150f1166d1af3690ff51f0bf"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/caption.md",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/caption.md",
+      "sha256": "3b60c1e7a4a75cfb8204fed9d54eb297ed4ac1945a8baa19ea61f73648d017e3"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/cdf_POF_eps0.01.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/cdf_POF_eps0.01.png",
+      "sha256": "5a235b1b7ee17ccb84b26d455da923bddf0489bf6775247e3ffc2940e7f98500"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/changed_strings.csv",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/changed_strings.csv",
+      "sha256": "5e71598ea06aea5e6f40c5faa8c892e020a4cb0a40078f2ea1009c8da7f72d84"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/grid_cdf_4x3.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/grid_cdf_4x3.png",
+      "sha256": "7c29a0d8045b5a72016722b7bdc974d908841e667e3f63d442de3a799652c90f"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/grid_cdf_selected_1x3.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/grid_cdf_selected_1x3.png",
+      "sha256": "79b439adbafd3a157e0359a3bfeba1d33809ed60b629dceefd73cd7b6700d3d9"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/grid_histogram_selected_1x3.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/grid_histogram_selected_1x3.png",
+      "sha256": "5379134ea83b0f6e883ff1002df0db83b3164825dc04a4884ce001b0073d0f12"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/hist_POF_eps0.01.png",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/hist_POF_eps0.01.png",
+      "sha256": "e0cc8125a6f8d8cb73e8ae4c03fa7ae3c04c5ea7761c7549558634bc9b3c3400"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/input_checksums.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/input_checksums.json",
+      "sha256": "a6fa1da0c79d58e602690c69baf03b06cc9647503be06392a7b2a397fc850337"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/manifest.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/manifest.json",
+      "sha256": "8484b17c245a114c59b652f21731f85e555719e7a57fde29597e1e28c4644fca"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/png_verification.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/png_verification.json",
+      "sha256": "dee74e6f61a41669dd42e9d30cccd34bd53ce543c652746ecfc0198021d0cc8a"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/single_numerical_verification.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/single_numerical_verification.json",
+      "sha256": "772c6a62b9c1a139c7ba7b533e5671ad24457f441ac8a72aae8208f7ed932011"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/visual_review.json",
+      "destination": "plots/DT_control/exp_name=step1/statistical_analysis/ecdf/labels_reviewed_v5_20260915/visual_review.json",
+      "sha256": "2665be8f1d2e27c4b0e1e0dc42b683e476d0432bb4483189e294ffff4be3e128"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step1.pdf",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step1.pdf",
+      "sha256": "1263d30104f51bc5d213bb081f208ceb422964065573b9a25333c6a04faf3b3f"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step1.png",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step1.png",
+      "sha256": "a304999bdae7e5c99ab5a772c258b05f3b54feb41f9a7d8d814c95d4d89900cc"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step1.svg",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step1.svg",
+      "sha256": "604a3fe5953cae171d65d629721cdcd4356ff5ee9bac05867d47578b52460840"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step2.pdf",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step2.pdf",
+      "sha256": "f9dc2db955edc2282ce4011ed7ef5a2c4ad2d085e7ad24b06d992814b8e9098e"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step2.png",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step2.png",
+      "sha256": "fe3a39cf6624886fedcafd2b596e784b0cbdef0dac4dde33124567032ad86a58"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step2.svg",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step2.svg",
+      "sha256": "55ab8f6aa60b8c1a071a79a66df8c3b9b19132d2f95b91c0745949d00d5545e5"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step3.pdf",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step3.pdf",
+      "sha256": "70458034b63ec92fd2b70bbc276722a9e8d712cf1986d1015b2a2ae66d0e5fc6"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step3.png",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step3.png",
+      "sha256": "7f2ac173c5b7f1a580369647bbefc5599be91f133cb39c7f56f4d33012fd49b9"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step3.svg",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step3.svg",
+      "sha256": "ea973990521d2337e90ad2b7bdb9576355fe3192c91e26210841d666bfa4d004"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step4.pdf",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step4.pdf",
+      "sha256": "dd66fc0d1c06b4db449588b86fb8d0d000a622bc14e5b2e624de895e9d915f07"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step4.png",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step4.png",
+      "sha256": "7ad5687b7b76f3e750cd95ddac0a0f688815f624e1a91c220c498476d3ed7536"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_mean_step4.svg",
+      "destination": "plots/paper_figures/posterior/posterior_mean_step4.svg",
+      "sha256": "4f4bd991cb3c8740be87c6a9a306fa8340b0198d652fd91d00642ac7b999c05b"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step1.pdf",
+      "destination": "plots/paper_figures/posterior/posterior_std_step1.pdf",
+      "sha256": "42c2753f727ca98c3bcfd6d23e52f295d5b591e43568431d674ea44d517bcc66"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step1.png",
+      "destination": "plots/paper_figures/posterior/posterior_std_step1.png",
+      "sha256": "e6e915e0076234793bb9d2c4f58cab3a01ae4b7da1731c3901b12826dd3e7ed9"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step1.svg",
+      "destination": "plots/paper_figures/posterior/posterior_std_step1.svg",
+      "sha256": "5e3d083b36a0a26849801ed772a494f0995e113c4280a162d66039b7ab78cecb"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step2.pdf",
+      "destination": "plots/paper_figures/posterior/posterior_std_step2.pdf",
+      "sha256": "3691a363937b218c183e4b6b2287aaa2bcb6b623e118ff5673cf7e49dae41125"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step2.png",
+      "destination": "plots/paper_figures/posterior/posterior_std_step2.png",
+      "sha256": "98c1a2e5903ab27556e808356d9e0eeca99b5a48c8c633499f6a7717e56b4532"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step2.svg",
+      "destination": "plots/paper_figures/posterior/posterior_std_step2.svg",
+      "sha256": "5363be00f146ec0efcc010232d2b46798079a90df5f555b19b696a371f731836"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step3.pdf",
+      "destination": "plots/paper_figures/posterior/posterior_std_step3.pdf",
+      "sha256": "d71ea3ef324f4d6eaea3b44053ca0744ee378495fab5afc627287cfa65171ac4"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step3.png",
+      "destination": "plots/paper_figures/posterior/posterior_std_step3.png",
+      "sha256": "32d785d8961b7fffd91f8430cffec9cec591214d16579772e568b351317ceb1e"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step3.svg",
+      "destination": "plots/paper_figures/posterior/posterior_std_step3.svg",
+      "sha256": "2cfa7f7e9f80c1ae2cc74083924df10dc118fe863bdf2bbc61b1e7077066a81c"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step4.pdf",
+      "destination": "plots/paper_figures/posterior/posterior_std_step4.pdf",
+      "sha256": "c21749e7a3174aba71cafa4e17cde36238101850ca7fcb9de2bfbe4102cf921c"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step4.png",
+      "destination": "plots/paper_figures/posterior/posterior_std_step4.png",
+      "sha256": "4188a9e4c87027cab126a87b83d0f7b878281f06735235c2e4c3349739e37ad5"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/posterior/posterior_std_step4.svg",
+      "destination": "plots/paper_figures/posterior/posterior_std_step4.svg",
+      "sha256": "b07d9294523b27ea99c2ca886ed48f1a14a51b4f4b65c3e950abd66a3b85cab7"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step2.pdf",
+      "destination": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step2.pdf",
+      "sha256": "dcd9ab7b435915d4b0aee21dec4b0d548db0428483994bb2af4f20d9d530d880"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step2.png",
+      "destination": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step2.png",
+      "sha256": "5c32b2cfce378895dc5cfba4b82c75db527d8e32489fb8d22600ede58aff280e"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step2.svg",
+      "destination": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step2.svg",
+      "sha256": "e65865953bf5d658f220d92bbf4f2ccfed9279376523af2d670871bbd1df54cb"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step3.pdf",
+      "destination": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step3.pdf",
+      "sha256": "cd0924bfc9f79c5936f63c5219f9a02dc5827a0a753a8c96fb0a606126ad73b9"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step3.png",
+      "destination": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step3.png",
+      "sha256": "f3ac8954c9c21c8ac6ad75dadc70cfa2982d01200f4fb24cefe46f8591083cb2"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step3.svg",
+      "destination": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step3.svg",
+      "sha256": "e68ff4b402c737059760d85567152213b3117a8547b24df16557b616fea0055f"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step4.pdf",
+      "destination": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step4.pdf",
+      "sha256": "a1b6f35f31748bafa66791cceaa0dd5140ea225cb118bea43c2b2a93547b0327"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step4.png",
+      "destination": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step4.png",
+      "sha256": "b5b32c4e128d7d6923e94755e74b931dc0c806c84f629c0854eff202fa38b530"
+    },
+    {
+      "action": "untrack_keep_local",
+      "source": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step4.svg",
+      "destination": "plots/paper_figures/statistical/injection_rate_hist_ecdf_step4.svg",
+      "sha256": "6e9b2e24944a7ba37ae78f1a8102a30f07c7859a18e746ae18993edf58a641e0"
+    }
+  ]
+}

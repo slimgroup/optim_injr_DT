@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "selection_date": "2026-10-03",
+  "note": "Explicit local figure selection, not a manuscript-publication claim. Inputs and historical provenance remain in place.",
+  "assets": [
+    {
+      "path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_mean_relative_margin_sensitivity_increment_1p13000_step1.png",
+      "producer": "scripts/python_plots/preview_posterior_margin_sensitivity.py",
+      "selection_record": "docs/analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md",
+      "role": "Selected posterior sensitivity: increment factor 1.13",
+      "sha256": "66cfbb60ef1849e02304527e0d69c59777b211d8e3f14d34692a43eda3cb97d7",
+      "view": "plots/latest/posterior/mean_step1.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_std_relative_margin_sensitivity_increment_1p13000_step1.png",
+      "producer": "scripts/python_plots/preview_posterior_margin_sensitivity.py",
+      "selection_record": "docs/analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md",
+      "role": "Selected posterior sensitivity: increment factor 1.13",
+      "sha256": "787730e8dc9785fd8576b100f12fd60cfa8a5f18d09b4cbe963b62b55da6d9ee",
+      "view": "plots/latest/posterior/std_step1.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_mean_relative_margin_sensitivity_increment_1p13000_step2.png",
+      "producer": "scripts/python_plots/preview_posterior_margin_sensitivity.py",
+      "selection_record": "docs/analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md",
+      "role": "Selected posterior sensitivity: increment factor 1.13",
+      "sha256": "e6e7a91c3abc82e2d18afb449062a1dd9d1e3eb7aeb370ecdc70b13b3c394872",
+      "view": "plots/latest/posterior/mean_step2.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_std_relative_margin_sensitivity_increment_1p13000_step2.png",
+      "producer": "scripts/python_plots/preview_posterior_margin_sensitivity.py",
+      "selection_record": "docs/analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md",
+      "role": "Selected posterior sensitivity: increment factor 1.13",
+      "sha256": "f09181c01fa24806b8045f2b65ff5a6d26aa3eb6fc6064315eaa9fa3e72bb4c2",
+      "view": "plots/latest/posterior/std_step2.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_mean_relative_margin_sensitivity_increment_1p13000_step3.png",
+      "producer": "scripts/python_plots/preview_posterior_margin_sensitivity.py",
+      "selection_record": "docs/analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md",
+      "role": "Selected posterior sensitivity: increment factor 1.13",
+      "sha256": "67802444f48adce1f208e6f5ea13161ea35bf23a5eeb3c8a342d7b301c4d39a3",
+      "view": "plots/latest/posterior/mean_step3.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_std_relative_margin_sensitivity_increment_1p13000_step3.png",
+      "producer": "scripts/python_plots/preview_posterior_margin_sensitivity.py",
+      "selection_record": "docs/analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md",
+      "role": "Selected posterior sensitivity: increment factor 1.13",
+      "sha256": "48df462cd58a3f23256c7644a1c0d2be6f81fb843c3cb75d239a661ca68cb5f4",
+      "view": "plots/latest/posterior/std_step3.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_mean_relative_margin_sensitivity_increment_1p13000_step4.png",
+      "producer": "scripts/python_plots/preview_posterior_margin_sensitivity.py",
+      "selection_record": "docs/analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md",
+      "role": "Selected posterior sensitivity: increment factor 1.13",
+      "sha256": "bfcb58897e769452e107a7603725a329cc1e6e803d8731b4ac4bed0cce77724c",
+      "view": "plots/latest/posterior/mean_step4.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_margin_sensitivity_increment_1p13_20261002/posterior_std_relative_margin_sensitivity_increment_1p13000_step4.png",
+      "producer": "scripts/python_plots/preview_posterior_margin_sensitivity.py",
+      "selection_record": "docs/analysis/POSTERIOR_MARGIN_SELECTION_2026-10-03.md",
+      "role": "Selected posterior sensitivity: increment factor 1.13",
+      "sha256": "949671ea4c3d8407c2e551cbe23719fb73442f249aecb6d0ea32e243de830dde",
+      "view": "plots/latest/posterior/std_step4.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_appendix_e_layout_20261002/statistical/injection_rate_histogram_step2.png",
+      "producer": "scripts/python_plots/restyle_paper_pngs.py",
+      "selection_record": "docs/analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md",
+      "role": "Selected split statistical layout; historical B=5000, seed=42",
+      "sha256": "ec30212d2853a204cb8ebd4de39e291d15705011f89337496d8480864b771a30",
+      "view": "plots/latest/statistics/histogram_step2.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_appendix_e_layout_20261002/statistical/injection_rate_ecdf_step2.png",
+      "producer": "scripts/python_plots/restyle_paper_pngs.py",
+      "selection_record": "docs/analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md",
+      "role": "Selected split statistical layout; historical B=5000, seed=42",
+      "sha256": "68f4917b7d3f67eebb02d011d009af30e8eef5338a859984add73f0325e47ec2",
+      "view": "plots/latest/statistics/ecdf_step2.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_appendix_e_layout_20261002/statistical/injection_rate_histogram_step3.png",
+      "producer": "scripts/python_plots/restyle_paper_pngs.py",
+      "selection_record": "docs/analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md",
+      "role": "Selected split statistical layout; historical B=5000, seed=42",
+      "sha256": "043118f9708af63195d1fbb25571b2a6f34433b2df9d9e0ef08b4ea5614d245f",
+      "view": "plots/latest/statistics/histogram_step3.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_appendix_e_layout_20261002/statistical/injection_rate_ecdf_step3.png",
+      "producer": "scripts/python_plots/restyle_paper_pngs.py",
+      "selection_record": "docs/analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md",
+      "role": "Selected split statistical layout; historical B=5000, seed=42",
+      "sha256": "4d8b8d670b2f18f971ed1a4717fc6408563b6a8af1b38d7c6606e11bbda3f8d9",
+      "view": "plots/latest/statistics/ecdf_step3.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_appendix_e_layout_20261002/statistical/injection_rate_histogram_step4.png",
+      "producer": "scripts/python_plots/restyle_paper_pngs.py",
+      "selection_record": "docs/analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md",
+      "role": "Selected split statistical layout; historical B=5000, seed=42",
+      "sha256": "e29334282fba2720c2e2574ed9ac3acf947ebb70babc0b6e391e025e759bfbf0",
+      "view": "plots/latest/statistics/histogram_step4.png"
+    },
+    {
+      "path": "plots/paper_figures/posterior_appendix_e_layout_20261002/statistical/injection_rate_ecdf_step4.png",
+      "producer": "scripts/python_plots/restyle_paper_pngs.py",
+      "selection_record": "docs/analysis/POSTERIOR_AND_STATISTICAL_LAYOUT_2026-10-02.md",
+      "role": "Selected split statistical layout; historical B=5000, seed=42",
+      "sha256": "7390b82011a6e0493b988ae62df80d65366a6b5db26517266748e80a6ec0a413",
+      "view": "plots/latest/statistics/ecdf_step4.png"
+    },
+    {
+      "path": "plots/paper_figures/injection_schedule_over_four_steps.png",
+      "producer": "scripts/python_plots/plot_injection_schedule_over_four_steps.py",
+      "selection_record": "docs/reference/PAPER_FIGURE_MANIFEST.md",
+      "role": "Current schedule figure",
+      "sha256": "be8e4cad0300e9fad2e417368a055e8af47e97058e096dcee62a470006d03db2",
+      "view": "plots/latest/injection_schedule.png"
+    },
+    {
+      "path": "plots/paper_figures/pressure_risk_trajectory_over_four_steps.png",
+      "producer": "scripts/python_plots/plot_pressure_risk_trajectory_presentation.py",
+      "selection_record": "docs/reference/PAPER_FIGURE_MANIFEST.md",
+      "role": "Current trajectory; documented PoF/CVaR sensitivities",
+      "sha256": "b0e135571c7dfe4f88cdb8eacc9ad10ab3f78fd5659ef381cdb9398fa7d0e191",
+      "view": "plots/latest/pressure_risk.png"
+    },
+    {
+      "path": "plots/paper_figures/fracture_comparison_3x3_four_steps.png",
+      "producer": "scripts/python_plots/plot_real_fracture_comparison_day408.py",
+      "selection_record": "docs/reference/PAPER_FIGURE_MANIFEST.md",
+      "role": "Day-728 comparison; CVaR x1.22 sensitivity",
+      "sha256": "b940f65a3daed01291c7000fc2837e2227dee15d56664a12b6a63b1f90b5c8cc",
+      "view": "plots/latest/fracture_comparison.png"
+    },
+    {
+      "path": "plots/paper_figures/perm_ensemble_statistics.png",
+      "producer": "scripts/python_plots/plot_perm_ensemble.py",
+      "selection_record": "docs/reference/PAPER_FIGURE_MANIFEST.md",
+      "role": "Original permeability-only ensemble",
+      "sha256": "b90bf0e7f227bf5817a8755037f87f7b69299dea7718a6fbbc3b44de5ce7b641",
+      "view": "plots/latest/permeability.png"
+    },
+    {
+      "path": "plots/paper_figures/perm_pressure_saturation_ensemble_statistics_128.png",
+      "producer": "scripts/python_plots/plot_joint_permeability_statistics.py",
+      "selection_record": "docs/reference/PAPER_FIGURE_MANIFEST.md",
+      "role": "Latest full 128-position joint ensemble; 64-member source retained",
+      "sha256": "c5eaf7570bd6e851faef44c5e7e285f8767351ffc48ac6cdc98658c00b3fbad7",
+      "view": "plots/latest/joint_ensemble_128.png"
+    },
+    {
+      "path": "plots/paper_figures/statistical/grid_cdf_selected_1x3.png",
+      "producer": "scripts/julia_scripts/plotting/bootstrap_ecdf/plot_bootstrap_panels.jl",
+      "selection_record": "docs/reference/PAPER_FIGURE_MANIFEST.md",
+      "role": "Existing step-1 manuscript copy; downstream label/layout revisions recorded separately",
+      "sha256": "697a0daf2f1b3d6b3015cfcc2fdcdc776442d142ebd3d80808b9f7a0817fbf3c",
+      "view": "plots/latest/statistics/ecdf_step1.png"
+    },
+    {
+      "path": "plots/paper_figures/statistical/grid_histogram_selected_1x3.png",
+      "producer": "scripts/julia_scripts/plotting/bootstrap_ecdf/plot_bootstrap_panels.jl",
+      "selection_record": "docs/reference/PAPER_FIGURE_MANIFEST.md",
+      "role": "Existing step-1 manuscript copy; downstream label/layout revisions recorded separately",
+      "sha256": "138ab8e3e23e49751a7a365cc0360e67f635af7726dde3c07f4fefb0fa23f9db",
+      "view": "plots/latest/statistics/histogram_step1.png"
+    }
+  ]
+}

@@ -1,8 +1,20 @@
-cache_path = "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/figure_exports/figures6_7_decimal4_20260910_005149/case_result.jld2"
-cache_sha256 = "287210f33be19644c1d87fd13cdb39f672afc345293315e834b690255251ecc3"
+cache_path = "/storage/project/r-fherrmann9-0/hli853/optim_injr_DT/data/figure_exports/step1_ecdf_observed_jumps_20260916/case_results.jld2"
+cache_sha256 = "c31be9ed299c4cd11ac5781e8ab8a003f8f1c68abead1bc8c5d82c92c564dcaa"
+statistics_recomputed = true
+simulation_or_optimization_rerun = false
 confidence = 0.95
-export_dpi = 200
-rate_formatting = "four decimal places in annotations; canonical axis ticks unchanged"
-slide_id = "p1-select"
-statistics_recomputed = false
 threshold = 0.01
+bootstrap_resamples = 10000
+seed = 42
+schedule_element = 6
+schedule_length = 12
+monitoring_step = 1
+plotting_method = "observed jumps, right-continuous post steps; no uniform grid"
+crossing_method = "first observed x with CDF >= 0.01"
+statistics_job = "13248189"
+render_job = "13249005"
+title_policy = "original titles retained at user request"
+last_update_statistics_recomputed = false
+
+histogram_grid_render_job = "13249808"
+histogram_grid_selection_method = "observed-jump upper CDF-band crossing, shared with ECDFs"

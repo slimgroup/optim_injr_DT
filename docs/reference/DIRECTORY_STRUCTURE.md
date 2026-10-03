@@ -1,129 +1,38 @@
-# Project Directory Structure
+# Directory structure
 
-## Current Top-Level Layout
+| Location | Purpose and retention |
+|---|---|
+| Root | Project/manifest, README, license, citation, Python requirements, agent rules |
+| `src/` | Core Julia code; keep CLI and project activation stable |
+| `scripts/shell/{submit,run,check,retry,maintenance}/` | Stable batch and diagnostic interfaces |
+| `scripts/julia_scripts/` | Julia analysis, data collection, plotting, and diagnostics |
+| `scripts/python_plots/` | Paper plots, posterior statistics, and presentation videos |
+| `scripts/python_tools/` | Analysis and repository checks/maintenance |
+| `test/unit/` | Julia unit tests and isolated shell-submission checks |
+| `test/integration/` | Opt-in simulation verification |
+| `docs/analysis/` | Current selections, source documents, and retained evidence directories |
+| `docs/statistics/`, `docs/optimization/` | Current method documentation |
+| `docs/workflow/`, `docs/reference/` | Run guides, navigation, and figure records |
+| `docs/historical/` | Superseded dated notes and workflow history |
+| `data/` | Inputs, posterior exports, completed optimization and forward results |
+| `plots/` | Figures, videos, and some historical forward/cache inputs |
+| `logs/` | Slurm stdout/stderr, submission logs, and diagnostics |
+| `archive/` | Historical research campaigns and preserved log backups |
 
-```text
-optim_injr_DT/
-├── src/                        # Core Julia entry points and modules
-├── scripts/                    # Operational scripts, plotting, and utilities
-├── docs/                       # Project documentation
-├── test/                       # Julia test suite
-├── data/                       # Generated optimization outputs and analysis artifacts
-├── plots/                      # Generated figures and paper assets
-├── logs/                       # SLURM stdout/stderr and workflow logs
-├── archive/                    # Superseded runs, logs, and code (reference only)
-├── .cursor/                    # Tracked editor rule files
-├── .vscode/                    # Local workspace settings (ignored)
-├── .mplconfig/                 # Local Matplotlib cache (ignored)
-└── .julia_depot*/              # Local Julia depots (ignored)
-```
+The [script index](SCRIPTS_INDEX.md) lists current entry points. The
+[figure manifest](PAPER_FIGURE_MANIFEST.md) and [asset registry](paper_assets.json)
+identify paper outputs; older revisions are archived or retained locally as reproduction inputs.
 
-## `scripts/` Layout
+Directory depth matters: helpers in `scripts/shell/<group>/` resolve the
+repository root with `../../..`, and submission helpers find the shared
+optimization driver in `../run/`. Do not move them without updating callers.
 
-```text
-scripts/
-├── shell/
-│   ├── submit/                 # sbatch wrappers
-│   ├── run/                    # bash drivers
-│   ├── check/                  # progress & verification
-│   ├── retry/                  # reruns & queue cleanup
-│   └── maintenance/            # shell-only maintenance helpers
-├── julia_scripts/
-│   ├── plotting/               # Julia figure and video entry points
-│   ├── data_collection/        # Aggregation scripts for finished runs
-│   ├── analysis/               # Post-processing and comparison helpers
-│   ├── utilities/              # Diagnostics, scaling, misc helpers
-│   └── archive/                # Historical scripts kept for reference
-├── python_plots/               # Python paper-figure assembly scripts
-├── python_tools/               # Python maintenance / layout tools
-├── gamma_tables/               # Historical gamma tables from a deprecated workflow
-└── __pycache__/                # Local cache only; ignored
-```
+Machine caches (`.venv/`, `__pycache__/`, `.mplconfig/`, Julia depots, editor
+settings) are ignored. Retained `.cursor/` rules and agent instructions remain
+in place. See [machine-local notes](MACHINE_LOCAL.md).
 
-For actual script entry points and when to use them, see `docs/reference/SCRIPTS_INDEX.md`.
-
-## Root Directory (Keep Tidy)
-
-Keep the repository root limited to project metadata and agent-facing docs (for example `Project.toml`, `Manifest.toml`, `README.md`, `CLAUDE.md`, `AGENTS.md`). Put **SLURM / batch logs**, **submit logs**, and similar under **`logs/`**. Store large analysis artifacts such as **`data/three_set_posteriro_samples_t1_pof_cvar.jld2`** under **`data/`**. Small helper shell scripts (including `check_*.sh`) live under **`scripts/shell/`**; run them from the project root or rely on their internal `cd` to the repo root where noted.
-
-## Local Tooling (Not In Git)
-
-Editor- or machine-specific directories such as **`.julia_depot*/`** (project-local Julia depots), **`.mplconfig/`** (Matplotlib cache), and **`.vscode/`** (workspace settings) are listed in `.gitignore` and should not be committed. See **`docs/reference/MACHINE_LOCAL.md`** for what each folder does and when it is safe to delete. The tracked **`.cursor/rules/`** files are the exception: they encode shared repo guidance and are part of the project.
-
-## `archive/` Layout
-
-```text
-archive/
-├── 2026-04-07_step3_bad_sample_specific_injstart/   # bad step-3 campaign (data/plots/logs)
-└── logs/2025-11-24_backup_logs/                     # former 11-24-2025_backup_logs/
-```
-
-See `archive/README.md`. Large archived logs are gitignored under `archive/logs/`.
-
-## File Category Descriptions
-
-### Core Modules (src/)
-- Contains the main Julia module code for the project
-- These files are referenced by other scripts
-
-### Script Files (`scripts/`)
-- **`shell/`**: SLURM submission, run, progress-check, and rerun helpers
-- **`julia_scripts/`**: Julia plotting, collection, analysis, and utility scripts
-- **`python_plots/`**: Python figure-assembly scripts for paper-quality plots
-- **`python_tools/`**: Python maintenance and reorganization helpers
-- **`gamma_tables/`**: historical gamma tables kept only for reproducibility of an older comparison workflow
-
-### Data Files (`data/`)
-- Experiment data, intermediate results, configuration files, etc.
-- This directory is intentionally large and remains ignored by git.
-
-### Image Files (`plots/`)
-- All generated image files
-- Organized by experiment type or figure family
-- This directory is intentionally large and remains ignored by git.
-- `plots/paper_figures/` may also contain expensive intermediate `.jld2`
-  forward exports used to regenerate final paper figures. See
-  `docs/reference/PAPER_FIGURE_MANIFEST.md` before moving or cleaning anything
-  in that folder.
-
-### Logs (`logs/`)
-- SLURM stdout/stderr, status captures, and workflow logs
-- Organized by task type under `logs/optimization/`, `logs/utilities/`, and `logs/submit/`; see `logs/README.md`
-- This directory is intentionally large and remains ignored by git.
-
-### Documentation (`docs/`)
-- **`workflow/`**: PACE submission, batch runs, progress checks
-- **`reference/`**: directory layout, scripts index
-- **`optimization/`**: optimizer choice, parameters, refactor notes
-- **`statistics/`**: bootstrap/KDE methodology, figure layout
-- **`analysis/`**: performance, solver, troubleshooting writeups
-- **`historical/`**: deprecated gamma-table PoF/CVaR comparison docs
-- **`injection_rate_arrays.md`**: canonical injection ramps (kept at `docs/` root for stable references from `src/`)
-
-### Tests (`test/`)
-- **`unit/`**: Fast isolated tests (utils, risk metrics, I/O, optimization helpers)
-- **`integration/`**: Heavier tests (e.g. forward-simulation `ds` verification)
-- **`runtests.jl`**: Main test runner; see `test/README.md`
-
-## File Naming Conventions
-
-- Script files use lowercase letters and underscores: `plot_pof_cvar.py`
-- Module files use lowercase letters and underscores: `optim_inject.jl`
-- Data files use descriptive names: `injr_dist_1_to_32.jld2`
-
-## Maintenance Guidelines
-
-1. **New scripts**: Add to appropriate subdirectory in `scripts/`
-2. **New data**: Add to appropriate subdirectory in `data/`
-3. **New images**: Add to appropriate subdirectory in `plots/`
-4. **Logs and submit output**: Keep under `logs/`, not repository root
-5. **Old files**: Move to `archive/` directory instead of deleting directly
-6. **Core modules**: Only modify files in `src/`, keep interfaces stable
-
-## Notes
-
-- The repository currently contains large local working directories: `data/`, `plots/`, and `logs/`.
-- Local depots such as `.julia_depot_cursor/` and `.julia_depot_cdf/` are intentionally ignored rather than deleted.
-- Some older docs and scripts still describe historical workflows; prefer the actual files present in `scripts/` when there is a mismatch.
-- `scripts/gamma_tables/` and related helper scripts belong to a deprecated PoF/CVaR comparison route and should not be treated as the recommended workflow.
-- Do not delete historical gamma tables or their helper scripts without explicit user authorization.
+Do not store new generated artifacts in `scripts/` or the root. The legacy
+`scripts/gamma_tables/` artifact is retained for historical reproducibility.
+Do not infer that an older JLD2, cache, preview, or log is disposable: current
+plot exporters can depend on it. See [data availability](../../DATA_AVAILABILITY.md)
+and [the cleanup record](REPOSITORY_CLEANUP.md).

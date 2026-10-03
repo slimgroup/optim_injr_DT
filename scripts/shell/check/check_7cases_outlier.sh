@@ -10,7 +10,7 @@
 #SBATCH --account=gts-fherrmann9
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 cd "${ROOT_DIR}"
 export JULIA_DEPOT_PATH="$HOME/julia-depot"
 mkdir -p "$JULIA_DEPOT_PATH"

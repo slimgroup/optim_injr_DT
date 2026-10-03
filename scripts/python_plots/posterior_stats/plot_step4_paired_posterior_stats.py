@@ -15,11 +15,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 ROOT = REPO_ROOT / "data" / "DT_control" / "exp_name=step4"
 OUTDIR = REPO_ROOT / "plots" / "step4_paired_posterior_stats"
 
-B = 5000
+B = 10000
 CONF = 0.95
 THRESH = 0.01
 NBINS = 16
-ECDF_PTS = 1500
+ECDF_PTS = None  # compatibility alias: use every observed jump, no uniform grid
 SEED = 42
 SAMPLES = range(1, 129)
 
@@ -136,20 +136,31 @@ def boot_quantile(x: np.ndarray, q: float, b: int, seed: int) -> np.ndarray:
     return np.quantile(x[idx], q, axis=1)
 
 
-def boot_ecdf_ci(x: np.ndarray, b: int, conf: float, npts: int, seed: int):
+def boot_ecdf_ci(x: np.ndarray, b: int, conf: float, npts: int | None, seed: int):
+    # npts is retained for existing callers but no longer controls sampling.
     rng = np.random.default_rng(seed)
     xmin, xmax = float(np.min(x)), float(np.max(x))
     span = xmax - xmin
     margin = 0.05 * span if span > 0 else max(abs(xmin) * 0.05, 1e-6)
-    grid = np.linspace(xmin - margin, xmax + margin, npts)
+    grid = np.concatenate(([xmin - margin], np.unique(x), [xmax + margin]))
     sorted_x = np.sort(x)
     ecdf = np.searchsorted(sorted_x, grid, side="right") / len(x)
-    boot = np.empty((b, npts), dtype=float)
+    boot = np.empty((b, len(grid)), dtype=float)
     for i in range(b):
         s = np.sort(x[rng.integers(0, len(x), size=len(x))])
         boot[i, :] = np.searchsorted(s, grid, side="right") / len(x)
     alpha = 1 - conf
     return grid, ecdf, np.quantile(boot, alpha / 2, axis=0), np.quantile(boot, 1 - alpha / 2, axis=0)
+
+
+def bootstrap_jump_crossings(x: np.ndarray, b: int, conf: float, threshold: float, seed: int):
+    """Return CDF-band crossings evaluated at the ECDF's observed jump points."""
+    points, ecdf, lower, upper = boot_ecdf_ci(x, b, conf, None, seed)
+    return (
+        crossing(points, upper, threshold),
+        crossing(points, ecdf, threshold),
+        crossing(points, lower, threshold),
+    )
 
 
 def crossing(grid: np.ndarray, vals: np.ndarray, thr: float):
@@ -211,16 +222,15 @@ def plot_cdf(
     ecdf: np.ndarray,
     clo: np.ndarray,
     chi: np.ndarray,
+    crossings,
     q01: float,
     title: str,
     out: Path,
 ) -> None:
-    xcons = crossing(grid, chi, THRESH)
-    xecdf = crossing(grid, ecdf, THRESH)
-    xopt = crossing(grid, clo, THRESH)
+    xcons, xecdf, xopt = crossings
     fig, ax = plt.subplots(figsize=(8.6, 5.8))
-    ax.fill_between(grid, clo * 100, chi * 100, color="#AED6F1", alpha=0.55, label="95% bootstrap CI")
-    ax.plot(grid, ecdf * 100, color="#1F618D", linewidth=2.2, label="Empirical CDF")
+    ax.fill_between(grid, clo * 100, chi * 100, step="post", color="#AED6F1", alpha=0.55, label="95% bootstrap CI")
+    ax.step(grid, ecdf * 100, where="post", color="#1F618D", linewidth=2.2, label="Empirical CDF")
     ax.axhline(THRESH * 100, color="#C0392B", linewidth=1.5, linestyle="--", label="1% threshold")
     for val, color, label in [
         (xcons, "#D35400", "CI upper crossing"),
@@ -247,8 +257,8 @@ def plot_cdf(
     ax.legend(loc="upper left", fontsize=9.5, framealpha=0.95)
 
     inset = ax.inset_axes([0.43, 0.10, 0.52, 0.45])
-    inset.fill_between(grid, clo * 100, chi * 100, color="#AED6F1", alpha=0.55)
-    inset.plot(grid, ecdf * 100, color="#1F618D", linewidth=1.5)
+    inset.fill_between(grid, clo * 100, chi * 100, step="post", color="#AED6F1", alpha=0.55)
+    inset.step(grid, ecdf * 100, where="post", color="#1F618D", linewidth=1.5)
     inset.axhline(THRESH * 100, color="#C0392B", linewidth=1.0, linestyle="--")
     zoom = [v for v in (xcons, xecdf, xopt) if v is not None]
     zmin, zmax = ((min(zoom) * 0.90, max(zoom) * 1.10) if zoom else (float(np.min(x)), float(np.max(x))))
@@ -316,7 +326,7 @@ def plot_grid(results, out: Path) -> None:
         fontweight="bold",
         y=0.98,
     )
-    for j, (spec, x, q01, qlo, qhi, grid, ecdf, clo, chi) in enumerate(results):
+    for j, (spec, x, q01, qlo, qhi, grid, ecdf, clo, chi, crossings) in enumerate(results):
         ax = axes[0, j]
         edges = np.linspace(np.min(x), np.max(x), NBINS + 1)
         if np.allclose(edges[0], edges[-1]):
@@ -339,18 +349,16 @@ def plot_grid(results, out: Path) -> None:
         )
 
         ax = axes[1, j]
-        ax.fill_between(grid, clo * 100, chi * 100, color="#AED6F1", alpha=0.55)
-        ax.plot(grid, ecdf * 100, color="#1F618D", linewidth=2.0)
+        ax.fill_between(grid, clo * 100, chi * 100, step="post", color="#AED6F1", alpha=0.55)
+        ax.step(grid, ecdf * 100, where="post", color="#1F618D", linewidth=2.0)
         ax.axhline(THRESH * 100, color="#C0392B", linewidth=1.2, linestyle="--")
-        xcons = crossing(grid, chi, THRESH)
-        xecdf = crossing(grid, ecdf, THRESH)
-        xopt = crossing(grid, clo, THRESH)
+        xcons, xecdf, xopt = crossings
         for val, color in [(xcons, "#D35400"), (xecdf, "#117A65"), (xopt, "#5B2C6F")]:
             if val is not None:
                 ax.plot(val, THRESH * 100, marker="*", color=color, markersize=9)
         inset = ax.inset_axes([0.43, 0.10, 0.50, 0.42])
-        inset.fill_between(grid, clo * 100, chi * 100, color="#AED6F1", alpha=0.55)
-        inset.plot(grid, ecdf * 100, color="#1F618D", linewidth=1.25)
+        inset.fill_between(grid, clo * 100, chi * 100, step="post", color="#AED6F1", alpha=0.55)
+        inset.step(grid, ecdf * 100, where="post", color="#1F618D", linewidth=1.25)
         inset.axhline(THRESH * 100, color="#C0392B", linewidth=0.9, linestyle="--")
         zoom = [v for v in (xcons, xecdf, xopt) if v is not None]
         if zoom:
@@ -459,8 +467,8 @@ def main() -> None:
         "Only completed samples with `final.jld2` are included in the histogram/CDF plots.",
         "Active samples are excluded until they finish. Samples without `final.jld2` and without an active job are reported separately as fracture / no-final candidates.",
         "",
-        "| Case | completed samples used | active samples excluded | no-final candidates | mean | median | std | 1% q | 95% CI for 1% q |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Case | completed samples used | active samples excluded | no-final candidates | mean | median | std | 1% q | 95% CI for 1% q | q_k* (jump crossing) |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
 
     for spec in SPECS:
@@ -471,12 +479,13 @@ def main() -> None:
         qlo = float(np.quantile(boot, (1 - CONF) / 2))
         qhi = float(np.quantile(boot, 1 - (1 - CONF) / 2))
         grid, ecdf, clo, chi = boot_ecdf_ci(x, B, CONF, ECDF_PTS, SEED)
+        crossings = (crossing(grid, chi, THRESH), crossing(grid, ecdf, THRESH), crossing(grid, clo, THRESH))
         plot_hist(x, q01, qlo, qhi, spec.title, OUTDIR / f"hist_{spec.slug}.png")
-        plot_cdf(x, grid, ecdf, clo, chi, q01, spec.title, OUTDIR / f"cdf_{spec.slug}.png")
-        results.append((spec, x, q01, qlo, qhi, grid, ecdf, clo, chi))
+        plot_cdf(x, grid, ecdf, clo, chi, crossings, q01, spec.title, OUTDIR / f"cdf_{spec.slug}.png")
+        results.append((spec, x, q01, qlo, qhi, grid, ecdf, clo, chi, crossings))
         lines.append(
             f"| {spec.title} | {len(records)} | {len(active_by_case[spec.key])} | {len(missing_by_case[spec.key])} | "
-            f"{np.mean(x):.5f} | {np.median(x):.5f} | {np.std(x, ddof=1):.5f} | {q01:.5f} | [{qlo:.5f}, {qhi:.5f}] |"
+            f"{np.mean(x):.5f} | {np.median(x):.5f} | {np.std(x, ddof=1):.5f} | {q01:.5f} | [{qlo:.5f}, {qhi:.5f}] | {crossings[0]:.5f} |"
         )
 
     lines += ["", "Case details:"]

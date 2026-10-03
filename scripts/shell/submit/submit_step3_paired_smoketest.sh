@@ -2,8 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-SBATCH_FILE="${SCRIPT_DIR}/optim_inject_pace.sh"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+SBATCH_FILE="${SCRIPT_DIR}/../run/optim_inject_pace.sh"
 
 CASE_KEY="pof_eps0.01"
 SAMPLE_RANGE="1-2"

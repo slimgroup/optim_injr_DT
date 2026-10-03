@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 
 echo "=== 检查并取消重复的POF任务 ==="
 echo ""
