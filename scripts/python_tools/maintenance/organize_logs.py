@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import os
 import re
 import shutil
 from pathlib import Path
@@ -72,7 +71,7 @@ def main() -> None:
         for f in archive.iterdir():
             if f.is_file():
                 target = LOGS / "submit" / f.name
-                if target.exists():
+                if target.exists() or target.is_symlink():
                     moved["skipped"] += 1
                     continue
                 shutil.move(str(f), str(target))
@@ -87,6 +86,9 @@ def main() -> None:
             dest_dir = dest_for_dt_log(name)
             dest_dir.mkdir(parents=True, exist_ok=True)
             target = dest_dir / name
+            if target.exists() or target.is_symlink():
+                moved["skipped"] += 1
+                continue
             try:
                 shutil.move(str(entry), str(target))
                 moved["optimization"] += 1
@@ -96,7 +98,7 @@ def main() -> None:
 
         if name.endswith(".log") and name.startswith("submit"):
             target = LOGS / "submit" / name
-            if target.exists():
+            if target.exists() or target.is_symlink():
                 moved["skipped"] += 1
                 continue
             try:
@@ -109,7 +111,7 @@ def main() -> None:
         util_dir = dest_for_utility(name)
         if util_dir is not None:
             target = util_dir / name
-            if target.exists():
+            if target.exists() or target.is_symlink():
                 moved["skipped"] += 1
                 continue
             try:

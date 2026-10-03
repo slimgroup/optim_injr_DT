@@ -38,3 +38,11 @@ Full index: [docs/reference/SCRIPTS_INDEX.md](../../docs/reference/SCRIPTS_INDEX
   submitters supply them. Create `logs/` before submitting on a fresh checkout.
 - Current paper selections and their batch commands are in the
   [figure manifest](../../docs/reference/PAPER_FIGURE_MANIFEST.md).
+- The read-only `check_submit_65_128_progress.sh` accepts an optional
+  `SUBMISSION_LOG` environment variable. It reports allocation counts and log
+  attempts separately; retries and failed submissions prevent inferring the
+  remaining campaign size from log-line counts alone.
+- `check_all_pof_cases.sh` scans 832 configured historical step-1 tasks. It
+  returns 0 when all have a final file or submission record, 1 when some are
+  missing, and 2 when failed Slurm queries leave some statuses unknown. A
+  submission record does not imply successful completion.

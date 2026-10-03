@@ -43,49 +43,38 @@ def main() -> None:
         name = entry.name
 
         if name.lower().endswith(".png"):
-            dest_dir = PLOTS / "kde" / kde_subdir(name)
-            target = dest_dir / name
-            try:
-                shutil.move(str(entry), str(target))
-                moved["png"] += 1
-            except OSError as e:
-                errors.append(f"{name}: {e}")
-            continue
-
-        if name.endswith(".csv"):
+            kind = "png"
+            target = PLOTS / "kde" / kde_subdir(name) / name
+        elif name.endswith(".csv"):
+            kind = "csv"
             target = AGG / "csv" / name
-            try:
-                shutil.move(str(entry), str(target))
-                moved["csv"] += 1
-            except OSError as e:
-                errors.append(f"{name}: {e}")
-            continue
-
-        if name.endswith(".jld2"):
+        elif name.endswith(".jld2"):
+            kind = "jld2"
             target = AGG / "jld2" / name
-            try:
-                shutil.move(str(entry), str(target))
-                moved["jld2"] += 1
-            except OSError as e:
-                errors.append(f"{name}: {e}")
-            continue
-
-        if name.endswith((".md", ".py")):
+        elif name.endswith((".md", ".py")):
+            kind = "notes"
             target = AGG / "notes" / name
-            try:
-                shutil.move(str(entry), str(target))
-                moved["notes"] += 1
-            except OSError as e:
-                errors.append(f"{name}: {e}")
+        else:
+            moved["skipped"] += 1
             continue
 
-        moved["skipped"] += 1
+        # Preserve both artifacts when a previous organization already created
+        # this destination, including a dangling symlink or a directory.
+        if target.exists() or target.is_symlink():
+            moved["skipped"] += 1
+            print(f"Skipping existing destination: {target}")
+            continue
+        try:
+            shutil.move(str(entry), str(target))
+            moved[kind] += 1
+        except OSError as e:
+            errors.append(f"{name}: {e}")
 
     remaining_files = sum(1 for p in STEP1.iterdir() if p.is_file())
     print("organize_step1_data summary:")
     for k, v in moved.items():
         print(f"  {k}: {v}")
-    print(f"  files remaining at step1 root (excl. README): {remaining_files}")
+    print(f"  files remaining at step1 root: {remaining_files}")
     if errors:
         print("errors:")
         for e in errors[:10]:

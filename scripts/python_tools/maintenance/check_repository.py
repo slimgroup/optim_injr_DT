@@ -25,6 +25,7 @@ NAVIGATION = [
     "plots/README.md", "plots/latest/README.md",
     "plots/paper_figures/README.md", "docs/figures/README.md",
     "docs/reference/DELETION_REVIEW_2026-10-03.md",
+    "docs/reference/SCRIPTS_AND_ARCHIVE_REVIEW_2026-10-03.md",
 ]
 
 

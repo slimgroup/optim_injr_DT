@@ -7,9 +7,9 @@ Pkg.activate(".")
 using DrWatson
 @quickactivate "optim_injr_DT"
 
-include("scripts/julia_scripts/plotting/legacy_step1/plot_three_panels.jl")
+include(joinpath(@__DIR__, "..", "legacy_step1", "plot_three_panels.jl"))
 
-const ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "..", "data", "DT_control", "exp_name=step1")))
+const DATA_ROOT = get(ENV, "DT_CONTROL_ROOT", abspath(joinpath(@__DIR__, "..", "..", "..", "..", "data", "DT_control", "exp_name=step1")))
 
 # Test collecting data for specific cases
 test_cases = [
@@ -31,7 +31,7 @@ for (case_type, gamma, alpha) in test_cases
     println("-" ^ 80)
     
     if case_type == "CVaR"
-        df = collect_cvar_from_dirs(ROOT, alpha, gamma)
+        df = collect_cvar_from_dirs(DATA_ROOT, alpha, gamma)
         if nrow(df) > 0
             df_ok = df[df.status .== "ok_final", :]
             data = collect(skipmissing(df_ok.last_inj_rate))

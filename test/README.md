@@ -12,6 +12,9 @@ python3 -m unittest discover -s test/unit -p 'test_repository*.py'
 These checks use only Python's standard library and Bash. The submission tests
 run the real wrappers with a temporary `sbatch` stub and verify repository
 paths, cases, prior modes, and resource arguments. They never contact Slurm.
+Status tests use temporary `squeue`/`sacct` stubs to exercise sample boundaries,
+full-campaign counts, and unavailable queries. Organizer tests use disposable
+artifacts to verify that existing files and dangling symlinks are preserved.
 The optional `--paper-assets` repository check verifies the 21 selected local
 PNGs against the recorded hashes; those assets are required for that option.
 

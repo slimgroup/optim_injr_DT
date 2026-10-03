@@ -782,26 +782,41 @@ function plot_cdf_ci_zoom_panel(cases_data::Vector{Tuple{String, Vector{Float64}
 end
 
 # ===================== Main =====================
-# Read CVaR data
-detail_csv = latest_detail_csv(ROOT)
-println("Using CVaR detail CSV: ", detail_csv)
-df_cvar = CSV.read(detail_csv, DataFrame)
-df_cvar_ok = df_cvar[df_cvar.status .== "ok_final", :]
-df_cvar_ok.case_tag = String.(df_cvar_ok.case_tag)
+# Including this file exposes collectors without reading CSVs or rendering figures.
+if abspath(PROGRAM_FILE) == @__FILE__
+    # Read CVaR data
+    detail_csv = latest_detail_csv(ROOT)
+    println("Using CVaR detail CSV: ", detail_csv)
+    df_cvar = CSV.read(detail_csv, DataFrame)
+    df_cvar_ok = df_cvar[df_cvar.status .== "ok_final", :]
+    df_cvar_ok.case_tag = String.(df_cvar_ok.case_tag)
 
-# Read POF data
-pof_csv = latest_pof_detail_csv(ROOT)
-df_pof_ok = DataFrame()
+    # Read POF data
+    pof_csv = latest_pof_detail_csv(ROOT)
+    df_pof_ok = DataFrame()
 
-if pof_csv !== nothing
-    println("Using POF detail CSV: ", pof_csv)
-    df_pof = CSV.read(pof_csv, DataFrame)
-    df_pof_ok = df_pof[df_pof.status .== "ok_final", :]
-    df_pof_ok.case_tag = String.(df_pof_ok.case_tag)
-    
-    max_sample = maximum(df_pof_ok.sample)
-    if max_sample < 128
-        println("POF CSV only has samples up to $max_sample, collecting from directories...")
+    if pof_csv !== nothing
+        println("Using POF detail CSV: ", pof_csv)
+        df_pof = CSV.read(pof_csv, DataFrame)
+        df_pof_ok = df_pof[df_pof.status .== "ok_final", :]
+        df_pof_ok.case_tag = String.(df_pof_ok.case_tag)
+
+        max_sample = maximum(df_pof_ok.sample)
+        if max_sample < 128
+            println("POF CSV only has samples up to $max_sample, collecting from directories...")
+            for eps in ["0.0", "0.01", "0.05"]
+                df_pof_dirs = collect_pof_from_dirs(ROOT, eps)
+                if nrow(df_pof_dirs) > 0
+                    df_pof_dirs.case_tag = String.(df_pof_dirs.case_tag)
+                    df_pof_dirs_ok = df_pof_dirs[df_pof_dirs.status .== "ok_final", :]
+                    global df_pof_ok = vcat(df_pof_ok, df_pof_dirs_ok, cols=:union)
+                end
+            end
+            println("Collected POF samples from directories")
+        end
+    else
+        println("No pof_inj_rate_detail_*.csv found, collecting POF data from directories...")
+        df_pof_ok = DataFrame()
         for eps in ["0.0", "0.01", "0.05"]
             df_pof_dirs = collect_pof_from_dirs(ROOT, eps)
             if nrow(df_pof_dirs) > 0
@@ -812,176 +827,164 @@ if pof_csv !== nothing
         end
         println("Collected POF samples from directories")
     end
-else
-    println("No pof_inj_rate_detail_*.csv found, collecting POF data from directories...")
-    df_pof_ok = DataFrame()
-    for eps in ["0.0", "0.01", "0.05"]
-        df_pof_dirs = collect_pof_from_dirs(ROOT, eps)
-        if nrow(df_pof_dirs) > 0
-            df_pof_dirs.case_tag = String.(df_pof_dirs.case_tag)
-            df_pof_dirs_ok = df_pof_dirs[df_pof_dirs.status .== "ok_final", :]
-            global df_pof_ok = vcat(df_pof_ok, df_pof_dirs_ok, cols=:union)
+
+    # Combine dataframes
+    if nrow(df_pof_ok) > 0
+        if hasproperty(df_pof_ok, :last_inj)
+            rename!(df_pof_ok, :last_inj => :last_inj_rate)
         end
+        df_ok = vcat(df_pof_ok, df_cvar_ok, cols=:union)
+    else
+        df_ok = df_cvar_ok
     end
-    println("Collected POF samples from directories")
-end
 
-# Combine dataframes
-if nrow(df_pof_ok) > 0
-    if hasproperty(df_pof_ok, :last_inj)
-        rename!(df_pof_ok, :last_inj => :last_inj_rate)
+    # Define cases to plot (4x3 layout)
+    # Set to true to use gamma=0 cases in row 2, false for gamma=0.05
+    const USE_GAMMA_ZERO_ROW2 = true
+
+    if USE_GAMMA_ZERO_ROW2
+        cases_to_plot = [
+            # Row 1: POF
+            "POF_eps=0.0",
+            "POF_eps=0.01",
+            "POF_eps=0.05",
+            # Row 2: CVaR gamma=0.0
+            "CVaR_g=0.0_a=0.0",
+            "CVaR_g=0.0_a=0.01",
+            "CVaR_g=0.0_a=0.05",
+            # Row 3: CVaR gamma=0.1
+            "CVaR_g=0.1_a=0.0",
+            "CVaR_g=0.1_a=0.01",
+            "CVaR_g=0.1_a=0.05",
+            # Row 4: CVaR gamma=0.2
+            "CVaR_g=0.2_a=0.0",
+            "CVaR_g=0.2_a=0.01",
+            "CVaR_g=0.2_a=0.05"
+        ]
+    else
+        cases_to_plot = [
+            # Row 1: POF
+            "POF_eps=0.0",
+            "POF_eps=0.01",
+            "POF_eps=0.05",
+            # Row 2: CVaR gamma=0.05
+            "CVaR_g=0.05_a=0.0",
+            "CVaR_g=0.05_a=0.01",
+            "CVaR_g=0.05_a=0.05",
+            # Row 3: CVaR gamma=0.1
+            "CVaR_g=0.1_a=0.0",
+            "CVaR_g=0.1_a=0.01",
+            "CVaR_g=0.1_a=0.05",
+            # Row 4: CVaR gamma=0.2
+            "CVaR_g=0.2_a=0.0",
+            "CVaR_g=0.2_a=0.01",
+            "CVaR_g=0.2_a=0.05"
+        ]
     end
-    df_ok = vcat(df_pof_ok, df_cvar_ok, cols=:union)
-else
-    df_ok = df_cvar_ok
-end
 
-# Define cases to plot (4x3 layout)
-# Set to true to use gamma=0 cases in row 2, false for gamma=0.05
-const USE_GAMMA_ZERO_ROW2 = true
+    # Generate timestamp
+    ts = Dates.format(now(), "yyyymmdd_HHMMSS")
 
-if USE_GAMMA_ZERO_ROW2
-    cases_to_plot = [
-        # Row 1: POF
-        "POF_eps=0.0",
-        "POF_eps=0.01",
-        "POF_eps=0.05",
-        # Row 2: CVaR gamma=0.0
-        "CVaR_g=0.0_a=0.0",
-        "CVaR_g=0.0_a=0.01",
-        "CVaR_g=0.0_a=0.05",
-        # Row 3: CVaR gamma=0.1
-        "CVaR_g=0.1_a=0.0",
-        "CVaR_g=0.1_a=0.01",
-        "CVaR_g=0.1_a=0.05",
-        # Row 4: CVaR gamma=0.2
-        "CVaR_g=0.2_a=0.0",
-        "CVaR_g=0.2_a=0.01",
-        "CVaR_g=0.2_a=0.05"
-    ]
-else
-    cases_to_plot = [
-        # Row 1: POF
-        "POF_eps=0.0",
-        "POF_eps=0.01",
-        "POF_eps=0.05",
-        # Row 2: CVaR gamma=0.05
-        "CVaR_g=0.05_a=0.0",
-        "CVaR_g=0.05_a=0.01",
-        "CVaR_g=0.05_a=0.05",
-        # Row 3: CVaR gamma=0.1
-        "CVaR_g=0.1_a=0.0",
-        "CVaR_g=0.1_a=0.01",
-        "CVaR_g=0.1_a=0.05",
-        # Row 4: CVaR gamma=0.2
-        "CVaR_g=0.2_a=0.0",
-        "CVaR_g=0.2_a=0.01",
-        "CVaR_g=0.2_a=0.05"
-    ]
-end
+    # Collect data for all cases
+    cases_data = Tuple{String, Vector{Float64}}[]
 
-# Generate timestamp
-ts = Dates.format(now(), "yyyymmdd_HHMMSS")
+    for case_tag in cases_to_plot
+        case_data = DataFrame()
 
-# Collect data for all cases
-cases_data = Tuple{String, Vector{Float64}}[]
-
-for case_tag in cases_to_plot
-    case_data = DataFrame()
-    
-    if startswith(case_tag, "POF")
-        eps_match = match(r"eps[_\s]*=\s*([0-9.]+)", case_tag)
-        if eps_match !== nothing
-            eps_val = String(eps_match.captures[1])
-            # Always collect from directories to ensure updated calculation logic is used
-            println("POF case $case_tag: collecting from directories with updated calculation...")
-            local df_pof_dirs_local = collect_pof_from_dirs(ROOT, eps_val)
-            if nrow(df_pof_dirs_local) > 0
-                df_pof_dirs_local.case_tag = String.(df_pof_dirs_local.case_tag)
-                case_data = df_pof_dirs_local[df_pof_dirs_local.status .== "ok_final", :]
+        if startswith(case_tag, "POF")
+            eps_match = match(r"eps[_\s]*=\s*([0-9.]+)", case_tag)
+            if eps_match !== nothing
+                eps_val = String(eps_match.captures[1])
+                # Always collect from directories to ensure updated calculation logic is used
+                println("POF case $case_tag: collecting from directories with updated calculation...")
+                local df_pof_dirs_local = collect_pof_from_dirs(ROOT, eps_val)
+                if nrow(df_pof_dirs_local) > 0
+                    df_pof_dirs_local.case_tag = String.(df_pof_dirs_local.case_tag)
+                    case_data = df_pof_dirs_local[df_pof_dirs_local.status .== "ok_final", :]
+                end
             end
-        end
-    elseif startswith(case_tag, "CVaR")
-        # Extract gamma and alpha
-        g_match = match(r"g\s*=\s*([0-9.]+)", case_tag)
-        a_match = match(r"a\s*=\s*([0-9.]+)", case_tag)
-        
-        if g_match !== nothing && a_match !== nothing
-            g_val = String(g_match.captures[1])
-            a_val = String(a_match.captures[1])
-            
-            # Always collect from directories to ensure updated calculation logic is used
-            println("CVaR g=$g_val a=$a_val: collecting from directories with updated calculation...")
-            local df_cvar_dirs_local = collect_cvar_from_dirs(ROOT, a_val, g_val)
-            if nrow(df_cvar_dirs_local) > 0
-                df_cvar_dirs_local.case_tag = String.(df_cvar_dirs_local.case_tag)
-                case_data = df_cvar_dirs_local[df_cvar_dirs_local.status .== "ok_final", :]
-                # Debug: print which directories were used
-                if g_val == "0.0"
-                    used_dirs = unique(case_data.risk_dir)
-                    println("  Used directories: $used_dirs")
-                    println("  Number of samples: $(nrow(case_data))")
-                    if length(used_dirs) > 1
-                        @warn "  WARNING: Multiple directories matched for g=$g_val a=$a_val: $used_dirs"
+        elseif startswith(case_tag, "CVaR")
+            # Extract gamma and alpha
+            g_match = match(r"g\s*=\s*([0-9.]+)", case_tag)
+            a_match = match(r"a\s*=\s*([0-9.]+)", case_tag)
+
+            if g_match !== nothing && a_match !== nothing
+                g_val = String(g_match.captures[1])
+                a_val = String(a_match.captures[1])
+
+                # Always collect from directories to ensure updated calculation logic is used
+                println("CVaR g=$g_val a=$a_val: collecting from directories with updated calculation...")
+                local df_cvar_dirs_local = collect_cvar_from_dirs(ROOT, a_val, g_val)
+                if nrow(df_cvar_dirs_local) > 0
+                    df_cvar_dirs_local.case_tag = String.(df_cvar_dirs_local.case_tag)
+                    case_data = df_cvar_dirs_local[df_cvar_dirs_local.status .== "ok_final", :]
+                    # Debug: print which directories were used
+                    if g_val == "0.0"
+                        used_dirs = unique(case_data.risk_dir)
+                        println("  Used directories: $used_dirs")
+                        println("  Number of samples: $(nrow(case_data))")
+                        if length(used_dirs) > 1
+                            @warn "  WARNING: Multiple directories matched for g=$g_val a=$a_val: $used_dirs"
+                        end
                     end
                 end
             end
         end
-    end
-    
-    if nrow(case_data) == 0
-        @warn "No data found for case: $case_tag"
-        push!(cases_data, (case_tag, Float64[]))
-        continue
-    end
-    
-    # Extract data and ensure unique samples (by sample ID)
-    # Remove duplicates based on sample ID, keeping the first occurrence
-    if hasproperty(case_data, :sample)
-        # Remove duplicate samples, keeping the first occurrence
-        unique_case_data = case_data[.!nonunique(case_data, :sample), :]
-        if nrow(unique_case_data) < nrow(case_data)
-            println("  Removed $(nrow(case_data) - nrow(unique_case_data)) duplicate samples")
+
+        if nrow(case_data) == 0
+            @warn "No data found for case: $case_tag"
+            push!(cases_data, (case_tag, Float64[]))
+            continue
         end
-        case_data = unique_case_data
+
+        # Extract data and ensure unique samples (by sample ID)
+        # Remove duplicates based on sample ID, keeping the first occurrence
+        if hasproperty(case_data, :sample)
+            # Remove duplicate samples, keeping the first occurrence
+            unique_case_data = case_data[.!nonunique(case_data, :sample), :]
+            if nrow(unique_case_data) < nrow(case_data)
+                println("  Removed $(nrow(case_data) - nrow(unique_case_data)) duplicate samples")
+            end
+            case_data = unique_case_data
+        end
+
+        # Limit to 128 samples if more than that
+        if nrow(case_data) > 128
+            println("  Warning: $(nrow(case_data)) samples found, limiting to 128")
+            case_data = case_data[1:128, :]
+        end
+
+        # Extract data
+        data = collect(skipmissing(case_data.last_inj_rate))
+        println("\nCase $case_tag: $(length(data)) samples")
+
+        # Store data
+        push!(cases_data, (case_tag, data))
     end
-    
-    # Limit to 128 samples if more than that
-    if nrow(case_data) > 128
-        println("  Warning: $(nrow(case_data)) samples found, limiting to 128")
-        case_data = case_data[1:128, :]
+
+    # Plot Panel 1: Histogram + KDE
+    if length(cases_data) > 0
+        mkpath(OUTDIR)
+        suffix = USE_GAMMA_ZERO_ROW2 ? "_gamma0_row2" : ""
+        filename1 = joinpath(OUTDIR, "panel1_histogram_kde_4x3$(suffix)_$(ts).png")
+        plot_histogram_kde_panel(cases_data, filename1; kde_bandwidth=KDE_BANDWIDTH, nbins=NBINS)
     end
-    
-    # Extract data
-    data = collect(skipmissing(case_data.last_inj_rate))
-    println("\nCase $case_tag: $(length(data)) samples")
-    
-    # Store data
-    push!(cases_data, (case_tag, data))
-end
 
-# Plot Panel 1: Histogram + KDE
-if length(cases_data) > 0
-    mkpath(OUTDIR)
-    suffix = USE_GAMMA_ZERO_ROW2 ? "_gamma0_row2" : ""
-    filename1 = joinpath(OUTDIR, "panel1_histogram_kde_4x3$(suffix)_$(ts).png")
-    plot_histogram_kde_panel(cases_data, filename1; kde_bandwidth=KDE_BANDWIDTH, nbins=NBINS)
-end
+    # Plot Panel 2: CDF + CI
+    if length(cases_data) > 0
+        suffix = USE_GAMMA_ZERO_ROW2 ? "_gamma0_row2" : ""
+        filename2 = joinpath(OUTDIR, "panel2_cdf_ci_4x3$(suffix)_$(ts).png")
+        plot_cdf_ci_panel(cases_data, filename2; kde_bandwidth=KDE_BANDWIDTH,
+                         num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
+    end
 
-# Plot Panel 2: CDF + CI
-if length(cases_data) > 0
-    suffix = USE_GAMMA_ZERO_ROW2 ? "_gamma0_row2" : ""
-    filename2 = joinpath(OUTDIR, "panel2_cdf_ci_4x3$(suffix)_$(ts).png")
-    plot_cdf_ci_panel(cases_data, filename2; kde_bandwidth=KDE_BANDWIDTH, 
-                     num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
-end
+    # Plot Panel 3: CDF + CI Zoom-in
+    if length(cases_data) > 0
+        suffix = USE_GAMMA_ZERO_ROW2 ? "_gamma0_row2" : ""
+        filename3 = joinpath(OUTDIR, "panel3_cdf_ci_zoom_4x3$(suffix)_$(ts).png")
+        plot_cdf_ci_zoom_panel(cases_data, filename3; kde_bandwidth=KDE_BANDWIDTH,
+                               num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
+    end
 
-# Plot Panel 3: CDF + CI Zoom-in
-if length(cases_data) > 0
-    suffix = USE_GAMMA_ZERO_ROW2 ? "_gamma0_row2" : ""
-    filename3 = joinpath(OUTDIR, "panel3_cdf_ci_zoom_4x3$(suffix)_$(ts).png")
-    plot_cdf_ci_zoom_panel(cases_data, filename3; kde_bandwidth=KDE_BANDWIDTH, 
-                           num_grid=NUM_GRID, conf_level=CONF_LEVEL, threshold=FRACTURE_PROB_THRESHOLD)
+    println("\nDone.")
 end
-
-println("\nDone.")

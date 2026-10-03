@@ -1,8 +1,8 @@
 using DrWatson
 @quickactivate "optim_injr_DT"
 
-# Here you may include files from the source directory
-include(srcdir("dummy_src_file.jl"))
+# Load the retained DrWatson tutorial example.
+include(joinpath(@__DIR__, "..", "archive", "dummy_src_file.jl"))
 
 println(
 """
